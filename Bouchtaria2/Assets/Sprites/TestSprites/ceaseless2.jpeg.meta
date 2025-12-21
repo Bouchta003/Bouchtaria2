@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 933a14a33a3e5344c92c3b7c6512c0c0
+guid: 19a398c5676aeaa4cbb3691f6ae763e5
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3955955973045199795
-    second: 306d695e1d5e28b81dd63d54207b9215_0
+      213: 4202850401516707156
+    second: ceaseless2_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 306d695e1d5e28b81dd63d54207b9215_0
+      name: ceaseless2_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 236
-        height: 314
+        width: 181
+        height: 121
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d4c5e87800f9919c0800000000000000
-      internalID: -3955955973045199795
+      spriteID: 45dd28a2c26835a30800000000000000
+      internalID: 4202850401516707156
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      306d695e1d5e28b81dd63d54207b9215_0: -3955955973045199795
+      ceaseless2_0: 4202850401516707156
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

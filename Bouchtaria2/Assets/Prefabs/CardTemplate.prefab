@@ -211,10 +211,10 @@ Transform:
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 6118102761395534290}
   - {fileID: 5898216601215598733}
   - {fileID: 5217257349360882078}
   - {fileID: 3440552495656597116}
+  - {fileID: 6118102761395534290}
   - {fileID: 7098272212268643480}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -390,7 +390,7 @@ GameObject:
   - component: {fileID: 7098272212268643480}
   - component: {fileID: 9106738069904245945}
   m_Layer: 0
-  m_Name: FG_0
+  m_Name: Artwork
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -406,7 +406,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.0307, y: 0.0461, z: 0}
-  m_LocalScale: {x: 1.0804843, y: 1.0422587, z: 1}
+  m_LocalScale: {x: 0.9525617, y: 0.95256406, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 729019596808238651}
@@ -458,11 +458,11 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 3381605941112596987, guid: e6cde698491c0f740914dc0de378bebc, type: 3}
+  m_Sprite: {fileID: 8957324059118975939, guid: 3963823e408c05e4ea39f31b07eb7c03, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
-  m_DrawMode: 0
+  m_DrawMode: 1
   m_Size: {x: 5.27, y: 7.8}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
