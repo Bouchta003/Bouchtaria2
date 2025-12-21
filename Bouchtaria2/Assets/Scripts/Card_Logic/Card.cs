@@ -1,21 +1,43 @@
-using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Card : MonoBehaviour
 {
     Collider2D col;
     Vector3 startDragPosition;
+    EnemyCardDropArea enemyCardDropArea;
+    AllyCardDropArea allyCardDropArea;
+    HandManager handManager;
+
+    bool isDragging; // 🔑 NEW
+
+    void Awake()
+    {
+        handManager = FindFirstObjectByType<HandManager>();
+    }
 
     void Start()
     {
         col = GetComponent<Collider2D>();
+        enemyCardDropArea = FindFirstObjectByType<EnemyCardDropArea>();
+        allyCardDropArea = FindFirstObjectByType<AllyCardDropArea>();
+    }
+
+    void OnMouseEnter()
+    {
+        if (isDragging) return;
+        handManager.RaiseCard(gameObject, 50); // hover
     }
 
     private void OnMouseDown()
     {
+        isDragging = true;
+
         startDragPosition = transform.position;
         transform.position = GetMousePositionInWorldSpace();
+
+        handManager.RaiseCard(gameObject, 500); // drag (topmost)
     }
+
     private void OnMouseDrag()
     {
         transform.position = GetMousePositionInWorldSpace();
@@ -30,20 +52,65 @@ public class Card : MonoBehaviour
 
     private void OnMouseUp()
     {
+        isDragging = false;
+
         col.enabled = false;
-        Collider2D hitCollider = Physics2D.OverlapPoint(transform.position);
+
+        Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Collider2D hitCollider = Physics2D.OverlapPoint(mouseWorldPos);
+
         col.enabled = true;
-        if(hitCollider != null && hitCollider.TryGetComponent(out ICardDropArea cardDropArea))
+
+        if (hitCollider == null)
         {
-            cardDropArea.OnCardDrop(this);
-        }else
-        {
-            transform.position = startDragPosition;
+            ResetCard();
+            return;
         }
+
+        if (!hitCollider.TryGetComponent(out ICardDropArea cardDropArea))
+        {
+            ResetCard();
+            return;
+        }
+
+        if (hitCollider.CompareTag("Ally"))
+        {
+            if (allyCardDropArea.allyPrefabCards.Count < allyCardDropArea.maxBoardSize)
+            {
+                cardDropArea.OnCardDrop(this);
+                return;
+            }
+
+            Debug.Log("No more space for allies bro");
+            ResetCard();
+            return;
+        }
+
+        if (hitCollider.CompareTag("Enemy"))
+        {
+            if (enemyCardDropArea.enemyPrefabCards.Count < enemyCardDropArea.maxBoardSize)
+            {
+                cardDropArea.OnCardDrop(this);
+                return;
+            }
+
+            Debug.Log("No more space for enemies bro");
+            ResetCard();
+            return;
+        }
+
+        ResetCard();
     }
-    // Update is called once per frame
-    void Update()
+
+    void OnMouseExit()
     {
-        
+        if (isDragging) return;
+        handManager.RestoreCardOrder();
+    }
+
+    void ResetCard()
+    {
+        transform.position = startDragPosition;
+        handManager.RestoreCardOrder();
     }
 }
