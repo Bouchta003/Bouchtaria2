@@ -31,7 +31,10 @@ public class FirestoreManager : MonoBehaviour
     public void Initialize(string userId)
     {
         db = FirebaseFirestore.DefaultInstance;
-        CreateOrLoadUser(userId);
+        CreateOrLoadUser(userId); 
+        CardDatabase.Instance.Initialize();
+        UserCollectionManager.Instance.Initialize(userId);
+
     }
     public void CreateOrLoadUser(string userId)
     {
