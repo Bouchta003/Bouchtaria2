@@ -28,12 +28,61 @@ public class AuthManager : MonoBehaviour
         if (auth.CurrentUser != null)
         {
             Debug.Log("✅ Existing user detected");
-            Debug.Log($"User ID: {auth.CurrentUser.UserId}");
+            Debug.Log($"UID: {auth.CurrentUser.UserId}");
+            OnAuthReady();
             return;
         }
 
         SignInAnonymously();
     }
+    private void OnAuthReady()
+    {
+        string uid = auth.CurrentUser.UserId;
+
+        FirestoreManager.Instance.Initialize(uid);
+    }
+
+
+    // 🔹 TEST 1 — Anonymous login
+    public void SignInAnonymously()
+    {
+        auth.SignInAnonymouslyAsync().ContinueWith(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.LogError("❌ Anonymous login failed");
+                Debug.LogError(task.Exception);
+                return;
+            }
+
+            Debug.Log("✅ Anonymous login success");
+            Debug.Log($"UID: {task.Result.User.UserId}");
+
+            OnAuthReady();
+        });
+    }
+
+
+    // 🔹 TEST 2 — Email account creation
+    public void CreateEmailAccount(string email, string password)
+    {
+        auth.CreateUserWithEmailAndPasswordAsync(email, password)
+            .ContinueWith(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("❌ Account creation failed");
+                    Debug.LogError(task.Exception);
+                    return;
+                }
+
+                Debug.Log("✅ Email account created");
+                Debug.Log($"UID: {task.Result.User.UserId}"); 
+                OnAuthReady();
+            });
+    }
+
+    // 🔹 TEST 3 — Email login
     public void SignInWithEmail(string email, string password)
     {
         auth.SignInWithEmailAndPasswordAsync(email, password)
@@ -46,49 +95,18 @@ public class AuthManager : MonoBehaviour
                     return;
                 }
 
-                Debug.Log("✅ Email login successful");
-                Debug.Log($"User ID: {task.Result.User.UserId}");
-            });
-    }
+                Debug.Log("✅ Email login success");
+                Debug.Log($"UID: {task.Result.User.UserId}");
 
-    private void SignInAnonymously()
-    {
-        auth.SignInAnonymouslyAsync().ContinueWith(task =>
-        {
-            if (task.IsFaulted)
-            {
-                Debug.LogError("❌ Anonymous sign-in failed");
-                return;
-            }
-
-            Debug.Log("✅ Signed in anonymously");
-            Debug.Log($"User ID: {task.Result.User.UserId}");
+                OnAuthReady(); // 🔥 REQUIRED
         });
     }
-    public void LinkAnonymousAccount(string email, string password)
+
+
+    // 🔹 Utility (important for clean tests)
+    public void SignOut()
     {
-        if (auth.CurrentUser == null || !auth.CurrentUser.IsAnonymous)
-        {
-            Debug.LogWarning("⚠️ No anonymous user to link");
-            return;
-        }
-
-        Credential credential =
-            EmailAuthProvider.GetCredential(email, password);
-
-        auth.CurrentUser.LinkWithCredentialAsync(credential)
-            .ContinueWith(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    Debug.LogError("❌ Account linking failed");
-                    Debug.LogError(task.Exception);
-                    return;
-                }
-
-                Debug.Log("🔗 Anonymous account successfully linked!");
-                Debug.Log($"User ID (same): {task.Result.User.UserId}");
-            });
+        auth.SignOut();
+        Debug.Log("🚪 Signed out");
     }
-
 }

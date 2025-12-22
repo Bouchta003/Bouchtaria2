@@ -6,7 +6,7 @@ public class GameFlowController : MonoBehaviour
     private bool cardsReady;
     private bool collectionReady;
 
-    void Start()
+    public void MoveToCollection()
     {
         CardDatabase.Instance.OnCardsLoaded += OnCardsLoaded;
         UserCollectionManager.Instance.OnCollectionReady += OnCollectionReady;
