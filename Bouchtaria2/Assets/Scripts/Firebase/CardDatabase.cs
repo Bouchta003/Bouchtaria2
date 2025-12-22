@@ -12,6 +12,8 @@ public class CardDatabase : MonoBehaviour
 
     public IReadOnlyDictionary<int, CardData> Cards => cards;
 
+    public bool IsReady { get; private set; }
+    public event System.Action OnCardsLoaded;
 
     void Awake()
     {
@@ -49,6 +51,9 @@ public class CardDatabase : MonoBehaviour
             }
 
             Debug.Log($"✅ Loaded {cards.Count} cards");
+            IsReady = true;
+            OnCardsLoaded?.Invoke();
+
         });
     }
     private CardData ParseCard(DocumentSnapshot doc)

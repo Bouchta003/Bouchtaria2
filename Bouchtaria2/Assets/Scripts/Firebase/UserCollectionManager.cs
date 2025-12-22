@@ -16,10 +16,13 @@ public class UserCollectionManager : MonoBehaviour
     private FirebaseFirestore db;
     private string userId;
 
+    public bool IsReady { get; private set; }
+    public event System.Action OnCollectionReady;
+
     // cardId -> OwnedCard
     private Dictionary<int, OwnedCard> collection = new Dictionary<int, OwnedCard>();
     public IReadOnlyDictionary<int, OwnedCard> Collection => collection;
-
+    #region INITIALIZATION
     void Awake()
     {
         if (Instance == null)
@@ -121,6 +124,8 @@ public class UserCollectionManager : MonoBehaviour
         {
             Debug.Log("✅ Collection already up-to-date");
         }
+        IsReady = true;
+        OnCollectionReady?.Invoke();
     }
 
     // ===== Helpers =====
@@ -143,4 +148,34 @@ public class UserCollectionManager : MonoBehaviour
           .Document(cardId.ToString())
           .UpdateAsync("owned", owned);
     }
+    #endregion
+    /// <summary>
+    /// Unlocks a card for the player if not already owned.
+    /// Safe to call multiple times.
+    /// </summary>
+    public void UnlockCard(int cardId)
+    {
+        if (!collection.ContainsKey(cardId))
+        {
+            Debug.LogWarning($"⚠️ Tried to unlock unknown card ID: {cardId}");
+            return;
+        }
+
+        if (collection[cardId].owned)
+        {
+            // Already unlocked → do nothing
+            return;
+        }
+
+        collection[cardId].owned = true;
+
+        db.Collection("users")
+          .Document(userId)
+          .Collection("collection")
+          .Document(cardId.ToString())
+          .UpdateAsync("owned", true);
+
+        Debug.Log($"🔓 Card unlocked: {cardId}");
+    }
+
 }
