@@ -6,12 +6,13 @@ public class CollectionScreen : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform gridRoot;
     [SerializeField] private CardView cardViewPrefab;
+    [SerializeField] private Transform layoutAnchor;
 
     [Header("Pagination")]
     [SerializeField] private int cardsPerPage = 4;
     [SerializeField] private int cardsPerRow = 2;
-    [SerializeField] private float spacingX = 2.2f;
-    [SerializeField] private float spacingY = 3.2f;
+    [SerializeField] private float spacingX = 4f;
+    [SerializeField] private float spacingY = 5f;
 
     private List<CardData> allCards;
     private int currentPage = 0;
@@ -40,6 +41,13 @@ public class CollectionScreen : MonoBehaviour
 
         int startIndex = currentPage * cardsPerPage;
         int endIndex = Mathf.Min(startIndex + cardsPerPage, allCards.Count);
+        Vector2 pageSize = GetFixedPageDimensions();
+
+        Vector3 pageOffset = new Vector3(
+            -pageSize.x / 2f,
+            pageSize.y / 2f,
+            0f
+        );
 
         int visibleIndex = 0;
 
@@ -47,14 +55,23 @@ public class CollectionScreen : MonoBehaviour
         {
             CardData card = allCards[i];
 
-            Vector3 position = CalculateGridPosition(visibleIndex);
+            int row = visibleIndex / cardsPerRow;
+            int col = visibleIndex % cardsPerRow;
+
+            Vector3 localPos = new Vector3(
+                col * spacingX,
+                -row * spacingY,
+                0f
+            );
 
             CardView view = Instantiate(cardViewPrefab, gridRoot);
-            view.transform.localPosition = position;
-            view.Setup(card);
+            view.transform.position =
+                layoutAnchor.position + pageOffset + localPos;
 
+            view.Setup(card);
             visibleIndex++;
         }
+
 
         Debug.Log($"📄 Page {currentPage + 1} / {GetMaxPageIndex() + 1}");
     }
@@ -91,23 +108,23 @@ public class CollectionScreen : MonoBehaviour
         Debug.Log("Previous page");
         ShowPage(currentPage - 1);
     }
-
-    private void PopulateAllCards()
+    private Vector2 GetPageDimensions(int visibleCardCount)
     {
-        int index = 0;
+        int rows = Mathf.CeilToInt((float)visibleCardCount / cardsPerRow);
 
-        foreach (var card in CardDatabase.Instance.Cards.Values)
-        {
-            Vector3 position = CalculateGridPosition(index);
+        float width = (cardsPerRow - 1) * spacingX;
+        float height = (rows - 1) * spacingY;
 
-            CardView view = Instantiate(cardViewPrefab, gridRoot);
-            view.transform.localPosition = position;
-            view.Setup(card);
+        return new Vector2(width, height);
+    }
+    private Vector2 GetFixedPageDimensions()
+    {
+        int totalRows = Mathf.CeilToInt((float)cardsPerPage / cardsPerRow);
 
-            index++;
-        }
+        float width = (cardsPerRow - 1) * spacingX;
+        float height = (totalRows - 1) * spacingY;
 
-        Debug.Log($"🃏 Collection loaded ({index} total cards)");
+        return new Vector2(width, height);
     }
 
 }

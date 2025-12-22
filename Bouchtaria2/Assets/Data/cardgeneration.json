@@ -32,6 +32,22 @@
       "token": false,
       "signature": false
     },
+    "2": {
+      "id": 2,
+      "name": "Skippi",
+      "cardType": "spell",
+      "manaCost": 2,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "mage" ],
+      "effect": "deal2",
+      "effectText": "Deals 2 damage to anyone",
+      "artPath": "CardArt/skippi",
+      "artCompactPath": "CardArt/skippi_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
+    },
     "3": {
       "id": 3,
       "name": "Coin",
@@ -140,6 +156,22 @@
       "effectText": "Put ALL minions to sleep on death",
       "artPath": "CardArt/wigglytuff",
       "artCompactPath": "CardArt/wigglytuff_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
+    },
+    "10": {
+      "id": 10,
+      "name": "Gardi",
+      "cardType": "spell",
+      "manaCost": 1,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "tank" ],
+      "effect": "heal2",
+      "effectText": "Heals 2 damage to anyone",
+      "artPath": "CardArt/gardi",
+      "artCompactPath": "CardArt/gardi_compact",
       "packable": true,
       "token": false,
       "signature": false

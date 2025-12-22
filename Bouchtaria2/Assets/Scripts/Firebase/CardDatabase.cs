@@ -9,6 +9,7 @@ public class CardDatabase : MonoBehaviour
 
     private FirebaseFirestore db; 
     private Dictionary<int, CardData> cards = new Dictionary<int, CardData>();
+    private Sprite defaultCardArt;
 
     public IReadOnlyDictionary<int, CardData> Cards => cards;
 
@@ -31,8 +32,16 @@ public class CardDatabase : MonoBehaviour
     public void Initialize()
     {
         db = FirebaseFirestore.DefaultInstance;
+
+        defaultCardArt = Resources.Load<Sprite>("CardArt/default");
+        if (defaultCardArt == null)
+        {
+            Debug.LogError("❌ Default card art not found at Resources/CardArt/default");
+        }
+
         LoadAllCards();
     }
+
 
     private void LoadAllCards()
     {
@@ -85,13 +94,16 @@ public class CardDatabase : MonoBehaviour
         card.signature = doc.GetValue<bool>("signature");
 
         // Load sprite locally
-        card.artSprite = Resources.Load<Sprite>(card.artPath);
+        if (!string.IsNullOrEmpty(card.artPath))
+        {
+            card.artSprite = Resources.Load<Sprite>(card.artPath);
+        }
 
         if (card.artSprite == null)
         {
-            Debug.LogWarning($"⚠️ Missing sprite at path: {card.artPath}");
+            card.artSprite = defaultCardArt;
+            Debug.LogWarning($"⚠️ Missing art for card {card.id}, using default");
         }
-
         return card;
     }
 
