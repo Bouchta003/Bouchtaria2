@@ -25,7 +25,7 @@ public class Card : MonoBehaviour
     void OnMouseEnter()
     {
         if (isDragging) return;
-        handManager.RaiseCard(gameObject, 50); // hover
+        if(handManager!=null)handManager.RaiseCard(gameObject, 50); // hover
     }
 
     private void OnMouseDown()
@@ -35,7 +35,7 @@ public class Card : MonoBehaviour
         startDragPosition = transform.position;
         transform.position = GetMousePositionInWorldSpace();
 
-        handManager.RaiseCard(gameObject, 500); // drag (topmost)
+        if(handManager!=null)handManager.RaiseCard(gameObject, 500); // drag (topmost)
     }
 
     private void OnMouseDrag()
@@ -105,12 +105,12 @@ public class Card : MonoBehaviour
     void OnMouseExit()
     {
         if (isDragging) return;
-        handManager.RestoreCardOrder();
+        if(handManager!=null)handManager.RestoreCardOrder();
     }
 
     void ResetCard()
     {
         transform.position = startDragPosition;
-        handManager.RestoreCardOrder();
+        if(handManager!=null)handManager.RestoreCardOrder();
     }
 }
