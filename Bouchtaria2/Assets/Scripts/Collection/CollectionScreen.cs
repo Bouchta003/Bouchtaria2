@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class CollectionScreen : MonoBehaviour
 {
@@ -7,6 +8,7 @@ public class CollectionScreen : MonoBehaviour
     [SerializeField] private Transform gridRoot;
     [SerializeField] private CardView cardViewPrefab;
     [SerializeField] private Transform layoutAnchor;
+    [SerializeField] private TextMeshProUGUI ownedButtonLabel;
 
     [Header("Pagination")]
     [SerializeField] private int cardsPerPage = 4;
@@ -16,6 +18,13 @@ public class CollectionScreen : MonoBehaviour
 
     private List<CardData> allCards;
     private int currentPage = 0;
+    private CollectionFilter currentFilter = CollectionFilter.All;
+
+    private enum CollectionFilter
+    {
+        All,
+        OwnedOnly
+    }
 
     void Start()
     {
@@ -28,19 +37,27 @@ public class CollectionScreen : MonoBehaviour
         ShowPage(0);
         //PopulateAllCards();
     }
-
+    private void Update()
+    {
+        if (currentFilter == CollectionFilter.All) ownedButtonLabel.text = "All \nCards";
+        else ownedButtonLabel.text = "Owned Cards";
+    }
     private void ShowPage(int pageIndex)
     {
         ClearGrid();
 
+        // 🔹 Get cards based on current filter (ALL or OWNED)
+        List<CardData> filteredCards = GetFilteredCards();
+
         currentPage = Mathf.Clamp(
             pageIndex,
             0,
-            GetMaxPageIndex()
+            GetMaxPageIndex(filteredCards)
         );
 
         int startIndex = currentPage * cardsPerPage;
-        int endIndex = Mathf.Min(startIndex + cardsPerPage, allCards.Count);
+        int endIndex = Mathf.Min(startIndex + cardsPerPage, filteredCards.Count);
+
         Vector2 pageSize = GetFixedPageDimensions();
 
         Vector3 pageOffset = new Vector3(
@@ -53,7 +70,7 @@ public class CollectionScreen : MonoBehaviour
 
         for (int i = startIndex; i < endIndex; i++)
         {
-            CardData card = allCards[i];
+            CardData card = filteredCards[i];
 
             int row = visibleIndex / cardsPerRow;
             int col = visibleIndex % cardsPerRow;
@@ -72,50 +89,24 @@ public class CollectionScreen : MonoBehaviour
             visibleIndex++;
         }
 
-
-        Debug.Log($"📄 Page {currentPage + 1} / {GetMaxPageIndex() + 1}");
-    }
-    private Vector3 CalculateGridPosition(int index)
-    {
-        int row = index / cardsPerRow;
-        int col = index % cardsPerRow;
-
-        return new Vector3(
-            col * spacingX,
-            -row * spacingY,
-            0f
+        Debug.Log(
+            $"📄 Page {currentPage + 1} / {GetMaxPageIndex(filteredCards) + 1} | Filter: {currentFilter}"
         );
     }
+    private int GetMaxPageIndex(List<CardData> cards)
+    {
+        return Mathf.Max(
+            0,
+            Mathf.CeilToInt((float)cards.Count / cardsPerPage) - 1
+        );
+    }
+
     private void ClearGrid()
     {
         for (int i = gridRoot.childCount - 1; i >= 0; i--)
         {
             Destroy(gridRoot.GetChild(i).gameObject);
         }
-    }
-    private int GetMaxPageIndex()
-    {
-        return Mathf.Max(0, Mathf.CeilToInt((float)allCards.Count / cardsPerPage) - 1);
-    }
-    public void NextPage()
-    {
-        Debug.Log("Next page");
-        ShowPage(currentPage + 1);
-    }
-
-    public void PreviousPage()
-    {
-        Debug.Log("Previous page");
-        ShowPage(currentPage - 1);
-    }
-    private Vector2 GetPageDimensions(int visibleCardCount)
-    {
-        int rows = Mathf.CeilToInt((float)visibleCardCount / cardsPerRow);
-
-        float width = (cardsPerRow - 1) * spacingX;
-        float height = (rows - 1) * spacingY;
-
-        return new Vector2(width, height);
     }
     private Vector2 GetFixedPageDimensions()
     {
@@ -126,5 +117,42 @@ public class CollectionScreen : MonoBehaviour
 
         return new Vector2(width, height);
     }
+    private List<CardData> GetFilteredCards()
+    {
+        List<CardData> result = new List<CardData>();
+
+        foreach (var card in CardDatabase.Instance.Cards.Values)
+        {
+            if (currentFilter == CollectionFilter.OwnedOnly &&
+                !UserCollectionManager.Instance.IsOwned(card.id))
+            {
+                continue;
+            }
+
+            result.Add(card);
+        }
+
+        return result;
+    }
+    public void NextPage()
+    {
+        Debug.Log("Next page");
+        ShowPage(currentPage + 1);
+    }
+    public void PreviousPage()
+    {
+        Debug.Log("Previous page");
+        ShowPage(currentPage - 1);
+    }
+    public void ToggleOwnedFilter()
+    {
+        currentFilter = currentFilter == CollectionFilter.All
+            ? CollectionFilter.OwnedOnly
+            : CollectionFilter.All;
+
+        currentPage = 0;
+        ShowPage(0);
+    }
+
 
 }
