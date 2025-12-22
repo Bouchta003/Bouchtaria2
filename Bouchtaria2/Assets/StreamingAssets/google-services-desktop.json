@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "138956992282",
+    "project_id": "bouchtaria2",
+    "storage_bucket": "bouchtaria2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:138956992282:android:5a96b518baf40fee7a06a3",
+        "android_client_info": {
+          "package_name": "com.bouchta.bouchtaria"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "138956992282-8hrte8mpt7tuqn49n6cele9a6gttm1fr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAs-3NQnkT0q3I5uxVUV4iNNsEQK9eNXQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "138956992282-8hrte8mpt7tuqn49n6cele9a6gttm1fr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
