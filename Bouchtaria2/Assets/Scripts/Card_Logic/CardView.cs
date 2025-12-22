@@ -7,7 +7,9 @@ public class CardView : MonoBehaviour
     [Header("Sprite References")]
     [SerializeField] private SpriteRenderer cardSpriteRenderer;
     [SerializeField] private SpriteRenderer frameRenderer;
-    [SerializeField] private SpriteRenderer manaFrameRenderer;
+    [SerializeField] private SpriteRenderer frameRenderer2;
+    [SerializeField] private SpriteRenderer manaFrameRenderer1;
+    [SerializeField] private SpriteRenderer manaFrameRenderer2;
     [SerializeField] private SpriteRenderer atkFrameRenderer;
     [SerializeField] private SpriteRenderer hpFrameRenderer;
     [SerializeField] private GameObject lockOverlay;
@@ -43,21 +45,35 @@ public class CardView : MonoBehaviour
     {
         // Default color
         frameRenderer.color = Color.white;
-        manaFrameRenderer.color = Color.white;
+        frameRenderer2.color = Color.white;
+        manaFrameRenderer1.color = Color.white;
+        manaFrameRenderer2.color = Color.white;
         atkFrameRenderer.color = Color.white;
         hpFrameRenderer.color = Color.white;
 
         if (card.traits == null || card.traits.Count == 0)
             return;
 
-        string trait = card.traits[0].ToLowerInvariant();
+        string trait1 = card.traits[0].ToLowerInvariant();
 
-        if (TraitColors.TryGetValue(trait, out Color color))
+        if (TraitColors.TryGetValue(trait1, out Color color))
         {
             frameRenderer.color = color;
-            manaFrameRenderer.color = color;
+            frameRenderer2.color = color;
+            manaFrameRenderer1.color = color;
+            manaFrameRenderer2.color = color;
             atkFrameRenderer.color = color;
             hpFrameRenderer.color = color;
+        }
+        if (card.traits.Count > 1)
+        {
+            string trait2 = card.traits[1].ToLowerInvariant();
+            if (TraitColors.TryGetValue(trait2, out Color color2))
+            {
+                frameRenderer2.color = color2;
+                manaFrameRenderer2.color = color2;
+                hpFrameRenderer.color = color2;
+            }
         }
     }
 

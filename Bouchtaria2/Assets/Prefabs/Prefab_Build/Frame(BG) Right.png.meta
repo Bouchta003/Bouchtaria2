@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 8ab725f5fb76ed24eab7820331f47811
+guid: 123f8d934593c8a4384f6cf2961579a6
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -52,7 +52,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteBorder: {x: 0, y: 0, z: 302, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -103,9 +103,9 @@ TextureImporter:
       name: Subtract 1_0
       rect:
         serializedVersion: 2
-        x: 302
+        x: 0
         y: 0
-        width: 301
+        width: 302
         height: 850
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -126,7 +126,7 @@ TextureImporter:
     physicsShape: []
     bones: []
     spriteID: 4ae039503fc476c45a9291c43745aa57
-    internalID: 0
+    internalID: -1218282315
     vertices: []
     indices: 
     edges: []
