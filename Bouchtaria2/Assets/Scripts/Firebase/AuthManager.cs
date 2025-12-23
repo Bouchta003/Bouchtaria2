@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 using Firebase.Auth;
+using Firebase.Extensions;
+using TMPro;
+using System;
 
 public class AuthManager : MonoBehaviour
 {
@@ -7,7 +10,14 @@ public class AuthManager : MonoBehaviour
 
     private FirebaseAuth auth;
 
-    public FirebaseUser CurrentUser => auth.CurrentUser;
+    public FirebaseUser CurrentUser
+    {
+        get
+        {
+            if (auth == null) return null;
+            return auth.CurrentUser;
+        }
+    }
 
     private void Awake()
     {
@@ -19,6 +29,48 @@ public class AuthManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+    public void LinkAnonymousAccount(string email, string password)
+    {
+        if (auth.CurrentUser == null)
+        {
+            Debug.LogError("❌ No user to link");
+            return;
+        }
+
+        if (!auth.CurrentUser.IsAnonymous)
+        {
+            Debug.LogWarning("⚠️ User already has an account");
+            return;
+        }
+
+        Credential credential =
+            EmailAuthProvider.GetCredential(email, password);
+
+        auth.CurrentUser.LinkWithCredentialAsync(credential)
+            .ContinueWith(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("❌ Account linking failed");
+                    LogAuthError(task.Exception);
+                    return;
+                }
+
+                Debug.Log("🔗 Anonymous account successfully linked");
+                Debug.Log($"UID preserved: {task.Result.User.UserId}");
+            });
+    }
+    private void LogAuthError(System.Exception e)
+    {
+        if (e is Firebase.FirebaseException firebaseEx)
+        {
+            Debug.LogError($"Firebase Auth Error Code: {firebaseEx.ErrorCode}");
+        }
+        else
+        {
+            Debug.LogError(e);
+        }
     }
 
     public void Initialize()
@@ -37,11 +89,31 @@ public class AuthManager : MonoBehaviour
     }
     private void OnAuthReady()
     {
-        string uid = auth.CurrentUser.UserId;
+        Debug.Log("🔐 OnAuthReady");
 
-        FirestoreManager.Instance.Initialize(uid);
+        string uid = auth.CurrentUser.UserId;
+        GameFlowController.Instance.InitializeForUser(uid);
     }
 
+
+    private string lastUserId = null;
+
+    private void OnAuthStateChanged(object sender, EventArgs eventArgs)
+    {
+        if (auth.CurrentUser == null)
+            return;
+
+        string uid = auth.CurrentUser.UserId;
+
+        if (uid == lastUserId)
+            return;
+
+        lastUserId = uid;
+
+        Debug.Log($"🔐 Auth stabilized for user {uid}");
+
+        OnAuthReady();
+    }
 
     // 🔹 TEST 1 — Anonymous login
     public void SignInAnonymously()
@@ -56,14 +128,22 @@ public class AuthManager : MonoBehaviour
             }
 
             Debug.Log("✅ Anonymous login success");
-            Debug.Log($"UID: {task.Result.User.UserId}");
+            Debug.Log($"UID: {task.Result.User.UserId}"); 
 
-            OnAuthReady();
         });
     }
+    public void CreateOrLinkAccount(string email, string password)
+    {
+        if (auth.CurrentUser != null && auth.CurrentUser.IsAnonymous)
+        {
+            // 🔵 UPGRADE PATH (PRESERVE DATA)
+            LinkAnonymousAccount(email, password);
+            return;
+        }
 
-
-    // 🔹 TEST 2 — Email account creation
+        // 🟢 FRESH ACCOUNT PATH
+        CreateEmailAccount(email, password);
+    }
     public void CreateEmailAccount(string email, string password)
     {
         auth.CreateUserWithEmailAndPasswordAsync(email, password)
@@ -77,12 +157,12 @@ public class AuthManager : MonoBehaviour
                 }
 
                 Debug.Log("✅ Email account created");
-                Debug.Log($"UID: {task.Result.User.UserId}"); 
-                OnAuthReady();
-            });
+                Debug.Log($"UID: {task.Result.User.UserId}");
+
+            // ❌ DO NOT call OnAuthReady here
+        });
     }
 
-    // 🔹 TEST 3 — Email login
     public void SignInWithEmail(string email, string password)
     {
         auth.SignInWithEmailAndPasswordAsync(email, password)
@@ -98,8 +178,8 @@ public class AuthManager : MonoBehaviour
                 Debug.Log("✅ Email login success");
                 Debug.Log($"UID: {task.Result.User.UserId}");
 
-                OnAuthReady(); // 🔥 REQUIRED
-        });
+                // ❌ DO NOT call OnAuthReady here
+            });
     }
 
 

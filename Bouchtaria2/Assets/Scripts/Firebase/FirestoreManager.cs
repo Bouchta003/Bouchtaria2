@@ -1,17 +1,19 @@
 ﻿using UnityEngine;
+using Firebase;
 using Firebase.Firestore;
 using Firebase.Extensions;
-using System.Collections.Generic;
+using System.Collections;
 
 public class FirestoreManager : MonoBehaviour
 {
     public static FirestoreManager Instance;
 
     private FirebaseFirestore db;
+    private bool isReady = false;
 
-    private const int CURRENT_USER_SCHEMA_VERSION = 1;
+    public bool IsReady => isReady;
 
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {
@@ -23,125 +25,72 @@ public class FirestoreManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
+        StartCoroutine(WaitForFirebase());
     }
-    void Start()
+
+    private IEnumerator WaitForFirebase()
     {
-        db = FirebaseFirestore.DefaultInstance;
-    }
-    public void Initialize(string userId)
-    {
-        db = FirebaseFirestore.DefaultInstance;
-        CreateOrLoadUser(userId);
-        CardDatabase.Instance.OnCardsLoaded += () =>
+        // 🔐 Wait until Firebase is actually initialized
+        while (FirebaseApp.DefaultInstance == null)
         {
-            UserCollectionManager.Instance.OnCollectionReady += () =>
-            {
-                Tests.ConductTest(); // SAFE HERE
-            };
+            yield return null;
+        }
 
-            UserCollectionManager.Instance.Initialize(userId);
-        };
+        db = FirebaseFirestore.DefaultInstance;
+        isReady = true;
 
-        CardDatabase.Instance.Initialize();
-
-
+        Debug.Log("🔥 Firestore initialized AFTER Firebase");
     }
-    public void CreateOrLoadUser(string userId)
+
+    public void CreateOrLoadUser(string uid, System.Action onReady)
     {
-        DocumentReference userDoc = db.Collection("users").Document(userId);
+        if (!isReady)
+        {
+            Debug.LogError("❌ Firestore not ready yet");
+            return;
+        }
+
+        Debug.Log($"📄 CreateOrLoadUser for UID: {uid}");
+
+        DocumentReference userDoc = db.Collection("users").Document(uid);
 
         userDoc.GetSnapshotAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsFaulted)
             {
-                Debug.LogError("❌ Failed to read user document: " + task.Exception);
+                Debug.LogError("❌ Failed to read user document");
+                Debug.LogException(task.Exception);
                 return;
             }
 
-            DocumentSnapshot snapshot = task.Result;
-            Dictionary<string, object> schema = GetUserSchema();
-
-            Dictionary<string, object> updates = MergeSchemaWithDocument(schema, snapshot);
-
-            // Always refresh last login
-            updates["lastLoginAt"] = Timestamp.GetCurrentTimestamp();
-
-            if (!snapshot.Exists)
+            if (!task.Result.Exists)
             {
                 Debug.Log("🆕 Creating new user document");
 
-                userDoc.SetAsync(schema).ContinueWithOnMainThread(writeTask =>
+                userDoc.SetAsync(new System.Collections.Generic.Dictionary<string, object>
                 {
-                    if (writeTask.IsFaulted)
+                    { "createdAt", Timestamp.GetCurrentTimestamp() },
+                    { "displayName", "Anonymous" }
+                })
+                .ContinueWithOnMainThread(setTask =>
+                {
+                    if (setTask.IsFaulted)
                     {
-                        Debug.LogError("❌ Failed to create user document: " + writeTask.Exception);
+                        Debug.LogError("❌ Failed to create user document");
+                        Debug.LogException(setTask.Exception);
+                        return;
                     }
-                    else
-                    {
-                        Debug.Log("✅ User document created");
-                    }
-                });
 
-                return;
+                    Debug.Log("✅ User document created");
+                    onReady?.Invoke();
+                });
             }
-
-            if (updates.Count > 0)
+            else
             {
-                userDoc.UpdateAsync(updates).ContinueWithOnMainThread(updateTask =>
-                {
-                    if (updateTask.IsFaulted)
-                    {
-                        Debug.LogError("❌ Failed to update user document: " + updateTask.Exception);
-                    }
-                    else
-                    {
-                        Debug.Log($"🔁 User schema updated ({updates.Count} fields added)");
-                    }
-                });
+                Debug.Log("✅ User already exists");
+                onReady?.Invoke();
             }
         });
-    }
-    /// <summary>
-    /// Canonical user schema.
-    /// This dictionary defines ALL expected user fields and their default values.
-    /// Used for both creation and auto-migration.
-    /// </summary>
-    private Dictionary<string, object> GetUserSchema()
-    {
-        return new Dictionary<string, object>
-    {
-        // === Identity ===
-        { "displayName", "New Player" },
-        { "createdAt", Timestamp.GetCurrentTimestamp() },
-        { "lastLoginAt", Timestamp.GetCurrentTimestamp() },
-
-        // === Economy ===
-        { "currency", 1000 },
-        { "dungeonProgression", 0 },
-        { "battlesWon", 0 },
-
-        // === Progression ===
-        { "starterDeckGiven", false }
-    };
-    }
-    /// <summary>
-    /// Merges the canonical user schema with an existing Firestore document.
-    /// Missing fields are added, existing fields are preserved.
-    /// </summary>
-    private Dictionary<string, object> MergeSchemaWithDocument(
-        Dictionary<string, object> schema,
-        DocumentSnapshot snapshot)
-    {
-        Dictionary<string, object> result = new Dictionary<string, object>();
-
-        foreach (var kvp in schema)
-        {
-            if (!snapshot.Exists || !snapshot.ContainsField(kvp.Key))
-            {
-                result[kvp.Key] = kvp.Value;
-            }
-        }
-
-        return result;
     }
 }

@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Firebase.Firestore;
 using Firebase.Extensions;
-[System.Serializable]
+
+[Serializable]
 public class OwnedCard
 {
     public int cardId;
@@ -13,53 +15,234 @@ public class UserCollectionManager : MonoBehaviour
 {
     public static UserCollectionManager Instance;
 
-    private FirebaseFirestore db;
-    private string userId;
+    public event Action OnCollectionReady;
+    public event Action OnCollectionUpdated;
 
-    public bool IsReady { get; private set; }
-    public event System.Action OnCollectionReady;
+    private FirebaseFirestore db;
+    private string uid;
+    private bool isReady;
+
+    public bool IsReady => isReady;
 
     // cardId -> OwnedCard
-    private Dictionary<int, OwnedCard> collection = new Dictionary<int, OwnedCard>();
+    private readonly Dictionary<int, OwnedCard> collection = new();
     public IReadOnlyDictionary<int, OwnedCard> Collection => collection;
-    #region INITIALIZATION
-    void Awake()
+
+    private const string COLLECTION_PATH = "cards";
+
+    #region LIFECYCLE
+    private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        if (Instance != null)
         {
             Destroy(gameObject);
+            return;
         }
-    }
 
-    public void Initialize(string userId)
-    {
-        this.userId = userId;
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
         db = FirebaseFirestore.DefaultInstance;
-        LoadAndSyncCollection();
+        Debug.Log("📚 UserCollectionManager initialized");
+    }
+    #endregion
+
+    #region PUBLIC API
+    public void Initialize(string newUid)
+    {
+        Debug.Log($"📚 Initialize collection for UID: {newUid}");
+
+        ResetForNewUser();
+        uid = newUid;
+
+        if (!CardDatabase.Instance.IsReady)
+        {
+            Debug.Log("⏳ Waiting for CardDatabase...");
+            CardDatabase.Instance.OnCardsLoaded += OnCardsLoaded;
+            return;
+        }
+
+        LoadOrCreateCollection();
     }
 
-    private void LoadAndSyncCollection()
+    public void ResetForNewUser()
     {
-        CollectionReference userCollectionRef =
-            db.Collection("users").Document(userId).Collection("collection");
+        Debug.Log("🧹 Resetting UserCollectionManager state");
 
-        userCollectionRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        uid = null;
+        isReady = false;
+        collection.Clear();
+    }
+    #endregion
+
+    #region INTERNAL FLOW
+    private void OnCardsLoaded()
+    {
+        CardDatabase.Instance.OnCardsLoaded -= OnCardsLoaded;
+        Debug.Log("✅ CardDatabase ready (callback)");
+        LoadOrCreateCollection();
+    }
+    public void InitializeForUser(string uid, System.Action onReady)
+    {
+        Debug.Log($"📚 InitializeForUser → {uid}");
+
+        ResetForNewUser();
+
+        CollectionReference colRef =
+            db.Collection("users").Document(uid).Collection("collection");
+
+        colRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsFaulted)
             {
-                Debug.LogError("❌ Failed to load user collection: " + task.Exception);
+                Debug.LogError("❌ Failed to read collection");
+                Debug.LogException(task.Exception);
+                return;
+            }
+
+            if (task.Result.Count == 0)
+            {
+                Debug.Log("🆕 No collection found → creating default");
+                CreateDefaultCollection(colRef);
+            }
+            else
+            {
+                Debug.Log("📦 Existing collection found → loading");
+                LoadExistingCollection(task.Result);
+            }
+
+            OnCollectionReady += onReady;
+        });
+    }
+    private void MarkReady()
+    {
+        Debug.Log("📦 Collection READY");
+        OnCollectionReady?.Invoke();
+    }
+
+
+    private void LoadExistingCollection(QuerySnapshot snapshot)
+    {
+        collection.Clear();
+
+        foreach (var doc in snapshot.Documents)
+        {
+            int cardId = int.Parse(doc.Id);
+            bool owned = doc.GetValue<bool>("owned");
+
+            collection[cardId] = new OwnedCard
+            {
+                cardId = cardId,
+                owned = owned
+            };
+        }
+
+        Debug.Log($"📦 Loaded collection ({collection.Count} cards)");
+        MarkReady();
+    }
+
+    private void LoadOrCreateCollection()
+    {
+        Debug.Log("📦 Loading user collection...");
+
+        CollectionReference colRef =
+            db.Collection("users").Document(uid).Collection(COLLECTION_PATH);
+
+        colRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.LogError("❌ Failed to read collection");
+                Debug.LogException(task.Exception);
+                return;
+            }
+
+            if (task.Result.Count == 0)
+            {
+                Debug.Log("🆕 No cards found → creating default collection");
+                CreateDefaultCollection(colRef);
+            }
+            else
+            {
+                LoadCollection(task.Result);
+            }
+        });
+    }
+
+    public void CreateDefaultCollection(CollectionReference colRef)
+    {
+        WriteBatch batch = db.StartBatch();
+
+        collection.Clear();
+
+        foreach (var kvp in CardDatabase.Instance.Cards)
+        {
+            int cardId = kvp.Key;
+
+            // change this rule if you want different starters
+            bool owned = false;
+
+            batch.Set(
+                colRef.Document(cardId.ToString()),
+                new Dictionary<string, object>
+                {
+                    { "owned", owned }
+                }
+            );
+
+            collection[cardId] = new OwnedCard
+            {
+                cardId = cardId,
+                owned = owned
+            };
+        }
+
+        batch.CommitAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.LogError("❌ Failed to create default collection");
+                Debug.LogException(task.Exception);
+                return;
+            }
+
+            Debug.Log($"✅ Default collection created ({collection.Count} cards)");
+            MarkReady();
+        });
+    }
+
+    private void LoadCollection(QuerySnapshot snapshot)
+    {
+        collection.Clear();
+
+        foreach (DocumentSnapshot doc in snapshot.Documents)
+        {
+            int cardId = int.Parse(doc.Id);
+            bool owned = doc.GetValue<bool>("owned");
+
+            collection[cardId] = new OwnedCard
+            {
+                cardId = cardId,
+                owned = owned
+            };
+        }
+
+        Debug.Log($"📦 Collection loaded ({collection.Count} cards)");
+        MarkReady();
+    }
+    public void LoadCollectionFromFirestore(CollectionReference colRef)
+    {
+        colRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.LogError("❌ Failed to load collection");
                 return;
             }
 
             collection.Clear();
 
-            // 1️⃣ Load existing collection
-            foreach (DocumentSnapshot doc in task.Result.Documents)
+            foreach (var doc in task.Result.Documents)
             {
                 int cardId = int.Parse(doc.Id);
                 bool owned = doc.GetValue<bool>("owned");
@@ -71,111 +254,114 @@ public class UserCollectionManager : MonoBehaviour
                 };
             }
 
-            // 2️⃣ Sync against global card list
-            SyncWithGlobalCards(userCollectionRef);
+            Debug.Log($"✅ Collection loaded ({collection.Count} cards)");
+            MarkReady();
         });
     }
-
-    private void SyncWithGlobalCards(CollectionReference userCollectionRef)
+    public void InitializeForUser(string userid)
     {
-        IReadOnlyDictionary<int, CardData> allCards = CardDatabase.Instance.Cards;
+        Debug.Log($"📚 Initialize collection for user: {userid}");
 
-        WriteBatch batch = db.StartBatch();
+        uid = userid;
+        isReady = false;
 
-        int addedCount = 0;
+        CollectionReference colRef =
+            FirebaseFirestore.DefaultInstance
+            .Collection("users")
+            .Document(uid)
+            .Collection("collection");
 
-        foreach (int cardId in allCards.Keys)
+        colRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
         {
-            if (!collection.ContainsKey(cardId))
+            if (task.IsFaulted)
             {
-                DocumentReference cardDoc =
-                    userCollectionRef.Document(cardId.ToString());
-
-                batch.Set(cardDoc, new Dictionary<string, object>
-                {
-                    { "owned", false }
-                });
-
-                collection[cardId] = new OwnedCard
-                {
-                    cardId = cardId,
-                    owned = false
-                };
-
-                addedCount++;
+                Debug.LogError("❌ Failed to load collection");
+                Debug.LogException(task.Exception);
+                return;
             }
+
+            if (task.Result.Count == 0)
+            {
+                Debug.Log("🆕 No collection found → creating default");
+                CreateDefaultCollection(colRef);
+            }
+            else
+            {
+                Debug.Log($"📦 Loaded collection ({task.Result.Count} cards)");
+                LoadCollectionFromSnapshot(task.Result);
+            }
+        });
+    }
+    private void LoadCollectionFromSnapshot(QuerySnapshot snapshot)
+    {
+        collection.Clear();
+
+        foreach (var doc in snapshot.Documents)
+        {
+            // Document ID = cardId
+            if (!int.TryParse(doc.Id, out int cardId))
+            {
+                Debug.LogWarning($"⚠️ Invalid card id in collection: {doc.Id}");
+                continue;
+            }
+
+            bool owned = false;
+
+            if (doc.ContainsField("owned"))
+            {
+                owned = doc.GetValue<bool>("owned");
+            }
+
+            collection[cardId] = new OwnedCard
+            {
+                cardId = cardId,
+                owned = owned
+            };
         }
 
-        if (addedCount > 0)
-        {
-            batch.CommitAsync().ContinueWithOnMainThread(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    Debug.LogError("❌ Failed to sync new cards: " + task.Exception);
-                }
-                else
-                {
-                    Debug.Log($"🔁 Synced {addedCount} new cards (set as not owned)");
-                }
-            });
-        }
-        else
-        {
-            Debug.Log("✅ Collection already up-to-date");
-        }
-        IsReady = true;
-        OnCollectionReady?.Invoke();
+        Debug.Log($"✅ Collection loaded from Firestore ({collection.Count} cards)");
+        MarkReady();
     }
 
-    // ===== Helpers =====
 
+    #endregion
+
+    #region GAMEPLAY
     public bool IsOwned(int cardId)
     {
-        return collection.TryGetValue(cardId, out var card) && card.owned;
+        return collection.TryGetValue(cardId, out var c) && c.owned;
     }
 
-    public void SetOwned(int cardId, bool owned)
-    {
-        if (!collection.ContainsKey(cardId))
-            return;
-
-        collection[cardId].owned = owned;
-
-        db.Collection("users")
-          .Document(userId)
-          .Collection("collection")
-          .Document(cardId.ToString())
-          .UpdateAsync("owned", owned);
-    }
-    #endregion
-    /// <summary>
-    /// Unlocks a card for the player if not already owned.
-    /// Safe to call multiple times.
-    /// </summary>
     public void UnlockCard(int cardId)
     {
         if (!collection.ContainsKey(cardId))
         {
-            Debug.LogWarning($"⚠️ Tried to unlock unknown card ID: {cardId}");
+            Debug.LogWarning($"⚠️ Card {cardId} not in collection");
             return;
         }
 
         if (collection[cardId].owned)
-        {
-            // Already unlocked → do nothing
             return;
-        }
 
         collection[cardId].owned = true;
 
         db.Collection("users")
-          .Document(userId)
-          .Collection("collection")
+          .Document(uid)
+          .Collection(COLLECTION_PATH)
           .Document(cardId.ToString())
-          .UpdateAsync("owned", true);
+          .UpdateAsync("owned", true)
+          .ContinueWithOnMainThread(task =>
+          {
+              if (task.IsFaulted)
+              {
+                  Debug.LogError($"❌ Failed to unlock card {cardId}");
+                  Debug.LogException(task.Exception);
+                  return;
+              }
 
-        Debug.Log($"🔓 Card unlocked: {cardId}");
+              Debug.Log($"🎉 Card {cardId} unlocked");
+              OnCollectionUpdated?.Invoke();
+          });
     }
-
+    #endregion
 }

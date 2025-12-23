@@ -1,6 +1,8 @@
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using Firebase.Auth;
+using UnityEngine.EventSystems;
 
 public class LoginUIController : MonoBehaviour
 {
@@ -8,6 +10,24 @@ public class LoginUIController : MonoBehaviour
     [SerializeField] private TMP_InputField emailInput;
     [SerializeField] private TMP_InputField passwordInput;
     [SerializeField] private Button createAccountButton;
+    [SerializeField] private TMP_Text uidText;
+    private string lastUserId;
+    [SerializeField] private GameObject successfullConnection;
+    public static LoginUIController Instance;
+    void Start()
+    {
+        EventSystem.current.SetSelectedGameObject(emailInput.gameObject);
+    }
+    public void RefreshAuthUI()
+    {
+        var user = AuthManager.Instance.CurrentUser;
+
+        uidText.text = user != null
+            ? $"UID: {user.UserId}"
+            : "Not logged in";
+
+        Debug.Log("🔄 Auth UI updated");
+    }
 
     public void OnGuestClicked()
     {
@@ -16,7 +36,7 @@ public class LoginUIController : MonoBehaviour
 
     public void OnCreateAccountClicked()
     {
-        AuthManager.Instance.CreateEmailAccount(
+        AuthManager.Instance.CreateOrLinkAccount(
                emailInput.text,
                passwordInput.text
            );
@@ -25,9 +45,7 @@ public class LoginUIController : MonoBehaviour
     {
         if (AuthManager.Instance.CurrentUser != null)
         {
-            Debug.Log("SHould move to next panel");
-            GameFlowController gameFlow = FindFirstObjectByType<GameFlowController>();
-            gameFlow.MoveToCollection();
+            GameFlowController.Instance.GoToMainMenu();
         }
     }
 

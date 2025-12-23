@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class CollectionScreen : MonoBehaviour
 {
@@ -25,8 +26,16 @@ public class CollectionScreen : MonoBehaviour
         All,
         OwnedOnly
     }
+    private IEnumerator Start()
+    {
+        yield return new WaitUntil(() =>
+            GameFlowController.Instance.IsGameReady
+        );
+        ClearGrid();
+        ShowPage(0);
+    }
 
-    void Start()
+    /*    void Start()
     {
         if (CardDatabase.Instance == null || UserCollectionManager.Instance == null)
         {
@@ -36,12 +45,22 @@ public class CollectionScreen : MonoBehaviour
         allCards = new List<CardData>(CardDatabase.Instance.Cards.Values);
         ShowPage(0);
         //PopulateAllCards();
-    }
+    }*/
     private void Update()
     {
         if (currentFilter == CollectionFilter.All) ownedButtonLabel.text = "All \nCards";
         else ownedButtonLabel.text = "Owned Cards";
     }
+    private void RefreshCurrentPage()
+    {
+        foreach (Transform child in gridRoot)
+        {
+            CardView view = child.GetComponent<CardView>();
+            if (view != null)
+                view.Refresh();
+        }
+    }
+
     private void ShowPage(int pageIndex)
     {
         ClearGrid();
@@ -134,6 +153,16 @@ public class CollectionScreen : MonoBehaviour
 
         return result;
     }
+    private void OnEnable()
+    {
+        UserCollectionManager.Instance.OnCollectionUpdated += RefreshCurrentPage;
+    }
+    private void OnDisable()
+    {
+        if (UserCollectionManager.Instance != null)
+            UserCollectionManager.Instance.OnCollectionUpdated -= RefreshCurrentPage;
+    }
+
     public void NextPage()
     {
         Debug.Log("Next page");
