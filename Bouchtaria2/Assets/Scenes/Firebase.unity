@@ -1906,6 +1906,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1091698650}
   - component: {fileID: 1091698649}
+  - component: {fileID: 1091698651}
   m_Layer: 0
   m_Name: LoginController
   m_TagString: Untagged
@@ -1928,8 +1929,6 @@ MonoBehaviour:
   emailInput: {fileID: 16590969}
   passwordInput: {fileID: 1768538851}
   createAccountButton: {fileID: 862544462}
-  uidText: {fileID: 137733804}
-  successfullConnection: {fileID: 1529020231}
 --- !u!4 &1091698650
 Transform:
   m_ObjectHideFlags: 0
@@ -1945,6 +1944,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1091698651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1091698648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 042bf9c6bbd3db5438f9ba416e243682, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AuthStatusUI
+  userPanel: {fileID: 1529020231}
+  userText: {fileID: 137733804}
 --- !u!1 &1092668964
 GameObject:
   m_ObjectHideFlags: 0
