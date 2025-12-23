@@ -175,6 +175,7 @@ GameObject:
   - component: {fileID: 16590971}
   - component: {fileID: 16590970}
   - component: {fileID: 16590969}
+  - component: {fileID: 16590972}
   m_Layer: 5
   m_Name: EmailInput
   m_TagString: Untagged
@@ -217,7 +218,7 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
+    m_SelectOnUp: {fileID: 1768538851}
     m_SelectOnDown: {fileID: 1768538851}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
@@ -341,6 +342,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 16590967}
   m_CullTransparentMesh: 1
+--- !u!114 &16590972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 16590967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29a00545e51e34d4895d606c1db3a203, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TabInputNavigator
+  next: {fileID: 1768538851}
+  previous: {fileID: 1768538851}
 --- !u!1 &113195107
 GameObject:
   m_ObjectHideFlags: 0
@@ -3074,6 +3089,7 @@ GameObject:
   - component: {fileID: 1768538853}
   - component: {fileID: 1768538852}
   - component: {fileID: 1768538851}
+  - component: {fileID: 1768538854}
   m_Layer: 5
   m_Name: PasswordInput
   m_TagString: Untagged
@@ -3117,7 +3133,7 @@ MonoBehaviour:
     m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 16590969}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnDown: {fileID: 16590969}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
@@ -3240,6 +3256,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1768538849}
   m_CullTransparentMesh: 1
+--- !u!114 &1768538854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1768538849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29a00545e51e34d4895d606c1db3a203, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TabInputNavigator
+  next: {fileID: 16590969}
+  previous: {fileID: 16590969}
 --- !u!1 &1784126883
 GameObject:
   m_ObjectHideFlags: 0

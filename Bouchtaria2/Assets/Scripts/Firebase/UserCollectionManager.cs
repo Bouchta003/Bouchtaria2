@@ -331,38 +331,98 @@ public class UserCollectionManager : MonoBehaviour
     {
         return collection.TryGetValue(cardId, out var c) && c.owned;
     }
+    public event Action<int> OnCardUnlocked;
+    public event Action OnCollectionRefreshed;
+    public void RefreshCollection()
+    {
+        if (string.IsNullOrEmpty(uid))
+        {
+            Debug.LogError("❌ RefreshCollection called with no userId");
+            return;
+        }
+
+        Debug.Log("🔄 Refreshing user collection from Firestore...");
+
+        var colRef = db
+            .Collection("users")
+            .Document(uid)
+            .Collection("collection");
+
+        colRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.LogError("❌ Failed to refresh collection");
+                Debug.LogException(task.Exception);
+                return;
+            }
+
+            foreach (var doc in task.Result.Documents)
+            {
+                int cardId = int.Parse(doc.Id);
+                bool owned = doc.GetValue<bool>("owned");
+
+                if (!collection.ContainsKey(cardId))
+                {
+                    collection[cardId] = new OwnedCard
+                    {
+                        cardId = cardId,
+                        owned = owned
+                    };
+                }
+                else
+                {
+                    collection[cardId].owned = owned;
+                }
+            }
+
+            Debug.Log($"✅ Collection refreshed ({collection.Count} cards)");
+            OnCollectionRefreshed?.Invoke();
+        });
+    }
 
     public void UnlockCard(int cardId)
     {
         if (!collection.ContainsKey(cardId))
         {
-            Debug.LogWarning($"⚠️ Card {cardId} not in collection");
+            Debug.LogError($"❌ Card {cardId} not in collection");
             return;
         }
 
         if (collection[cardId].owned)
+        {
+            Debug.Log($"ℹ️ Card {cardId} already owned");
             return;
+        }
 
+        Debug.Log($"🔓 Unlocking card {cardId}");
+
+        // 1️⃣ Optimistic local update
         collection[cardId].owned = true;
 
+        // 2️⃣ Firestore write
         db.Collection("users")
           .Document(uid)
-          .Collection(COLLECTION_PATH)
+          .Collection("collection")
           .Document(cardId.ToString())
           .UpdateAsync("owned", true)
           .ContinueWithOnMainThread(task =>
           {
               if (task.IsFaulted)
               {
-                  Debug.LogError($"❌ Failed to unlock card {cardId}");
+                  Debug.LogError("❌ Failed to unlock card in Firestore");
                   Debug.LogException(task.Exception);
+
+              // rollback
+              collection[cardId].owned = false;
                   return;
               }
 
-              Debug.Log($"🎉 Card {cardId} unlocked");
-              OnCollectionUpdated?.Invoke();
+              Debug.Log($"✅ Card {cardId} unlocked");
+              OnCardUnlocked?.Invoke(cardId);
           });
     }
+
     #endregion
     [ContextMenu("Dump Collection")]
     private void DumpCollection()

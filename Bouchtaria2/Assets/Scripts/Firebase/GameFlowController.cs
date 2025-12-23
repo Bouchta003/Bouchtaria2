@@ -117,6 +117,7 @@ public class GameFlowController : MonoBehaviour
             return;
         }
 
+        UserCollectionManager.Instance.RefreshCollection();
         SceneManager.LoadScene("Collection");
     }
     public void GoToMainMenu()
