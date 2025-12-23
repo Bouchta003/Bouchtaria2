@@ -31,7 +31,7 @@ public class LoginUIController : MonoBehaviour
 
     public void OnGuestClicked()
     {
-        AuthManager.Instance.Initialize();
+        AuthManager.Instance.SignInAnonymously();
     }
 
     public void OnCreateAccountClicked()

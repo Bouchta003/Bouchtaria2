@@ -87,12 +87,26 @@ public class AuthManager : MonoBehaviour
 
         SignInAnonymously();
     }
-    private void OnAuthReady()
+    public void OnAuthReady()
     {
         Debug.Log("🔐 OnAuthReady");
 
         string uid = auth.CurrentUser.UserId;
         GameFlowController.Instance.InitializeForUser(uid);
+    }
+    public event Action<string> AuthReady;
+    private void NotifyAuthReady()
+    {
+        if (auth.CurrentUser == null)
+        {
+            Debug.LogError("❌ AuthReady called but CurrentUser is null");
+            return;
+        }
+
+        string uid = auth.CurrentUser.UserId;
+        Debug.Log($"🔐 Auth ready → UID: {uid}");
+
+        AuthReady?.Invoke(uid);
     }
 
 
@@ -118,19 +132,30 @@ public class AuthManager : MonoBehaviour
     // 🔹 TEST 1 — Anonymous login
     public void SignInAnonymously()
     {
-        auth.SignInAnonymouslyAsync().ContinueWith(task =>
+        auth.SignInAnonymouslyAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsFaulted)
             {
-                Debug.LogError("❌ Anonymous login failed");
-                Debug.LogError(task.Exception);
+                Debug.LogError("❌ Anonymous sign-in failed");
                 return;
             }
 
-            Debug.Log("✅ Anonymous login success");
-            Debug.Log($"UID: {task.Result.User.UserId}"); 
+            var user = task.Result.User;
+            Debug.Log($"🆕 Anonymous login: {user.UserId}");
+            auth.SignInAnonymouslyAsync().ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("❌ Anonymous login failed");
+                    return;
+                }
+
+                Debug.Log("✅ Anonymous login success");
+                NotifyAuthReady();
+            });
 
         });
+
     }
     public void CreateOrLinkAccount(string email, string password)
     {
@@ -166,27 +191,29 @@ public class AuthManager : MonoBehaviour
     public void SignInWithEmail(string email, string password)
     {
         auth.SignInWithEmailAndPasswordAsync(email, password)
-            .ContinueWith(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    Debug.LogError("❌ Email login failed");
-                    Debug.LogError(task.Exception);
-                    return;
-                }
+    .ContinueWithOnMainThread(task =>
+    {
+        if (task.IsFaulted)
+        {
+            Debug.LogError("❌ Email login failed");
+            return;
+        }
 
-                Debug.Log("✅ Email login success");
-                Debug.Log($"UID: {task.Result.User.UserId}");
+        Debug.Log("✅ Email login success");
+        NotifyAuthReady();
+    });
 
-                // ❌ DO NOT call OnAuthReady here
-            });
     }
 
 
     // 🔹 Utility (important for clean tests)
     public void SignOut()
     {
-        auth.SignOut();
+        auth.SignOut(); 
+        
+        GameFlowController.Instance.ResetForNewUser();
+        UserCollectionManager.Instance.ResetForNewUser();
+
         Debug.Log("🚪 Signed out");
     }
 }

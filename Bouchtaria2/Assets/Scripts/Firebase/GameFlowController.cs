@@ -50,6 +50,17 @@ public class GameFlowController : MonoBehaviour
             CardDatabase.Instance.Initialize();
         }
     }
+    private void OnEnable()
+    {
+        AuthManager.Instance.AuthReady += InitializeForUser;
+    }
+
+    private void OnDisable()
+    {
+        AuthManager.Instance.AuthReady -= InitializeForUser;
+    }
+
+
     public void ResetForNewUser()
     {
         Debug.Log("🧹 Resetting game data state");

@@ -364,4 +364,13 @@ public class UserCollectionManager : MonoBehaviour
           });
     }
     #endregion
+    [ContextMenu("Dump Collection")]
+    private void DumpCollection()
+    {
+        foreach (var c in collection.Values)
+        {
+            Debug.Log($"Card {c.cardId} → owned={c.owned}");
+        }
+    }
+
 }
