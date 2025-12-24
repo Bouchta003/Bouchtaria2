@@ -10,6 +10,7 @@ public class CollectionScreen : MonoBehaviour
     [SerializeField] private CardView cardViewPrefab;
     [SerializeField] private Transform layoutAnchor;
     [SerializeField] private TextMeshProUGUI ownedButtonLabel;
+    [SerializeField] private TMP_InputField nameResearchText;
 
     [Header("Pagination")]
     [SerializeField] private int cardsPerPage = 4;
@@ -18,38 +19,26 @@ public class CollectionScreen : MonoBehaviour
     [SerializeField] private float spacingY = 5f;
 
     private List<CardData> allCards;
+    private string filterText = "";
+    private int filterValue = 0;
     private int currentPage = 0;
-    private CollectionFilter currentFilter = CollectionFilter.All;
-
-    private enum CollectionFilter
-    {
-        All,
-        OwnedOnly
-    }
+    public enum Filter { None, Ownership, Name, Mana, Attack, Health, Trait, Type}
+    List<Filter> currentFilters = new List<Filter>();
     private IEnumerator Start()
     {
         yield return new WaitUntil(() =>
             GameFlowController.Instance.IsGameReady
         );
+        currentFilters.Clear();currentFilters.Add(Filter.None);
         ClearGrid();
         ShowPage(0);
     }
 
-    /*    void Start()
-    {
-        if (CardDatabase.Instance == null || UserCollectionManager.Instance == null)
-        {
-            Debug.LogError("❌ CollectionScreen loaded without game being ready");
-            return;
-        }
-        allCards = new List<CardData>(CardDatabase.Instance.Cards.Values);
-        ShowPage(0);
-        //PopulateAllCards();
-    }*/
     private void Update()
     {
-        if (currentFilter == CollectionFilter.All) ownedButtonLabel.text = "All \nCards";
+        if (currentFilters.Contains(Filter.None)) ownedButtonLabel.text = "All \nCards";
         else ownedButtonLabel.text = "Owned Cards";
+        //if input empty, remove text filter or add a cross to negate that one
     }
     private void RefreshCurrentPage()
     {
@@ -66,7 +55,7 @@ public class CollectionScreen : MonoBehaviour
         ClearGrid();
 
         // 🔹 Get cards based on current filter (ALL or OWNED)
-        List<CardData> filteredCards = GetFilteredCards();
+        List<CardData> filteredCards = GetFilteredCards(currentFilters,filterText, filterValue);
 
         currentPage = Mathf.Clamp(
             pageIndex,
@@ -109,7 +98,7 @@ public class CollectionScreen : MonoBehaviour
         }
 
         Debug.Log(
-            $"📄 Page {currentPage + 1} / {GetMaxPageIndex(filteredCards) + 1} | Filter: {currentFilter}"
+            $"📄 Page {currentPage + 1} / {GetMaxPageIndex(filteredCards) + 1} | Filter: {currentFilters}"
         );
     }
     private int GetMaxPageIndex(List<CardData> cards)
@@ -119,7 +108,6 @@ public class CollectionScreen : MonoBehaviour
             Mathf.CeilToInt((float)cards.Count / cardsPerPage) - 1
         );
     }
-
     private void ClearGrid()
     {
         for (int i = gridRoot.childCount - 1; i >= 0; i--)
@@ -136,23 +124,75 @@ public class CollectionScreen : MonoBehaviour
 
         return new Vector2(width, height);
     }
-    private List<CardData> GetFilteredCards()
+    private List<CardData> GetFilteredCards(
+    List<Filter> filterTypes,
+    string filterText,
+    int value
+)
     {
         List<CardData> result = new List<CardData>();
 
         foreach (var card in CardDatabase.Instance.Cards.Values)
         {
-            if (currentFilter == CollectionFilter.OwnedOnly &&
-                !UserCollectionManager.Instance.IsOwned(card.id))
+            // -------------------------
+            // OWNERSHIP FILTER
+            // -------------------------
+            if (filterTypes.Contains(Filter.Ownership))
             {
-                continue;
+                if (!UserCollectionManager.Instance.IsOwned(card.id))
+                    continue; // reject card
             }
 
+            // -------------------------
+            // NAME / TEXT FILTER
+            // -------------------------
+            if (filterTypes.Contains(Filter.Name))
+            {
+                if (string.IsNullOrEmpty(filterText))
+                    continue;
+
+                bool match =
+                    card.name.ToLower().Contains(filterText.ToLower()) ||
+                    card.effectText.ToLower().Contains(filterText.ToLower());
+
+                if (!match)
+                    continue;
+            }
+
+            // -------------------------
+            // MANA FILTER
+            // -------------------------
+            if (filterTypes.Contains(Filter.Mana))
+            {
+                if (card.manaCost >= value) // "< 2" logic
+                    continue;
+            }
+
+            // -------------------------
+            // ATTACK FILTER (example)
+            // -------------------------
+            if (filterTypes.Contains(Filter.Attack))
+            {
+                if (card.atkValue != value)
+                    continue;
+            }
+
+            // -------------------------
+            // HEALTH FILTER (example)
+            // -------------------------
+            if (filterTypes.Contains(Filter.Health))
+            {
+                if (card.hpValue != value)
+                    continue;
+            }
+
+            // If we reach here → card passed ALL active filters
             result.Add(card);
         }
 
         return result;
     }
+
     private void OnEnable()
     {
         UserCollectionManager.Instance.OnCollectionUpdated += RefreshCurrentPage;
@@ -173,15 +213,43 @@ public class CollectionScreen : MonoBehaviour
         Debug.Log("Previous page");
         ShowPage(currentPage - 1);
     }
+    private void NormalizeFilters()
+    {
+        if (currentFilters.Count > 1 && currentFilters.Contains(Filter.None))
+            currentFilters.Remove(Filter.None);
+
+        if (currentFilters.Count == 0)
+            currentFilters.Add(Filter.None);
+    }
+
     public void ToggleOwnedFilter()
     {
-        currentFilter = currentFilter == CollectionFilter.All
-            ? CollectionFilter.OwnedOnly
-            : CollectionFilter.All;
+        if (currentFilters.Contains(Filter.Ownership))
+            currentFilters.Remove(Filter.Ownership);
+        else
+            currentFilters.Add(Filter.Ownership);
 
+        NormalizeFilters();
         currentPage = 0;
         ShowPage(0);
     }
 
+    public void ToggleTextFilter()
+    {
+        currentFilters.Add(Filter.Name);
+        filterText = nameResearchText.text;
+        currentPage = 0;
+        NormalizeFilters();
+        ShowPage(0);
+    }
+    public void ToggleManaFilter(int manaValue)
+    {
+        if (!currentFilters.Contains(Filter.Mana)) { currentFilters.Add(Filter.Mana); filterValue = manaValue; }
+        else { currentFilters.Remove(Filter.Mana); filterValue = -1; }
+        
+        NormalizeFilters();
+        currentPage = 0;
+        ShowPage(0);
+    }
 
 }

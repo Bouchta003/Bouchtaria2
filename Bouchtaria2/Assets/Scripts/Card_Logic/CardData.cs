@@ -24,6 +24,10 @@ public class CardData
     public bool token;
     public bool signature;
 
+    public enum KeyWords
+    {
+        Taunt, Quickstrike, Blessed, Thorns, Haste, Berserk
+    }
     // Runtime-only
     [System.NonSerialized] public Sprite artSprite;
 }

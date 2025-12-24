@@ -14,7 +14,7 @@ public class ScanController : MonoBehaviour
         Instance = this;
 
         panelInstance = Instantiate(scanPanelPrefab);
-        panelInstance.gameObject.SetActive(false);
+        //panelInstance.gameObject.SetActive(false);
         DontDestroyOnLoad(panelInstance.gameObject);
     }
 
@@ -25,11 +25,11 @@ public class ScanController : MonoBehaviour
             ScanInput.Instance.IsScanActive &&
             hoveredCard != null;
 
-        if (shouldShow && !panelInstance.gameObject.activeSelf)
+        if (shouldShow)
         {
             panelInstance.Show(hoveredCard.CardData);
         }
-        else if (!shouldShow && panelInstance.gameObject.activeSelf)
+        else if (!shouldShow)
         {
             panelInstance.Hide();
         }
