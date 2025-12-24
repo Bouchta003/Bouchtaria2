@@ -1,9 +1,14 @@
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
-public class CardView : MonoBehaviour
+public class CardView : MonoBehaviour,
+    IPointerEnterHandler,
+    IPointerExitHandler
 {
+    public CardData CardData { get; private set; }
+
     [Header("Sprite References")]
     [SerializeField] private SpriteRenderer cardSpriteRenderer;
     [SerializeField] private SpriteRenderer frameRenderer;
@@ -21,29 +26,48 @@ public class CardView : MonoBehaviour
     [SerializeField] private TMP_Text hpText;
 
     private int cardId;
+    // Called by CollectionScreen after instantiation
+    public void Init(CardData data)
+    {
+        CardData = data;
+        Setup(data);
+    }
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        bool owned = UserCollectionManager.Instance.IsOwned(cardId);
+        if (ScanController.Instance == null ||!owned)
+            return;
+
+        ScanController.Instance.OnCardHoverEnter(this);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (ScanController.Instance == null)
+            return;
+
+        ScanController.Instance.OnCardHoverExit(this);
+    }
 
     /// <summary>
     /// Initial setup using static card data
     /// </summary>
-    public void Setup(CardData card)
+    private void Setup(CardData card)
     {
         cardId = card.id;
 
         cardSpriteRenderer.sprite = card.artSprite;
-
-        ApplyTraitFrameColor(card);
-
         nameText.text = card.name;
         manaText.text = card.manaCost.ToString();
         atkText.text = card.atkValue.ToString();
         hpText.text = card.hpValue.ToString();
 
+        ApplyTraitFrameColor(card);
         Refresh();
     }
 
     private void ApplyTraitFrameColor(CardData card)
     {
-        // Default color
         frameRenderer.color = Color.white;
         frameRenderer2.color = Color.white;
         manaFrameRenderer1.color = Color.white;
@@ -54,9 +78,7 @@ public class CardView : MonoBehaviour
         if (card.traits == null || card.traits.Count == 0)
             return;
 
-        string trait1 = card.traits[0].ToLowerInvariant();
-
-        if (TraitColors.TryGetValue(trait1, out Color color))
+        if (TraitColors.TryGetValue(card.traits[0].ToLowerInvariant(), out Color color))
         {
             frameRenderer.color = color;
             frameRenderer2.color = color;
@@ -65,38 +87,33 @@ public class CardView : MonoBehaviour
             atkFrameRenderer.color = color;
             hpFrameRenderer.color = color;
         }
-        if (card.traits.Count > 1)
+
+        if (card.traits.Count > 1 &&
+            TraitColors.TryGetValue(card.traits[1].ToLowerInvariant(), out Color color2))
         {
-            string trait2 = card.traits[1].ToLowerInvariant();
-            if (TraitColors.TryGetValue(trait2, out Color color2))
-            {
-                frameRenderer2.color = color2;
-                manaFrameRenderer2.color = color2;
-                hpFrameRenderer.color = color2;
-            }
+            frameRenderer2.color = color2;
+            manaFrameRenderer2.color = color2;
+            hpFrameRenderer.color = color2;
         }
     }
 
     private static readonly Dictionary<string, Color> TraitColors =
-    new Dictionary<string, Color>
-    {
-        { "speedster", new Color(0.4f, 0.7f, 1f) },   // blue
-        { "tank",      new Color(0.6f, 0.9f, 0.6f) }, // green
-        { "mage",      new Color(0.8f, 0.6f, 1f) }    // purple
-        // Add more traits here
-    };
+        new Dictionary<string, Color>
+        {
+            { "speedster", new Color(0.4f, 0.7f, 1f) },
+            { "tank",      new Color(0.6f, 0.9f, 0.6f) },
+            { "mage",      new Color(0.8f, 0.6f, 1f) }
+        };
 
     /// <summary>
-    /// Refreshes owned / locked visual state
+    /// Refresh owned / locked visual state
     /// </summary>
     public void Refresh()
     {
         bool owned = UserCollectionManager.Instance.IsOwned(cardId);
 
-        // Lock overlay (can be another sprite or child object)
         lockOverlay.SetActive(!owned);
 
-        // Optional: visually dim locked cards
         cardSpriteRenderer.color = owned
             ? Color.white
             : new Color(1f, 1f, 1f, 0.35f);

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Card : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class Card : MonoBehaviour
 
     void Awake()
     {
+        if (SceneManager.GetActiveScene().name != "Combat")
+            this.GetComponent<BoxCollider2D>().enabled = true;
         handManager = FindFirstObjectByType<HandManager>();
     }
 

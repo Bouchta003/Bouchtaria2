@@ -104,7 +104,7 @@ public class CollectionScreen : MonoBehaviour
             view.transform.position =
                 layoutAnchor.position + pageOffset + localPos;
 
-            view.Setup(card);
+            view.Init(card);
             visibleIndex++;
         }
 

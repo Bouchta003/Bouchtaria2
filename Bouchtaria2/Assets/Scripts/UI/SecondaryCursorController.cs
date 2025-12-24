@@ -1,11 +1,18 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public class SecondaryCursorController : MonoBehaviour
 {
     public static SecondaryCursorController Instance;
 
-    [SerializeField] private Camera targetCamera;
+    [Header("Cursors")]
+    [SerializeField] private Texture2D scanCursor;
+
+    [Header("Optional")]
+    [SerializeField] private string[] disabledScenes;
+
+    private bool cursorIsScan;
 
     void Awake()
     {
@@ -17,58 +24,46 @@ public class SecondaryCursorController : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-    }
 
-    void Start()
-    {
-        if (targetCamera == null)
-            targetCamera = Camera.main;
-
-        gameObject.SetActive(false);
+        SetDefaultCursor();
     }
 
     void Update()
     {
-        // Show / hide
-        if (Input.GetKeyDown(KeyCode.Space))
-            gameObject.SetActive(true);
+        bool shouldScan =
+            Input.GetKey(KeyCode.Space) &&
+            !IsSceneDisabled();
 
-        if (Input.GetKeyUp(KeyCode.Space))
-            gameObject.SetActive(false);
-
-        // Follow mouse when active
-        if (gameObject.activeSelf)
-            FollowMouse();
+        if (shouldScan)
+            SetScanCursor();
+        else
+            SetDefaultCursor();
     }
 
-    void FollowMouse()
+    private void SetScanCursor()
     {
-        Vector3 mousePos = Input.mousePosition;
-        mousePos.z = Mathf.Abs(targetCamera.transform.position.z);
+        if (cursorIsScan) return;
 
-        Vector3 worldPos = targetCamera.ScreenToWorldPoint(mousePos);
-        worldPos.z = 0f;
-
-        transform.position = worldPos;
+        cursorIsScan = true;
+        Cursor.SetCursor(scanCursor, Vector2.zero, CursorMode.Auto);
     }
 
-    // Call this when scenes change
-    public void RefreshCamera()
+    private void SetDefaultCursor()
     {
-        targetCamera = Camera.main;
-    }
-    void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        if (!cursorIsScan) return;
+
+        cursorIsScan = false;
+        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
 
-    void OnDisable()
+    private bool IsSceneDisabled()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        RefreshCamera();
+        string scene = SceneManager.GetActiveScene().name;
+        foreach (var s in disabledScenes)
+        {
+            if (scene == s)
+                return true;
+        }
+        return false;
     }
 }
