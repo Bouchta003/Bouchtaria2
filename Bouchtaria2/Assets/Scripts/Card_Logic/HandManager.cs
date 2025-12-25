@@ -19,18 +19,7 @@ public class HandManager : MonoBehaviour
     {
 
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space)) DrawCard(-1);
-    }
-    private void DrawCard(int cardId)
-    {
-        if (handCards.Count >= maxHandSize) return;
-
-        GameObject g = Instantiate(cardPrefab, spawnPoint.position, spawnPoint.rotation);
-    }
+    
     public void RemoveCardFromHand(GameObject cardToRemove)
     {
         if (handCards.Remove(cardToRemove))

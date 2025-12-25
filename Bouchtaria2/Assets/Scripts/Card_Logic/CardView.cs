@@ -49,7 +49,7 @@ public class CardView : MonoBehaviour,
     public void OnPointerEnter(PointerEventData eventData)
     {
         bool owned = UserCollectionManager.Instance.IsOwned(cardId);
-        if (ScanController.Instance == null || !owned)
+        if (ScanController.Instance == null || (!owned&& SceneManager.GetActiveScene().name=="Collection"))
             return;
 
         ScanController.Instance.OnCardHoverEnter(this);

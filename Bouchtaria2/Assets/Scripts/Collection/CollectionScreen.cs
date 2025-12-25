@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 using System;
+using UnityEngine.SceneManagement;
 
 public class CollectionScreen : MonoBehaviour
 {
@@ -358,5 +359,9 @@ public class CollectionScreen : MonoBehaviour
         NormalizeFilters();
         currentPage = 0;
         ShowPage(0);
+    }
+    public void GoToMainMenu()
+    {
+        SceneManager.LoadScene("Main_Menu");
     }
 }
