@@ -210,6 +210,55 @@ public class UserCollectionManager : MonoBehaviour
             MarkReady();
         });
     }
+    private void ReconcileWithCardDatabase(CollectionReference colRef)
+    {
+        WriteBatch batch = db.StartBatch();
+        bool hasChanges = false;
+
+        foreach (var kvp in CardDatabase.Instance.Cards)
+        {
+            int cardId = kvp.Key;
+
+            if (!collection.ContainsKey(cardId))
+            {
+                collection[cardId] = new OwnedCard
+                {
+                    cardId = cardId,
+                    owned = false
+                };
+
+                batch.Set(
+                    colRef.Document(cardId.ToString()),
+                    new Dictionary<string, object>
+                    {
+                    { "owned", false }
+                    }
+                );
+
+                hasChanges = true;
+            }
+        }
+
+        if (!hasChanges)
+        {
+            Debug.Log("📚 Collection already up to date");
+            MarkReady();
+            return;
+        }
+
+        batch.CommitAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.LogError("❌ Failed to reconcile collection");
+                Debug.LogException(task.Exception);
+                return;
+            }
+
+            Debug.Log("✅ Collection reconciled (missing cards added)");
+            MarkReady();
+        });
+    }
 
     private void LoadCollection(QuerySnapshot snapshot)
     {
@@ -228,8 +277,15 @@ public class UserCollectionManager : MonoBehaviour
         }
 
         Debug.Log($"📦 Collection loaded ({collection.Count} cards)");
-        MarkReady();
+
+        var colRef = db
+            .Collection("users")
+            .Document(uid)
+            .Collection(COLLECTION_PATH);
+
+        ReconcileWithCardDatabase(colRef);
     }
+
     public void LoadCollectionFromFirestore(CollectionReference colRef)
     {
         colRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
@@ -262,14 +318,18 @@ public class UserCollectionManager : MonoBehaviour
     {
         Debug.Log($"📚 Initialize collection for user: {userid}");
 
+        ResetForNewUser();
         uid = userid;
-        isReady = false;
+
+        if (!CardDatabase.Instance.IsReady)
+        {
+            Debug.Log("⏳ Waiting for CardDatabase before loading collection...");
+            CardDatabase.Instance.OnCardsLoaded += () => InitializeForUser(userid);
+            return;
+        }
 
         CollectionReference colRef =
-            FirebaseFirestore.DefaultInstance
-            .Collection("users")
-            .Document(uid)
-            .Collection("collection");
+            db.Collection("users").Document(uid).Collection("collection");
 
         colRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
         {
@@ -280,18 +340,29 @@ public class UserCollectionManager : MonoBehaviour
                 return;
             }
 
-            if (task.Result.Count == 0)
+            collection.Clear();
+
+            foreach (var doc in task.Result.Documents)
             {
-                Debug.Log("🆕 No collection found → creating default");
-                CreateDefaultCollection(colRef);
+                if (!int.TryParse(doc.Id, out int cardId))
+                    continue;
+
+                bool owned = doc.ContainsField("owned") && doc.GetValue<bool>("owned");
+
+                collection[cardId] = new OwnedCard
+                {
+                    cardId = cardId,
+                    owned = owned
+                };
             }
-            else
-            {
-                Debug.Log($"📦 Loaded collection ({task.Result.Count} cards)");
-                LoadCollectionFromSnapshot(task.Result);
-            }
+
+            Debug.Log($"📦 Loaded collection ({collection.Count} cards)");
+
+            // 🔥 THIS IS THE MISSING STEP
+            ReconcileWithCardDatabase(colRef);
         });
     }
+
     private void LoadCollectionFromSnapshot(QuerySnapshot snapshot)
     {
         collection.Clear();

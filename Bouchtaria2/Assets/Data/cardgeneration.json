@@ -273,7 +273,7 @@
       "signature": false
     },
     "17": {
-      "id": 16,
+      "id": 17,
       "name": "Marshtomp",
       "cardType": "minion",
       "manaCost": 5,
@@ -301,6 +301,22 @@
       "artPath": "CardArt/swampert",
       "artCompactPath": "CardArt/swampert_compact",
       "packable": false,
+      "token": false,
+      "signature": false
+    },
+    "19": {
+      "id": 19,
+      "name": "FajrTime",
+      "cardType": "spell",
+      "manaCost": 4,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "Faith" ],
+      "effect": "draw2faith, heal hero 5",
+      "effectText": "Heals your hero for 5 health, draw 2 Faith cards",
+      "artPath": "CardArt/fajrtime",
+      "artCompactPath": "CardArt/fajrtime_compact",
+      "packable": true,
       "token": false,
       "signature": false
     }

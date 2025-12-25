@@ -354,6 +354,7 @@ public class CollectionScreen : MonoBehaviour
     public void ResetFilters()
     {
         currentFilters.Clear();
+        traitsDropDown.value = 0;
         NormalizeFilters();
         currentPage = 0;
         ShowPage(0);
