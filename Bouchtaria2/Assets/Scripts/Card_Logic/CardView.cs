@@ -49,7 +49,7 @@ public class CardView : MonoBehaviour,
     public void OnPointerEnter(PointerEventData eventData)
     {
         bool owned = UserCollectionManager.Instance.IsOwned(cardId);
-        if (ScanController.Instance == null ||!owned)
+        if (ScanController.Instance == null || !owned)
             return;
 
         ScanController.Instance.OnCardHoverEnter(this);
@@ -70,7 +70,7 @@ public class CardView : MonoBehaviour,
         switch (gameObject.GetComponent<CardInstance>().CurrentZone)
         {
             case CardZone.Hand:
-                SetupHandMode(thisInstance.Data);break;
+                SetupHandMode(thisInstance.Data); break;
             case CardZone.Board:
                 SetupBoardMode(thisInstance.Data); break;
         }
@@ -98,8 +98,8 @@ public class CardView : MonoBehaviour,
             return;
         if (card.cardType.ToLower() == "spell")
         {
-            atkFrameRenderer.gameObject.SetActive(false) ;
-            hpFrameRenderer.gameObject.SetActive(false) ;
+            atkFrameRenderer.gameObject.SetActive(false);
+            hpFrameRenderer.gameObject.SetActive(false);
 
         }
         if (TraitColors.TryGetValue(card.traits[0].ToLowerInvariant(), out Color color))
@@ -123,7 +123,7 @@ public class CardView : MonoBehaviour,
     }
     private void SetupBoardMode(CardData card)
     {
-        handVisual.SetActive(false);boardVisual.SetActive(true);
+        handVisual.SetActive(false); boardVisual.SetActive(true);
         CardInstance thisInstance = gameObject.GetComponent<CardInstance>();
         cardId = card.id;
 
@@ -171,9 +171,29 @@ public class CardView : MonoBehaviour,
     private static readonly Dictionary<string, Color> TraitColors =
         new Dictionary<string, Color>
         {
-            { "Speedster", new Color(0.4f, 0.7f, 1f) },
-            { "Inazuma",      new Color(0.6f, 0.9f, 0.6f) },
-            { "SpellFocus",      new Color(0.8f, 0.6f, 1f) }
+            // Aggression / Tempo
+    { "speedster",   new Color(0.15f, 0.55f, 1.00f) }, // electric blue (fast, sharp)
+    { "gunners",     new Color(0.85f, 0.20f, 0.20f) }, // vivid red (damage, bullets)
+    { "combo",       new Color(1.00f, 0.55f, 0.15f) }, // orange (APM, momentum)
+
+    // Spell / Magic
+    { "spellfocus",  new Color(0.70f, 0.35f, 1.00f) }, // arcane violet
+    { "faith",       new Color(1.00f, 0.85f, 0.35f) }, // gold (holy, value)
+    { "ritual",      new Color(0.55f, 0.10f, 0.55f) }, // dark purple (forbidden power)
+
+    // Control / Denial
+    { "hater",       new Color(0.25f, 0.25f, 0.25f) }, // dark graphite (oppressive)
+    { "healer",      new Color(0.35f, 0.85f, 0.60f) }, // saturated green (life, recovery)
+
+    // Neutral / Beginner
+    { "workout",     new Color(0.75f, 0.75f, 0.75f) }, // light steel (simple stats)
+    { "neutral",     new Color(0.60f, 0.60f, 0.60f) }, // plain gray (baseline)
+
+    // Inazuma / Football Roles
+    { "inazuma",     new Color(0.20f, 0.90f, 1.00f) }, // cyan (team identity)
+
+    // Pokémon
+    { "pokemon",     new Color(0.95f, 0.25f, 0.25f) }, // poké red (iconic)
         };
 
     /// <summary>
