@@ -14,7 +14,7 @@ public class HandManager : MonoBehaviour
     [SerializeField] Transform spawnPoint;
 
     [SerializeField] int baseSortingOrder = 100;
-    List<GameObject> handCards = new();
+    public List<GameObject> handCards = new();
     void Start()
     {
 
@@ -30,8 +30,6 @@ public class HandManager : MonoBehaviour
         if (handCards.Count >= maxHandSize) return;
 
         GameObject g = Instantiate(cardPrefab, spawnPoint.position, spawnPoint.rotation);
-        handCards.Add(g);
-        UpdateCardPositions();
     }
     public void RemoveCardFromHand(GameObject cardToRemove)
     {

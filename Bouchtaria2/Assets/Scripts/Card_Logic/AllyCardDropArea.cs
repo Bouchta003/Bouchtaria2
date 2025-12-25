@@ -6,24 +6,42 @@ using DG.Tweening;
 public class AllyCardDropArea : MonoBehaviour, ICardDropArea
 {
     [SerializeField] GameObject compactPrefab;
+    [SerializeField] GameObject GameManager;
     [SerializeField] HandManager handManager;
     [SerializeField] SplineContainer allyBoardSpline;
 
+    GameManager gm;
     public int maxBoardSize = 6;
 
     public List<GameObject> allyPrefabCards = new List<GameObject>();
+    private void Start()
+    {
+        gm = GameManager.GetComponent<GameManager>();
+    }
     public void OnCardDrop(Card card)
     {
+        //Verify Mana Legality 
+        if (card.gameObject.GetComponent<CardInstance>().CurrentManaCost > gm.CurrentMana) return;
+        //Verify board space Legality
         if (allyPrefabCards.Count >= maxBoardSize) return;
 
+
+        // ----- Card is legal -----
+        
         //Remove card from hand
         handManager.RemoveCardFromHand(card.gameObject);
-        card.gameObject.SetActive(false);
+
+        //Use Mana
+        gm.UseMana(card.gameObject.GetComponent<CardInstance>().CurrentManaCost);
 
         //Instantiate card compact instead on board
-        GameObject prefabOnBoard = Instantiate(compactPrefab, transform.position, Quaternion.identity);
-        allyPrefabCards.Add(prefabOnBoard);
+        card.gameObject.GetComponent<CardInstance>().SetZone(CardZone.Board);
+        card.gameObject.GetComponent<CardView>().UpdateMode();
+        
+        //Add to list of ally cards
+        allyPrefabCards.Add(card.gameObject);
         UpdateAllyCardPositions();
+        
         Debug.Log("Card dropped in ally slot");
     }
     public void UpdateAllyCardPositions()

@@ -6,6 +6,10 @@ public class MainMenuUIController : MonoBehaviour
     {
         GameFlowController.Instance.GoToCollection();
     }
+    public void OnDuelClicked()
+    {
+        GameFlowController.Instance.GoToCombat();
+    }
 
     public void OnBackToTitleClicked()
     {

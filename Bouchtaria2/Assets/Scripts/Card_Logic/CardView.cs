@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class CardView : MonoBehaviour,
     IPointerEnterHandler,
@@ -9,7 +10,8 @@ public class CardView : MonoBehaviour,
 {
     public CardData CardData { get; private set; }
 
-    [Header("Sprite References")]
+    [Header("Hand Mode")]
+    [SerializeField] private GameObject handVisual;
     [SerializeField] private SpriteRenderer cardSpriteRenderer;
     [SerializeField] private SpriteRenderer frameRenderer;
     [SerializeField] private SpriteRenderer frameRenderer2;
@@ -18,19 +20,31 @@ public class CardView : MonoBehaviour,
     [SerializeField] private SpriteRenderer atkFrameRenderer;
     [SerializeField] private SpriteRenderer hpFrameRenderer;
     [SerializeField] private GameObject lockOverlay;
-
-    [Header("Text References")]
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private TMP_Text manaText;
     [SerializeField] private TMP_Text atkText;
     [SerializeField] private TMP_Text hpText;
+
+    [Header("Board Mode")]
+    [SerializeField] private GameObject boardVisual;
+    [SerializeField] private SpriteRenderer cardSpriteRendererBoard;
+    [SerializeField] private SpriteRenderer frameRendererBoard;
+    [SerializeField] private SpriteRenderer frameRenderer2Board;
+    [SerializeField] private SpriteRenderer manaFrameRenderer1Board;
+    [SerializeField] private SpriteRenderer manaFrameRenderer2Board;
+    [SerializeField] private SpriteRenderer atkFrameRendererBoard;
+    [SerializeField] private SpriteRenderer hpFrameRendererBoard;
+    [SerializeField] private TMP_Text nameTextBoard;
+    [SerializeField] private TMP_Text manaTextBoard;
+    [SerializeField] private TMP_Text atkTextBoard;
+    [SerializeField] private TMP_Text hpTextBoard;
 
     private int cardId;
     // Called by CollectionScreen after instantiation
     public void Init(CardData data)
     {
         CardData = data;
-        Setup(data);
+        SetupHandMode(data);
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -49,25 +63,30 @@ public class CardView : MonoBehaviour,
         ScanController.Instance.OnCardHoverExit(this);
     }
 
-    /// <summary>
-    /// Initial setup using static card data
-    /// </summary>
-    private void Setup(CardData card)
+    public void UpdateMode()
     {
+        CardInstance thisInstance = gameObject.GetComponent<CardInstance>();
+
+        switch (gameObject.GetComponent<CardInstance>().CurrentZone)
+        {
+            case CardZone.Hand:
+                SetupHandMode(thisInstance.Data);break;
+            case CardZone.Board:
+                SetupBoardMode(thisInstance.Data); break;
+        }
+    }
+    private void SetupHandMode(CardData card)
+    {
+        handVisual.SetActive(true); boardVisual.SetActive(false);
+        CardInstance thisInstance = gameObject.GetComponent<CardInstance>();
         cardId = card.id;
 
         cardSpriteRenderer.sprite = card.artSprite;
         nameText.text = card.name;
-        manaText.text = card.manaCost.ToString();
-        atkText.text = card.atkValue.ToString();
-        hpText.text = card.hpValue.ToString();
+        manaText.text = thisInstance.CurrentManaCost.ToString();
+        atkText.text = thisInstance.CurrentAttack.ToString();
+        hpText.text = thisInstance.CurrentHealth.ToString();
 
-        ApplyTraitFrameColor(card);
-        Refresh();
-    }
-
-    private void ApplyTraitFrameColor(CardData card)
-    {
         frameRenderer.color = Color.white;
         frameRenderer2.color = Color.white;
         manaFrameRenderer1.color = Color.white;
@@ -100,14 +119,61 @@ public class CardView : MonoBehaviour,
             manaFrameRenderer2.color = color2;
             hpFrameRenderer.color = color2;
         }
+        Refresh();
+    }
+    private void SetupBoardMode(CardData card)
+    {
+        handVisual.SetActive(false);boardVisual.SetActive(true);
+        CardInstance thisInstance = gameObject.GetComponent<CardInstance>();
+        cardId = card.id;
+
+        cardSpriteRendererBoard.sprite = card.artSprite;
+        nameTextBoard.text = card.name;
+        manaTextBoard.text = thisInstance.CurrentManaCost.ToString();
+        atkTextBoard.text = thisInstance.CurrentAttack.ToString();
+        hpTextBoard.text = thisInstance.CurrentHealth.ToString();
+
+        frameRendererBoard.color = Color.white;
+        frameRenderer2Board.color = Color.white;
+        manaFrameRenderer1Board.color = Color.white;
+        manaFrameRenderer2Board.color = Color.white;
+        atkFrameRendererBoard.color = Color.white;
+        hpFrameRendererBoard.color = Color.white;
+
+        if (card.traits == null || card.traits.Count == 0)
+            return;
+        if (card.cardType.ToLower() == "spell")
+        {
+            atkFrameRendererBoard.gameObject.SetActive(false);
+            hpFrameRendererBoard.gameObject.SetActive(false);
+
+        }
+        if (TraitColors.TryGetValue(card.traits[0].ToLowerInvariant(), out Color color))
+        {
+            frameRendererBoard.color = color;
+            frameRenderer2Board.color = color;
+            manaFrameRenderer1Board.color = color;
+            manaFrameRenderer2Board.color = color;
+            atkFrameRendererBoard.color = color;
+            hpFrameRendererBoard.color = color;
+        }
+
+        if (card.traits.Count > 1 &&
+            TraitColors.TryGetValue(card.traits[1].ToLowerInvariant(), out Color color2))
+        {
+            frameRenderer2Board.color = color2;
+            manaFrameRenderer2Board.color = color2;
+            hpFrameRendererBoard.color = color2;
+        }
+        Refresh();
     }
 
     private static readonly Dictionary<string, Color> TraitColors =
         new Dictionary<string, Color>
         {
-            { "speedster", new Color(0.4f, 0.7f, 1f) },
-            { "tank",      new Color(0.6f, 0.9f, 0.6f) },
-            { "mage",      new Color(0.8f, 0.6f, 1f) }
+            { "Speedster", new Color(0.4f, 0.7f, 1f) },
+            { "Inazuma",      new Color(0.6f, 0.9f, 0.6f) },
+            { "SpellFocus",      new Color(0.8f, 0.6f, 1f) }
         };
 
     /// <summary>
@@ -115,6 +181,7 @@ public class CardView : MonoBehaviour,
     /// </summary>
     public void Refresh()
     {
+        if (SceneManager.GetActiveScene().name != "Collection") return;
         bool owned = UserCollectionManager.Instance.IsOwned(cardId);
         //Only in collection
         lockOverlay.SetActive(!owned);

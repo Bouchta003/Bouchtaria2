@@ -21,6 +21,7 @@ public class CardInstance : MonoBehaviour
 
     // Runtime state
     public int CurrentAttack { get; private set; }
+    public int CurrentManaCost { get; private set; }
     public int CurrentHealth { get; private set; }
 
     public PlayerOwner Owner { get; private set; }
@@ -37,6 +38,7 @@ public class CardInstance : MonoBehaviour
         Data = data;
         Owner = owner;
 
+        CurrentManaCost = data.manaCost;
         CurrentAttack = data.atkValue;
         CurrentHealth = data.hpValue;
 

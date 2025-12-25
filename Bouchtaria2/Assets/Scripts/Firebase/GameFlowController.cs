@@ -107,8 +107,17 @@ public class GameFlowController : MonoBehaviour
         isGameReady = true;
         Debug.Log("🎮 GAME DATA READY");
     }
-
-
+    public void GoToCombat()
+    {
+        if (!isGameReady)
+        {
+            Debug.LogWarning("⚠️ Game data not ready yet");
+            return;
+        }
+        //IsThisLineNecessary ?
+        UserCollectionManager.Instance.RefreshCollection();
+        SceneManager.LoadScene("Combat");
+    }
     public void GoToCollection()
     {
         if (!isGameReady)
