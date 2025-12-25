@@ -27,12 +27,14 @@ public class Card : MonoBehaviour
 
     void OnMouseEnter()
     {
+        //Add combat restriction for drag
         if (isDragging) return;
         if(handManager!=null)handManager.RaiseCard(gameObject, 50); // hover
     }
 
     private void OnMouseDown()
     {
+        //Add combat restriction for drag
         isDragging = true;
 
         startDragPosition = transform.position;
@@ -43,6 +45,7 @@ public class Card : MonoBehaviour
 
     private void OnMouseDrag()
     {
+        //Add combat restriction for drag
         transform.position = GetMousePositionInWorldSpace();
     }
 
@@ -55,6 +58,7 @@ public class Card : MonoBehaviour
 
     private void OnMouseUp()
     {
+        //Add combat restriction for drag
         isDragging = false;
 
         col.enabled = false;
@@ -107,12 +111,14 @@ public class Card : MonoBehaviour
 
     void OnMouseExit()
     {
+        //Add combat restriction for drag
         if (isDragging) return;
         if(handManager!=null)handManager.RestoreCardOrder();
     }
 
     void ResetCard()
     {
+        //Add combat restriction for drag
         transform.position = startDragPosition;
         if(handManager!=null)handManager.RestoreCardOrder();
     }

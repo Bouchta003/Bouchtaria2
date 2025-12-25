@@ -77,7 +77,12 @@ public class CardView : MonoBehaviour,
 
         if (card.traits == null || card.traits.Count == 0)
             return;
+        if (card.cardType.ToLower() == "spell")
+        {
+            atkFrameRenderer.gameObject.SetActive(false) ;
+            hpFrameRenderer.gameObject.SetActive(false) ;
 
+        }
         if (TraitColors.TryGetValue(card.traits[0].ToLowerInvariant(), out Color color))
         {
             frameRenderer.color = color;
@@ -111,7 +116,7 @@ public class CardView : MonoBehaviour,
     public void Refresh()
     {
         bool owned = UserCollectionManager.Instance.IsOwned(cardId);
-
+        //Only in collection
         lockOverlay.SetActive(!owned);
 
         cardSpriteRenderer.color = owned

@@ -23,7 +23,10 @@ public class CardData
     public bool packable;
     public bool token;
     public bool signature;
-
+    public enum Trait
+    {
+        Neutral, Speedster, Inazuma, Pokemon, Blizzard, Workout, Gunners, Faith, Ritual, Hater, SpellFocus, Combo, Healer, Meme
+    }
     public enum KeyWords
     {
         Taunt, Quickstrike, Blessed, Thorns, Haste, Berserk
