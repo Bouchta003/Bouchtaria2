@@ -98,7 +98,8 @@ public class CardInstance : MonoBehaviour
     {
         //if (!HasTrait("battlecry"))
         //  return;
-        //Draw effect 
+        GameManager gm = FindAnyObjectByType<GameManager>();
+        gm.EnemyCore.AddShield(5);
     }
     private void TriggerRequiem()
     {

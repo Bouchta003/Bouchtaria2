@@ -56,8 +56,6 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         //Add to list of ally cards
         allyPrefabCards.Add(card.gameObject);
         UpdateAllyCardPositions();
-
-        Debug.Log("Card dropped in ally slot");
     }
     public void HandleAllyDeath(CardInstance instance)
     {
