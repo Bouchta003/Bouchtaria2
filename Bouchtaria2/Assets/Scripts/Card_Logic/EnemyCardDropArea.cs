@@ -5,9 +5,9 @@ using DG.Tweening;
 
 public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
 {
-    [SerializeField] GameObject compactPrefab;
     [SerializeField] GameObject GameManager;
     [SerializeField] HandManager handManager;
+    [SerializeField] AllyCardDropArea allyCardDropArea;
     [SerializeField] SplineContainer enemyBoardSpline;
 
     GameManager gm;

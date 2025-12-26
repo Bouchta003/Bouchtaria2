@@ -1660,6 +1660,7 @@ MonoBehaviour:
   compactPrefab: {fileID: 2138098922408031110, guid: ca0487e94e89fb346bebde90e55ad7c0, type: 3}
   GameManager: {fileID: 116247817}
   handManager: {fileID: 574209137}
+  allyCardDropArea: {fileID: 1531594430}
   enemyBoardSpline: {fileID: 931779532}
   maxBoardSize: 6
   enemyPrefabCards: []
@@ -1876,6 +1877,7 @@ MonoBehaviour:
   compactPrefab: {fileID: 2138098922408031110, guid: ca0487e94e89fb346bebde90e55ad7c0, type: 3}
   GameManager: {fileID: 116247817}
   handManager: {fileID: 574209137}
+  enemyCardDropArea: {fileID: 1449377217}
   allyBoardSpline: {fileID: 1352758658}
   maxBoardSize: 6
   allyPrefabCards: []

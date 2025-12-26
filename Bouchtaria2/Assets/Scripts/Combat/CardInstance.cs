@@ -47,6 +47,11 @@ public class CardInstance : MonoBehaviour
         HasAttackedThisTurn = false;
         IsSummoningSick = true;
     }
+    public bool HasTrait(string trait)
+    {
+        return Data.traits != null && Data.traits.Contains(trait);
+    }
+
     // -------------------------
     // Zone management
     // -------------------------

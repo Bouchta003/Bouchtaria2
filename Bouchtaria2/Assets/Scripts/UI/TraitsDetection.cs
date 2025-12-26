@@ -102,59 +102,60 @@ public class TraitsDetection : MonoBehaviour
                 switch (trait)
                 {
                     case CardData.Trait.Pokemon:
-                        traitDisplay.gemSlot.color = new Color(0.95f, 0.25f, 0.25f);
+                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.pokemonIcon;
                         break;
                     case CardData.Trait.Neutral:
-                        traitDisplay.gemSlot.color = new Color(0.60f, 0.60f, 0.60f);
+                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.neutralIcon;
                         break;
                     case CardData.Trait.Speedster:
-                        traitDisplay.gemSlot.color = new Color(0.15f, 0.55f, 1.00f);
+                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.speedsterIcon;
                         break;
                     case CardData.Trait.Gunner:
-                        traitDisplay.gemSlot.color = new Color(0.85f, 0.20f, 0.20f);
+                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.gunnerIcon;
                         break;
                     case CardData.Trait.SpellFocus:
-                        traitDisplay.gemSlot.color = new Color(0.70f, 0.35f, 1.00f);
+                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.spellFocusIcon;
                         break;
                     case CardData.Trait.Faith:
-                        traitDisplay.gemSlot.color = new Color(1.00f, 0.85f, 0.35f) ;
+                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.faithIcon;
                         break;
                     case CardData.Trait.Hater:
-                        traitDisplay.gemSlot.color = new Color(0.25f, 0.25f, 0.25f);
+                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.haterIcon;
                         break;
                     case CardData.Trait.Combo:
-                        traitDisplay.gemSlot.color = new Color(1.00f, 0.55f, 0.15f);
+                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.comboIcon;
                         break;
                     case CardData.Trait.Healer:
-                        traitDisplay.gemSlot.color = new Color(0.35f, 0.85f, 0.60f) ;
+                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.healIcon;
                         break;
                     case CardData.Trait.Workout:
-                        traitDisplay.gemSlot.color = new Color(0.75f, 0.75f, 0.75f);
+                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.workoutIcon;
                         break;
                     case CardData.Trait.Inazuma:
-                        traitDisplay.gemSlot.color = new Color(1.00f, 0.92f, 0.20f);
+                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.inazumaIcon;
                         break;
                     case CardData.Trait.Blizzard:
-                        traitDisplay.gemSlot.color = new Color(0.55f, 0.85f, 1.00f);
+                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.blizzardIcon;
                         break;
                     case CardData.Trait.Meme:
-                        traitDisplay.gemSlot.color = new Color(1.00f, 0.35f, 0.85f);
+                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.memeIcon;
                         break;
                     default:
                         traitDisplay.gemSlot.color = new Color(1.00f, 0.85f, 0.35f);
+                        Debug.Log("Unkown trait");
                         break;
                 }
             }

@@ -104,7 +104,7 @@ public class CardView : MonoBehaviour,
             hpFrameRenderer.gameObject.SetActive(false);
 
         }
-        if (TraitColors.TryGetValue(card.traits[0].ToLowerInvariant(), out Color color))
+        if (TryGetTraitColor(card.traits[0], out Color color))
         {
             frameRenderer.color = color;
             frameRenderer2.color = color;
@@ -113,14 +113,14 @@ public class CardView : MonoBehaviour,
             atkFrameRenderer.color = color;
             hpFrameRenderer.color = color;
         }
-
         if (card.traits.Count > 1 &&
-            TraitColors.TryGetValue(card.traits[1].ToLowerInvariant(), out Color color2))
+   TryGetTraitColor(card.traits[1], out Color color2))
         {
             frameRenderer2.color = color2;
             manaFrameRenderer2.color = color2;
             hpFrameRenderer.color = color2;
         }
+
         Refresh();
     }
     private void SetupBoardMode(CardData card)
@@ -150,7 +150,7 @@ public class CardView : MonoBehaviour,
             hpFrameRendererBoard.gameObject.SetActive(false);
 
         }
-        if (TraitColors.TryGetValue(card.traits[0].ToLowerInvariant(), out Color color))
+        if (TryGetTraitColor(card.traits[0], out Color color))
         {
             frameRendererBoard.color = color;
             frameRenderer2Board.color = color;
@@ -159,9 +159,8 @@ public class CardView : MonoBehaviour,
             atkFrameRendererBoard.color = color;
             hpFrameRendererBoard.color = color;
         }
-
         if (card.traits.Count > 1 &&
-            TraitColors.TryGetValue(card.traits[1].ToLowerInvariant(), out Color color2))
+  TryGetTraitColor(card.traits[1], out Color color2))
         {
             frameRenderer2Board.color = color2;
             manaFrameRenderer2Board.color = color2;
@@ -169,41 +168,16 @@ public class CardView : MonoBehaviour,
         }
         Refresh();
     }
+    private bool TryGetTraitColor(string traitString, out Color color)
+    {
+        color = Color.white;
 
-    private static readonly Dictionary<string, Color> TraitColors =
-        new Dictionary<string, Color>
-        {
-                // Aggression / Tempo
-            { "speedster",   new Color(0.15f, 0.55f, 1.00f) }, // electric blue (fast, sharp)
-            { "gunners",     new Color(0.85f, 0.20f, 0.20f) }, // vivid red (damage, bullets)
-            { "combo",       new Color(1.00f, 0.55f, 0.15f) }, // orange (APM, momentum)
+        if (!System.Enum.TryParse<CardData.Trait>(traitString, true, out var trait))
+            return false;
 
-            // Spell / Magic
-            { "spellfocus",  new Color(0.70f, 0.35f, 1.00f) }, // arcane violet
-            { "faith",       new Color(1.00f, 0.85f, 0.35f) }, // gold (holy, value)
-            { "ritual",      new Color(0.55f, 0.10f, 0.55f) }, // dark purple (forbidden power)
-
-            // Control / Denial
-            { "hater",       new Color(0.25f, 0.25f, 0.25f) }, // dark graphite (oppressive)
-            { "healer",      new Color(0.35f, 0.85f, 0.60f) }, // saturated green (life, recovery)
-
-            // Neutral / Beginner
-            { "workout",     new Color(0.75f, 0.75f, 0.75f) }, // light steel (simple stats)
-            { "neutral",     new Color(0.60f, 0.60f, 0.60f) }, // plain gray (baseline)
-
-            // Inazuma / Football Roles
-            { "inazuma",     new Color(1.00f, 0.92f, 0.20f) }, // cyan (team identity)
-
-            // Pokémon
-            { "pokemon",     new Color(0.95f, 0.25f, 0.25f) }, // poké red (iconic)
-     
-            // Elemental
-            { "blizzard",    new Color(0.55f, 0.85f, 1.00f) }, // icy blue (snow, frost)
-
-            // Meme / Joke / Chaos
-            { "meme",        new Color(1.00f, 0.35f, 0.85f) }, // absurd pink-magenta (intentional chaos)
-
-        };
+        color = TraitColorDatabase.Get(trait);
+        return true;
+    }
 
     /// <summary>
     /// Refresh owned / locked visual state

@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine.Splines;
 using DG.Tweening;
+using System.Linq;
 
 public class AllyCardDropArea : MonoBehaviour, ICardDropArea
 {
-    [SerializeField] GameObject compactPrefab;
     [SerializeField] GameObject GameManager;
     [SerializeField] HandManager handManager;
+    [SerializeField] EnemyCardDropArea enemyCardDropArea;
     [SerializeField] SplineContainer allyBoardSpline;
 
     GameManager gm;
@@ -99,6 +100,24 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
     private void OnEnable()
     {
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
+        TurnManager.Instance.OnTurnEnded += HandleTurnEnd;
+    }
+    private void OnDisable()
+    {
+        if (TurnManager.Instance != null)
+        {
+            TurnManager.Instance.OnTurnStarted -= HandleTurnStart;
+            TurnManager.Instance.OnTurnEnded -= HandleTurnEnd;
+        }
+    }
+    #region Effect Triggers
+    private void HandleTurnEnd(PlayerOwner owner)
+    {
+        // Only trigger for the owner of THIS board
+        if (owner != PlayerOwner.Player)
+            return;
+        
+        //TriggerGunners(1);
     }
     private void HandleTurnStart(PlayerOwner owner)
     {
@@ -111,4 +130,37 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
             instance.OnTurnStart();
         }
     }
+    private void TriggerGunners(int traitLevel)
+    {
+        int damage = 1;
+        int gunnerEffectCounter = 0;
+        if (traitLevel > 2) damage = 2;
+        // Collect enemy units once
+        List<CardInstance> enemies = enemyCardDropArea.enemyPrefabCards
+            .Select(go => go.GetComponent<CardInstance>())
+            .Where(ci => ci != null)
+            .ToList();
+
+        if (enemies.Count == 0)
+            return;
+
+        foreach (GameObject cardGO in allyPrefabCards)
+        {
+            if (gunnerEffectCounter > 0 && traitLevel==1) return;
+            if (gunnerEffectCounter > 1 && traitLevel>1) return;
+            CardInstance instance = cardGO.GetComponent<CardInstance>();
+
+            if (instance == null)
+                continue;
+
+            if (!instance.HasTrait("Gunner"))
+                continue;
+
+            CardInstance target = enemies[Random.Range(0, enemies.Count)];
+
+            target.TakeDamage(damage);
+            gunnerEffectCounter++;
+        }
+    }
+    #endregion
 }
