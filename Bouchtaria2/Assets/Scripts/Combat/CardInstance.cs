@@ -27,8 +27,8 @@ public class CardInstance : MonoBehaviour
     public PlayerOwner Owner { get; set; }
     public CardZone CurrentZone { get; private set; }
 
-    public bool HasAttackedThisTurn { get; private set; }
-    public bool IsSummoningSick { get; private set; }
+    public bool HasAttackedThisTurn { get; set; }
+    public bool IsSummoningSick { get; set; }
 
     // -------------------------
     // Initialization (called by CardFactory ONLY)

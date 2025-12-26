@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 
 public class HandManager : MonoBehaviour
 {
-    [SerializeField] int maxHandSize;
+    [SerializeField] public int maxHandSize;
 
     [SerializeField] GameObject cardPrefab;
     [SerializeField] SplineContainer splineContainer;

@@ -9,9 +9,25 @@ public class GameManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI manacounter;
     [SerializeField] Image attackCursor;
     public bool isTargettingAttack;
+    Card currentAttacker;
     void Start()
     {
         isTargettingAttack = false;
+
+        if (TurnManager.Instance == null)
+        {
+            Debug.LogError("TurnManager missing!");
+            return;
+        }
+
+        TurnManager.Instance.OnTurnStarted += HandleTurnStart;
+
+        TurnManager.Instance.StartFirstTurn();
+    }
+    private void OnDestroy()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= HandleTurnStart;
     }
 
     // Update is called once per frame
@@ -20,7 +36,13 @@ public class GameManager : MonoBehaviour
         manacounter.text = $"{CurrentMana}/{CurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
     }
+    private void HandleTurnStart(PlayerOwner owner)
+    {
+        if (owner != PlayerOwner.Player)
+            return;
 
+        RefreshMaxMana();
+    }
     public void RefreshMaxMana()
     {
         CurrentMana = CurrentMaxMana;
@@ -29,13 +51,18 @@ public class GameManager : MonoBehaviour
     {
         CurrentMana -= mana;
     }
-    Card currentAttacker;
 
     public void BeginAttack(Card attacker)
     {
         CardInstance attackerInst = attacker.GetComponentInChildren<CardInstance>();
         if (attackerInst.Data.cardType.ToLower() == "spell") return;
         if (attackerInst.CurrentZone != CardZone.Board) return;
+        if (!TurnManager.Instance.IsPlayerTurn(attackerInst.Owner))
+            return;
+        if (attackerInst.HasAttackedThisTurn)
+            return;
+        if (attackerInst.IsSummoningSick)
+            return;
         isTargettingAttack = true;
         currentAttacker = attacker;
 
@@ -59,6 +86,7 @@ public class GameManager : MonoBehaviour
         //Attack Logic :
         int attackerDmg = attackerInst.CurrentAttack;
         int targetDmg = targetInst.CurrentAttack;
+        attackerInst.HasAttackedThisTurn=true;
         attackerInst.TakeDamage(targetDmg);
         targetInst.TakeDamage(attackerDmg);
 

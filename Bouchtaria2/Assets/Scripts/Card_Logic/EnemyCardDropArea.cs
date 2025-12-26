@@ -42,6 +42,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         //Instantiate card compact instead on board
         card.gameObject.GetComponent<CardInstance>().SetZone(CardZone.Board);
         card.gameObject.GetComponent<CardInstance>().Owner = PlayerOwner.Enemy;
+        card.gameObject.GetComponent<CardInstance>().IsSummoningSick = true;
         card.gameObject.GetComponent<CardView>().UpdateMode();
 
         //Add to list of ally cards

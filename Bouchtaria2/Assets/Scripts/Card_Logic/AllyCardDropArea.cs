@@ -22,7 +22,8 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
     {
         //Verify Mana Legality 
         if (card.gameObject.GetComponent<CardInstance>().CurrentManaCost > gm.CurrentMana ||
-            card.gameObject.GetComponent<CardInstance>().Data.cardType.ToLower() == "spell")
+            card.gameObject.GetComponent<CardInstance>().Data.cardType.ToLower() == "spell" || 
+            !TurnManager.Instance.IsPlayerTurn(PlayerOwner.Player))
         {
             card.ResetCard();
             return;
@@ -42,6 +43,7 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         //Instantiate card compact instead on board
         card.gameObject.GetComponent<CardInstance>().SetZone(CardZone.Board);
         card.gameObject.GetComponent<CardInstance>().Owner = PlayerOwner.Player;
+        card.gameObject.GetComponent<CardInstance>().IsSummoningSick = true;
         card.gameObject.GetComponent<CardView>().UpdateMode();
 
         //Add to list of ally cards
@@ -63,7 +65,6 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
 
         UpdateAllyCardPositions();
     }
-
     public void UpdateAllyCardPositions()
     {
         if (allyPrefabCards.Count == 0) return;
@@ -93,6 +94,21 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
                 new Vector3(0, 0, angle),
                 0.25f
             );
+        }
+    }
+    private void OnEnable()
+    {
+        TurnManager.Instance.OnTurnStarted += HandleTurnStart;
+    }
+    private void HandleTurnStart(PlayerOwner owner)
+    {
+        if (owner != PlayerOwner.Player)
+            return;
+
+        foreach (var cardGO in allyPrefabCards)
+        {
+            var instance = cardGO.GetComponent<CardInstance>();
+            instance.OnTurnStart();
         }
     }
 }

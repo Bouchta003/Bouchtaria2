@@ -14,11 +14,8 @@ public class DeckManager : MonoBehaviour
     private void Start()
     {
         InitializeTestDeck();
-        foreach (var card in CardDatabase.Instance.Cards.Values)
-        { 
-        
-        }
         traitsDetection.RetrieveTraitTiersFromDeck(playerDeck);
+        Draw(3);
     }
     private void InitializeTestDeck()
     {
@@ -34,12 +31,20 @@ public class DeckManager : MonoBehaviour
 
         Debug.Log($"Deck initialized with {playerDeck.Count} cards.");
     }
-    private void Update()
+    private void OnEnable()
     {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            DrawCard();
-        }
+        TurnManager.Instance.OnTurnStarted += HandleTurnStart;
+    }
+    private void HandleTurnStart(PlayerOwner owner)
+    {
+        if (owner != PlayerOwner.Player)
+            return;
+
+        DrawCard();
+    }
+    public void Draw(int count)
+    {
+        for (int i = 0; i < count; i++) DrawCard();
     }
     private void DrawCard()
     {
@@ -48,7 +53,12 @@ public class DeckManager : MonoBehaviour
             Debug.Log("Deck is empty.");
             return;
         }
-
+        if (handManager.handCards.Count >= handManager.maxHandSize)
+        {
+            playerDeck.Dequeue();//Burn
+            Debug.Log("Hand is full.");
+            return;
+        }
         CardData data = playerDeck.Dequeue();
 
         CardInstance card = CardFactory.Instance.CreateCard(data, playerOwner);
@@ -70,8 +80,15 @@ public class DeckManager : MonoBehaviour
 
     private List<CardData> GetTestDeckFromServer()
     {
-        // TEMP MOCK
-        // Replace with Firestore fetch later
-        return new List<CardData>(CardDatabase.Instance.Cards.Values);
+        List<CardData> deck = new List<CardData>();
+
+        foreach (CardData card in CardDatabase.Instance.Cards.Values)
+        {
+            if (card.cardType == "minion")
+                deck.Add(card);
+        }
+
+        return deck;
     }
+
 }
