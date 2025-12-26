@@ -5,18 +5,20 @@ public class DeckManager : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private HandManager handManager;
+    [SerializeField] private TraitsDetection traitsDetection;
 
     [Header("Debug / Test")]
     [SerializeField] private PlayerOwner playerOwner = PlayerOwner.Player; 
     
-    private Queue<CardData> playerDeck = new Queue<CardData>();
+    public Queue<CardData> playerDeck = new Queue<CardData>();
     private void Start()
     {
         InitializeTestDeck();
         foreach (var card in CardDatabase.Instance.Cards.Values)
         { 
         
-        }        
+        }
+        traitsDetection.RetrieveTraitTiersFromDeck(playerDeck);
     }
     private void InitializeTestDeck()
     {

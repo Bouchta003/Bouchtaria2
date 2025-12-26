@@ -25,7 +25,7 @@ public class CardData
     public bool signature;
     public enum Trait
     {
-        Neutral, Speedster, Inazuma, Pokemon, Blizzard, Workout, Gunners, Faith, Ritual, Hater, SpellFocus, Combo, Healer, Meme
+        Neutral, Speedster, Gunner, Inazuma, Pokemon, Blizzard, Workout, Faith, Ritual, Hater, SpellFocus, Combo, Healer, Meme
     }
     public enum KeyWords
     {
