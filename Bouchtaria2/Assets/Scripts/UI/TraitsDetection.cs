@@ -62,7 +62,7 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Faith, new[] { 6, 9 } },
             { CardData.Trait.Healer, new[] { 6, 9 } },
             { CardData.Trait.Inazuma, new[] { 10 } },
-            { CardData.Trait.Pokemon, new[] { 4 } },
+            { CardData.Trait.Pokemon, new[] { 2,4,6 } },
             { CardData.Trait.Neutral, new[] { 0, 1 } }
         };
 
