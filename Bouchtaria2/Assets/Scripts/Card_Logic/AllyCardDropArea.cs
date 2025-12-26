@@ -21,16 +21,18 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
     public void OnCardDrop(Card card)
     {
         //Verify Mana Legality 
-        if (card.gameObject.GetComponent<CardInstance>().CurrentManaCost > gm.CurrentMana || 
-            card.gameObject.GetComponent<CardInstance>().Data.cardType.ToLower()=="spell") { 
-            card.ResetCard(); 
-            return; }
+        if (card.gameObject.GetComponent<CardInstance>().CurrentManaCost > gm.CurrentMana ||
+            card.gameObject.GetComponent<CardInstance>().Data.cardType.ToLower() == "spell")
+        {
+            card.ResetCard();
+            return;
+        }
         //Verify board space Legality
         if (allyPrefabCards.Count >= maxBoardSize) return;
 
 
         // ----- Card is legal -----
-        
+
         //Remove card from hand
         handManager.RemoveCardFromHand(card.gameObject);
 
@@ -39,20 +41,34 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
 
         //Instantiate card compact instead on board
         card.gameObject.GetComponent<CardInstance>().SetZone(CardZone.Board);
-        card.gameObject.GetComponent<CardInstance>().Owner=PlayerOwner.Player;
+        card.gameObject.GetComponent<CardInstance>().Owner = PlayerOwner.Player;
         card.gameObject.GetComponent<CardView>().UpdateMode();
-        
+
         //Add to list of ally cards
         allyPrefabCards.Add(card.gameObject);
         UpdateAllyCardPositions();
-        
+
         Debug.Log("Card dropped in ally slot");
     }
+    public void HandleAllyDeath(CardInstance instance)
+    {
+        GameObject cardGO = instance.gameObject;
+
+        if (!allyPrefabCards.Contains(cardGO))
+            return;
+
+        allyPrefabCards.Remove(cardGO);
+
+        Destroy(cardGO);
+
+        UpdateAllyCardPositions();
+    }
+
     public void UpdateAllyCardPositions()
     {
         if (allyPrefabCards.Count == 0) return;
 
-        float cardSpacing = (1f / maxBoardSize)  + 0.1f/allyPrefabCards.Count;
+        float cardSpacing = (1f / maxBoardSize) + 0.1f / allyPrefabCards.Count;
         float firstCardPosition = 0.5f - (allyPrefabCards.Count - 1) * cardSpacing / 2;
 
         Spline spline = allyBoardSpline.Spline;

@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
 
     public void BeginAttack(Card attacker)
     {
-        CardInstance attackerInst = currentAttacker.GetComponentInChildren<CardInstance>();
+        CardInstance attackerInst = attacker.GetComponentInChildren<CardInstance>();
         if (attackerInst.Data.cardType.ToLower() == "spell") return;
         if (attackerInst.CurrentZone != CardZone.Board) return;
         isTargettingAttack = true;

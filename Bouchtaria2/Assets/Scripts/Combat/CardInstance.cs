@@ -86,10 +86,26 @@ public class CardInstance : MonoBehaviour
             Die();
         }
     }
-
-    private void Die()
+    public void Die()
     {
-        SetZone(CardZone.Graveyard);
-        gameObject.SetActive(false); // or send to graveyard visual
+        if (CurrentZone == CardZone.Board)
+        {
+            if (Owner == PlayerOwner.Player)
+            {
+                AllyCardDropArea board =
+                    FindFirstObjectByType<AllyCardDropArea>();
+
+                if (board != null)
+                    board.HandleAllyDeath(this);
+            }
+            else {
+                EnemyCardDropArea board =
+                 FindFirstObjectByType<EnemyCardDropArea>();
+
+                if (board != null)
+                    board.HandleEnemyDeath(this);
+            }
+        }
     }
+
 }

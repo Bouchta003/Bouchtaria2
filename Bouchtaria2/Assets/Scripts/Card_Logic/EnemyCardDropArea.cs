@@ -22,11 +22,12 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     {
         //Verify Mana Legality 
         if (card.gameObject.GetComponent<CardInstance>().CurrentManaCost > gm.CurrentMana ||
-            card.gameObject.GetComponent<CardInstance>().Data.cardType.ToLower() == "spell") 
+            card.gameObject.GetComponent<CardInstance>().Data.cardType.ToLower() == "spell")
         {
             card.ResetCard();
             return;
-        }        //Verify board space Legality
+        }        
+        //Verify board space Legality
         if (enemyPrefabCards.Count >= maxBoardSize) return;
 
 
@@ -49,6 +50,20 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
 
         Debug.Log("Card dropped in ally slot");
     }
+    public void HandleEnemyDeath(CardInstance instance)
+    {
+        GameObject cardGO = instance.gameObject;
+
+        if (!enemyPrefabCards.Contains(cardGO))
+            return;
+
+        enemyPrefabCards.Remove(cardGO);
+
+        Destroy(cardGO);
+
+        UpdateEnemyCardPositions();
+    }
+
     public void UpdateEnemyCardPositions()
     {
         if (enemyPrefabCards.Count == 0) return;
