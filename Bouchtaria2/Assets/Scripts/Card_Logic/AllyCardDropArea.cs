@@ -57,6 +57,17 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         allyPrefabCards.Add(card.gameObject);
         UpdateAllyCardPositions();
     }
+    public bool HasProtectUnits()
+    {
+        foreach (GameObject cardGO in allyPrefabCards)
+        {
+            CardInstance instance = cardGO.GetComponent<CardInstance>();
+            if (instance != null && instance.HasKeyword("protect"))
+                return true;
+        }
+        return false;
+    }
+
     public void HandleAllyDeath(CardInstance instance)
     {
         GameObject cardGO = instance.gameObject;

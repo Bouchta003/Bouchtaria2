@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -132,9 +133,27 @@ public class GameManager : MonoBehaviour
     {
         if (!isTargettingAttack)
             BeginAttack(card);
-        else
+        else if(CanAttackUnit(card.GetComponent<CardInstance>()))
             ResolveAttack(card);
     }
+    public bool CanAttackUnit(CardInstance target)
+    {
+        // Basic checks (turn, owner, already attacked, etc.)
+
+        if (target.Owner == PlayerOwner.Player)
+        {
+            if (!target.HasKeyword("protect") && FindFirstObjectByType<AllyCardDropArea>().HasProtectUnits())
+                return false;
+            else return true;
+        }
+        else
+        {
+            if (!target.HasKeyword("protect") && FindFirstObjectByType<EnemyCardDropArea>().HasProtectUnits())
+                return false;
+            else return true;
+        }
+    }
+
     public void TryAttackCore(CoreInstance targetCore)
     {
         if (currentAttacker == null)
@@ -143,8 +162,14 @@ public class GameManager : MonoBehaviour
         if (currentAttacker.GetComponent<CardInstance>().Owner == targetCore.Owner)
             return;
 
-        // Optional future rule: taunt blocks core attacks
-
+        if (currentAttacker.GetComponent<CardInstance>().Owner == PlayerOwner.Player && FindFirstObjectByType<EnemyCardDropArea>().HasProtectUnits())
+        {
+            return;
+        }
+        else if (currentAttacker.GetComponent<CardInstance>().Owner == PlayerOwner.Enemy && FindFirstObjectByType<AllyCardDropArea>().HasProtectUnits())
+        {
+            return;
+        }
         ResolveAttackOnCore(currentAttacker.GetComponent<CardInstance>(), targetCore);
 
         currentAttacker.GetComponent<CardInstance>().HasAttackedThisTurn = true;

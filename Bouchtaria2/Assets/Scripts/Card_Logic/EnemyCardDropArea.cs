@@ -57,6 +57,17 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
 
         Debug.Log("Card dropped in ally slot");
     }
+    public bool HasProtectUnits()
+    {
+        foreach (GameObject cardGO in enemyPrefabCards)
+        {
+            CardInstance instance = cardGO.GetComponent<CardInstance>();
+            if (instance != null && instance.HasKeyword("protect"))
+                return true;
+        }
+        return false;
+    }
+
     public void HandleEnemyDeath(CardInstance instance)
     {
         GameObject cardGO = instance.gameObject;
