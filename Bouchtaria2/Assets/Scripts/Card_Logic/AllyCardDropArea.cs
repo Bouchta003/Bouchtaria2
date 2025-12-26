@@ -42,9 +42,15 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         gm.UseMana(card.gameObject.GetComponent<CardInstance>().CurrentManaCost);
 
         //Instantiate card compact instead on board
-        card.gameObject.GetComponent<CardInstance>().SetZone(CardZone.Board);
-        card.gameObject.GetComponent<CardInstance>().Owner = PlayerOwner.Player;
-        card.gameObject.GetComponent<CardInstance>().IsSummoningSick = true;
+        CardInstance cardInst = card.gameObject.GetComponent<CardInstance>();
+        cardInst.SetZone(CardZone.Board);
+        cardInst.Owner = PlayerOwner.Player;
+        if (cardInst.HasKeyword("quickstrike") || cardInst.HasKeyword("charge"))
+            cardInst.IsSummoningSick = false;
+        else
+            cardInst.IsSummoningSick = true;
+        cardInst.OnEnterBoard();
+
         card.gameObject.GetComponent<CardView>().UpdateMode();
 
         //Add to list of ally cards

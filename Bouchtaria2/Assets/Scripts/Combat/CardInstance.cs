@@ -51,7 +51,18 @@ public class CardInstance : MonoBehaviour
     {
         return Data.traits != null && Data.traits.Contains(trait);
     }
+    public bool HasKeyword(string keywordString)
+    {
+        if (Data == null || Data.effect == null)
+            return false;
 
+        if (Data.effect.Contains(keywordString))
+        {
+            return true;
+        }
+
+        return false;
+    }
     // -------------------------
     // Zone management
     // -------------------------
@@ -79,6 +90,25 @@ public class CardInstance : MonoBehaviour
     // -------------------------
     // Combat helpers
     // -------------------------
+    public void OnEnterBoard()
+    {
+        TriggerDeploy();
+    }
+    private void TriggerDeploy()
+    {
+        //if (!HasTrait("battlecry"))
+        //  return;
+        //Draw effect 
+    }
+    private void TriggerRequiem()
+    {
+        //if (!HasTrait("battlecry"))
+        //  return;
+        //Draw effect 
+        DeckManager deck = FindFirstObjectByType<DeckManager>();
+        deck.Draw(1);
+    }
+
     public void TakeDamage(int amount)
     {
         CurrentHealth -= amount;
@@ -102,6 +132,8 @@ public class CardInstance : MonoBehaviour
 
                 if (board != null)
                     board.HandleAllyDeath(this);
+
+                TriggerRequiem();
             }
             else {
                 EnemyCardDropArea board =

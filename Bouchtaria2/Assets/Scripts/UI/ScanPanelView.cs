@@ -114,13 +114,17 @@ public class ScanPanelView : MonoBehaviour
                 GameObject keyDescription = entry.transform.GetChild(1).gameObject;
                 switch (keyword.ToLower())
                 {
-                    case "taunt":
-                        keyName.GetComponent<TextMeshProUGUI>().text = "Taunt";
+                    case "protect":
+                        keyName.GetComponent<TextMeshProUGUI>().text = "Protect";
                         keyDescription.GetComponent<TextMeshProUGUI>().text = "Forces the enemies to attack this unit. \nSpells aren't affected by Taunt.";
+                        break;
+                    case "deploy":
+                        keyName.GetComponent<TextMeshProUGUI>().text = "Deploy";
+                        keyDescription.GetComponent<TextMeshProUGUI>().text = "Does something when summonned";
                         break;
                     case "quickstrike":
                         keyName.GetComponent<TextMeshProUGUI>().text = "QuickStrike";
-                        keyDescription.GetComponent<TextMeshProUGUI>().text = "Can attack the turn it was summonned.";
+                        keyDescription.GetComponent<TextMeshProUGUI>().text = "Can attack minions the turn it was summonned.";
                         break;
                     case "haste":
                         keyName.GetComponent<TextMeshProUGUI>().text = "Haste";

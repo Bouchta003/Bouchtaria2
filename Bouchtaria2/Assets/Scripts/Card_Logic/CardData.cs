@@ -29,7 +29,7 @@ public class CardData
     }
     public enum KeyWords
     {
-        Taunt, Quickstrike, Blessed, Thorns, Haste, Berserk
+        Protect, Quickstrike, Blessed, Thorns, Haste, Berserk, Charge, Requiem, Deploy
     }
     // Runtime-only
     [System.NonSerialized] public Sprite artSprite;
