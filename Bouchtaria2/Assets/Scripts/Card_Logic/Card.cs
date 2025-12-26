@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Card : MonoBehaviour
 {
@@ -8,14 +9,19 @@ public class Card : MonoBehaviour
     EnemyCardDropArea enemyCardDropArea;
     AllyCardDropArea allyCardDropArea;
     HandManager handManager;
-
+    CardInstance thisInstance;
     bool isDragging; // 🔑 NEW
 
+    [Header("Visuals")]
+    [SerializeField] private SpriteRenderer handVisual;
+    [SerializeField] private SpriteRenderer boardVisual;
     void Awake()
     {
-        if (SceneManager.GetActiveScene().name != "Combat")
-            this.GetComponent<BoxCollider2D>().enabled = true;
-        handManager = FindFirstObjectByType<HandManager>();
+        col = GetComponent<Collider2D>();
+        col.enabled = true; // ALWAYS enable
+
+
+        thisInstance = gameObject.GetComponent<CardInstance>();
     }
 
     void Start()
@@ -24,49 +30,52 @@ public class Card : MonoBehaviour
         enemyCardDropArea = FindFirstObjectByType<EnemyCardDropArea>();
         allyCardDropArea = FindFirstObjectByType<AllyCardDropArea>();
     }
+    #region Pointer-based input (called by CardInputManager)
 
-    void OnMouseEnter()
+    public void OnPointerDown()
     {
-        //Add combat restriction for drag
-        if (isDragging) return;
-        if(handManager!=null)handManager.RaiseCard(gameObject, 50); // hover
+        if (thisInstance.CurrentZone == CardZone.Hand)
+        {
+            isDragging = true;
+            startDragPosition = transform.position;
+            transform.position = GetMousePositionInWorldSpace();
+
+            if (handManager != null)
+                handManager.RaiseCard(gameObject, 500);
+            return;
+        }
+
+        if (thisInstance.CurrentZone == CardZone.Board)
+        {
+            FindFirstObjectByType<GameManager>()
+                .HandleBoardCardClick(this);
+        }
     }
 
-    private void OnMouseDown()
+    public void OnPointerDrag()
     {
-        //Add combat restriction for drag
-        isDragging = true;
+        if (!isDragging)
+            return;
 
-        startDragPosition = transform.position;
+        if (thisInstance.CurrentZone != CardZone.Hand)
+            return;
+
         transform.position = GetMousePositionInWorldSpace();
-
-        if(handManager!=null)handManager.RaiseCard(gameObject, 500); // drag (topmost)
     }
 
-    private void OnMouseDrag()
+    public void OnPointerUp()
     {
-        //Add combat restriction for drag
-        transform.position = GetMousePositionInWorldSpace();
-    }
+        if (!isDragging)
+            return;
 
-    private Vector3 GetMousePositionInWorldSpace()
-    {
-        Vector3 p = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        p.z = 0f;
-        return p;
-    }
-
-    private void OnMouseUp()
-    {
-        //Add combat restriction for drag
         isDragging = false;
 
-        col.enabled = false;
-
         Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Collider2D hitCollider = Physics2D.OverlapPoint(mouseWorldPos);
 
-        col.enabled = true;
+        Collider2D hitCollider = Physics2D.OverlapPoint(
+            mouseWorldPos,
+            LayerMask.GetMask("DropArea")
+        );
 
         if (hitCollider == null)
         {
@@ -80,46 +89,39 @@ public class Card : MonoBehaviour
             return;
         }
 
-        if (hitCollider.CompareTag("Ally"))
-        {
-            if (allyCardDropArea.allyPrefabCards.Count < allyCardDropArea.maxBoardSize)
-            {
-                cardDropArea.OnCardDrop(this);
-                return;
-            }
-
-            Debug.Log("No more space for allies bro");
-            ResetCard();
-            return;
-        }
-
-        if (hitCollider.CompareTag("Enemy"))
-        {
-            if (enemyCardDropArea.enemyPrefabCards.Count < enemyCardDropArea.maxBoardSize)
-            {
-                cardDropArea.OnCardDrop(this);
-                return;
-            }
-
-            Debug.Log("No more space for enemies bro");
-            ResetCard();
-            return;
-        }
-
-        ResetCard();
+        cardDropArea.OnCardDrop(this);
+        LockOnBoard();
     }
-
-    void OnMouseExit()
+    public SpriteRenderer GetActiveSpriteRenderer()
     {
-        //Add combat restriction for drag
-        if (isDragging) return;
-        if(handManager!=null)handManager.RestoreCardOrder();
+        if (thisInstance.CurrentZone == CardZone.Hand && handVisual.gameObject.activeInHierarchy)
+            return handVisual;
+
+        if (thisInstance.CurrentZone == CardZone.Board && boardVisual.gameObject.activeInHierarchy)
+            return boardVisual;
+
+        // Fallback (should not happen, but safe)
+        return boardVisual != null ? boardVisual : handVisual;
     }
 
-    void ResetCard()
+    private Vector3 GetMousePositionInWorldSpace()
+    {
+        Vector3 p = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        p.z = 0f;
+        return p;
+    }
+    public void ResetCard()
     {
         //Add combat restriction for drag
         transform.position = startDragPosition;
-        if(handManager!=null)handManager.RestoreCardOrder();
+        if (handManager != null) handManager.RestoreCardOrder();
     }
+    public void LockOnBoard()
+    {
+        isDragging = false;
+        col.enabled = true;
+        this.enabled = true; // keep clicks
+    }
+
+    #endregion
 }

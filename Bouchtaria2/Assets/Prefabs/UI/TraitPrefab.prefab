@@ -325,7 +325,17 @@ MonoBehaviour:
   pokemonIcon: {fileID: -4253989046976991003, guid: b67fd643f7036d24293239a74ce5e59f, type: 3}
   inazumaIcon: {fileID: -4679337653480981598, guid: 18b76b424b98187479c4dfd3f9888a59, type: 3}
   healIcon: {fileID: -7885902996687886234, guid: 3f454b34cdc56f04b9f9094479b85660, type: 3}
+  blizzardIcon: {fileID: -2087517318503826612, guid: 0ad8e61c2d47da043a0fdb611ce5c250, type: 3}
+  gunnerIcon: {fileID: -288840297590651333, guid: 8bbbca989cd7072428e711b069cef2c8, type: 3}
+  workoutIcon: {fileID: 6247287197807811734, guid: c0c47a2ca855b064fbe0b6b783cb2b7b, type: 3}
+  faithIcon: {fileID: 1436432417859167358, guid: ed8f50d6c687ee0498b87cd1083b2c78, type: 3}
+  ritualIcon: {fileID: -1669197395575343318, guid: a26be48e99992274f8e488579706822f, type: 3}
+  memeIcon: {fileID: -3507313041585360687, guid: d1539f0ac6487814b91843fda2c10908, type: 3}
   neutralIcon: {fileID: -5911414597727056019, guid: a0e6fe9e9b7b81e439e1ee29a3251bc6, type: 3}
+  comboIcon: {fileID: -7451593466511310719, guid: 241383846215bf043b8d601700ec4c8a, type: 3}
+  haterIcon: {fileID: -2998404944717718655, guid: 557aa08c90efcd24bbad04873c262291, type: 3}
+  spellFocusIcon: {fileID: 2353896673767084397, guid: 9e75d9614a3236441a43570f2ae6a004, type: 3}
+  speedsterIcon: {fileID: -3300177487904253893, guid: 1923a5453900f4046a727c70b5452275, type: 3}
   iconSlot: {fileID: 7266386244633224757}
   gemSlot: {fileID: 3872599570111737514}
   frameRaritySlot: {fileID: 3872599570111737514}
@@ -400,7 +410,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -4253989046976991003, guid: b67fd643f7036d24293239a74ce5e59f, type: 3}
+  m_Sprite: {fileID: -5911414597727056019, guid: a0e6fe9e9b7b81e439e1ee29a3251bc6, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

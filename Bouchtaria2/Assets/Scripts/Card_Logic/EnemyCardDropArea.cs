@@ -6,27 +6,50 @@ using DG.Tweening;
 public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
 {
     [SerializeField] GameObject compactPrefab;
+    [SerializeField] GameObject GameManager;
     [SerializeField] HandManager handManager;
     [SerializeField] SplineContainer enemyBoardSpline;
 
-    public List<GameObject> enemyPrefabCards = new List<GameObject>();
-
+    GameManager gm;
     public int maxBoardSize = 6;
+
+    public List<GameObject> enemyPrefabCards = new List<GameObject>();
+    private void Start()
+    {
+        gm = GameManager.GetComponent<GameManager>();
+    }
     public void OnCardDrop(Card card)
     {
+        //Verify Mana Legality 
+        if (card.gameObject.GetComponent<CardInstance>().CurrentManaCost > gm.CurrentMana ||
+            card.gameObject.GetComponent<CardInstance>().Data.cardType.ToLower() == "spell") 
+        {
+            card.ResetCard();
+            return;
+        }        //Verify board space Legality
         if (enemyPrefabCards.Count >= maxBoardSize) return;
+
+
+        // ----- Card is legal -----
 
         //Remove card from hand
         handManager.RemoveCardFromHand(card.gameObject);
-        card.gameObject.SetActive(false);
+
+        //Use Mana
+        gm.UseMana(card.gameObject.GetComponent<CardInstance>().CurrentManaCost);
 
         //Instantiate card compact instead on board
-        GameObject prefabOnBoard = Instantiate(compactPrefab, transform.position, Quaternion.Euler(0, 0, 180));
-        enemyPrefabCards.Add(prefabOnBoard);
-        Debug.Log("Card dropped in enemy slot");
-        UpdateEnemyyCardPositions();
+        card.gameObject.GetComponent<CardInstance>().SetZone(CardZone.Board);
+        card.gameObject.GetComponent<CardInstance>().Owner = PlayerOwner.Enemy;
+        card.gameObject.GetComponent<CardView>().UpdateMode();
+
+        //Add to list of ally cards
+        enemyPrefabCards.Add(card.gameObject);
+        UpdateEnemyCardPositions();
+
+        Debug.Log("Card dropped in ally slot");
     }
-    public void UpdateEnemyyCardPositions()
+    public void UpdateEnemyCardPositions()
     {
         if (enemyPrefabCards.Count == 0) return;
 

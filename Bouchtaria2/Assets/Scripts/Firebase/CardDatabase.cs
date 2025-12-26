@@ -99,9 +99,19 @@ public class CardDatabase : MonoBehaviour
             card.artSprite = Resources.Load<Sprite>(card.artPath);
         }
 
+        if (!string.IsNullOrEmpty(card.artCompactPath))
+        {
+            card.artSpriteCompact = Resources.Load<Sprite>(card.artCompactPath);
+        }
+
         if (card.artSprite == null)
         {
             card.artSprite = defaultCardArt;
+            Debug.LogWarning($"⚠️ Missing art for card {card.id}, using default");
+        }
+        if (card.artSpriteCompact == null)
+        {
+            card.artSpriteCompact = defaultCardArt;
             Debug.LogWarning($"⚠️ Missing art for card {card.id}, using default");
         }
         return card;

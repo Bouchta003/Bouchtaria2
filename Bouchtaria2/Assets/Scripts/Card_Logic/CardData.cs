@@ -33,4 +33,5 @@ public class CardData
     }
     // Runtime-only
     [System.NonSerialized] public Sprite artSprite;
+    [System.NonSerialized] public Sprite artSpriteCompact;
 }

@@ -595,6 +595,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15e44ff5e39f61247a453e81ac07ec92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Card
+  handVisual: {fileID: 9106738069904245945}
+  boardVisual: {fileID: 1627327091352741481}
 --- !u!114 &3253690093743192391
 MonoBehaviour:
   m_ObjectHideFlags: 0

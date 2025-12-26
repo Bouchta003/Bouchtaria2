@@ -5,10 +5,20 @@ using UnityEngine.UI;
 public class TraitsDisplay : MonoBehaviour
 {
     [Header("Traits Icons")]
-    [SerializeField] public Sprite pokemonIcon;
-    [SerializeField] public Sprite inazumaIcon;
-    [SerializeField] public Sprite healIcon;
-    [SerializeField] public Sprite neutralIcon;
+    [SerializeField] public Sprite pokemonIcon;//
+    [SerializeField] public Sprite inazumaIcon;//
+    [SerializeField] public Sprite healIcon;//
+    [SerializeField] public Sprite blizzardIcon;//
+    [SerializeField] public Sprite gunnerIcon;
+    [SerializeField] public Sprite workoutIcon;//
+    [SerializeField] public Sprite faithIcon;//
+    [SerializeField] public Sprite ritualIcon;//
+    [SerializeField] public Sprite memeIcon;//
+    [SerializeField] public Sprite neutralIcon;//
+    [SerializeField] public Sprite comboIcon;//
+    [SerializeField] public Sprite haterIcon;//
+    [SerializeField] public Sprite spellFocusIcon;//
+    [SerializeField] public Sprite speedsterIcon;
 
     [Header("Prefab components")]
     [SerializeField] public Image iconSlot;

@@ -9,6 +9,7 @@ public class CardView : MonoBehaviour,
     IPointerExitHandler
 {
     public CardData CardData { get; private set; }
+    CardInstance inst;
 
     [Header("Hand Mode")]
     [SerializeField] private GameObject handVisual;
@@ -20,10 +21,10 @@ public class CardView : MonoBehaviour,
     [SerializeField] private SpriteRenderer atkFrameRenderer;
     [SerializeField] private SpriteRenderer hpFrameRenderer;
     [SerializeField] private GameObject lockOverlay;
-    [SerializeField] private TMP_Text nameText;
-    [SerializeField] private TMP_Text manaText;
-    [SerializeField] private TMP_Text atkText;
-    [SerializeField] private TMP_Text hpText;
+    [SerializeField] public TMP_Text nameText;
+    [SerializeField] public TMP_Text manaText;
+    [SerializeField] public TMP_Text atkText;
+    [SerializeField] public TMP_Text hpText;
 
     [Header("Board Mode")]
     [SerializeField] private GameObject boardVisual;
@@ -34,10 +35,10 @@ public class CardView : MonoBehaviour,
     [SerializeField] private SpriteRenderer manaFrameRenderer2Board;
     [SerializeField] private SpriteRenderer atkFrameRendererBoard;
     [SerializeField] private SpriteRenderer hpFrameRendererBoard;
-    [SerializeField] private TMP_Text nameTextBoard;
-    [SerializeField] private TMP_Text manaTextBoard;
-    [SerializeField] private TMP_Text atkTextBoard;
-    [SerializeField] private TMP_Text hpTextBoard;
+    [SerializeField] public TMP_Text nameTextBoard;
+    [SerializeField] public TMP_Text manaTextBoard;
+    [SerializeField] public TMP_Text atkTextBoard;
+    [SerializeField] public TMP_Text hpTextBoard;
 
     private int cardId;
     // Called by CollectionScreen after instantiation
@@ -45,11 +46,12 @@ public class CardView : MonoBehaviour,
     {
         CardData = data;
         SetupHandMode(data);
+        inst = gameObject.GetComponentInChildren<CardInstance>();
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
         bool owned = UserCollectionManager.Instance.IsOwned(cardId);
-        if (ScanController.Instance == null || (!owned&& SceneManager.GetActiveScene().name=="Collection"))
+        if (ScanController.Instance == null || (!owned && SceneManager.GetActiveScene().name == "Collection"))
             return;
 
         ScanController.Instance.OnCardHoverEnter(this);
@@ -127,7 +129,7 @@ public class CardView : MonoBehaviour,
         CardInstance thisInstance = gameObject.GetComponent<CardInstance>();
         cardId = card.id;
 
-        cardSpriteRendererBoard.sprite = card.artSprite;
+        cardSpriteRendererBoard.sprite = card.artSpriteCompact;
         nameTextBoard.text = card.name;
         manaTextBoard.text = thisInstance.CurrentManaCost.ToString();
         atkTextBoard.text = thisInstance.CurrentAttack.ToString();
@@ -171,29 +173,36 @@ public class CardView : MonoBehaviour,
     private static readonly Dictionary<string, Color> TraitColors =
         new Dictionary<string, Color>
         {
-            // Aggression / Tempo
-    { "speedster",   new Color(0.15f, 0.55f, 1.00f) }, // electric blue (fast, sharp)
-    { "gunners",     new Color(0.85f, 0.20f, 0.20f) }, // vivid red (damage, bullets)
-    { "combo",       new Color(1.00f, 0.55f, 0.15f) }, // orange (APM, momentum)
+                // Aggression / Tempo
+            { "speedster",   new Color(0.15f, 0.55f, 1.00f) }, // electric blue (fast, sharp)
+            { "gunners",     new Color(0.85f, 0.20f, 0.20f) }, // vivid red (damage, bullets)
+            { "combo",       new Color(1.00f, 0.55f, 0.15f) }, // orange (APM, momentum)
 
-    // Spell / Magic
-    { "spellfocus",  new Color(0.70f, 0.35f, 1.00f) }, // arcane violet
-    { "faith",       new Color(1.00f, 0.85f, 0.35f) }, // gold (holy, value)
-    { "ritual",      new Color(0.55f, 0.10f, 0.55f) }, // dark purple (forbidden power)
+            // Spell / Magic
+            { "spellfocus",  new Color(0.70f, 0.35f, 1.00f) }, // arcane violet
+            { "faith",       new Color(1.00f, 0.85f, 0.35f) }, // gold (holy, value)
+            { "ritual",      new Color(0.55f, 0.10f, 0.55f) }, // dark purple (forbidden power)
 
-    // Control / Denial
-    { "hater",       new Color(0.25f, 0.25f, 0.25f) }, // dark graphite (oppressive)
-    { "healer",      new Color(0.35f, 0.85f, 0.60f) }, // saturated green (life, recovery)
+            // Control / Denial
+            { "hater",       new Color(0.25f, 0.25f, 0.25f) }, // dark graphite (oppressive)
+            { "healer",      new Color(0.35f, 0.85f, 0.60f) }, // saturated green (life, recovery)
 
-    // Neutral / Beginner
-    { "workout",     new Color(0.75f, 0.75f, 0.75f) }, // light steel (simple stats)
-    { "neutral",     new Color(0.60f, 0.60f, 0.60f) }, // plain gray (baseline)
+            // Neutral / Beginner
+            { "workout",     new Color(0.75f, 0.75f, 0.75f) }, // light steel (simple stats)
+            { "neutral",     new Color(0.60f, 0.60f, 0.60f) }, // plain gray (baseline)
 
-    // Inazuma / Football Roles
-    { "inazuma",     new Color(0.20f, 0.90f, 1.00f) }, // cyan (team identity)
+            // Inazuma / Football Roles
+            { "inazuma",     new Color(1.00f, 0.92f, 0.20f) }, // cyan (team identity)
 
-    // Pokémon
-    { "pokemon",     new Color(0.95f, 0.25f, 0.25f) }, // poké red (iconic)
+            // Pokémon
+            { "pokemon",     new Color(0.95f, 0.25f, 0.25f) }, // poké red (iconic)
+     
+            // Elemental
+            { "blizzard",    new Color(0.55f, 0.85f, 1.00f) }, // icy blue (snow, frost)
+
+            // Meme / Joke / Chaos
+            { "meme",        new Color(1.00f, 0.35f, 0.85f) }, // absurd pink-magenta (intentional chaos)
+
         };
 
     /// <summary>

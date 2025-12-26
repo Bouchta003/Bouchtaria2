@@ -18,13 +18,13 @@ public class CardInstance : MonoBehaviour
 {
     // Immutable reference
     public CardData Data { get; private set; }
-
+    CardView view;
     // Runtime state
     public int CurrentAttack { get; private set; }
     public int CurrentManaCost { get; private set; }
     public int CurrentHealth { get; private set; }
 
-    public PlayerOwner Owner { get; private set; }
+    public PlayerOwner Owner { get; set; }
     public CardZone CurrentZone { get; private set; }
 
     public bool HasAttackedThisTurn { get; private set; }
@@ -37,7 +37,7 @@ public class CardInstance : MonoBehaviour
     {
         Data = data;
         Owner = owner;
-
+        view = gameObject.GetComponent<CardView>();
         CurrentManaCost = data.manaCost;
         CurrentAttack = data.atkValue;
         CurrentHealth = data.hpValue;
@@ -47,7 +47,6 @@ public class CardInstance : MonoBehaviour
         HasAttackedThisTurn = false;
         IsSummoningSick = true;
     }
-
     // -------------------------
     // Zone management
     // -------------------------
@@ -78,6 +77,9 @@ public class CardInstance : MonoBehaviour
     public void TakeDamage(int amount)
     {
         CurrentHealth -= amount;
+
+        view.hpTextBoard.text = CurrentHealth.ToString();
+        if (CurrentHealth < Data.hpValue) view.hpTextBoard.color = Color.red;
 
         if (CurrentHealth <= 0)
         {
