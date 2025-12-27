@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TraitUIManager enemyTraitUI;
 
     private readonly List<ITraitProgression> activeProgressions = new();
-
+    [SerializeField] private WinLoseUI winLoseUI;
 
     [Header("References")]
     [SerializeField] private AllyCardDropArea allyBoard;
@@ -189,21 +189,22 @@ public class GameManager : MonoBehaviour
     }
     private void EndGame()
     {
-        // Stop targeting, attacks, etc.
         isTargettingAttack = false;
         attackCursor.gameObject.SetActive(false);
 
-        // Freeze turn flow
         if (TurnManager.Instance != null)
             TurnManager.Instance.enabled = false;
 
-        // Optional: disable enemy AI scripts here if needed
-        // Optional: disable input handlers
+        if (winLoseUI != null)
+        {
+            winLoseUI.gameObject.SetActive(true);
+            if (CurrentGameState == GameState.PlayerWon)
+                winLoseUI.ShowWin();
+            else if (CurrentGameState == GameState.PlayerLost)
+                winLoseUI.ShowLose();
+        }
 
         Debug.Log($"Game ended with state: {CurrentGameState}");
-
-        // Hook point for UI
-        // ShowWinLoseUI(CurrentGameState);
     }
 
     private void HandleTurnStart(PlayerOwner owner)
