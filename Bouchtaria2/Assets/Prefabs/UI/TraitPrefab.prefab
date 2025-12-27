@@ -338,11 +338,11 @@ MonoBehaviour:
   speedsterIcon: {fileID: -3300177487904253893, guid: 1923a5453900f4046a727c70b5452275, type: 3}
   iconSlot: {fileID: 7266386244633224757}
   gemSlot: {fileID: 3872599570111737514}
-  frameRaritySlot: {fileID: 3872599570111737514}
+  frameRaritySlot: {fileID: 633088922378128279}
   traitEffect: {fileID: 6520755958002668430}
-  trait1Icon: {fileID: -6010929213923133215, guid: 02a177bca3f384c478d9973ce9463d61, type: 3}
-  trait2Icon: {fileID: -4152392360078947382, guid: 02a177bca3f384c478d9973ce9463d61, type: 3}
-  trait3Icon: {fileID: -8088853566183019042, guid: 02a177bca3f384c478d9973ce9463d61, type: 3}
+  bronzeTraitSprite: {fileID: -6010929213923133215, guid: 02a177bca3f384c478d9973ce9463d61, type: 3}
+  silverTraitSprite: {fileID: -4152392360078947382, guid: 02a177bca3f384c478d9973ce9463d61, type: 3}
+  goldenTraitSprite: {fileID: -8088853566183019042, guid: 02a177bca3f384c478d9973ce9463d61, type: 3}
   thisTrait: 0
   tier: 0
 --- !u!1 &4268669481080073026

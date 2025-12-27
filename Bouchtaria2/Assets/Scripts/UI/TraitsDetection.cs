@@ -110,63 +110,60 @@ public class TraitsDetection : MonoBehaviour
 
                 TraitsDisplay traitDisplay = traitPrefab.GetComponentInChildren<TraitsDisplay>();
 
-                traitDisplay.thisTrait = trait; traitDisplay.tier = tier;
+                traitDisplay.thisTrait = trait; 
+                traitDisplay.tier = tier;
+                switch (tier)
+                {
+                    case 1:
+                        traitDisplay.frameRaritySlot.sprite = traitDisplay.bronzeTraitSprite;break;
+                    case 2:
+                        traitDisplay.frameRaritySlot.sprite = traitDisplay.silverTraitSprite;break;
+                    default:
+                        traitDisplay.frameRaritySlot.sprite = traitDisplay.goldenTraitSprite;break;
+                }
+                traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                 switch (trait)
                 {
                     case CardData.Trait.Pokemon:
-                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.pokemonIcon;
                         break;
                     case CardData.Trait.Neutral:
-                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.neutralIcon;
                         break;
                     case CardData.Trait.Speedster:
-                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.speedsterIcon;
                         break;
                     case CardData.Trait.Gunner:
-                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.gunnerIcon;
                         break;
                     case CardData.Trait.SpellFocus:
-                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.spellFocusIcon;
                         break;
                     case CardData.Trait.Faith:
-                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.faithIcon;
                         break;
                     case CardData.Trait.Hater:
-                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.haterIcon;
                         break;
                     case CardData.Trait.Combo:
-                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.comboIcon;
                         break;
                     case CardData.Trait.Healer:
-                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.healIcon;
                         break;
                     case CardData.Trait.Workout:
-                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.workoutIcon;
                         break;
                     case CardData.Trait.Inazuma:
-                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.inazumaIcon;
                         break;
                     case CardData.Trait.Blizzard:
-                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.blizzardIcon;
                         break;
                     case CardData.Trait.Meme:
-                        traitDisplay.gemSlot.color = TraitColorDatabase.Get(trait);
                         traitDisplay.iconSlot.sprite = traitDisplay.memeIcon;
                         break;
                     default:
-                        traitDisplay.gemSlot.color = new Color(1.00f, 0.85f, 0.35f);
                         Debug.Log("Unkown trait");
                         break;
                 }

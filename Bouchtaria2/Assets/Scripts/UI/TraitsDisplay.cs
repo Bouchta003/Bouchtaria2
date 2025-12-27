@@ -27,9 +27,9 @@ public class TraitsDisplay : MonoBehaviour
     [SerializeField] public GameObject traitEffect;
 
     [Header("Rarity Sprites")]
-    [SerializeField] public Sprite trait1Icon;
-    [SerializeField] public Sprite trait2Icon;
-    [SerializeField] public Sprite trait3Icon;
+    [SerializeField] public Sprite bronzeTraitSprite;
+    [SerializeField] public Sprite silverTraitSprite;
+    [SerializeField] public Sprite goldenTraitSprite;
     //[SerializeField] public Sprite trait4Icon;
     public CardData.Trait thisTrait;
     public int tier;
