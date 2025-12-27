@@ -9,6 +9,13 @@ public interface IAttackable
 
     void TakeDamage(int amount);
 }
+public enum GameState
+{
+    Playing,
+    PlayerWon,
+    PlayerLost
+}
+
 public class GameManager : MonoBehaviour
 {
     [Header("Core")]
@@ -18,6 +25,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int startingCoreHealth = 20;
     [SerializeField] private GameObject spawnPlayerCore;
     [SerializeField] private GameObject spawnEnemyCore;
+    public GameState CurrentGameState { get; private set; } = GameState.Playing;
 
     [Header("Deck and Board")]
     [SerializeField] private DeckManager deckManager;
@@ -163,11 +171,41 @@ public class GameManager : MonoBehaviour
     }
     public void OnCoreDestroyed(PlayerOwner owner)
     {
+        if (CurrentGameState != GameState.Playing)
+            return; // prevent double fire
+
         if (owner == PlayerOwner.Player)
+        {
+            CurrentGameState = GameState.PlayerLost;
             Debug.Log("PLAYER LOSES");
+        }
         else
+        {
+            CurrentGameState = GameState.PlayerWon;
             Debug.Log("PLAYER WINS");
+        }
+
+        EndGame();
     }
+    private void EndGame()
+    {
+        // Stop targeting, attacks, etc.
+        isTargettingAttack = false;
+        attackCursor.gameObject.SetActive(false);
+
+        // Freeze turn flow
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.enabled = false;
+
+        // Optional: disable enemy AI scripts here if needed
+        // Optional: disable input handlers
+
+        Debug.Log($"Game ended with state: {CurrentGameState}");
+
+        // Hook point for UI
+        // ShowWinLoseUI(CurrentGameState);
+    }
+
     private void HandleTurnStart(PlayerOwner owner)
     {
         IncreaseMaxMana(owner);
@@ -237,6 +275,8 @@ public class GameManager : MonoBehaviour
     #region Combat Manager
     public void BeginAttack(Card attacker)
     {
+        if (CurrentGameState != GameState.Playing)
+            return;
         CardInstance attackerInst = attacker.GetComponentInChildren<CardInstance>();
         if (attackerInst.Data.cardType.ToLower() == "spell") return;
         if (attackerInst.CurrentZone != CardZone.Board) return;
@@ -370,6 +410,8 @@ public class GameManager : MonoBehaviour
     }
     public void HandleBoardCardClick(Card card)
     {
+        if (CurrentGameState != GameState.Playing)
+            return;
         if (!isTargettingAttack)
             BeginAttack(card);
         else if (CanAttackUnit(card.GetComponent<CardInstance>()))
@@ -394,6 +436,9 @@ public class GameManager : MonoBehaviour
     }
     public void TryAttackCore(CoreInstance targetCore)
     {
+        if (CurrentGameState != GameState.Playing)
+            return;
+
         if (currentAttacker == null)
             return;
 
