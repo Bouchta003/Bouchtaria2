@@ -10,7 +10,7 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
     [SerializeField] HandManager handManager;
     [SerializeField] EnemyCardDropArea enemyCardDropArea;
     [SerializeField] SplineContainer allyBoardSpline;
-
+    public PlayerOwner Owner => PlayerOwner.Player;
     GameManager gm;
     public int maxBoardSize = 6;
 
@@ -67,7 +67,10 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         }
         return false;
     }
-
+    public List<GameObject> GetCards()
+    {
+        return allyPrefabCards;
+    }
     public void HandleAllyDeath(CardInstance instance)
     {
         GameObject cardGO = instance.gameObject;

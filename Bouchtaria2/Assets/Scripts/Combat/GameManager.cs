@@ -2,7 +2,13 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
+public interface IAttackable
+{
+    PlayerOwner Owner { get; }
+    int CurrentAttack { get; }
 
+    void TakeDamage(int amount);
+}
 public class GameManager : MonoBehaviour
 {
     public CoreInstance PlayerCore;
@@ -13,6 +19,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject spawnPlayerCore;
     [SerializeField] private GameObject spawnEnemyCore;
     [SerializeField] private DeckManager deckManager;
+    [SerializeField] private AllyCardDropArea allyDropArea;
+    [SerializeField] private EnemyCardDropArea enemyDropArea;
     public int CurrentMana { get; private set; } = 10;
     public int CurrentMaxMana { get; private set; } = 10;
     [SerializeField] TextMeshProUGUI manacounter;
@@ -42,13 +50,6 @@ public class GameManager : MonoBehaviour
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnStarted -= HandleTurnStart;
     }
-    public void OnCoreDestroyed(PlayerOwner owner)
-    {
-        if (owner == PlayerOwner.Player)
-            Debug.Log("PLAYER LOSES");
-        else
-            Debug.Log("PLAYER WINS");
-    }
     // Update is called once per frame
     void Update()
     {
@@ -62,6 +63,13 @@ public class GameManager : MonoBehaviour
 
         //EnemyCore = Instantiate(corePrefab, spawnEnemyCore.transform).GetComponent<CoreInstance>();
         EnemyCore.Initialize(PlayerOwner.Enemy, startingCoreHealth);
+    }
+    public void OnCoreDestroyed(PlayerOwner owner)
+    {
+        if (owner == PlayerOwner.Player)
+            Debug.Log("PLAYER LOSES");
+        else
+            Debug.Log("PLAYER WINS");
     }
 
     private void HandleTurnStart(PlayerOwner owner)
@@ -80,6 +88,7 @@ public class GameManager : MonoBehaviour
         CurrentMana -= mana;
     }
 
+    #region Combat Manager
     public void BeginAttack(Card attacker)
     {
         CardInstance attackerInst = attacker.GetComponentInChildren<CardInstance>();
@@ -122,6 +131,96 @@ public class GameManager : MonoBehaviour
         isTargettingAttack = false;
         currentAttacker = null;
     }
+    public bool CanSelectAttacker(CardInstance attacker)
+    {
+        if (!TurnManager.Instance.IsPlayerTurn(attacker.Owner))
+            return false;
+
+        if (attacker.HasAttackedThisTurn)
+            return false;
+
+        if (attacker.IsSummoningSick)
+            return false;
+
+        return true;
+    }
+    private ICardDropArea GetBoardForOwner(PlayerOwner owner)
+    {
+        return owner == PlayerOwner.Player
+            ? allyDropArea
+            : enemyDropArea;
+    }
+    private CoreInstance GetCoreForOwner(PlayerOwner owner)
+    {
+        return owner == PlayerOwner.Player
+            ? PlayerCore
+            : EnemyCore;
+    }
+    public void ResolveAttack(CardInstance attacker, IAttackable target)
+    {
+        // Final safety checks
+        if (attacker == null || target == null)
+            return;
+
+        if (!CanSelectAttacker(attacker))
+            return;
+
+        // Prevent friendly fire
+        if (attacker.Owner == target.Owner)
+            return;
+
+        CardInstance attackerInst = attacker.GetComponentInChildren<CardInstance>();
+
+        int attackerDmg = attackerInst.CurrentAttack;
+        int targetDmg = target.CurrentAttack;
+        attackerInst.HasAttackedThisTurn = true;
+        attackerInst.TakeDamage(targetDmg);
+
+        // Deal damage
+        target.TakeDamage(attackerDmg);
+
+        // Mark attacker as having attacked
+        attacker.HasAttackedThisTurn = true;
+
+        Debug.Log(
+            $"{attacker.name} ({attacker.Owner}) attacks " +
+            $"{target.GetType().Name} ({target.Owner}) for {attackerDmg}"
+        );
+    }
+
+    public List<IAttackable> GetValidTargets(CardInstance attacker)
+    {
+        List<IAttackable> targets = new();
+
+        var defendingBoard = GetBoardForOwner(
+            attacker.Owner == PlayerOwner.Player
+                ? PlayerOwner.Enemy
+                : PlayerOwner.Player
+        );
+
+        bool hasProtect = defendingBoard.HasProtectUnits();
+
+        foreach (var go in defendingBoard.GetCards())
+        {
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci == null)
+                continue;
+
+            if (hasProtect && !ci.HasKeyword("protect"))
+                continue;
+            Debug.Log("Possible Target :" + ci.name);
+            targets.Add(ci);
+        }
+
+        if (!hasProtect)
+        {
+            CoreInstance core = GetCoreForOwner(defendingBoard.Owner);
+            targets.Add(core);
+            Debug.Log("Possible Target : Core" );
+        }
+        
+        return targets;
+    }
     private void ResolveAttackOnCore(CardInstance attacker, CoreInstance core)
     {
         int damage = attacker.CurrentAttack;
@@ -130,7 +229,6 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"{attacker.name} hits {core.Owner} core for {damage}");
     }
-
     public void HandleBoardCardClick(Card card)
     {
         if (!isTargettingAttack)
@@ -155,7 +253,6 @@ public class GameManager : MonoBehaviour
             else return true;
         }
     }
-
     public void TryAttackCore(CoreInstance targetCore)
     {
         if (currentAttacker == null)
@@ -178,5 +275,5 @@ public class GameManager : MonoBehaviour
         attackCursor.gameObject.SetActive(false);
         currentAttacker = null; isTargettingAttack = false;
     }
-
+    #endregion
 }

@@ -1,12 +1,12 @@
 using UnityEngine;
 
-public class CoreInstance : MonoBehaviour
+public class CoreInstance : MonoBehaviour, IAttackable
 {
     public PlayerOwner Owner { get; private set; }
 
     public int MaxHealth { get; private set; }
     public int CurrentHealth { get; private set; }
-
+    public int CurrentAttack { get; private set; }
     public int Shield { get; private set; }
     public event System.Action OnCoreChanged;
 
@@ -17,6 +17,7 @@ public class CoreInstance : MonoBehaviour
         Owner = owner;
         MaxHealth = maxHealth;
         CurrentHealth = maxHealth;
+        CurrentAttack = 0;
         Shield = 0;
     }
 

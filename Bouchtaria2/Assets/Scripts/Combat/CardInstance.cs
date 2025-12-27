@@ -14,7 +14,7 @@ public enum PlayerOwner
     Enemy
 }
 
-public class CardInstance : MonoBehaviour
+public class CardInstance : MonoBehaviour, IAttackable
 {
     // Immutable reference
     public CardData Data { get; private set; }
@@ -112,6 +112,7 @@ public class CardInstance : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
+        if (amount <= 0) return;
         CurrentHealth -= amount;
 
         view.hpTextBoard.text = CurrentHealth.ToString();

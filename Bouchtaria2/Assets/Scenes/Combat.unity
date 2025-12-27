@@ -439,6 +439,8 @@ MonoBehaviour:
   spawnPlayerCore: {fileID: 1391987188}
   spawnEnemyCore: {fileID: 2137164847}
   deckManager: {fileID: 752328686}
+  allyDropArea: {fileID: 1531594430}
+  enemyDropArea: {fileID: 1449377217}
   manacounter: {fileID: 1015722741}
   attackCursor: {fileID: 1698028025}
   isTargettingAttack: 0
@@ -958,6 +960,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAIController
   enemyHand: {fileID: 595603584}
   enemyBoard: {fileID: 1449377217}
+  gameManager: {fileID: 116247819}
 --- !u!1 &752328684
 GameObject:
   m_ObjectHideFlags: 0
