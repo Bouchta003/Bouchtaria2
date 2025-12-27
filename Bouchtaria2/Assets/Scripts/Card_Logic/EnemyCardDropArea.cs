@@ -21,7 +21,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     public void OnCardDrop(Card card)
     {
         //Verify Mana Legality 
-        if (card.gameObject.GetComponent<CardInstance>().CurrentManaCost > gm.CurrentMana ||
+        if (card.gameObject.GetComponent<CardInstance>().CurrentManaCost > gm.EnemyCurrentMana ||
             card.gameObject.GetComponent<CardInstance>().Data.cardType.ToLower() == "spell")
         {
             card.ResetCard();
@@ -37,7 +37,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         handManager.RemoveCardFromHand(card.gameObject);
 
         //Use Mana
-        gm.UseMana(card.gameObject.GetComponent<CardInstance>().CurrentManaCost);
+        gm.UseMana(card.gameObject.GetComponent<CardInstance>().CurrentManaCost, PlayerOwner.Enemy);
 
         //Instantiate card compact instead on board
         CardInstance cardInst = card.gameObject.GetComponent<CardInstance>();

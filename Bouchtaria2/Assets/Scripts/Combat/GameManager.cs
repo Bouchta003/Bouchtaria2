@@ -21,9 +21,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private DeckManager deckManager;
     [SerializeField] private AllyCardDropArea allyDropArea;
     [SerializeField] private EnemyCardDropArea enemyDropArea;
-    public int CurrentMana { get; private set; } = 10;
-    public int CurrentMaxMana { get; private set; } = 10;
-    [SerializeField] TextMeshProUGUI manacounter;
+
+    [SerializeField] TextMeshProUGUI manacounterAlly;
+    [SerializeField] TextMeshProUGUI manacounterEnmy;
+    public int AllyCurrentMana { get; private set; } = 10;
+    public int AllyCurrentMaxMana { get; private set; } = 10;
+    public int EnemyCurrentMana { get; private set; } = 10;
+    public int EnemyCurrentMaxMana { get; private set; } = 10;
+    
     [SerializeField] Image attackCursor;
     public bool isTargettingAttack;
     Card currentAttacker;
@@ -53,7 +58,8 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        manacounter.text = $"{CurrentMana}/{CurrentMaxMana}";
+        manacounterAlly.text = $"{AllyCurrentMana}/{AllyCurrentMaxMana}";
+        manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
     }
     private void SetupCores()
@@ -74,18 +80,21 @@ public class GameManager : MonoBehaviour
 
     private void HandleTurnStart(PlayerOwner owner)
     {
-        if (owner != PlayerOwner.Player)
-            return;
-
-        RefreshMaxMana();
+        RefreshMaxMana(owner);
     }
-    public void RefreshMaxMana()
+    public void RefreshMaxMana(PlayerOwner owner)
     {
-        CurrentMana = CurrentMaxMana;
+        if (owner == PlayerOwner.Player)
+            AllyCurrentMana = AllyCurrentMaxMana;
+        else
+            EnemyCurrentMana = EnemyCurrentMaxMana;
     }
-    public void UseMana(int mana)
+    public void UseMana(int mana, PlayerOwner owner)
     {
-        CurrentMana -= mana;
+        if (owner == PlayerOwner.Player)
+            AllyCurrentMana -= mana;
+        else
+            EnemyCurrentMana -= mana;
     }
 
     #region Combat Manager
