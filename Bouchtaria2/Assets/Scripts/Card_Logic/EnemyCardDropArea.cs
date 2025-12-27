@@ -14,6 +14,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     public int maxBoardSize = 6;
 
     public List<GameObject> enemyPrefabCards = new List<GameObject>();
+    public event System.Action<CardInstance> OnCardPlayed;
     private void Start()
     {
         gm = GameManager.GetComponent<GameManager>();
@@ -49,13 +50,15 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
             cardInst.IsSummoningSick = true;
         cardInst.OnEnterBoard();
 
+        //Call for  update
+        OnCardPlayed?.Invoke(cardInst);
+
+        //UpdateView to board mode
         card.gameObject.GetComponent<CardView>().UpdateMode();
 
         //Add to list of ally cards
         enemyPrefabCards.Add(card.gameObject);
         UpdateEnemyCardPositions();
-
-        Debug.Log("Card dropped in ally slot");
     }
     public List<GameObject> GetCards()
     {

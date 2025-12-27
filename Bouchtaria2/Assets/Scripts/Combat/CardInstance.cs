@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using UnityEngine;
 
 public enum CardZone
@@ -49,7 +51,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     public bool HasTrait(string trait)
     {
-        return Data.traits != null && Data.traits.Contains(trait);
+        return Data.traits != null && Data.traits.Contains(trait, StringComparer.OrdinalIgnoreCase);
     }
     public bool HasKeyword(string keywordString)
     {

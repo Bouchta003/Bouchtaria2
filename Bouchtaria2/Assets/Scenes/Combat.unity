@@ -458,6 +458,8 @@ GameObject:
   - component: {fileID: 116247818}
   - component: {fileID: 116247819}
   - component: {fileID: 116247820}
+  - component: {fileID: 116247822}
+  - component: {fileID: 116247821}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -506,6 +508,10 @@ MonoBehaviour:
   manacounterEnmy: {fileID: 589142854}
   attackCursor: {fileID: 1698028025}
   isTargettingAttack: 0
+  allyTraitSystem: {fileID: 116247822}
+  enemyTraitSystem: {fileID: 116247821}
+  allyBoard: {fileID: 1531594430}
+  enemyBoard: {fileID: 1449377217}
 --- !u!114 &116247820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -521,6 +527,30 @@ MonoBehaviour:
   traitSlotPrefab: {fileID: 3345744170026504041, guid: 89a59aa96deb2794aa6a63a34161e88c, type: 3}
   traitLayoutAlly: {fileID: 1501906148}
   traitLayoutEnemy: {fileID: 69533394}
+--- !u!114 &116247821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116247817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58c640c8fcd0df64ca314a8d15504c55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TraitSystem
+--- !u!114 &116247822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 116247817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58c640c8fcd0df64ca314a8d15504c55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TraitSystem
 --- !u!1 &159398172
 GameObject:
   m_ObjectHideFlags: 0
@@ -751,6 +781,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bbc45909f0f08646b04a02dd4118a37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TurnManager
+  deckManager: {fileID: 752328686}
 --- !u!4 &349476111
 Transform:
   m_ObjectHideFlags: 0

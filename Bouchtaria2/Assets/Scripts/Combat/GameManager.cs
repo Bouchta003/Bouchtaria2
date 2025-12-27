@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private AllyCardDropArea allyDropArea;
     [SerializeField] private EnemyCardDropArea enemyDropArea;
 
-    
+
     [Header("Mana")]
     [SerializeField] private int baseManaCap = 10;
 
@@ -44,6 +44,17 @@ public class GameManager : MonoBehaviour
     [SerializeField] Image attackCursor;
     public bool isTargettingAttack;
     Card currentAttacker;
+    [Header("Trait Systems")]
+    [SerializeField] private TraitSystem allyTraitSystem;
+    [SerializeField] private TraitSystem enemyTraitSystem;
+
+    private readonly List<ITraitProgression> activeProgressions = new();
+
+
+    [Header("References")]
+    [SerializeField] private AllyCardDropArea allyBoard;
+    [SerializeField] private EnemyCardDropArea enemyBoard;
+
     void Start()
     {
         isTargettingAttack = false;
@@ -55,12 +66,15 @@ public class GameManager : MonoBehaviour
         }
 
         //Setup cores mana and deck before the turn logic
-        SetupCores(); 
-        PlayerCore.GetComponent<CoreView>().Bind(PlayerCore);
-        EnemyCore.GetComponent<CoreView>().Bind(EnemyCore);
-        deckManager.InitializeDecks();
+
+        deckManager.InitializeDecks();        // build decks
+        deckManager.DetectUnlockableTraits(); // analyze decks
+        SetupTraits();                        // create progressions
         InitializeMana();
 
+        SetupCores();
+        PlayerCore.GetComponent<CoreView>().Bind(PlayerCore);
+        EnemyCore.GetComponent<CoreView>().Bind(EnemyCore);
         //Start turn logic
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
         TurnManager.Instance.StartFirstTurn();
@@ -76,6 +90,54 @@ public class GameManager : MonoBehaviour
         manacounterAlly.text = $"{AllyCurrentMana}/{AllyCurrentMaxMana}";
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
+    }
+    private void SetupTraits()
+    {
+        allyTraitSystem.Initialize(PlayerOwner.Player);
+        enemyTraitSystem.Initialize(PlayerOwner.Enemy);
+
+        SetupPlayerTraits(PlayerOwner.Player, deckManager.AllyTraitsUnlockable, allyTraitSystem);
+
+        SetupPlayerTraits(PlayerOwner.Enemy, deckManager.EnemyTraitsUnlockable, enemyTraitSystem);
+    }
+    private void SetupPlayerTraits(PlayerOwner owner, Dictionary<CardData.Trait, int> unlockables, TraitSystem traitSystem)
+    {
+        if (unlockables == null)
+        {
+            Debug.LogError($"Unlockables dictionary is NULL for {owner}");
+            return;
+        }
+        foreach (var pair in unlockables)
+        {
+            CardData.Trait trait = pair.Key;
+            int maxTier = pair.Value;
+
+            ITraitProgression progression = trait switch
+            {
+                CardData.Trait.Neutral => new NeutralProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
+                CardData.Trait.Speedster => throw new System.NotImplementedException(),
+                CardData.Trait.Gunner => throw new System.NotImplementedException(),
+                CardData.Trait.Inazuma => throw new System.NotImplementedException(),
+                CardData.Trait.Pokemon => throw new System.NotImplementedException(),
+                CardData.Trait.Blizzard => throw new System.NotImplementedException(),
+                CardData.Trait.Workout => throw new System.NotImplementedException(),
+                CardData.Trait.Faith => throw new System.NotImplementedException(),
+                CardData.Trait.Ritual => throw new System.NotImplementedException(),
+                CardData.Trait.Hater => throw new System.NotImplementedException(),
+                CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
+                CardData.Trait.Combo => throw new System.NotImplementedException(),
+                CardData.Trait.Healer => throw new System.NotImplementedException(),
+                CardData.Trait.Meme => throw new System.NotImplementedException()
+            };
+
+            //CardData.Trait.Gunner => new GunnerProgression( owner, maxTier,traitSystem, allyDropArea, enemyDropArea), _ => null};
+
+            if (progression != null)
+            {
+                progression.Register();
+                activeProgressions.Add(progression);
+            }
+        }
     }
 
     private void SetupCores()
@@ -194,7 +256,7 @@ public class GameManager : MonoBehaviour
         //Attack Logic :
         int attackerDmg = attackerInst.CurrentAttack;
         int targetDmg = targetInst.CurrentAttack;
-        attackerInst.HasAttackedThisTurn=true;
+        attackerInst.HasAttackedThisTurn = true;
         attackerInst.TakeDamage(targetDmg);
         targetInst.TakeDamage(attackerDmg);
 
@@ -252,11 +314,6 @@ public class GameManager : MonoBehaviour
 
         // Mark attacker as having attacked
         attacker.HasAttackedThisTurn = true;
-
-        Debug.Log(
-            $"{attacker.name} ({attacker.Owner}) attacks " +
-            $"{target.GetType().Name} ({target.Owner}) for {attackerDmg}"
-        );
     }
 
     public List<IAttackable> GetValidTargets(CardInstance attacker)
@@ -279,7 +336,6 @@ public class GameManager : MonoBehaviour
 
             if (hasProtect && !ci.HasKeyword("protect"))
                 continue;
-            Debug.Log("Possible Target :" + ci.name);
             targets.Add(ci);
         }
 
@@ -287,9 +343,8 @@ public class GameManager : MonoBehaviour
         {
             CoreInstance core = GetCoreForOwner(defendingBoard.Owner);
             targets.Add(core);
-            Debug.Log("Possible Target : Core" );
         }
-        
+
         return targets;
     }
     private void ResolveAttackOnCore(CardInstance attacker, CoreInstance core)
@@ -304,7 +359,7 @@ public class GameManager : MonoBehaviour
     {
         if (!isTargettingAttack)
             BeginAttack(card);
-        else if(CanAttackUnit(card.GetComponent<CardInstance>()))
+        else if (CanAttackUnit(card.GetComponent<CardInstance>()))
             ResolveAttack(card);
     }
     public bool CanAttackUnit(CardInstance target)

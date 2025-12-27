@@ -10,17 +10,28 @@ public class DeckManager : MonoBehaviour
 
     [Header("Debug / Test")]
     [SerializeField] private PlayerOwner deckOwner;
-    private Dictionary<PlayerOwner, Queue<CardData>> decks
-    = new Dictionary<PlayerOwner, Queue<CardData>>();
+    private Dictionary<PlayerOwner, Queue<CardData>> decks = new Dictionary<PlayerOwner, Queue<CardData>>();
 
-    private void Start()
+    public Dictionary<CardData.Trait, int> AllyTraitsUnlockable;
+    public Dictionary<CardData.Trait, int> EnemyTraitsUnlockable;
+    
+    public void DetectUnlockableTraits()
     {
-        traitsDetection.RetrieveTraitTiersFromDeck(decks[PlayerOwner.Player], PlayerOwner.Player);
-        traitsDetection.RetrieveTraitTiersFromDeck(decks[PlayerOwner.Enemy], PlayerOwner.Enemy);
+        AllyTraitsUnlockable =
+            traitsDetection.RetrieveTraitTiersFromDeck(
+                decks[PlayerOwner.Player],
+                PlayerOwner.Player
+            );
 
-        Draw(3, PlayerOwner.Player);
-        Draw(3, PlayerOwner.Enemy);
+        EnemyTraitsUnlockable =
+            traitsDetection.RetrieveTraitTiersFromDeck(
+                decks[PlayerOwner.Enemy],
+                PlayerOwner.Enemy
+            );
+
+        Debug.Log($"Traits detected: Player={AllyTraitsUnlockable.Count}, Enemy={EnemyTraitsUnlockable.Count}");
     }
+
     public void InitializeDecks()
     {
         InitializeDeck(PlayerOwner.Player);

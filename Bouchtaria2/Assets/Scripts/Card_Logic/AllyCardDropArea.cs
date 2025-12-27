@@ -13,6 +13,7 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
     public PlayerOwner Owner => PlayerOwner.Player;
     GameManager gm;
     public int maxBoardSize = 6;
+    public event System.Action<CardInstance> OnCardPlayed;
 
     public List<GameObject> allyPrefabCards = new List<GameObject>();
     private void Start()
@@ -32,7 +33,6 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         //Verify board space Legality
         if (allyPrefabCards.Count >= maxBoardSize) return;
 
-
         // ----- Card is legal -----
 
         //Remove card from hand
@@ -49,8 +49,12 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
             cardInst.IsSummoningSick = false;
         else
             cardInst.IsSummoningSick = true;
-        cardInst.OnEnterBoard();
-
+        cardInst.OnEnterBoard(); 
+        
+        //Call for  update
+        OnCardPlayed?.Invoke(cardInst);
+        
+        //UpdateView to board mode
         card.gameObject.GetComponent<CardView>().UpdateMode();
 
         //Add to list of ally cards

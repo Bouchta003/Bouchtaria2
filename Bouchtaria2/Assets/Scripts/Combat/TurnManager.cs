@@ -13,7 +13,7 @@ public class TurnManager : MonoBehaviour
 
     public PlayerOwner CurrentPlayer { get; private set; }
     public TurnPhase CurrentPhase { get; private set; }
-
+    [SerializeField] DeckManager deckManager;
     public event Action<PlayerOwner> OnTurnStarted;
     public event Action<PlayerOwner> OnTurnEnded;
 
@@ -32,6 +32,8 @@ public class TurnManager : MonoBehaviour
     {
         CurrentPlayer = PlayerOwner.Player;
         BeginTurn();
+        deckManager.Draw(3, PlayerOwner.Player);
+        deckManager.Draw(3, PlayerOwner.Enemy);
     }
 
     public void EndTurn()
