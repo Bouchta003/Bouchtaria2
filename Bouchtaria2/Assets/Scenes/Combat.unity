@@ -119,6 +119,138 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &102146916
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 102146917}
+  - component: {fileID: 102146918}
+  m_Layer: 0
+  m_Name: SplineHandEnemy
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &102146917
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102146916}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -3.6035547, y: 3.2431972, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 371104161}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &102146918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102146916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dab5c7d4c32e743048dfca98e2d5914f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Splines::UnityEngine.Splines.SplineContainer
+  m_Spline:
+    m_EditModeType: 1
+    m_Knots: []
+    m_MetaData: []
+    m_Closed: 0
+    m_IntData:
+      m_Data: []
+    m_FloatData:
+      m_Data: []
+    m_Float4Data:
+      m_Data: []
+    m_ObjectData:
+      m_Data: []
+  m_Splines:
+  - m_EditModeType: 1
+    m_Knots:
+    - Position:
+        x: 0
+        y: 0
+        z: 0
+      TangentIn:
+        x: -0
+        y: -0
+        z: -0.63607
+      TangentOut:
+        x: 0
+        y: 0
+        z: 0.63607
+      Rotation:
+        value:
+          x: -0.4839512
+          y: 0.51554936
+          z: -0.51554936
+          w: 0.48395127
+    - Position:
+        x: 6.347998
+        y: -0.40177202
+        z: 0
+      TangentIn:
+        x: -0
+        y: -0
+        z: -2.0826344
+      TangentOut:
+        x: 0
+        y: 0
+        z: 2.020321
+      Rotation:
+        value:
+          x: -0.5021735
+          y: 0.49781704
+          z: -0.49781704
+          w: 0.5021735
+    - Position:
+        x: 12.314314
+        y: 0.08035326
+        z: 0
+      TangentIn:
+        x: -0
+        y: -0
+        z: -0.5985764
+      TangentOut:
+        x: 0
+        y: 0
+        z: 0.5985764
+      Rotation:
+        value:
+          x: 0.51974636
+          y: -0.47944102
+          z: 0.47944102
+          w: -0.5197464
+    m_MetaData:
+    - Mode: 0
+      Tension: 0.5
+    - Mode: 0
+      Tension: 0.5
+    - Mode: 0
+      Tension: 0.5
+    m_Closed: 0
+    m_IntData:
+      m_Data: []
+    m_FloatData:
+      m_Data: []
+    m_Float4Data:
+      m_Data: []
+    m_ObjectData:
+      m_Data: []
+  m_Knots:
+    m_KnotsLink: []
 --- !u!1 &112139732
 GameObject:
   m_ObjectHideFlags: 0
@@ -306,6 +438,7 @@ MonoBehaviour:
   startingCoreHealth: 20
   spawnPlayerCore: {fileID: 1391987188}
   spawnEnemyCore: {fileID: 2137164847}
+  deckManager: {fileID: 752328686}
   manacounter: {fileID: 1015722741}
   attackCursor: {fileID: 1698028025}
   isTargettingAttack: 0
@@ -561,8 +694,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 102146917}
   - {fileID: 292363504}
   - {fileID: 1745065383}
+  - {fileID: 1097250603}
   - {fileID: 1352758657}
   - {fileID: 931779531}
   - {fileID: 1531594429}
@@ -686,7 +821,7 @@ GameObject:
   - component: {fileID: 574209138}
   - component: {fileID: 574209137}
   m_Layer: 0
-  m_Name: HandManager
+  m_Name: AllyHandManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -705,6 +840,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandManager
   maxHandSize: 10
+  Owner: 0
   cardPrefab: {fileID: 2138098922408031110, guid: 56387ef775de2034bb8b7b63bf6810c5, type: 3}
   splineContainer: {fileID: 292363505}
   spawnPoint: {fileID: 1745065383}
@@ -725,6 +861,103 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1245410872}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &595603582
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 595603583}
+  - component: {fileID: 595603584}
+  m_Layer: 0
+  m_Name: EnemyHandManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &595603583
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 595603582}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -6, y: 5.57, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1245410872}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &595603584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 595603582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 350ea1b60776d464b9e4e3311838fd7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HandManager
+  maxHandSize: 10
+  Owner: 1
+  cardPrefab: {fileID: 2138098922408031110, guid: 56387ef775de2034bb8b7b63bf6810c5, type: 3}
+  splineContainer: {fileID: 102146918}
+  spawnPoint: {fileID: 1097250603}
+  baseSortingOrder: 100
+  handCards: []
+--- !u!1 &743133909
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 743133910}
+  - component: {fileID: 743133911}
+  m_Layer: 0
+  m_Name: EnemyAIController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &743133910
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 743133909}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1245410872}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &743133911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 743133909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0ac5ea007d6c8f4a8f78dc5e560dce1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAIController
+  enemyHand: {fileID: 595603584}
+  enemyBoard: {fileID: 1449377217}
 --- !u!1 &752328684
 GameObject:
   m_ObjectHideFlags: 0
@@ -770,8 +1003,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeckManager
   handManager: {fileID: 574209137}
+  handManagerEnemy: {fileID: 595603584}
   traitsDetection: {fileID: 116247820}
-  playerOwner: 0
+  deckOwner: 0
 --- !u!1 &797521858
 GameObject:
   m_ObjectHideFlags: 0
@@ -1808,6 +2042,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5010e56b8b528374a9b704ba45355543, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoreInstance
+--- !u!1 &1097250602
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1097250603}
+  m_Layer: 0
+  m_Name: CardHandSpawnPointEnemy
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1097250603
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1097250602}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -9.16, y: 2.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 371104161}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1133202967
 GameObject:
   m_ObjectHideFlags: 0
@@ -2123,11 +2388,13 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 574209138}
+  - {fileID: 595603583}
   - {fileID: 1216935837}
   - {fileID: 752328685}
   - {fileID: 797521859}
   - {fileID: 116247818}
   - {fileID: 349476111}
+  - {fileID: 743133910}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1310652293
@@ -2589,7 +2856,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyCardDropArea
   GameManager: {fileID: 116247817}
-  handManager: {fileID: 574209137}
+  handManager: {fileID: 595603584}
   allyCardDropArea: {fileID: 1531594430}
   enemyBoardSpline: {fileID: 931779532}
   maxBoardSize: 6
@@ -3342,7 +3609,7 @@ Transform:
   m_GameObject: {fileID: 1745065382}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.02, y: -4.03, z: 0}
+  m_LocalPosition: {x: 12.92, y: -4.72, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int startingCoreHealth = 20;
     [SerializeField] private GameObject spawnPlayerCore;
     [SerializeField] private GameObject spawnEnemyCore;
+    [SerializeField] private DeckManager deckManager;
     public int CurrentMana { get; private set; } = 10;
     public int CurrentMaxMana { get; private set; } = 10;
     [SerializeField] TextMeshProUGUI manacounter;
@@ -27,12 +28,13 @@ public class GameManager : MonoBehaviour
             Debug.LogError("TurnManager missing!");
             return;
         }
+        //Setup cores and deck before the turn logic
         SetupCores(); 
         PlayerCore.GetComponent<CoreView>().Bind(PlayerCore);
         EnemyCore.GetComponent<CoreView>().Bind(EnemyCore);
+        deckManager.InitializeDecks();
 
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
-
         TurnManager.Instance.StartFirstTurn();
     }
     private void OnDestroy()

@@ -8,24 +8,35 @@ using UnityEngine.Rendering;
 public class HandManager : MonoBehaviour
 {
     [SerializeField] public int maxHandSize;
-
+    public PlayerOwner Owner;
     [SerializeField] GameObject cardPrefab;
     [SerializeField] SplineContainer splineContainer;
     [SerializeField] Transform spawnPoint;
 
     [SerializeField] int baseSortingOrder = 100;
     public List<GameObject> handCards = new();
-    void Start()
-    {
 
-    }
-    
     public void RemoveCardFromHand(GameObject cardToRemove)
     {
         if (handCards.Remove(cardToRemove))
         {
             UpdateCardPositions();
         }
+    }
+    public void AddCard(GameObject card)
+    {
+        CardInstance instance = card.GetComponent<CardInstance>();
+        if (instance == null)
+            return;
+
+        if (instance.Owner != Owner)
+            return;
+
+        // 🔑 THIS LINE FIXES EVERYTHING
+        card.transform.SetParent(transform, false);
+
+        handCards.Add(card);
+        UpdateCardPositions();
     }
 
     public void UpdateCardPositions()
@@ -52,7 +63,8 @@ public class HandManager : MonoBehaviour
 
             GameObject card = handCards[i];
 
-            card.transform.DOMove(splinePosition, 0.25f);
+            card.transform.DOLocalMove(splinePosition, 0.25f);
+
             card.transform.DOLocalRotateQuaternion(rotation, 0.25f);
 
             // 🎨 Sorting polish

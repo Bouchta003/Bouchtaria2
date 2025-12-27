@@ -107,7 +107,7 @@ public class CardInstance : MonoBehaviour
         //  return;
         //Draw effect 
         DeckManager deck = FindFirstObjectByType<DeckManager>();
-        deck.Draw(1);
+        deck.Draw(1, Owner);
     }
 
     public void TakeDamage(int amount)
