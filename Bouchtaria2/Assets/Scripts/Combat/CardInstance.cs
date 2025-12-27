@@ -18,6 +18,8 @@ public enum PlayerOwner
 
 public class CardInstance : MonoBehaviour, IAttackable
 {
+    GameManager gameManager;
+    DeckManager deckManager;
     // Immutable reference
     public CardData Data { get; private set; }
     CardView view;
@@ -28,6 +30,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public int CurrentManaCost => Mathf.Max(0, BaseManaCost + temporaryManaModifier);
 
     public PlayerOwner Owner { get; set; }
+    public CardData.SpellTargetType spellType { get; set; }
     public CardZone CurrentZone { get; private set; }
     private int temporaryManaModifier = 0;
     public bool HasAttackedThisTurn { get; set; }
@@ -51,11 +54,20 @@ public class CardInstance : MonoBehaviour, IAttackable
         BaseManaCost = data.manaCost;
         CurrentAttack = data.atkValue;
         CurrentHealth = data.hpValue;
-
         CurrentZone = CardZone.Deck;
+
+        if (data.effect.ToLower().Contains("unit")) spellType = CardData.SpellTargetType.Unit;
+        else
+        if (data.effect.ToLower().Contains("core")) spellType = CardData.SpellTargetType.Core;
+        else
+        if (data.effect.ToLower().Contains("any")) spellType = CardData.SpellTargetType.Any;
+        else spellType = CardData.SpellTargetType.None;
 
         HasAttackedThisTurn = false;
         IsSummoningSick = true;
+
+        gameManager = FindFirstObjectByType<GameManager>();
+        deckManager = FindFirstObjectByType<DeckManager>();
     }
     private void Update()
     {
@@ -107,6 +119,37 @@ public class CardInstance : MonoBehaviour, IAttackable
     // -------------------------
     // Combat helpers
     // -------------------------
+    public void OnPlaySpell()
+    {
+        if (spellType == CardData.SpellTargetType.None)
+        {
+            ResolveSpell();
+        }
+        else
+        {
+            gameManager.BeginSpellTargeting(this);
+        }
+    }
+    public void ResolveSpell()
+    {
+        TriggerSpell();
+        Destroy(gameObject);
+    }
+    public void ResolveSpell(IAttackable target)
+    {
+        TriggerSpell(target);
+        Destroy(gameObject);
+    }
+
+    private void TriggerSpell()
+    {
+        Debug.Log($"Spell {name} resolved");
+    }
+    private void TriggerSpell(IAttackable target)
+    {
+        Debug.Log($"Spell {name} resolved on {target}");
+    }
+
     public void OnEnterBoard()
     {
         TriggerDeploy();

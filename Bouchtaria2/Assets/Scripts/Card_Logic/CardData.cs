@@ -23,6 +23,16 @@ public class CardData
     public bool packable;
     public bool token;
     public bool signature;
+    public enum SpellTargetType
+    {
+        None,
+        Unit,
+        Core,
+        Any
+    }
+
+    public SpellTargetType spellTargetType;
+
     public enum Trait
     {
         Neutral, Speedster, Gunner, Inazuma, Pokemon, Blizzard, Workout, Faith, Ritual, Hater, SpellFocus, Combo, Healer, Meme
