@@ -97,7 +97,7 @@ public class NeutralProgression : ITraitProgression
         if (!card.HasTrait("neutral"))
             return;
         neutralPlayed++;
-        Debug.Log($"Neutral card played for :{Owner}, count is now {neutralPlayed}");
+        //Debug.Log($"Neutral card played for :{Owner}, count is now {neutralPlayed}");
 
         if (neutralPlayed >= 5 && CurrentTier < 1 && maxTier >= 1)
         {

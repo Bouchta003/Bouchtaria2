@@ -43,7 +43,11 @@ public class DeckManager : MonoBehaviour
 
     private void InitializeDeck(PlayerOwner owner)
     {
-        List<CardData> deckList = GetTestDeckFromServer();
+        List<CardData> deckList = new List<CardData>();
+        if (owner == PlayerOwner.Player)
+            deckList = GetTestSpellDeckFromServer();
+        else
+            deckList = GetTestMinionDeckFromServer();
         Shuffle(deckList);
 
         Queue<CardData> deck = new Queue<CardData>();
@@ -112,7 +116,7 @@ public class DeckManager : MonoBehaviour
         }
     }
 
-    private List<CardData> GetTestDeckFromServer()
+    private List<CardData> GetTestMinionDeckFromServer()
     {
         List<CardData> deck = new List<CardData>();
 
@@ -124,5 +128,16 @@ public class DeckManager : MonoBehaviour
 
         return deck;
     }
+    private List<CardData> GetTestSpellDeckFromServer()
+    {
+        List<CardData> deck = new List<CardData>();
 
+        foreach (CardData card in CardDatabase.Instance.Cards.Values)
+        {
+            if (card.cardType == "spell")
+                deck.Add(card);
+        }
+
+        return deck;
+    }
 }
