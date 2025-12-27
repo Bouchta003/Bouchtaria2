@@ -33,6 +33,27 @@ public class TraitsDisplay : MonoBehaviour
     //[SerializeField] public Sprite trait4Icon;
     public CardData.Trait thisTrait;
     public int tier;
+    private void Start()
+    {
+        frameRaritySlot.gameObject.SetActive(false);
+    }
+    public void Activate(int tier)
+    {
+        frameRaritySlot.gameObject.SetActive(true);
+        switch (tier)
+        {
+            case 1:
+                frameRaritySlot.sprite = bronzeTraitSprite;
+                break;
+            case 2:
+                frameRaritySlot.sprite = silverTraitSprite;
+                break;
+            case 3:
+                frameRaritySlot.sprite = goldenTraitSprite;
+                break;
+            default:frameRaritySlot.gameObject.SetActive(false);break;
+                }
+    }
     public void DisplayTraitProgression()
     {
         traitEffect.SetActive(!traitEffect.activeSelf);

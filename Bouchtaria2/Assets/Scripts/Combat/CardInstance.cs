@@ -23,15 +23,23 @@ public class CardInstance : MonoBehaviour, IAttackable
     CardView view;
     // Runtime state
     public int CurrentAttack { get; private set; }
-    public int CurrentManaCost { get; private set; }
+    public int BaseManaCost { get; private set; }
     public int CurrentHealth { get; private set; }
+    public int CurrentManaCost => Mathf.Max(0, BaseManaCost + temporaryManaModifier);
 
     public PlayerOwner Owner { get; set; }
     public CardZone CurrentZone { get; private set; }
-
+    private int temporaryManaModifier = 0;
     public bool HasAttackedThisTurn { get; set; }
     public bool IsSummoningSick { get; set; }
-
+    public void AddTemporaryManaModifier(int amount)
+    {
+        temporaryManaModifier += amount;
+    }
+    public void ClearTemporaryManaModifiers()
+    {
+        temporaryManaModifier = 0;
+    }
     // -------------------------
     // Initialization (called by CardFactory ONLY)
     // -------------------------
@@ -40,7 +48,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         Data = data;
         Owner = owner;
         view = gameObject.GetComponent<CardView>();
-        CurrentManaCost = data.manaCost;
+        BaseManaCost = data.manaCost;
         CurrentAttack = data.atkValue;
         CurrentHealth = data.hpValue;
 
@@ -48,6 +56,13 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         HasAttackedThisTurn = false;
         IsSummoningSick = true;
+    }
+    private void Update()
+    {
+        if (CurrentManaCost < BaseManaCost) this.GetComponent<CardView>().manaText.color = Color.green;
+        if (CurrentManaCost > BaseManaCost) this.GetComponent<CardView>().manaText.color = Color.red;
+        if (CurrentManaCost == BaseManaCost) this.GetComponent<CardView>().manaText.color = Color.white;
+        this.GetComponent<CardView>().manaText.text = CurrentManaCost.ToString();
     }
     public bool HasTrait(string trait)
     {

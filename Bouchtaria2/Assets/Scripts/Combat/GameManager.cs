@@ -47,6 +47,8 @@ public class GameManager : MonoBehaviour
     [Header("Trait Systems")]
     [SerializeField] private TraitSystem allyTraitSystem;
     [SerializeField] private TraitSystem enemyTraitSystem;
+    [SerializeField] private TraitUIManager allyTraitUI;
+    [SerializeField] private TraitUIManager enemyTraitUI;
 
     private readonly List<ITraitProgression> activeProgressions = new();
 
@@ -95,9 +97,11 @@ public class GameManager : MonoBehaviour
     {
         allyTraitSystem.Initialize(PlayerOwner.Player);
         enemyTraitSystem.Initialize(PlayerOwner.Enemy);
+        allyTraitUI.DetectTraitBorder();enemyTraitUI.DetectTraitBorder();
+        allyTraitSystem.OnTraitTierActivated += OnAllyTraitActivated;
+        enemyTraitSystem.OnTraitTierActivated += OnEnemyTraitActivated;
 
         SetupPlayerTraits(PlayerOwner.Player, deckManager.AllyTraitsUnlockable, allyTraitSystem);
-
         SetupPlayerTraits(PlayerOwner.Enemy, deckManager.EnemyTraitsUnlockable, enemyTraitSystem);
     }
     private void SetupPlayerTraits(PlayerOwner owner, Dictionary<CardData.Trait, int> unlockables, TraitSystem traitSystem)
@@ -138,6 +142,15 @@ public class GameManager : MonoBehaviour
                 activeProgressions.Add(progression);
             }
         }
+    }
+    private void OnAllyTraitActivated(CardData.Trait trait, int tier)
+    {
+        allyTraitUI.ActivateTrait(trait, tier);
+    }
+
+    private void OnEnemyTraitActivated(CardData.Trait trait, int tier)
+    {
+        enemyTraitUI.ActivateTrait(trait, tier);
     }
 
     private void SetupCores()

@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 69533396}
   - component: {fileID: 69533395}
+  - component: {fileID: 69533397}
   m_Layer: 5
   m_Name: Layout
   m_TagString: Untagged
@@ -179,6 +180,18 @@ RectTransform:
   m_AnchoredPosition: {x: 40, y: -240.84863}
   m_SizeDelta: {x: 100, y: 381.6973}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &69533397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 69533394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c917d71c514252345a9426c69b5dfe6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TraitUIManager
 --- !u!1 &102146916
 GameObject:
   m_ObjectHideFlags: 0
@@ -510,6 +523,8 @@ MonoBehaviour:
   isTargettingAttack: 0
   allyTraitSystem: {fileID: 116247822}
   enemyTraitSystem: {fileID: 116247821}
+  allyTraitUI: {fileID: 1501906151}
+  enemyTraitUI: {fileID: 69533397}
   allyBoard: {fileID: 1531594430}
   enemyBoard: {fileID: 1449377217}
 --- !u!114 &116247820
@@ -539,6 +554,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58c640c8fcd0df64ca314a8d15504c55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TraitSystem
+  traitLayout: {fileID: 0}
 --- !u!114 &116247822
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -551,6 +567,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58c640c8fcd0df64ca314a8d15504c55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TraitSystem
+  traitLayout: {fileID: 0}
 --- !u!1 &159398172
 GameObject:
   m_ObjectHideFlags: 0
@@ -3283,6 +3300,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1501906149}
   - component: {fileID: 1501906150}
+  - component: {fileID: 1501906151}
   m_Layer: 5
   m_Name: Layout
   m_TagString: Untagged
@@ -3333,6 +3351,18 @@ MonoBehaviour:
   m_Spacing: {x: 0, y: 10}
   m_Constraint: 1
   m_ConstraintCount: 1
+--- !u!114 &1501906151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1501906148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c917d71c514252345a9426c69b5dfe6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TraitUIManager
 --- !u!1 &1531594428
 GameObject:
   m_ObjectHideFlags: 0

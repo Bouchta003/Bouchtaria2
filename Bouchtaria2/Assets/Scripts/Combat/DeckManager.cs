@@ -1,11 +1,12 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class DeckManager : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private HandManager handManager;
-    [SerializeField] private HandManager handManagerEnemy;
+    [SerializeField] public HandManager handManager;
+    [SerializeField] public HandManager handManagerEnemy;
     [SerializeField] private TraitsDetection traitsDetection;
 
     [Header("Debug / Test")]
@@ -14,7 +15,9 @@ public class DeckManager : MonoBehaviour
 
     public Dictionary<CardData.Trait, int> AllyTraitsUnlockable;
     public Dictionary<CardData.Trait, int> EnemyTraitsUnlockable;
-    
+
+    public event System.Action<CardInstance> OnCardDrawn;
+
     public void DetectUnlockableTraits()
     {
         AllyTraitsUnlockable =
@@ -97,13 +100,14 @@ public class DeckManager : MonoBehaviour
         card.SetZone(CardZone.Hand);
         hand.AddCard(card.gameObject);
         hand.UpdateCardPositions();
+        OnCardDrawn?.Invoke(card);
     }
 
     private void Shuffle(List<CardData> list)
     {
         for (int i = 0; i < list.Count; i++)
         {
-            int rnd = Random.Range(i, list.Count);
+            int rnd = UnityEngine.Random.Range(i, list.Count);
             (list[i], list[rnd]) = (list[rnd], list[i]);
         }
     }

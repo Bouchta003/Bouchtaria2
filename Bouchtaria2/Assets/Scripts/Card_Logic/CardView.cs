@@ -134,6 +134,7 @@ public class CardView : MonoBehaviour,
         cardSpriteRendererBoard.sprite = card.artSpriteCompact;
         nameTextBoard.text = card.name;
         manaTextBoard.text = thisInstance.CurrentManaCost.ToString();
+        manaTextBoard.gameObject.SetActive(false) ;
         atkTextBoard.text = thisInstance.CurrentAttack.ToString();
         hpTextBoard.text = thisInstance.CurrentHealth.ToString();
 

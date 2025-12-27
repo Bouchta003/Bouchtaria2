@@ -20,6 +20,9 @@ public interface ITraitProgression
 
 public class TraitSystem : MonoBehaviour
 {
+    public event System.Action<CardData.Trait, int> OnTraitTierActivated;
+
+    [SerializeField] GameObject traitLayout;
     public PlayerOwner Owner { get; private set; }
 
     private readonly List<IDeckTraitEffect> activeEffects = new();
@@ -28,11 +31,12 @@ public class TraitSystem : MonoBehaviour
     {
         Owner = owner;
     }
-
     public void ActivateEffect(IDeckTraitEffect effect)
     {
         effect.OnRegister();
         activeEffects.Add(effect);
+
+        OnTraitTierActivated?.Invoke(effect.Trait, effect.Tier);
     }
 
     public void ClearAll()
@@ -99,6 +103,12 @@ public class NeutralProgression : ITraitProgression
         {
             UnlockTier1();
         }
+
+        if (neutralPlayed >= 10 && CurrentTier < 2 && maxTier >= 2)
+        {
+            UnlockTier2();
+        }
+
     }
 
     private void UnlockTier1()
@@ -111,6 +121,17 @@ public class NeutralProgression : ITraitProgression
 
         Debug.Log($"{Owner} unlocked Neutral Tier 1");
     }
+    private void UnlockTier2()
+    {
+        CurrentTier = 2;
+        DeckManager deckManager = Object.FindFirstObjectByType<DeckManager>();
+        traitSystem.ActivateEffect(
+            new NeutralTier2Effect(Owner, deckManager)
+        );
+
+        Debug.Log($"{Owner} unlocked Neutral Tier 2");
+    }
+
 }
 public class NeutralTier1Effect : IDeckTraitEffect
 {
@@ -175,6 +196,85 @@ public class NeutralTier1Effect : IDeckTraitEffect
         used = true;
     }
 }
+public class NeutralTier2Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Neutral;
+    public int Tier => 2;
 
+    private readonly PlayerOwner owner;
+    private bool usedThisTurn;
+
+    private readonly DeckManager deckManager;
+
+    public NeutralTier2Effect(PlayerOwner owner, DeckManager deckManager)
+    {
+        this.owner = owner;
+        this.deckManager = deckManager;
+    }
+
+    public void OnRegister()
+    {
+        deckManager.OnCardDrawn += OnCardDrawn;
+        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
+        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
+    }
+
+    public void OnUnregister()
+    {
+        deckManager.OnCardDrawn -= OnCardDrawn;
+
+        if (TurnManager.Instance != null)
+        {
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
+            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+        }
+    }
+
+    private void OnTurnStarted(PlayerOwner turnOwner)
+    {
+        if (turnOwner == owner)
+            usedThisTurn = false;
+    }
+
+    private void OnTurnEnded(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        // Clear temporary cost reductions at end of turn
+        foreach (var card in GetHand(owner))
+        {
+            card.ClearTemporaryManaModifiers();
+        }
+    }
+
+    private void OnCardDrawn(CardInstance card)
+    {
+        if (usedThisTurn)
+            return;
+
+        if (card.Owner != owner)
+            return;
+
+        if (card.CurrentManaCost < 2)
+            return;
+
+        card.AddTemporaryManaModifier(-1);
+        usedThisTurn = true;
+
+        Debug.Log($"[Neutral T2] Reduced cost of {card.name} for {owner}");
+    }
+
+    private IEnumerable<CardInstance> GetHand(PlayerOwner owner)
+    {
+        HandManager hand =
+            owner == PlayerOwner.Player
+                ? Object.FindFirstObjectByType<DeckManager>().handManager
+                : Object.FindFirstObjectByType<DeckManager>().handManagerEnemy;
+
+        foreach (var go in hand.handCards)
+            yield return go.GetComponent<CardInstance>();
+    }
+}
 
 #endregion
