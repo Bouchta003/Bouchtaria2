@@ -87,8 +87,6 @@ public class NeutralProgression : ITraitProgression
 
     private void OnCardPlayed(CardInstance card)
     {
-        Debug.Log($"[NeutralProgression] Card played: {card.name}, cardOwner={card.Owner}, progressionOwner={Owner}");
-
             if (card.Owner != Owner)
             return;
 
@@ -114,7 +112,6 @@ public class NeutralProgression : ITraitProgression
         Debug.Log($"{Owner} unlocked Neutral Tier 1");
     }
 }
-
 public class NeutralTier1Effect : IDeckTraitEffect
 {
     public CardData.Trait Trait => CardData.Trait.Neutral;
@@ -127,18 +124,40 @@ public class NeutralTier1Effect : IDeckTraitEffect
     {
         this.owner = owner;
     }
-
     public void OnRegister()
     {
-        var board = Object.FindFirstObjectByType<AllyCardDropArea>();
-        board.OnCardPlayed += OnCardPlayed;
-    }
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
 
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed += OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed += OnCardPlayed;
+
+        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
+    }
     public void OnUnregister()
     {
-        var board = Object.FindFirstObjectByType<AllyCardDropArea>();
-        if (board != null)
-            board.OnCardPlayed -= OnCardPlayed;
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
+    }
+
+    private void OnTurnStarted(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        used = false;
     }
 
     private void OnCardPlayed(CardInstance card)
@@ -149,16 +168,13 @@ public class NeutralTier1Effect : IDeckTraitEffect
         if (card.Owner != owner)
             return;
 
-        if (!card.HasTrait("neutral"))
-            return;
-
         if (card.Data.cardType!="minion")
             return;
-
-        //card.ModifyHealth(1);
-        Debug.Log("Self buffing +1hp for " + card.name);
+        Debug.Log($"Buffing first card {card.name}, for {owner}");
+        card.ModifyStats(0,1);
         used = true;
     }
 }
+
 
 #endregion

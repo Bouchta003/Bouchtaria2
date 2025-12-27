@@ -113,6 +113,8 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         view.hpTextBoard.text = CurrentHealth.ToString();
         if (CurrentHealth < Data.hpValue) view.hpTextBoard.color = Color.red;
+        if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
+        if (CurrentAttack > Data.atkValue) view.hpTextBoard.color = Color.green;
 
         if (CurrentHealth <= 0)
         {
@@ -130,8 +132,6 @@ public class CardInstance : MonoBehaviour, IAttackable
 
                 if (board != null)
                     board.HandleAllyDeath(this);
-
-                TriggerRequiem();
             }
             else {
                 EnemyCardDropArea board =
@@ -140,7 +140,16 @@ public class CardInstance : MonoBehaviour, IAttackable
                 if (board != null)
                     board.HandleEnemyDeath(this);
             }
+                TriggerRequiem();
         }
     }
 
+    internal void ModifyStats(int atk, int hp)
+    {
+        CurrentAttack += atk;
+        CurrentHealth+=hp;
+        if (CurrentHealth < Data.hpValue) view.hpTextBoard.color = Color.red;
+        if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
+        if (CurrentAttack > Data.atkValue) view.hpTextBoard.color = Color.green;
+    }
 }

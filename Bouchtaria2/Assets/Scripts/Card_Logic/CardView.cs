@@ -91,6 +91,8 @@ public class CardView : MonoBehaviour,
 
         frameRenderer.color = Color.white;
         frameRenderer2.color = Color.white;
+        manaFrameRenderer1Board.gameObject.SetActive(true);
+        manaFrameRenderer2Board.gameObject.SetActive(true);
         manaFrameRenderer1.color = Color.white;
         manaFrameRenderer2.color = Color.white;
         atkFrameRenderer.color = Color.white;
@@ -137,8 +139,8 @@ public class CardView : MonoBehaviour,
 
         frameRendererBoard.color = Color.white;
         frameRenderer2Board.color = Color.white;
-        manaFrameRenderer1Board.color = Color.white;
-        manaFrameRenderer2Board.color = Color.white;
+        manaFrameRenderer1Board.gameObject.SetActive(false);
+        manaFrameRenderer2Board.gameObject.SetActive(false);
         atkFrameRendererBoard.color = Color.white;
         hpFrameRendererBoard.color = Color.white;
 
