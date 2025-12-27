@@ -8,14 +8,15 @@ public class TraitsDetection : MonoBehaviour
 
     [Header("TraitSlot")]
     [SerializeField] GameObject traitSlotPrefab;
-    [SerializeField] GameObject traitLayout;
+    [SerializeField] GameObject traitLayoutAlly;
+    [SerializeField] GameObject traitLayoutEnemy;
 
     bool TryParseTrait(string traitString, out CardData.Trait trait)
     {
         return Enum.TryParse(traitString, true, out trait);
     }
 
-    public Dictionary<CardData.Trait, int> RetrieveTraitTiersFromDeck(Queue<CardData> playerDeck)
+    public Dictionary<CardData.Trait, int> RetrieveTraitTiersFromDeck(Queue<CardData> playerDeck, PlayerOwner owner)
     {
         // 1. Count fractional trait contributions
         Dictionary<CardData.Trait, float> traitCounts = new();
@@ -67,7 +68,7 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Healer, new[] { 6, 9 } },
             { CardData.Trait.Inazuma, new[] { 11 } },
             { CardData.Trait.Pokemon, new[] { 10 } },
-            { CardData.Trait.Neutral, new[] { 3, 6, 9, 20 } },
+            { CardData.Trait.Neutral, new[] { 4,8,15 } },
             { CardData.Trait.Blizzard, new[] { 5, 10 } },
             { CardData.Trait.Meme, new[] { 6, 9 } }
         };
@@ -96,8 +97,19 @@ public class TraitsDetection : MonoBehaviour
             {
                 resolvedTiers[trait] = tier;
                 Debug.Log($"Trait {trait} unlocked at Tier {tier} (count: {count})");
-                GameObject traitPrefab = Instantiate(traitSlotPrefab, traitLayout.transform);
+                GameObject traitPrefab;
+
+                if (owner == PlayerOwner.Player)
+                {
+                    traitPrefab = Instantiate(traitSlotPrefab, traitLayoutAlly.transform);
+                }
+                else
+                {
+                    traitPrefab = Instantiate(traitSlotPrefab, traitLayoutEnemy.transform);
+                }
+
                 TraitsDisplay traitDisplay = traitPrefab.GetComponentInChildren<TraitsDisplay>();
+
                 traitDisplay.thisTrait = trait; traitDisplay.tier = tier;
                 switch (trait)
                 {

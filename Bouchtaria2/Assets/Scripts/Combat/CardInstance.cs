@@ -96,18 +96,12 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TriggerDeploy()
     {
-        //if (!HasTrait("battlecry"))
-        //  return;
-        GameManager gm = FindAnyObjectByType<GameManager>();
-        gm.EnemyCore.AddShield(5);
+        //add effect here
+
     }
     private void TriggerRequiem()
     {
-        //if (!HasTrait("battlecry"))
-        //  return;
-        //Draw effect 
-        DeckManager deck = FindFirstObjectByType<DeckManager>();
-        deck.Draw(1, Owner);
+        //add effect here
     }
 
     public void TakeDamage(int amount)

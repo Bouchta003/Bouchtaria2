@@ -15,8 +15,8 @@ public class DeckManager : MonoBehaviour
 
     private void Start()
     {
-        traitsDetection.RetrieveTraitTiersFromDeck(decks[PlayerOwner.Player]);
-        //traitsDetection.RetrieveTraitTiersFromDeck(decks[PlayerOwner.Enemy]);
+        traitsDetection.RetrieveTraitTiersFromDeck(decks[PlayerOwner.Player], PlayerOwner.Player);
+        traitsDetection.RetrieveTraitTiersFromDeck(decks[PlayerOwner.Enemy], PlayerOwner.Enemy);
 
         Draw(3, PlayerOwner.Player);
         Draw(3, PlayerOwner.Enemy);

@@ -11,24 +11,36 @@ public interface IAttackable
 }
 public class GameManager : MonoBehaviour
 {
+    [Header("Core")]
     public CoreInstance PlayerCore;
     public CoreInstance EnemyCore;
-
     [SerializeField] private GameObject corePrefab;
     [SerializeField] private int startingCoreHealth = 20;
     [SerializeField] private GameObject spawnPlayerCore;
     [SerializeField] private GameObject spawnEnemyCore;
+
+    [Header("Deck and Board")]
     [SerializeField] private DeckManager deckManager;
     [SerializeField] private AllyCardDropArea allyDropArea;
     [SerializeField] private EnemyCardDropArea enemyDropArea;
 
+    
+    [Header("Mana")]
+    [SerializeField] private int baseManaCap = 10;
+
+    public int AllyCurrentMana { get; private set; }
+    public int AllyCurrentMaxMana { get; private set; }
+
+    public int EnemyCurrentMana { get; private set; }
+    public int EnemyCurrentMaxMana { get; private set; }
+
+    public int AllyBonusManaCap { get; private set; }
+    public int EnemyBonusManaCap { get; private set; }
+
     [SerializeField] TextMeshProUGUI manacounterAlly;
     [SerializeField] TextMeshProUGUI manacounterEnmy;
-    public int AllyCurrentMana { get; private set; } = 10;
-    public int AllyCurrentMaxMana { get; private set; } = 10;
-    public int EnemyCurrentMana { get; private set; } = 10;
-    public int EnemyCurrentMaxMana { get; private set; } = 10;
-    
+
+    [Header("Cursor")]
     [SerializeField] Image attackCursor;
     public bool isTargettingAttack;
     Card currentAttacker;
@@ -41,12 +53,15 @@ public class GameManager : MonoBehaviour
             Debug.LogError("TurnManager missing!");
             return;
         }
-        //Setup cores and deck before the turn logic
+
+        //Setup cores mana and deck before the turn logic
         SetupCores(); 
         PlayerCore.GetComponent<CoreView>().Bind(PlayerCore);
         EnemyCore.GetComponent<CoreView>().Bind(EnemyCore);
         deckManager.InitializeDecks();
+        InitializeMana();
 
+        //Start turn logic
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
         TurnManager.Instance.StartFirstTurn();
     }
@@ -62,6 +77,7 @@ public class GameManager : MonoBehaviour
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
     }
+
     private void SetupCores()
     {
         //PlayerCore = Instantiate(corePrefab, spawnPlayerCore.transform).GetComponent<CoreInstance>();
@@ -77,10 +93,22 @@ public class GameManager : MonoBehaviour
         else
             Debug.Log("PLAYER WINS");
     }
-
     private void HandleTurnStart(PlayerOwner owner)
     {
-        RefreshMaxMana(owner);
+        IncreaseMaxMana(owner);
+        RefillMana(owner);
+    }
+
+    #region Mana Management
+    private void InitializeMana()
+    {
+        AllyCurrentMana = 0;
+        AllyCurrentMaxMana = 0;
+        AllyBonusManaCap = 0;
+
+        EnemyCurrentMana = 0;
+        EnemyCurrentMaxMana = 0;
+        EnemyBonusManaCap = 0;
     }
     public void RefreshMaxMana(PlayerOwner owner)
     {
@@ -96,7 +124,41 @@ public class GameManager : MonoBehaviour
         else
             EnemyCurrentMana -= mana;
     }
+    private int GetEffectiveManaCap(PlayerOwner owner)
+    {
+        return baseManaCap + GetBonusManaCap(owner);
+    }
 
+    private int GetBonusManaCap(PlayerOwner owner)
+    {
+        return owner == PlayerOwner.Player
+            ? AllyBonusManaCap
+            : EnemyBonusManaCap;
+    }
+    private void IncreaseMaxMana(PlayerOwner owner)
+    {
+        int effectiveCap = GetEffectiveManaCap(owner);
+
+        if (owner == PlayerOwner.Player)
+        {
+            if (AllyCurrentMaxMana < effectiveCap)
+                AllyCurrentMaxMana++;
+        }
+        else
+        {
+            if (EnemyCurrentMaxMana < effectiveCap)
+                EnemyCurrentMaxMana++;
+        }
+    }
+    private void RefillMana(PlayerOwner owner)
+    {
+        if (owner == PlayerOwner.Player)
+            AllyCurrentMana = AllyCurrentMaxMana;
+        else
+            EnemyCurrentMana = EnemyCurrentMaxMana;
+    }
+
+    #endregion
     #region Combat Manager
     public void BeginAttack(Card attacker)
     {
