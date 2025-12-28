@@ -3,7 +3,7 @@ using UnityEngine;
 public class CoreInstance : MonoBehaviour, IAttackable
 {
     public PlayerOwner Owner { get; private set; }
-
+    public Transform Transform { get; private set; }
     public int MaxHealth { get; private set; }
     public int CurrentHealth { get; private set; }
     public int CurrentAttack { get; private set; }
@@ -19,6 +19,7 @@ public class CoreInstance : MonoBehaviour, IAttackable
         CurrentHealth = maxHealth;
         CurrentAttack = 0;
         Shield = 0;
+        Transform = transform;
     }
 
     public void TakeDamage(int amount)
@@ -43,6 +44,7 @@ public class CoreInstance : MonoBehaviour, IAttackable
         if (CurrentHealth <= 0)
         {
             CurrentHealth = 0;
+            OnCoreChanged?.Invoke();
             Debug.Log($"Ded.");
             Die();
         }

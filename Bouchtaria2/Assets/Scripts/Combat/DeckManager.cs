@@ -45,7 +45,7 @@ public class DeckManager : MonoBehaviour
     {
         List<CardData> deckList = new List<CardData>();
         if (owner == PlayerOwner.Player)
-            deckList = GetTestSpellDeckFromServer();
+            deckList = GetTestMinionDeckFromServer();
         else
             deckList = GetTestMinionDeckFromServer();
         Shuffle(deckList);

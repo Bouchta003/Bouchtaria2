@@ -1,9 +1,12 @@
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Collections;
+
 public interface IAttackable
 {
+    Transform Transform{ get; } 
     PlayerOwner Owner { get; }
     int CurrentAttack { get; }
 
@@ -60,10 +63,9 @@ public class GameManager : MonoBehaviour
 
     private readonly List<ITraitProgression> activeProgressions = new();
     [SerializeField] private WinLoseUI winLoseUI;
-
-    [Header("References")]
-    [SerializeField] private AllyCardDropArea allyBoard;
-    [SerializeField] private EnemyCardDropArea enemyBoard;
+    public bool IsCombatAnimating { get; private set; }
+    private readonly Queue<AttackRequest> attackQueue = new Queue<AttackRequest>();
+    private bool isResolvingAttack = false;
 
     void Start()
     {
@@ -278,46 +280,29 @@ public class GameManager : MonoBehaviour
     {
         if (CurrentGameState != GameState.Playing)
             return;
-        CardInstance attackerInst = attacker.GetComponentInChildren<CardInstance>();
-        if (attackerInst.Data.cardType.ToLower() == "spell") return;
-        if (attackerInst.CurrentZone != CardZone.Board) return;
+
+        CardInstance attackerInst = attacker.GetComponent<CardInstance>();
+        if (attackerInst == null)
+            return;
+
+        if (attackerInst.Data.cardType.ToLower() == "spell")//Add Spell Logic later
+            return;
+
+        if (attackerInst.CurrentZone != CardZone.Board)
+            return;
+
         if (!TurnManager.Instance.IsPlayerTurn(attackerInst.Owner))
             return;
-        if (attackerInst.HasAttackedThisTurn)
+
+        if (attackerInst.HasAttackedThisTurn || attackerInst.IsSummoningSick)
             return;
-        if (attackerInst.IsSummoningSick)
-            return;
-        isTargettingAttack = true;
+
+        // 🔑 Cancel previous selection safely
         currentAttacker = attacker;
-
+        isTargettingAttack = true;
         attackCursor.gameObject.SetActive(true);
-
-        Debug.Log(attacker + " started attack");
     }
-    public void ResolveAttack(Card target)
-    {
-        CardInstance targetInst = target.GetComponentInChildren<CardInstance>();
-        CardInstance attackerInst = currentAttacker.GetComponentInChildren<CardInstance>();
 
-        //Verify Legality of attack
-        if (targetInst.Owner == attackerInst.Owner) return;
-        if (targetInst.Data.cardType.ToLower() == "spell") return;
-        if (targetInst.CurrentZone != CardZone.Board) return;
-
-        Debug.Log(currentAttacker + " attacked " + target);
-        attackCursor.gameObject.SetActive(false);
-
-        //Attack Logic :
-        int attackerDmg = attackerInst.CurrentAttack;
-        int targetDmg = targetInst.CurrentAttack;
-        attackerInst.HasAttackedThisTurn = true;
-        attackerInst.TakeDamage(targetDmg);
-        targetInst.TakeDamage(attackerDmg);
-
-        //Reset Attack process
-        isTargettingAttack = false;
-        currentAttacker = null;
-    }
     public bool CanSelectAttacker(CardInstance attacker)
     {
         if (!TurnManager.Instance.IsPlayerTurn(attacker.Owner))
@@ -343,33 +328,6 @@ public class GameManager : MonoBehaviour
             ? PlayerCore
             : EnemyCore;
     }
-    public void ResolveAttack(CardInstance attacker, IAttackable target)
-    {
-        // Final safety checks
-        if (attacker == null || target == null)
-            return;
-
-        if (!CanSelectAttacker(attacker))
-            return;
-
-        // Prevent friendly fire
-        if (attacker.Owner == target.Owner)
-            return;
-
-        CardInstance attackerInst = attacker.GetComponentInChildren<CardInstance>();
-
-        int attackerDmg = attackerInst.CurrentAttack;
-        int targetDmg = target.CurrentAttack;
-        attackerInst.HasAttackedThisTurn = true;
-        attackerInst.TakeDamage(targetDmg);
-
-        // Deal damage
-        target.TakeDamage(attackerDmg);
-
-        // Mark attacker as having attacked
-        attacker.HasAttackedThisTurn = true;
-    }
-
     public List<IAttackable> GetValidTargets(CardInstance attacker)
     {
         List<IAttackable> targets = new();
@@ -401,6 +359,28 @@ public class GameManager : MonoBehaviour
 
         return targets;
     }
+    public void ResolveAttack(CardInstance attacker, IAttackable target)
+    {
+        // Final safety checks
+        if (attacker == null || target == null)
+            return;
+
+        if (!CanSelectAttacker(attacker))
+            return;
+
+        // Prevent friendly fire
+        if (attacker.Owner == target.Owner)
+            return;
+
+        int attackerDmg = attacker.CurrentAttack;
+        int targetDmg = target.CurrentAttack;
+        attacker.HasAttackedThisTurn = true;
+        attacker.TakeDamage(targetDmg);
+
+        // Deal damage
+        target.TakeDamage(attackerDmg);
+    }
+
     private void ResolveAttackOnCore(CardInstance attacker, CoreInstance core)
     {
         int damage = attacker.CurrentAttack;
@@ -413,52 +393,166 @@ public class GameManager : MonoBehaviour
     {
         if (CurrentGameState != GameState.Playing)
             return;
+
+        CardInstance clickedInst = card.GetComponent<CardInstance>();
+        if (clickedInst == null)
+            return;
+
+        // CASE 1: Not targeting → try to select attacker
         if (!isTargettingAttack)
+        {
             BeginAttack(card);
-        else if (CanAttackUnit(card.GetComponent<CardInstance>()))
-            ResolveAttack(card);
+            return;
+        }
+
+        // CASE 2: Targeting but attacker was cleared (race condition)
+        if (currentAttacker == null)
+        {
+            isTargettingAttack = false;
+            BeginAttack(card);
+            return;
+        }
+
+        // CASE 3: Valid attack attempt
+        CardInstance attackerInst = currentAttacker.GetComponent<CardInstance>();
+        if (attackerInst == null)
+        {
+            isTargettingAttack = false;
+            currentAttacker = null;
+            return;
+        }
+
+        if (CanAttackUnit(clickedInst))
+        {
+            QueueAttack(attackerInst, clickedInst);
+        }
     }
+
     public bool CanAttackUnit(CardInstance target)
     {
         // Basic checks (turn, owner, already attacked, etc.)
 
         if (target.Owner == PlayerOwner.Player)
         {
-            if (!target.HasKeyword("protect") && FindFirstObjectByType<AllyCardDropArea>().HasProtectUnits())
+            if (!target.HasKeyword("protect") && allyDropArea.HasProtectUnits())
                 return false;
             else return true;
         }
         else
         {
-            if (!target.HasKeyword("protect") && FindFirstObjectByType<EnemyCardDropArea>().HasProtectUnits())
+            if (!target.HasKeyword("protect") && enemyDropArea.HasProtectUnits())
                 return false;
             else return true;
         }
     }
     public void TryAttackCore(CoreInstance targetCore)
     {
+        if (currentAttacker == null)
+            return;
+        CardInstance cardInst = currentAttacker.GetComponent<CardInstance>();
         if (CurrentGameState != GameState.Playing)
             return;
 
-        if (currentAttacker == null)
+
+        if (cardInst.Owner == targetCore.Owner)
             return;
 
-        if (currentAttacker.GetComponent<CardInstance>().Owner == targetCore.Owner)
-            return;
-
-        if (currentAttacker.GetComponent<CardInstance>().Owner == PlayerOwner.Player && FindFirstObjectByType<EnemyCardDropArea>().HasProtectUnits())
+        if (cardInst.Owner == PlayerOwner.Player && enemyDropArea.HasProtectUnits())
         {
             return;
         }
-        else if (currentAttacker.GetComponent<CardInstance>().Owner == PlayerOwner.Enemy && FindFirstObjectByType<AllyCardDropArea>().HasProtectUnits())
+        else if (cardInst.Owner == PlayerOwner.Enemy && allyDropArea.HasProtectUnits())
         {
             return;
         }
-        ResolveAttackOnCore(currentAttacker.GetComponent<CardInstance>(), targetCore);
-
-        currentAttacker.GetComponent<CardInstance>().HasAttackedThisTurn = true;
+        QueueAttack(cardInst, targetCore);
         attackCursor.gameObject.SetActive(false);
         currentAttacker = null; isTargettingAttack = false;
     }
+    private void QueueAttack(CardInstance attacker, IAttackable target)
+    {
+        // Safety checks
+        if (attacker == null || target == null)
+            return;
+
+        if (attacker.HasAttackedThisTurn || attacker.IsSummoningSick)
+            return;
+
+        attackQueue.Enqueue(new AttackRequest(attacker, target));
+
+        // Start processing if idle
+        if (!isResolvingAttack)
+            StartCoroutine(ProcessAttackQueue());
+    }
+    private IEnumerator ProcessAttackQueue()
+    {
+        isResolvingAttack = true;
+
+        while (attackQueue.Count > 0)
+        {
+            AttackRequest req = attackQueue.Dequeue();
+
+            // Attacker might be dead now
+            if (req.Attacker == null || req.Attacker.CurrentZone!=CardZone.Board)
+                continue;
+
+            // Target might be dead
+            if (req.Target == null || req.Attacker.CurrentZone != CardZone.Board)
+                continue;
+
+            // Stop cursor & targeting immediately
+            isTargettingAttack = false;
+            attackCursor.gameObject.SetActive(false);
+            currentAttacker = null;
+
+            // Animate
+            CardView view = req.Attacker.GetComponent<CardView>();
+            if (view != null)
+                yield return view.PlayAttackAnimation(req.Target.Transform);
+
+            // Apply logic
+            ResolveAttack(req.Attacker, req.Target);
+
+            // Small pacing delay (FEELS GOOD)
+            yield return new WaitForSeconds(0.05f);
+        }
+
+        isResolvingAttack = false;
+    }
+
+    private IEnumerator HandleAttack(CardInstance attacker, IAttackable target)
+    {
+        IsCombatAnimating = true;
+
+        // NOW board is allowed to reflow if needed
+
+        isTargettingAttack = false;              // 🔴 stop targeting immediately
+        attackCursor.gameObject.SetActive(false);
+
+        CardView cardView = attacker.GetComponent<CardView>();
+
+        if (cardView != null)
+        {
+            yield return cardView.PlayAttackAnimation(target.Transform);
+            IsCombatAnimating = false;
+        }
+
+            ResolveAttack(attacker, target);
+
+        currentAttacker = null;                  // 🔴 clear attacker
+    }
+
     #endregion
 }
+public class AttackRequest
+{
+    public CardInstance Attacker;
+    public IAttackable Target;
+
+    public AttackRequest(CardInstance attacker, IAttackable target)
+    {
+        Attacker = attacker;
+        Target = target;
+    }
+}
+

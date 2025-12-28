@@ -1,8 +1,10 @@
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using System.Collections;
+using DG.Tweening;
 
 public class CardView : MonoBehaviour,
     IPointerEnterHandler,
@@ -10,6 +12,9 @@ public class CardView : MonoBehaviour,
 {
     public CardData CardData { get; private set; }
     CardInstance inst;
+    public Vector3 BoardPosition { get; set; }
+    [Header("SFX")]
+    [SerializeField] private AudioSource punchSFX;
 
     [Header("Hand Mode")]
     [SerializeField] private GameObject handVisual;
@@ -40,6 +45,52 @@ public class CardView : MonoBehaviour,
     [SerializeField] public TMP_Text atkTextBoard;
     [SerializeField] public TMP_Text hpTextBoard;
 
+#region AttackAnimation
+    private IEnumerator MoveOverTime(Vector3 from, Vector3 to, float duration)
+    {
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float lerp = t / duration;
+            transform.position = Vector3.Lerp(from, to, lerp);
+            yield return null;
+        }
+        transform.position = to;
+    }
+    public IEnumerator PlayAttackAnimation(Transform target)
+    {
+        transform.DOKill();
+
+        Vector3 startPos = BoardPosition; // IMPORTANT
+        Vector3 targetPos = target.position;
+
+        Vector3 dir = (targetPos - startPos).normalized;
+
+        float windupDistance = 0.15f;
+        float attackReach = Vector3.Distance(startPos, targetPos) * 0.6f;
+
+        Vector3 windupPos = startPos - dir * windupDistance;
+        Vector3 hitPos = startPos + dir * attackReach;
+
+        // Timings
+
+        float windupTime = 0.2f;
+        float dashTime = 0.06f;
+        float returnTime = 0.12f;
+
+        // Wind-up
+        yield return MoveOverTime(startPos, windupPos, windupTime);
+
+        // Dash (impact)
+        yield return MoveOverTime(windupPos, hitPos, dashTime);
+        //Play SFX punch
+        // Return
+        yield return MoveOverTime(hitPos, BoardPosition, returnTime);
+        //if (gameObject.GetComponent<CardInstance>().Owner == PlayerOwner.Player)            FindFirstObjectByType<AllyCardDropArea>().UpdateAllyCardPositions();
+    }
+
+    #endregion
     private int cardId;
     // Called by CollectionScreen after instantiation
     public void Init(CardData data)
@@ -134,7 +185,7 @@ public class CardView : MonoBehaviour,
         cardSpriteRendererBoard.sprite = card.artSpriteCompact;
         nameTextBoard.text = card.name;
         manaTextBoard.text = thisInstance.CurrentManaCost.ToString();
-        manaTextBoard.gameObject.SetActive(false) ;
+        manaTextBoard.gameObject.SetActive(false);
         atkTextBoard.text = thisInstance.CurrentAttack.ToString();
         hpTextBoard.text = thisInstance.CurrentHealth.ToString();
 
@@ -197,3 +248,4 @@ public class CardView : MonoBehaviour,
             : new Color(1f, 1f, 1f, 0.35f);
     }
 }
+

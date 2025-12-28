@@ -90,6 +90,9 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
     }
     public void UpdateAllyCardPositions()
     {
+        if (gm != null && gm.IsCombatAnimating)
+            return;
+
         if (allyPrefabCards.Count == 0) return;
 
         float cardSpacing = (1f / maxBoardSize) + 0.1f / allyPrefabCards.Count;
@@ -112,7 +115,15 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
             // 2D rotation angle
             float angle = Mathf.Atan2(forward.y, forward.x) * Mathf.Rad2Deg;
 
-            allyPrefabCards[i].transform.DOMove(worldPos, 0.25f);
+            CardView view = allyPrefabCards[i].GetComponent<CardView>();
+
+            allyPrefabCards[i].transform.DOMove(worldPos, 0.25f)
+                .OnComplete(() =>
+                {
+                    if (view != null)
+                        view.BoardPosition = view.transform.position;
+                });
+
             allyPrefabCards[i].transform.DORotate(
                 new Vector3(0, 0, angle),
                 0.25f

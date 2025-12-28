@@ -20,6 +20,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 {
     GameManager gameManager;
     DeckManager deckManager;
+    public Transform Transform { get; private set; }
     // Immutable reference
     public CardData Data { get; private set; }
     CardView view;
@@ -55,7 +56,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         CurrentAttack = data.atkValue;
         CurrentHealth = data.hpValue;
         CurrentZone = CardZone.Deck;
-
+        Transform = transform;
         if (data.effect.ToLower().Contains("unit")) spellType = CardData.SpellTargetType.Unit;
         else
         if (data.effect.ToLower().Contains("core")) spellType = CardData.SpellTargetType.Core;
@@ -127,7 +128,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else
         {
-            gameManager.BeginSpellTargeting(this);
+            //gameManager.BeginSpellTargeting(this);
         }
     }
     public void ResolveSpell()
