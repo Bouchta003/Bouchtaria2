@@ -85,9 +85,41 @@ public class CardView : MonoBehaviour,
         // Dash (impact)
         yield return MoveOverTime(windupPos, hitPos, dashTime);
         //Play SFX punch
+
         // Return
         yield return MoveOverTime(hitPos, BoardPosition, returnTime);
-        //if (gameObject.GetComponent<CardInstance>().Owner == PlayerOwner.Player)            FindFirstObjectByType<AllyCardDropArea>().UpdateAllyCardPositions();
+    }
+    public IEnumerator PlayHitReaction()
+    {
+        transform.DOKill(); // stop other tweens just in case
+
+        Vector3 originalPos = transform.position;
+        Vector3 originalScale = transform.localScale;
+
+        float duration = 0.08f;
+        float strength = 0.08f;
+
+        // Small shake
+        transform.DOShakePosition(
+            duration,
+            strength,
+            vibrato: 12,
+            randomness: 90,
+            fadeOut: true
+        );
+
+        // Scale punch (impact feel)
+        transform.DOPunchScale(
+            Vector3.one * 0.12f,
+            duration,
+            vibrato: 8,
+            elasticity: 0.8f
+        );
+
+        yield return new WaitForSeconds(duration);
+
+        transform.position = originalPos;
+        transform.localScale = originalScale;
     }
 
     #endregion

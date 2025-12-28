@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,14 +15,27 @@ public class EnemyAIController : MonoBehaviour
         if (enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
             return;
 
-        // Pick the first card (dumb AI)
-        GameObject cardGO = enemyHand.handCards[0];
-        Card card = cardGO.GetComponent<Card>();
+        // Pick first playable card (not just first card)
+        foreach (GameObject cardGO in enemyHand.handCards)
+        {
+            CardInstance inst = cardGO.GetComponent<CardInstance>();
+            if (inst == null)
+                continue;
 
-        if (card == null)
+            // 🔴 LEGALITY CHECK HERE
+            if (inst.CurrentManaCost > gameManager.EnemyCurrentMana)
+                continue;
+
+            if (inst.Data.cardType.ToLower() == "spell")
+                continue;
+
+            // ✅ This card is playable
+            Card card = cardGO.GetComponent<Card>();
+            enemyBoard.OnCardDrop(card);
             return;
+        }
 
-        enemyBoard.OnCardDrop(card);enemyBoard.UpdateEnemyCardPositions();
+        // No playable cards → do nothing
     }
 
     private void OnEnable()
@@ -44,12 +57,25 @@ public class EnemyAIController : MonoBehaviour
     }
     private IEnumerator EnemyTurnRoutine()
     {
-        yield return null; // wait until TurnPhase.Main
+        // Small delay at start of enemy turn (readability)
+        yield return new WaitForSeconds(0.3f);
 
         TrySummon();
+
+        // Pause so summon is readable
+        yield return new WaitForSeconds(0.3f);
+
         TryAttack();
+
+        // 🔴 IMPORTANT: wait until all attack animations are done
+        yield return new WaitUntil(() => !gameManager.IsResolvingAttackQueue());
+
+        // Small delay before ending turn
+        yield return new WaitForSeconds(0.2f);
+
         EndEnemyTurn();
     }
+
 
     private void TryAttack()
     {
@@ -82,7 +108,8 @@ public class EnemyAIController : MonoBehaviour
 
         var target = targets[0]; // Only attack first target
 
-        gameManager.ResolveAttack(attacker, target);
+        gameManager.QueueAttack(attacker, target);
+
     }
     private void EndEnemyTurn()
     {

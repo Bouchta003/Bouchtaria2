@@ -1,3 +1,5 @@
+using DG.Tweening;
+using System.Collections;
 using UnityEngine;
 
 public class CoreInstance : MonoBehaviour, IAttackable
@@ -59,6 +61,24 @@ public class CoreInstance : MonoBehaviour, IAttackable
     {
         FindFirstObjectByType<GameManager>()
             .OnCoreDestroyed(Owner);
+    }
+    public IEnumerator PlayHitReaction()
+    {
+        transform.DOKill();
+
+        Vector3 originalPos = transform.position;
+
+        transform.DOShakePosition(
+            0.1f,
+            0.12f,
+            vibrato: 14,
+            randomness: 90,
+            fadeOut: true
+        );
+
+        yield return new WaitForSeconds(0.1f);
+
+        transform.position = originalPos;
     }
 
 }

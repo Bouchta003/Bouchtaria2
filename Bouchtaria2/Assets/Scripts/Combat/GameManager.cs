@@ -469,7 +469,7 @@ public class GameManager : MonoBehaviour
         attackCursor.gameObject.SetActive(false);
         currentAttacker = null; isTargettingAttack = false;
     }
-    private void QueueAttack(CardInstance attacker, IAttackable target)
+    public void QueueAttack(CardInstance attacker, IAttackable target)
     {
         // Safety checks
         if (attacker == null || target == null)
@@ -484,6 +484,11 @@ public class GameManager : MonoBehaviour
         if (!isResolvingAttack)
             StartCoroutine(ProcessAttackQueue());
     }
+    public bool IsResolvingAttackQueue()
+    {
+        return isResolvingAttack || attackQueue.Count > 0;
+    }
+
     private IEnumerator ProcessAttackQueue()
     {
         isResolvingAttack = true;
@@ -506,12 +511,23 @@ public class GameManager : MonoBehaviour
             currentAttacker = null;
 
             // Animate
-            CardView view = req.Attacker.GetComponent<CardView>();
-            if (view != null)
-                yield return view.PlayAttackAnimation(req.Target.Transform);
+            CardView attackerView = req.Attacker.GetComponent<CardView>();
+            CardView targetView = req.Target.Transform.GetComponent<CardView>();
 
-            // Apply logic
+            // Attack animation
+            if (attackerView != null)
+                yield return attackerView.PlayAttackAnimation(req.Target.Transform);
+
+            // HIT REACTION (impact moment)
+            if (targetView != null)
+                yield return targetView.PlayHitReaction();
+
+            if (req.Target is CoreInstance core)
+                yield return core.PlayHitReaction();
+
+            // Apply combat logic AFTER visual impact
             ResolveAttack(req.Attacker, req.Target);
+
 
             // Small pacing delay (FEELS GOOD)
             yield return new WaitForSeconds(0.05f);
@@ -519,29 +535,6 @@ public class GameManager : MonoBehaviour
 
         isResolvingAttack = false;
     }
-
-    private IEnumerator HandleAttack(CardInstance attacker, IAttackable target)
-    {
-        IsCombatAnimating = true;
-
-        // NOW board is allowed to reflow if needed
-
-        isTargettingAttack = false;              // 🔴 stop targeting immediately
-        attackCursor.gameObject.SetActive(false);
-
-        CardView cardView = attacker.GetComponent<CardView>();
-
-        if (cardView != null)
-        {
-            yield return cardView.PlayAttackAnimation(target.Transform);
-            IsCombatAnimating = false;
-        }
-
-            ResolveAttack(attacker, target);
-
-        currentAttacker = null;                  // 🔴 clear attacker
-    }
-
     #endregion
 }
 public class AttackRequest
