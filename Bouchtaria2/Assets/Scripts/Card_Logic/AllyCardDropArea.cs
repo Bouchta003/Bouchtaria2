@@ -84,7 +84,7 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
 
         allyPrefabCards.Remove(cardGO);
 
-        Destroy(cardGO);
+        cardGO.SetActive(false);
 
         UpdateAllyCardPositions();
     }

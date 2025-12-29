@@ -7,37 +7,6 @@ public class EnemyAIController : MonoBehaviour
     [SerializeField] private HandManager enemyHand;
     [SerializeField] private EnemyCardDropArea enemyBoard;
     [SerializeField] private GameManager gameManager;
-    private void TrySummon()
-    {
-        if (enemyHand.handCards.Count == 0)
-            return;
-
-        if (enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
-            return;
-
-        // Pick first playable card (not just first card)
-        foreach (GameObject cardGO in enemyHand.handCards)
-        {
-            CardInstance inst = cardGO.GetComponent<CardInstance>();
-            if (inst == null)
-                continue;
-
-            // 🔴 LEGALITY CHECK HERE
-            if (inst.CurrentManaCost > gameManager.EnemyCurrentMana)
-                continue;
-
-            if (inst.Data.cardType.ToLower() == "spell")
-                continue;
-
-            // ✅ This card is playable
-            Card card = cardGO.GetComponent<Card>();
-            enemyBoard.OnCardDrop(card);
-            return;
-        }
-
-        // No playable cards → do nothing
-    }
-
     private void OnEnable()
     {
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
@@ -75,8 +44,52 @@ public class EnemyAIController : MonoBehaviour
 
         EndEnemyTurn();
     }
+    private void TrySummon()
+    {
+        if (enemyHand.handCards.Count == 0)
+            return;
 
+        int availableMana = gameManager.EnemyCurrentMana;
 
+        if (enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
+            return;
+
+        // Collect playable minions
+        List<CardInstance> playable = new();
+
+        foreach (GameObject cardGO in enemyHand.handCards)
+        {
+            CardInstance inst = cardGO.GetComponent<CardInstance>();
+            if (inst == null)
+                continue;
+
+            if (inst.Data.cardType.ToLower() != "minion")
+                continue;
+
+            if (inst.CurrentManaCost > availableMana)
+                continue;
+
+            playable.Add(inst);
+        }
+
+        // Sort by cheapest first (maximize mana usage)
+        playable.Sort((a, b) => a.CurrentManaCost.CompareTo(b.CurrentManaCost));
+
+        // Greedy summon loop
+        foreach (CardInstance inst in playable)
+        {
+            if (enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
+                break;
+
+            if (inst.CurrentManaCost > gameManager.EnemyCurrentMana)
+                continue;
+
+            Card card = inst.GetComponent<Card>();
+            enemyBoard.OnCardDrop(card);
+
+            // small readability delay handled by EnemyTurnRoutine
+        }
+    }
     private void TryAttack()
     {
         List<CardInstance> attackers = new();
@@ -96,9 +109,15 @@ public class EnemyAIController : MonoBehaviour
         if (attackers.Count == 0)
             return;
 
-        CardInstance attacker = attackers[0]; // Only attack with first attacker
-        AttackWith(attacker);
+        // Optional: sort attackers (biggest first = more pressure)
+        attackers.Sort((a, b) => b.CurrentAttack.CompareTo(a.CurrentAttack));
+
+        foreach (CardInstance attacker in attackers)
+        {
+            AttackWith(attacker);
+        }
     }
+
     private void AttackWith(CardInstance attacker)
     {
         var targets = gameManager.GetValidTargets(attacker);

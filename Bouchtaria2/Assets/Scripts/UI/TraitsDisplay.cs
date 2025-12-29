@@ -33,9 +33,12 @@ public class TraitsDisplay : MonoBehaviour
     //[SerializeField] public Sprite trait4Icon;
     public CardData.Trait thisTrait;
     public int tier;
+    public int Progression;
+    public int CurrentCap;
     private void Start()
     {
         frameRaritySlot.gameObject.SetActive(false);
+        traitEffect.SetActive(false);
     }
     public void Activate(int tier)
     {
@@ -63,10 +66,18 @@ public class TraitsDisplay : MonoBehaviour
             case CardData.Trait.Pokemon:
                 display += "Kill enemies to activate :" +
                     "\nTier 1 : The next Pokemon you play evolves instantly.";
-                if(tier>1) display += 
-                     "\nTier 2 : The next Pokemon you play evolves instantlyand costs (2) less."; 
+                if (tier > 1) display +=
+                        "\nTier 2 : The next Pokemon you play evolves instantlyand costs (2) less.";
                 if (tier > 2) display +=
                          "\nTier 3 : Discover a LEGENDARY Pokemon.";
+                break;
+            case CardData.Trait.Neutral:
+                display += $"Play neutral cards currently played : {Progression}/{CurrentCap}" +
+                    "\nTier 1 : The first neutral card you PLAY each turn has +1 HP.";
+                if (tier > 1) display +=
+                        "\nTier 2 : The first card you draw that costs 3 mana or more each turn costs 1 less.";
+                if (tier > 2) display +=
+                         "\nTier 3 : NEUTRAL-ize the enemy team.";
                 break;
             default:
                 display += "Need to define this trait's tier logic";

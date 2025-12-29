@@ -112,6 +112,7 @@ public class TraitsDetection : MonoBehaviour
 
                 traitDisplay.thisTrait = trait; 
                 traitDisplay.tier = tier;
+                traitDisplay.Progression = tier;
                 switch (tier)
                 {
                     case 1:

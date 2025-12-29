@@ -23,6 +23,20 @@ public class TraitUIManager : MonoBehaviour
             }
         }
     }
+    public TraitsDisplay GetTraitDisplay(CardData.Trait trait)
+    {
+        displaysByTrait.TryGetValue(trait, out TraitsDisplay display);
+        return display;
+    }
+    public void UpdateTraitProgress(CardData.Trait trait, int progress, int currentCap)
+    {
+        TraitsDisplay display = GetTraitDisplay(trait);
+        if (display == null)
+            return;
+
+        display.Progression = progress;
+        display.CurrentCap = currentCap;
+    }
 
     public void ActivateTrait(CardData.Trait trait, int tier)
     {

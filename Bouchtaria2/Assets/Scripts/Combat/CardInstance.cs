@@ -29,7 +29,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public int BaseManaCost { get; private set; }
     public int CurrentHealth { get; private set; }
     public int CurrentManaCost => Mathf.Max(0, BaseManaCost + temporaryManaModifier);
-
+    public bool IsDead = false;
     public PlayerOwner Owner { get; set; }
     public CardData.SpellTargetType spellType { get; set; }
     public CardZone CurrentZone { get; private set; }
@@ -172,8 +172,9 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         view.hpTextBoard.text = CurrentHealth.ToString();
         if (CurrentHealth < Data.hpValue) view.hpTextBoard.color = Color.red;
-        if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
-        if (CurrentAttack > Data.atkValue) view.hpTextBoard.color = Color.green;
+        else if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
+        else if (CurrentHealth == Data.hpValue) view.hpTextBoard.color = Color.white;
+        if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
 
         if (CurrentHealth <= 0)
         {
@@ -182,24 +183,27 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     public void Die()
     {
-        if (CurrentZone == CardZone.Board)
+        if (IsDead)
+            return;
+
+        IsDead = true;
+
+        if (CurrentZone != CardZone.Board)
+            return;
+
+        TriggerRequiem();
+
+        if (Owner == PlayerOwner.Player)
         {
-            if (Owner == PlayerOwner.Player)
-            {
-                AllyCardDropArea board =
-                    FindFirstObjectByType<AllyCardDropArea>();
-
-                if (board != null)
-                    board.HandleAllyDeath(this);
-            }
-            else {
-                EnemyCardDropArea board =
-                 FindFirstObjectByType<EnemyCardDropArea>();
-
-                if (board != null)
-                    board.HandleEnemyDeath(this);
-            }
-                TriggerRequiem();
+            AllyCardDropArea board = FindFirstObjectByType<AllyCardDropArea>();
+            if (board != null)
+                board.HandleAllyDeath(this);
+        }
+        else
+        {
+            EnemyCardDropArea board = FindFirstObjectByType<EnemyCardDropArea>();
+            if (board != null)
+                board.HandleEnemyDeath(this);
         }
     }
 

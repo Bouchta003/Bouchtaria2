@@ -110,7 +110,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
             return;
 
         enemyPrefabCards.Remove(cardGO);
-        Destroy(cardGO);
+        cardGO.SetActive(false) ;
 
         UpdateEnemyCardPositions();
     }

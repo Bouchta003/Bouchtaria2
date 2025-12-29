@@ -109,6 +109,11 @@ public class GameManager : MonoBehaviour
         //Start turn logic
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
         TurnManager.Instance.StartFirstTurn();
+        foreach (var progression in activeProgressions)
+        {
+            progression.ResetProgression();
+            progression.PushInitialState();
+        }
     }
     private void OnDestroy()
     {
@@ -195,11 +200,22 @@ public class GameManager : MonoBehaviour
 
             if (progression != null)
             {
-                progression.Register();
+                progression.Register(); progression.OnProgressUpdated += HandleTraitProgressUpdated;
+
                 activeProgressions.Add(progression);
             }
         }
     }
+    private void HandleTraitProgressUpdated(    CardData.Trait trait,    int progress, int currentCap,    PlayerOwner owner)
+    {
+        TraitUIManager ui =
+            owner == PlayerOwner.Player
+                ? allyTraitUI
+                : enemyTraitUI;
+
+        ui.UpdateTraitProgress(trait, progress, currentCap);
+    }
+
     private void OnAllyTraitActivated(CardData.Trait trait, int tier)
     {
         allyTraitUI.ActivateTrait(trait, tier);
@@ -391,16 +407,28 @@ public class GameManager : MonoBehaviour
                 : PlayerOwner.Player
         );
 
-        bool hasProtect = defendingBoard.HasProtectUnits();
+        // Only consider alive units
+        List<CardInstance> aliveUnits = new();
 
         foreach (var go in defendingBoard.GetCards())
         {
-            CardInstance ci = go.GetComponent<CardInstance>();
-            if (ci == null)
+            if (go == null || !go.activeSelf)
                 continue;
 
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci == null || ci.IsDead)
+                continue;
+
+            aliveUnits.Add(ci);
+        }
+
+        bool hasProtect = aliveUnits.Exists(ci => ci.HasKeyword("protect"));
+
+        foreach (var ci in aliveUnits)
+        {
             if (hasProtect && !ci.HasKeyword("protect"))
                 continue;
+
             targets.Add(ci);
         }
 
@@ -414,24 +442,34 @@ public class GameManager : MonoBehaviour
     }
     public void ResolveAttack(CardInstance attacker, IAttackable target)
     {
-        // Final safety checks
         if (attacker == null || target == null)
             return;
 
         if (!CanSelectAttacker(attacker))
             return;
 
-        // Prevent friendly fire
         if (attacker.Owner == target.Owner)
             return;
 
-        int attackerDmg = attacker.CurrentAttack;
-        int targetDmg = target.CurrentAttack;
         attacker.HasAttackedThisTurn = true;
-        attacker.TakeDamage(targetDmg);
 
-        // Deal damage
-        target.TakeDamage(attackerDmg);
+        // UNIT vs UNIT
+        if (target is CardInstance targetUnit)
+        {
+            int attackerDmg = attacker.CurrentAttack;
+            int defenderDmg = targetUnit.CurrentAttack;
+
+            attacker.TakeDamage(defenderDmg);
+            targetUnit.TakeDamage(attackerDmg);
+            return;
+        }
+
+        // UNIT vs CORE
+        if (target is CoreInstance core)
+        {
+            core.TakeDamage(attacker.CurrentAttack);
+            return;
+        }
     }
 
     private void ResolveAttackOnCore(CardInstance attacker, CoreInstance core)
@@ -556,13 +594,39 @@ public class GameManager : MonoBehaviour
         {
             AttackRequest req = attackQueue.Dequeue();
 
-            // Attacker might be dead now
-            if (req.Attacker == null || req.Attacker.CurrentZone!=CardZone.Board)
+            // Attacker validation
+            if (req.Attacker == null ||
+                req.Attacker.CurrentZone != CardZone.Board ||
+                req.Attacker.HasAttackedThisTurn)
+            {
                 continue;
+            }
 
-            // Target might be dead
-            if (req.Target == null || req.Attacker.CurrentZone != CardZone.Board)
-                continue;
+            // Determine actual target (with retargeting)
+            IAttackable target = req.Target;
+
+
+            bool targetInvalid = false;
+
+            if (target == null)
+            {
+                targetInvalid = true;
+            }
+            else if (target is CardInstance ci)
+            {
+                if (ci.IsDead || !ci.gameObject.activeSelf || ci.CurrentZone != CardZone.Board)
+                    targetInvalid = true;
+            }
+
+            if (targetInvalid)
+            {
+                List<IAttackable> newTargets = GetValidTargets(req.Attacker);
+                if (newTargets.Count == 0)
+                    continue;
+
+                target = newTargets[0];
+            }
+
 
             // Stop cursor & targeting immediately
             isTargettingAttack = false;
@@ -572,31 +636,29 @@ public class GameManager : MonoBehaviour
             // Animate
             CardView attackerView = req.Attacker.GetComponent<CardView>();
 
-            // CORE ATTACK (use proxy)
-            if (req.Target is CoreInstance core)
+            if (target is CoreInstance core)
             {
                 Transform proxy = GetCoreProxy(core.Owner);
 
                 if (attackerView != null && proxy != null)
                     yield return attackerView.PlayAttackAnimation(proxy);
 
-                // UI reaction only
-                yield return core.GetComponent<CoreView>().PlayHitReaction(req.Attacker.CurrentAttack);
+                yield return core.GetComponent<CoreView>()
+                    .PlayHitReaction(req.Attacker.CurrentAttack);
             }
             else
             {
-                // UNIT ATTACK
-                CardView targetView = req.Target.Transform.GetComponent<CardView>();
+                CardView targetView = target.Transform.GetComponent<CardView>();
 
                 if (attackerView != null)
-                    yield return attackerView.PlayAttackAnimation(req.Target.Transform);
+                    yield return attackerView.PlayAttackAnimation(target.Transform);
 
                 if (targetView != null)
                     yield return targetView.PlayHitReaction(req.Attacker.CurrentAttack);
             }
 
             // Apply combat logic AFTER visual impact
-            ResolveAttack(req.Attacker, req.Target);
+            ResolveAttack(req.Attacker, target);
 
 
             // Small pacing delay (FEELS GOOD)
@@ -611,11 +673,14 @@ public class AttackRequest
 {
     public CardInstance Attacker;
     public IAttackable Target;
+    public Transform TargetTransform;
 
     public AttackRequest(CardInstance attacker, IAttackable target)
     {
         Attacker = attacker;
         Target = target;
+        TargetTransform = target != null ? target.Transform : null;
     }
 }
+
 

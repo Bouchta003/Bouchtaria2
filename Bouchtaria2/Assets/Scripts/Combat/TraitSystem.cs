@@ -13,6 +13,11 @@ public interface ITraitProgression
     CardData.Trait Trait { get; }
     PlayerOwner Owner { get; }
     int CurrentTier { get; }
+    void PushInitialState();
+    void ResetProgression();
+    int CurrentProgress { get; }
+
+    event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
 
     void Register();
     void Unregister();
@@ -22,7 +27,6 @@ public class TraitSystem : MonoBehaviour
 {
     public event System.Action<CardData.Trait, int> OnTraitTierActivated;
 
-    [SerializeField] GameObject traitLayout;
     public PlayerOwner Owner { get; private set; }
 
     private readonly List<IDeckTraitEffect> activeEffects = new();
@@ -55,7 +59,11 @@ public class NeutralProgression : ITraitProgression
     public int CurrentTier { get; private set; }
 
     private readonly int maxTier;
-    private int neutralPlayed;
+    private int neutralPlayed=0;
+
+    public int CurrentProgress => neutralPlayed;
+
+    public event System.Action<CardData.Trait, int,int, PlayerOwner> OnProgressUpdated;
 
     private readonly TraitSystem traitSystem;
     private readonly AllyCardDropArea allyBoard;
@@ -74,12 +82,24 @@ public class NeutralProgression : ITraitProgression
         this.allyBoard = allyBoard;
         this.enemyBoard = enemyBoard;
     }
+    public void ResetProgression()
+    {
+        neutralPlayed = 0;
+    }
+    public void PushInitialState()
+    {
+        int cap = GetCurrentCap();
+        OnProgressUpdated?.Invoke(Trait, neutralPlayed, cap, Owner);
+    }
+
     public void Register()
     {
         Debug.Log($"[NeutralProgression] Register for {Owner}");
 
         allyBoard.OnCardPlayed += OnCardPlayed;
         enemyBoard.OnCardPlayed += OnCardPlayed;
+
+        OnProgressUpdated?.Invoke(Trait, neutralPlayed, GetCurrentCap(), Owner);
     }
     public void Unregister()
     {
@@ -87,6 +107,16 @@ public class NeutralProgression : ITraitProgression
 
         allyBoard.OnCardPlayed -= OnCardPlayed;
         enemyBoard.OnCardPlayed -= OnCardPlayed;
+    }
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 5,
+            1 => 10,
+            2 => 15,
+            _ => 999
+        };
     }
 
     private void OnCardPlayed(CardInstance card)
@@ -97,6 +127,8 @@ public class NeutralProgression : ITraitProgression
         if (!card.HasTrait("neutral"))
             return;
         neutralPlayed++;
+        OnProgressUpdated?.Invoke(Trait, neutralPlayed, GetCurrentCap(), Owner);
+
         //Debug.Log($"Neutral card played for :{Owner}, count is now {neutralPlayed}");
 
         if (neutralPlayed >= 5 && CurrentTier < 1 && maxTier >= 1)
@@ -276,5 +308,4 @@ public class NeutralTier2Effect : IDeckTraitEffect
             yield return go.GetComponent<CardInstance>();
     }
 }
-
 #endregion

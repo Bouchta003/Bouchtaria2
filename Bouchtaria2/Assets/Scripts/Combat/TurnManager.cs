@@ -47,8 +47,6 @@ public class TurnManager : MonoBehaviour
         CurrentPlayer = CurrentPlayer == PlayerOwner.Player
             ? PlayerOwner.Enemy
             : PlayerOwner.Player;
-
-        Debug.Log($"Moving to {CurrentPlayer}'s turn");
         BeginTurn();
     }
 
