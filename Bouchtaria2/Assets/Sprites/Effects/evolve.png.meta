@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 0e327b8a5ac5dad4d95f195be6112325
+guid: be117160af9cfc046ac918ac814eb1eb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5724127203632975190
-    second: swaggyman_compact_0
+      213: 4867717466702085317
+    second: evolve_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: swaggyman_compact_0
+      name: evolve_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1764
-        height: 1176
+        width: 512
+        height: 512
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: aa27e42d2a0df80b0800000000000000
-      internalID: -5724127203632975190
+      spriteID: 5ccfdb5ee3b9d8340800000000000000
+      internalID: 4867717466702085317
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      swaggyman_compact_0: -5724127203632975190
+      evolve_0: 4867717466702085317
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -44,7 +44,10 @@ public class CardView : MonoBehaviour,
     [SerializeField] public TMP_Text manaTextBoard;
     [SerializeField] public TMP_Text atkTextBoard;
     [SerializeField] public TMP_Text hpTextBoard;
-
+    [Header("EffectDisplay")]
+    [SerializeField] GameObject protectSprite;
+    [SerializeField] GameObject quickStrikeSprite;
+    [SerializeField] GameObject evolveSprite;
 #region AttackAnimation
     private IEnumerator MoveOverTime(Vector3 from, Vector3 to, float duration)
     {
@@ -253,6 +256,19 @@ public class CardView : MonoBehaviour,
             manaFrameRenderer2Board.color = color2;
             hpFrameRendererBoard.color = color2;
         }
+
+        //Keyword Display
+        protectSprite.SetActive(false);
+        quickStrikeSprite.SetActive(false);
+        evolveSprite.SetActive(false);
+
+        if (inst.CurrentEffect.ToLower().Contains("protect"))
+            protectSprite.SetActive(true);
+        if (inst.CurrentEffect.ToLower().Contains("quickstrike"))
+            quickStrikeSprite.SetActive(true); 
+        if (inst.CurrentEffect.ToLower().Contains("morphto"))
+            evolveSprite.SetActive(true);
+
         Refresh();
     }
     private bool TryGetTraitColor(string traitString, out Color color)
