@@ -89,7 +89,7 @@ public class CardView : MonoBehaviour,
         // Return
         yield return MoveOverTime(hitPos, BoardPosition, returnTime);
     }
-    public IEnumerator PlayHitReaction()
+    public IEnumerator PlayHitReaction(int damage)
     {
         transform.DOKill(); // stop other tweens just in case
 
@@ -115,6 +115,9 @@ public class CardView : MonoBehaviour,
             vibrato: 8,
             elasticity: 0.8f
         );
+
+        GameManager gm = FindFirstObjectByType<GameManager>();
+        gm.ShakeCameraForDamage(damage);
 
         yield return new WaitForSeconds(duration);
 

@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
+using DG.Tweening;
 
 public interface IAttackable
 {
@@ -68,6 +69,19 @@ public class GameManager : MonoBehaviour
     public bool IsCombatAnimating { get; private set; }
     private readonly Queue<AttackRequest> attackQueue = new Queue<AttackRequest>();
     private bool isResolvingAttack = false;
+    [Header("Camera Shake")]
+    [SerializeField] private Camera mainCamera;
+
+    private Vector3 cameraBasePos;
+    private Tween cameraShakeTween;
+
+    private void Awake()
+    {
+        if (mainCamera == null)
+            mainCamera = Camera.main;
+
+        cameraBasePos = mainCamera.transform.position;
+    }
 
     void Start()
     {
@@ -108,6 +122,34 @@ public class GameManager : MonoBehaviour
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
     }
+    #region Turn Logic
+    private void HandleTurnStart(PlayerOwner owner)
+    {
+        IncreaseMaxMana(owner);
+        RefillMana(owner);
+    }
+    private void EndGame()
+    {
+        isTargettingAttack = false;
+        attackCursor.gameObject.SetActive(false);
+
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.enabled = false;
+
+        if (winLoseUI != null)
+        {
+            winLoseUI.gameObject.SetActive(true);
+            if (CurrentGameState == GameState.PlayerWon)
+                winLoseUI.ShowWin();
+            else if (CurrentGameState == GameState.PlayerLost)
+                winLoseUI.ShowLose();
+        }
+
+        Debug.Log($"Game ended with state: {CurrentGameState}");
+    }
+    #endregion
+
+    #region Trait Management
     private void SetupTraits()
     {
         allyTraitSystem.Initialize(PlayerOwner.Player);
@@ -162,12 +204,13 @@ public class GameManager : MonoBehaviour
     {
         allyTraitUI.ActivateTrait(trait, tier);
     }
-
     private void OnEnemyTraitActivated(CardData.Trait trait, int tier)
     {
         enemyTraitUI.ActivateTrait(trait, tier);
     }
+    #endregion
 
+    #region Core Management
     private void SetupCores()
     {
         //PlayerCore = Instantiate(corePrefab, spawnPlayerCore.transform).GetComponent<CoreInstance>();
@@ -194,31 +237,7 @@ public class GameManager : MonoBehaviour
 
         EndGame();
     }
-    private void EndGame()
-    {
-        isTargettingAttack = false;
-        attackCursor.gameObject.SetActive(false);
-
-        if (TurnManager.Instance != null)
-            TurnManager.Instance.enabled = false;
-
-        if (winLoseUI != null)
-        {
-            winLoseUI.gameObject.SetActive(true);
-            if (CurrentGameState == GameState.PlayerWon)
-                winLoseUI.ShowWin();
-            else if (CurrentGameState == GameState.PlayerLost)
-                winLoseUI.ShowLose();
-        }
-
-        Debug.Log($"Game ended with state: {CurrentGameState}");
-    }
-
-    private void HandleTurnStart(PlayerOwner owner)
-    {
-        IncreaseMaxMana(owner);
-        RefillMana(owner);
-    }
+    #endregion
 
     #region Mana Management
     private void InitializeMana()
@@ -280,7 +299,36 @@ public class GameManager : MonoBehaviour
     }
 
     #endregion
+
     #region Combat Manager
+    public void ShakeCameraForDamage(int damage)
+    {
+        float strength = 0f;
+        float duration = 0.1f;
+
+        if (damage <= 3)
+            return; // no shake
+        else if (damage <= 5)
+            strength = 0.08f;
+        else if (damage <= 9)
+            strength = 0.14f;
+        else
+            strength = Mathf.Clamp(0.18f + (damage - 10) * 0.03f, 0.18f, 0.35f);
+
+        cameraShakeTween?.Kill();
+
+        cameraShakeTween = mainCamera.transform.DOShakePosition(
+            duration,
+            strength,
+            vibrato: 18,
+            randomness: 90,
+            fadeOut: true
+        ).OnComplete(() =>
+        {
+            mainCamera.transform.position = cameraBasePos;
+        });
+    }
+
     public void BeginAttack(Card attacker)
     {
         if (CurrentGameState != GameState.Playing)
@@ -533,7 +581,7 @@ public class GameManager : MonoBehaviour
                     yield return attackerView.PlayAttackAnimation(proxy);
 
                 // UI reaction only
-                yield return core.PlayHitReaction();
+                yield return core.GetComponent<CoreView>().PlayHitReaction(req.Attacker.CurrentAttack);
             }
             else
             {
@@ -544,7 +592,7 @@ public class GameManager : MonoBehaviour
                     yield return attackerView.PlayAttackAnimation(req.Target.Transform);
 
                 if (targetView != null)
-                    yield return targetView.PlayHitReaction();
+                    yield return targetView.PlayHitReaction(req.Attacker.CurrentAttack);
             }
 
             // Apply combat logic AFTER visual impact

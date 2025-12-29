@@ -15,7 +15,6 @@ public class CoreInstance : MonoBehaviour, IAttackable
     public Transform AttackProxy => attackProxy;
 
     public bool IsDestroyed => CurrentHealth <= 0;
-
     public void Initialize(PlayerOwner owner, int maxHealth)
     {
         Owner = owner;

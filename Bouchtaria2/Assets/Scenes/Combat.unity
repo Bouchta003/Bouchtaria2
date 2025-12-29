@@ -526,6 +526,7 @@ MonoBehaviour:
   allyTraitUI: {fileID: 1501906151}
   enemyTraitUI: {fileID: 69533397}
   winLoseUI: {fileID: 554539686}
+  mainCamera: {fileID: 0}
 --- !u!114 &116247820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2128,6 +2129,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1283809121}
     - target: {fileID: 7361214691082936781, guid: 428a75668ad440d4f9895a6153354264, type: 3}
+      propertyPath: coreUI
+      value: 
+      objectReference: {fileID: 2137164848}
+    - target: {fileID: 7361214691082936781, guid: 428a75668ad440d4f9895a6153354264, type: 3}
+      propertyPath: coreImage
+      value: 
+      objectReference: {fileID: 2137164849}
+    - target: {fileID: 7361214691082936781, guid: 428a75668ad440d4f9895a6153354264, type: 3}
       propertyPath: healthText
       value: 
       objectReference: {fileID: 1048221025}
@@ -2793,6 +2802,14 @@ PrefabInstance:
       propertyPath: attackProxy
       value: 
       objectReference: {fileID: 2063063505}
+    - target: {fileID: 7361214691082936781, guid: 428a75668ad440d4f9895a6153354264, type: 3}
+      propertyPath: coreUI
+      value: 
+      objectReference: {fileID: 1391987189}
+    - target: {fileID: 7361214691082936781, guid: 428a75668ad440d4f9895a6153354264, type: 3}
+      propertyPath: coreImage
+      value: 
+      objectReference: {fileID: 1391987190}
     - target: {fileID: 7361214691082936781, guid: 428a75668ad440d4f9895a6153354264, type: 3}
       propertyPath: healthText
       value: 
