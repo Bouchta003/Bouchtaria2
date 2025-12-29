@@ -345,6 +345,8 @@ MonoBehaviour:
   goldenTraitSprite: {fileID: -8088853566183019042, guid: 02a177bca3f384c478d9973ce9463d61, type: 3}
   thisTrait: 0
   tier: 0
+  Progression: 0
+  CurrentCap: 0
 --- !u!1 &4268669481080073026
 GameObject:
   m_ObjectHideFlags: 0

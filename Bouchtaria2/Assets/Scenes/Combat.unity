@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 69533397}
   m_Layer: 5
   m_Name: Layout
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -577,7 +577,7 @@ GameObject:
   - component: {fileID: 159398173}
   m_Layer: 5
   m_Name: TraitSpaceEnemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3768,7 +3768,7 @@ GameObject:
   - component: {fileID: 1416478482}
   m_Layer: 5
   m_Name: TraitSpace
-  m_TagString: Untagged
+  m_TagString: Ally
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

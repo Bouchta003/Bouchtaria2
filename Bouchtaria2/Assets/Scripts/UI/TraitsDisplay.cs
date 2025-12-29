@@ -38,6 +38,8 @@ public class TraitsDisplay : MonoBehaviour
     private void Start()
     {
         frameRaritySlot.gameObject.SetActive(false);
+        if (transform.parent.tag == "Enemy")
+            traitEffect.transform.localPosition *= -1;
         traitEffect.SetActive(false);
     }
     public void Activate(int tier)
