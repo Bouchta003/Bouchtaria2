@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,6 +26,11 @@ public class TraitsDisplay : MonoBehaviour
     [SerializeField] public Image gemSlot;
     [SerializeField] public Image frameRaritySlot;
     [SerializeField] public GameObject traitEffect;
+    [SerializeField] private TMP_Text progressPopup;
+    [SerializeField] private float popupDuration = 0.6f;
+    [SerializeField] private float popupScale = 1.2f;
+
+    private Coroutine progressRoutine;
 
     [Header("Rarity Sprites")]
     [SerializeField] public Sprite bronzeTraitSprite;
@@ -87,4 +93,54 @@ public class TraitsDisplay : MonoBehaviour
         }
         traitEffect.GetComponentInChildren<TextMeshProUGUI>().text=display;
     }
+    public void ShowProgress(int current, int cap)
+    {
+        if (progressRoutine != null)
+            StopCoroutine(progressRoutine);
+
+        progressRoutine = StartCoroutine(ProgressPopupRoutine(current, cap));
+    }
+    private IEnumerator ProgressPopupRoutine(int current, int cap)
+    {
+        progressPopup.gameObject.SetActive(true);
+        progressPopup.text = $"{current} / {cap}";
+
+        RectTransform rt = progressPopup.rectTransform;
+        CanvasGroup cg = progressPopup.GetComponent<CanvasGroup>();
+
+        if (cg == null)
+            cg = progressPopup.gameObject.AddComponent<CanvasGroup>();
+
+        rt.localScale = Vector3.one * 0.9f;
+        cg.alpha = 0f;
+
+        // Fade + pop in
+        float t = 0f;
+        while (t < 0.15f)
+        {
+            t += Time.deltaTime;
+            float k = t / 0.15f;
+
+            rt.localScale = Vector3.Lerp(Vector3.one * 0.9f, Vector3.one * popupScale, k);
+            cg.alpha = k;
+            yield return null;
+        }
+
+        rt.localScale = Vector3.one;
+
+        // Hold
+        yield return new WaitForSeconds(popupDuration);
+
+        // Fade out
+        t = 0f;
+        while (t < 0.2f)
+        {
+            t += Time.deltaTime;
+            cg.alpha = 1f - (t / 0.2f);
+            yield return null;
+        }
+
+        progressPopup.gameObject.SetActive(false);
+    }
+
 }

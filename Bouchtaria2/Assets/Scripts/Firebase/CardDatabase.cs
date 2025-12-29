@@ -116,5 +116,21 @@ public class CardDatabase : MonoBehaviour
         }
         return card;
     }
+    public CardData GetCardById(int id)
+    {
+        if (Cards == null)
+        {
+            Debug.LogError("CardDatabase: Cards not initialized");
+            return null;
+        }
+
+        if (!Cards.TryGetValue(id, out CardData data))
+        {
+            Debug.LogError($"CardDatabase: Card with id {id} not found");
+            return null;
+        }
+
+        return data;
+    }
 
 }

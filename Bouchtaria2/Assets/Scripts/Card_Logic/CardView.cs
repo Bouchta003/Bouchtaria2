@@ -201,8 +201,7 @@ public class CardView : MonoBehaviour,
             atkFrameRenderer.color = color;
             hpFrameRenderer.color = color;
         }
-        if (card.traits.Count > 1 &&
-   TryGetTraitColor(card.traits[1], out Color color2))
+        if (card.traits.Count > 1 && TryGetTraitColor(card.traits[1], out Color color2))
         {
             frameRenderer2.color = color2;
             manaFrameRenderer2.color = color2;
@@ -248,8 +247,7 @@ public class CardView : MonoBehaviour,
             atkFrameRendererBoard.color = color;
             hpFrameRendererBoard.color = color;
         }
-        if (card.traits.Count > 1 &&
-  TryGetTraitColor(card.traits[1], out Color color2))
+        if (card.traits.Count > 1 && TryGetTraitColor(card.traits[1], out Color color2))
         {
             frameRenderer2Board.color = color2;
             manaFrameRenderer2Board.color = color2;

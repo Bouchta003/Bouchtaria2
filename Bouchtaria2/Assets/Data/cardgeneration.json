@@ -159,6 +159,54 @@
       "packable": true,
       "token": false,
       "signature": false
+    },
+    "16": {
+      "id": 16,
+      "name": "Mudkip",
+      "cardType": "minion",
+      "manaCost": 2,
+      "atkValue": 2,
+      "hpValue": 3,
+      "traits": [ "Pokemon" ],
+      "effect": "morphto(17)",
+      "effectText": "Water Starter, Evolves when you heal a total of 5 HP",
+      "artPath": "CardArt/mudkip",
+      "artCompactPath": "CardArt/mudkip_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
+    },
+    "17": {
+      "id": 17,
+      "name": "Marshtomp",
+      "cardType": "minion",
+      "manaCost": 5,
+      "atkValue": 5,
+      "hpValue": 6,
+      "traits": [ "Pokemon" ],
+      "effect": "morphto(18)",
+      "effectText": "Water Starter, Evolves when you heal a total of 10 HP",
+      "artPath": "CardArt/marshtomp",
+      "artCompactPath": "CardArt/marshtomp_compact",
+      "packable": false,
+      "token": false,
+      "signature": false
+    },
+    "18": {
+      "id": 18,
+      "name": "Swampert",
+      "cardType": "minion",
+      "manaCost": 8,
+      "atkValue": 8,
+      "hpValue": 9,
+      "traits": [ "Pokemon", "Gunner" ],
+      "effect": "taunt",
+      "effectText": "Water Starter, protect and Lifesteals",
+      "artPath": "CardArt/swampert",
+      "artCompactPath": "CardArt/swampert_compact",
+      "packable": false,
+      "token": false,
+      "signature": false
     }
   }
 }

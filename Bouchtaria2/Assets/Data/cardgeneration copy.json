@@ -264,7 +264,7 @@
       "atkValue": 2,
       "hpValue": 3,
       "traits": [ "Pokemon" ],
-      "effect": "waterstarter/evolve(heal 5HP)",
+      "effect": "evolve(17)",
       "effectText": "Water Starter, Evolves when you heal a total of 5 HP",
       "artPath": "CardArt/mudkip",
       "artCompactPath": "CardArt/mudkip_compact",

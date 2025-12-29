@@ -212,8 +212,14 @@ public class GameManager : MonoBehaviour
             owner == PlayerOwner.Player
                 ? allyTraitUI
                 : enemyTraitUI;
+        TraitsDisplay display = ui.GetTraitDisplay(trait);
+        if (display == null)
+            return;
 
         ui.UpdateTraitProgress(trait, progress, currentCap);
+
+        display.Progression = progress;
+        display.ShowProgress(progress, currentCap);
     }
 
     private void OnAllyTraitActivated(CardData.Trait trait, int tier)

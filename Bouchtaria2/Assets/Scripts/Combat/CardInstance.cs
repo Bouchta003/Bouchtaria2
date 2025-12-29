@@ -26,6 +26,8 @@ public class CardInstance : MonoBehaviour, IAttackable
     CardView view;
     // Runtime state
     public int CurrentAttack { get; private set; }
+    public string CurrentEffect { get; private set; }
+    public string CurrentEffectText { get; private set; }
     public int BaseManaCost { get; private set; }
     public int CurrentHealth { get; private set; }
     public int CurrentManaCost => Mathf.Max(0, BaseManaCost + temporaryManaModifier);
@@ -36,6 +38,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     private int temporaryManaModifier = 0;
     public bool HasAttackedThisTurn { get; set; }
     public bool IsSummoningSick { get; set; }
+    public CardView cardView { get; set; }
     public void AddTemporaryManaModifier(int amount)
     {
         temporaryManaModifier += amount;
@@ -55,6 +58,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         BaseManaCost = data.manaCost;
         CurrentAttack = data.atkValue;
         CurrentHealth = data.hpValue;
+        CurrentEffect = data.effect;
+        CurrentEffectText = data.effectText;
         CurrentZone = CardZone.Deck;
         Transform = transform;
         if (data.effect.ToLower().Contains("unit")) spellType = CardData.SpellTargetType.Unit;
@@ -69,13 +74,14 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         gameManager = FindFirstObjectByType<GameManager>();
         deckManager = FindFirstObjectByType<DeckManager>();
+        cardView = GetComponent<CardView>();
     }
     private void Update()
     {
-        if (CurrentManaCost < BaseManaCost) this.GetComponent<CardView>().manaText.color = Color.green;
-        if (CurrentManaCost > BaseManaCost) this.GetComponent<CardView>().manaText.color = Color.red;
-        if (CurrentManaCost == BaseManaCost) this.GetComponent<CardView>().manaText.color = Color.white;
-        this.GetComponent<CardView>().manaText.text = CurrentManaCost.ToString();
+        if (CurrentManaCost < BaseManaCost) cardView.manaText.color = Color.green;
+        if (CurrentManaCost > BaseManaCost) cardView.manaText.color = Color.red;
+        if (CurrentManaCost == BaseManaCost) cardView.manaText.color = Color.white;
+        cardView.manaText.text = CurrentManaCost.ToString();
     }
     public bool HasTrait(string trait)
     {
@@ -93,9 +99,6 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         return false;
     }
-    // -------------------------
-    // Zone management
-    // -------------------------
     public void SetZone(CardZone newZone)
     {
         CurrentZone = newZone;
@@ -105,10 +108,6 @@ public class CardInstance : MonoBehaviour, IAttackable
             IsSummoningSick = true;
         }
     }
-
-    // -------------------------
-    // Turn logic
-    // -------------------------
     public void OnTurnStart()
     {
         HasAttackedThisTurn = false;
@@ -116,10 +115,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (CurrentZone == CardZone.Board)
             IsSummoningSick = false;
     }
-
-    // -------------------------
-    // Combat helpers
-    // -------------------------
+    #region EffectTriggers :
     public void OnPlaySpell()
     {
         if (spellType == CardData.SpellTargetType.None)
@@ -160,15 +156,96 @@ public class CardInstance : MonoBehaviour, IAttackable
         //add effect here
 
     }
+    private void TriggerBerserk()
+    {
+        if (string.IsNullOrEmpty(Data.effect))
+            return;
+
+        TryTriggerEffect(Data.effect);
+    }
+    private void TryTriggerEffect(string effect)
+    {
+        if (TryParseIntEffect(effect.ToLower(), "morphto", out int targetId))
+            MorphTo(targetId);
+        else if (TryParseIntEffect(effect.ToLower(), "draw", out int drawCount))
+            Debug.Log("Draw " + drawCount);
+    }
+
+    private bool TryParseIntEffect(    string effect,    string effectName,    out int value)
+    {
+        value = default;
+
+        if (!effect.StartsWith(effectName))
+        {
+            Debug.LogError($"Effect '{effect}' does not match '{effectName}' on card {Data.name}");
+            return false;
+        }
+
+        int start = effect.IndexOf('(');
+        int end = effect.IndexOf(')');
+
+        if (start < 0 || end < 0 || end <= start + 1)
+        {
+            Debug.LogError($"Malformed {effectName} effect '{effect}' on card {Data.name}");
+            return false;
+        }
+
+        string valueStr = effect.Substring(start + 1, end - start - 1);
+
+        if (!int.TryParse(valueStr, out value))
+        {
+            Debug.LogError(
+                $"Invalid {effectName} parameter '{valueStr}' on card {Data.name}");
+            return false;
+        }
+
+        return true;
+    }
+
     private void TriggerRequiem()
     {
         //add effect here
     }
+    #endregion
+    #region Effects
+    public void MorphTo(int newCardId)
+    {
+        CardData newData = CardDatabase.Instance.GetCardById(newCardId);
+        if (newData == null || newCardId == Data.id)
+        {
+            Debug.LogError($"Evolve failed");
+            return;
+        }
 
+        // Preserve state you want to keep
+
+        int currentDamage = Data.hpValue - CurrentHealth;
+        // Swap data
+        Data = newData;
+
+        CurrentHealth = Mathf.Max(CurrentHealth, Data.hpValue - currentDamage);
+        CurrentAttack = newData.atkValue;
+        BaseManaCost = newData.manaCost;
+
+        CurrentEffect = newData.effect;
+        CurrentEffectText = newData.effectText;
+
+        // Notify view
+        cardView.UpdateMode();
+    }
+
+    #endregion
     public void TakeDamage(int amount)
     {
         if (amount <= 0) return;
         CurrentHealth -= amount;
+
+        if (CurrentHealth <= 0)
+        {
+            Die();
+        }
+        
+        TriggerBerserk();
 
         view.hpTextBoard.text = CurrentHealth.ToString();
         if (CurrentHealth < Data.hpValue) view.hpTextBoard.color = Color.red;
@@ -176,10 +253,14 @@ public class CardInstance : MonoBehaviour, IAttackable
         else if (CurrentHealth == Data.hpValue) view.hpTextBoard.color = Color.white;
         if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
 
-        if (CurrentHealth <= 0)
-        {
-            Die();
-        }
+    }
+    internal void ModifyStats(int atk, int hp)
+    {
+        CurrentAttack += atk;
+        CurrentHealth+=hp;
+        if (CurrentHealth < Data.hpValue) view.hpTextBoard.color = Color.red;
+        if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
+        if (CurrentAttack > Data.atkValue) view.hpTextBoard.color = Color.green;
     }
     public void Die()
     {
@@ -207,12 +288,4 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
     }
 
-    internal void ModifyStats(int atk, int hp)
-    {
-        CurrentAttack += atk;
-        CurrentHealth+=hp;
-        if (CurrentHealth < Data.hpValue) view.hpTextBoard.color = Color.red;
-        if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
-        if (CurrentAttack > Data.atkValue) view.hpTextBoard.color = Color.green;
-    }
 }
