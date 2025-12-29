@@ -11,6 +11,8 @@ public class CoreInstance : MonoBehaviour, IAttackable
     public int CurrentAttack { get; private set; }
     public int Shield { get; private set; }
     public event System.Action OnCoreChanged;
+    [SerializeField] private Transform attackProxy;
+    public Transform AttackProxy => attackProxy;
 
     public bool IsDestroyed => CurrentHealth <= 0;
 

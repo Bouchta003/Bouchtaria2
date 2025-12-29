@@ -35,6 +35,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private AllyCardDropArea allyDropArea;
     [SerializeField] private EnemyCardDropArea enemyDropArea;
 
+    private Transform playerCoreProxy;
+    private Transform enemyCoreProxy;
 
     [Header("Mana")]
     [SerializeField] private int baseManaCap = 10;
@@ -87,6 +89,9 @@ public class GameManager : MonoBehaviour
         SetupCores();
         PlayerCore.GetComponent<CoreView>().Bind(PlayerCore);
         EnemyCore.GetComponent<CoreView>().Bind(EnemyCore);
+
+        playerCoreProxy = PlayerCore.AttackProxy;
+        enemyCoreProxy = EnemyCore.AttackProxy;
         //Start turn logic
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
         TurnManager.Instance.StartFirstTurn();
@@ -488,6 +493,12 @@ public class GameManager : MonoBehaviour
     {
         return isResolvingAttack || attackQueue.Count > 0;
     }
+    private Transform GetCoreProxy(PlayerOwner owner)
+    {
+        return owner == PlayerOwner.Player
+            ? enemyCoreProxy
+            : playerCoreProxy;
+    }
 
     private IEnumerator ProcessAttackQueue()
     {
@@ -512,18 +523,29 @@ public class GameManager : MonoBehaviour
 
             // Animate
             CardView attackerView = req.Attacker.GetComponent<CardView>();
-            CardView targetView = req.Target.Transform.GetComponent<CardView>();
 
-            // Attack animation
-            if (attackerView != null)
-                yield return attackerView.PlayAttackAnimation(req.Target.Transform);
-
-            // HIT REACTION (impact moment)
-            if (targetView != null)
-                yield return targetView.PlayHitReaction();
-
+            // CORE ATTACK (use proxy)
             if (req.Target is CoreInstance core)
+            {
+                Transform proxy = GetCoreProxy(core.Owner);
+
+                if (attackerView != null && proxy != null)
+                    yield return attackerView.PlayAttackAnimation(proxy);
+
+                // UI reaction only
                 yield return core.PlayHitReaction();
+            }
+            else
+            {
+                // UNIT ATTACK
+                CardView targetView = req.Target.Transform.GetComponent<CardView>();
+
+                if (attackerView != null)
+                    yield return attackerView.PlayAttackAnimation(req.Target.Transform);
+
+                if (targetView != null)
+                    yield return targetView.PlayHitReaction();
+            }
 
             // Apply combat logic AFTER visual impact
             ResolveAttack(req.Attacker, req.Target);
