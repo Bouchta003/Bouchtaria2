@@ -153,11 +153,15 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TriggerDeploy()
     {
-        //add effect here
+        //Add Deploy: condition
+        if (string.IsNullOrEmpty(Data.effect))
+            return;
 
+        TryTriggerEffect(Data.effect);
     }
     private void TriggerBerserk()
     {
+        //Add Berserk: condition
         if (string.IsNullOrEmpty(Data.effect))
             return;
 
@@ -169,6 +173,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             MorphTo(targetId);
         else if (TryParseIntEffect(effect.ToLower(), "draw", out int drawCount))
             Debug.Log("Draw " + drawCount);
+        else if (TryParseIntEffect(effect.ToLower(), "autoheal", out int autoheal))
+            AutoHealCore(autoheal);
+        else if (TryParseIntEffect(effect.ToLower(), "autodmg", out int autodmg))
+            AutoDamageCore(autodmg);
+        else if (TryParseIntEffect(effect.ToLower(), "autoshield", out int autoshield))
+            AutoShieldCore(autoshield);
     }
 
     private bool TryParseIntEffect(    string effect,    string effectName,    out int value)
@@ -177,7 +187,6 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (!effect.StartsWith(effectName))
         {
-            Debug.LogError($"Effect '{effect}' does not match '{effectName}' on card {Data.name}");
             return false;
         }
 
@@ -204,7 +213,11 @@ public class CardInstance : MonoBehaviour, IAttackable
 
     private void TriggerRequiem()
     {
-        //add effect here
+        //Add Deploy: condition
+        if (string.IsNullOrEmpty(Data.effect))
+            return;
+
+        TryTriggerEffect(Data.effect);
     }
     #endregion
     #region Effects
@@ -233,7 +246,27 @@ public class CardInstance : MonoBehaviour, IAttackable
         // Notify view
         cardView.UpdateMode();
     }
-
+    public void AutoHealCore(int heal)
+    {
+        if (Owner == PlayerOwner.Player)
+            gameManager.PlayerCore.Heal(heal);
+        else
+            gameManager.EnemyCore.Heal(heal);
+    }
+    public void AutoDamageCore(int dmg)
+    {
+        if (Owner == PlayerOwner.Enemy)
+            gameManager.PlayerCore.TakeDamage(dmg);
+        else
+            gameManager.EnemyCore.TakeDamage(dmg);
+    }
+    public void AutoShieldCore(int shield)
+    {
+        if (Owner == PlayerOwner.Player)
+            gameManager.PlayerCore.AddShield(shield);
+        else
+            gameManager.EnemyCore.AddShield(shield);
+    }
     #endregion
     public void TakeDamage(int amount)
     {

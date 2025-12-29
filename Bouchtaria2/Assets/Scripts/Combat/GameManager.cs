@@ -446,6 +446,46 @@ public class GameManager : MonoBehaviour
 
         return targets;
     }
+    public List<IAttackable> GetValidTargets(PlayerOwner owner)
+    {
+        List<IAttackable> targets = new();
+
+        var defendingBoard = GetBoardForOwner(owner
+        );
+
+        // Only consider alive units
+        List<CardInstance> aliveUnits = new();
+
+        foreach (var go in defendingBoard.GetCards())
+        {
+            if (go == null || !go.activeSelf)
+                continue;
+
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci == null || ci.IsDead)
+                continue;
+
+            aliveUnits.Add(ci);
+        }
+
+        bool hasProtect = aliveUnits.Exists(ci => ci.HasKeyword("protect"));
+
+        foreach (var ci in aliveUnits)
+        {
+            if (hasProtect && !ci.HasKeyword("protect"))
+                continue;
+
+            targets.Add(ci);
+        }
+
+        if (!hasProtect)
+        {
+            CoreInstance core = GetCoreForOwner(defendingBoard.Owner);
+            targets.Add(core);
+        }
+
+        return targets;
+    }
     public void ResolveAttack(CardInstance attacker, IAttackable target)
     {
         if (attacker == null || target == null)
@@ -458,6 +498,27 @@ public class GameManager : MonoBehaviour
             return;
 
         attacker.HasAttackedThisTurn = true;
+        if (attacker.Owner == PlayerOwner.Player)
+        {
+            foreach (GameObject cardGO in allyDropArea.allyPrefabCards)
+            {
+                CardInstance ci = cardGO.GetComponent<CardInstance>();
+                CardView view = ci.GetComponent<CardView>();
+
+                if (CanSelectAttacker(ci))
+                    view.SetGlow(CardView.CardGlowState.CanAttack);
+                else
+                    view.SetGlow(CardView.CardGlowState.None);
+            }
+            foreach (IAttackable targets in GetValidTargets(attacker))
+            {
+                if (target is CardInstance ci)
+                {
+                    ci.GetComponent<CardView>()
+                        .SetGlow(CardView.CardGlowState.CanBeTargeted);
+                }
+            }
+        }
 
         // UNIT vs UNIT
         if (target is CardInstance targetUnit)

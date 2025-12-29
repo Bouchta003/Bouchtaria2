@@ -44,11 +44,23 @@ public class CardView : MonoBehaviour,
     [SerializeField] public TMP_Text manaTextBoard;
     [SerializeField] public TMP_Text atkTextBoard;
     [SerializeField] public TMP_Text hpTextBoard;
+    [SerializeField] private SpriteRenderer glowRenderer;
+
+    private Coroutine glowCoroutine;
+    private CardGlowState currentGlowState = CardGlowState.None;
+
     [Header("EffectDisplay")]
     [SerializeField] GameObject protectSprite;
     [SerializeField] GameObject quickStrikeSprite;
     [SerializeField] GameObject evolveSprite;
-#region AttackAnimation
+    public enum CardGlowState
+    {
+        None,
+        CanAttack,
+        CanBeTargeted
+    }
+
+    #region AttackAnimation
     private IEnumerator MoveOverTime(Vector3 from, Vector3 to, float duration)
     {
         float t = 0f;
@@ -280,6 +292,110 @@ public class CardView : MonoBehaviour,
 
         color = TraitColorDatabase.Get(trait);
         return true;
+    }
+    public void SetGlow(CardGlowState state)
+    {
+        if (currentGlowState == state)
+            return;
+
+        currentGlowState = state;
+
+        if (glowCoroutine != null)
+            StopCoroutine(glowCoroutine);
+
+        if (state == CardGlowState.None)
+        {
+            glowCoroutine = StartCoroutine(FadeOutGlow());
+        }
+        else
+        {
+            glowCoroutine = StartCoroutine(GlowPulseRoutine(state));
+        }
+    }
+    private IEnumerator GlowPulseRoutine(CardGlowState state)
+    {
+        Color baseColor = state switch
+        {
+            CardGlowState.CanAttack => new Color(0.2f, 1f, 0.2f, 1f),
+            CardGlowState.CanBeTargeted => new Color(1f, 0.25f, 0.25f, 1f),
+            _ => Color.clear
+        };
+
+        float pulseSpeed = 3f;
+        float minAlpha = 0.3f;
+        float maxAlpha = 0.8f;
+        float baseScale = 1.05f;
+        float pulseScale = 1.1f;
+
+        glowRenderer.gameObject.SetActive(true);
+
+        // Smooth fade-in first
+        float t = 0f;
+        while (t < 0.15f)
+        {
+            t += Time.deltaTime * 8f;
+            glowRenderer.color = new Color(
+                baseColor.r,
+                baseColor.g,
+                baseColor.b,
+                Mathf.Lerp(0f, maxAlpha, t)
+            );
+            yield return null;
+        }
+
+        // Continuous pulse
+        while (currentGlowState == state)
+        {
+            float pulse = (Mathf.Sin(Time.time * pulseSpeed) + 1f) * 0.5f;
+            float alpha = Mathf.Lerp(minAlpha, maxAlpha, pulse);
+            float scale = Mathf.Lerp(baseScale, pulseScale, pulse);
+
+            glowRenderer.color = new Color(
+                baseColor.r,
+                baseColor.g,
+                baseColor.b,
+                alpha
+            );
+
+            glowRenderer.transform.localScale = new Vector3(1.22f,0.82f,1) * scale;
+
+            yield return null;
+        }
+    }
+
+    private IEnumerator GlowFadeRoutine(Color target)
+    {
+        Color start = glowRenderer.color;
+        float t = 0f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime * 10f;
+            glowRenderer.color = Color.Lerp(start, target, t);
+            yield return null;
+        }
+
+        glowRenderer.color = target;
+    }
+    private IEnumerator FadeOutGlow()
+    {
+        Color start = glowRenderer.color;
+        float t = 0f;
+
+        while (t < 0.15f)
+        {
+            t += Time.deltaTime * 8f;
+            glowRenderer.color = new Color(
+                start.r,
+                start.g,
+                start.b,
+                Mathf.Lerp(start.a, 0f, t)
+            );
+            yield return null;
+        }
+
+        glowRenderer.color = Color.clear;
+        glowRenderer.gameObject.SetActive(false);
     }
 
     /// <summary>

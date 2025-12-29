@@ -41,6 +41,18 @@ public class TurnManager : MonoBehaviour
         if (CurrentPhase != TurnPhase.Main)
             return;
 
+        if (CurrentPlayer == PlayerOwner.Player)
+        {
+            AllyCardDropArea allydrop = FindFirstObjectByType<AllyCardDropArea>();
+            GameManager gameManager = FindFirstObjectByType<GameManager>();
+            foreach (GameObject cardGO in allydrop.allyPrefabCards)
+            {
+                CardInstance ci = cardGO.GetComponent<CardInstance>();
+                CardView view = ci.GetComponent<CardView>();
+
+                view.SetGlow(CardView.CardGlowState.None);
+            }
+        }
         CurrentPhase = TurnPhase.End;
         OnTurnEnded?.Invoke(CurrentPlayer);
         // switch player
@@ -58,6 +70,22 @@ public class TurnManager : MonoBehaviour
 
         // Immediately enter main phase
         CurrentPhase = TurnPhase.Main;
+
+        if (CurrentPlayer == PlayerOwner.Player)
+        {
+            AllyCardDropArea allydrop = FindFirstObjectByType<AllyCardDropArea>();
+            GameManager gameManager = FindFirstObjectByType<GameManager>();
+            foreach (GameObject cardGO in allydrop.allyPrefabCards)
+            {
+                CardInstance ci = cardGO.GetComponent<CardInstance>();
+                CardView view = ci.GetComponent<CardView>();
+
+                if (gameManager.CanSelectAttacker(ci))
+                    view.SetGlow(CardView.CardGlowState.CanAttack);
+                else
+                    view.SetGlow(CardView.CardGlowState.None);
+            }
+        }
     }
 
     // -------------------------

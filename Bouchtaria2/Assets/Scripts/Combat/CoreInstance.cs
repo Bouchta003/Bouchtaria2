@@ -58,6 +58,11 @@ public class CoreInstance : MonoBehaviour, IAttackable
         Shield += amount;
         OnCoreChanged?.Invoke();
     }
+    public void Heal(int amount)
+    {
+        CurrentHealth =Mathf.Min(CurrentHealth += amount, MaxHealth);
+        OnCoreChanged?.Invoke();
+    }
     private void Die()
     {
         FindFirstObjectByType<GameManager>()

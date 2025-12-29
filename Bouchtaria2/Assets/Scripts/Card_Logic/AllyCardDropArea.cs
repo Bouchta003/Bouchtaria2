@@ -129,6 +129,16 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
                 0.25f
             );
         }
+        foreach (GameObject cardGO in allyPrefabCards)
+        {
+            CardInstance ci = cardGO.GetComponent<CardInstance>();
+            CardView view = ci.GetComponent<CardView>();
+
+            if (GameManager.GetComponent<GameManager>().CanSelectAttacker(ci))
+                view.SetGlow(CardView.CardGlowState.CanAttack);
+            else
+                view.SetGlow(CardView.CardGlowState.None);
+        }
     }
     private void OnEnable()
     {
