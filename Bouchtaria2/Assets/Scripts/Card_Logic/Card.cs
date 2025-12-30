@@ -49,6 +49,8 @@ public class Card : MonoBehaviour
         {
             FindFirstObjectByType<GameManager>()
                 .HandleBoardCardClick(this);
+            FindFirstObjectByType<GameManager>()
+                .HandleTargetClick(GetComponent<CardInstance>());
         }
     }
 

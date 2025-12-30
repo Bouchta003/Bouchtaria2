@@ -17,5 +17,6 @@ public class CoreTarget : MonoBehaviour, IPointerClickHandler
             return;
 
         gm.TryAttackCore(core);
+        gm.HandleTargetClick(core);
     }
 }

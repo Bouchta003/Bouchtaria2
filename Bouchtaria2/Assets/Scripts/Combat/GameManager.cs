@@ -74,6 +74,9 @@ public class GameManager : MonoBehaviour
 
     private Vector3 cameraBasePos;
     private Tween cameraShakeTween;
+    private bool isTargetingEffect;
+    private System.Action<IAttackable> onEffectTargetChosen;
+    private CardInstance effectSource;
 
     private void Awake()
     {
@@ -350,7 +353,6 @@ public class GameManager : MonoBehaviour
             mainCamera.transform.position = cameraBasePos;
         });
     }
-
     public void BeginAttack(Card attacker)
     {
         if (CurrentGameState != GameState.Playing)
@@ -377,7 +379,6 @@ public class GameManager : MonoBehaviour
         isTargettingAttack = true;
         attackCursor.gameObject.SetActive(true);
     }
-
     public bool CanSelectAttacker(CardInstance attacker)
     {
         if (!TurnManager.Instance.IsPlayerTurn(attacker.Owner))
@@ -538,15 +539,6 @@ public class GameManager : MonoBehaviour
             return;
         }
     }
-
-    private void ResolveAttackOnCore(CardInstance attacker, CoreInstance core)
-    {
-        int damage = attacker.CurrentAttack;
-
-        core.TakeDamage(damage);
-
-        Debug.Log($"{attacker.name} hits {core.Owner} core for {damage}");
-    }
     public void HandleBoardCardClick(Card card)
     {
         if (CurrentGameState != GameState.Playing)
@@ -585,7 +577,6 @@ public class GameManager : MonoBehaviour
             QueueAttack(attackerInst, clickedInst);
         }
     }
-
     public bool CanAttackUnit(CardInstance target)
     {
         // Basic checks (turn, owner, already attacked, etc.)
@@ -652,7 +643,6 @@ public class GameManager : MonoBehaviour
             ? enemyCoreProxy
             : playerCoreProxy;
     }
-
     private IEnumerator ProcessAttackQueue()
     {
         isResolvingAttack = true;
@@ -734,6 +724,42 @@ public class GameManager : MonoBehaviour
 
         isResolvingAttack = false;
     }
+    public void BeginEffectTargeting(
+    CardInstance source,
+    PlayerOwner owner,
+    System.Action<IAttackable> onTargetChosen)
+    {
+        isTargetingEffect = true;
+        effectSource = source;
+        onEffectTargetChosen = onTargetChosen;
+
+        attackCursor.gameObject.SetActive(true);
+    }
+    private bool IsValidEffectTarget(PlayerOwner owner, IAttackable target)
+    {
+        // Example rules:
+        // - enemy units
+        // - enemy core
+        return target.Owner != owner;
+    }
+    public void HandleTargetClick(IAttackable target)
+    {
+        if (!isTargetingEffect)
+            return;
+
+        if (!IsValidEffectTarget(effectSource.Owner, target))
+            return;
+
+        isTargetingEffect = false;
+
+        attackCursor.gameObject.SetActive(false);
+
+        onEffectTargetChosen?.Invoke(target);
+
+        onEffectTargetChosen = null;
+        effectSource = null;
+    }
+
     #endregion
 }
 public class AttackRequest

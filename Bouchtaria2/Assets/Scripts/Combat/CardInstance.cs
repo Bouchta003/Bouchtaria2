@@ -41,6 +41,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public int CurrentManaCost => Mathf.Max(0, BaseManaCost + temporaryManaModifier);
     public bool IsDead = false;
     public PlayerOwner Owner { get; set; }
+    private string pendingTargetedEffect;
     public CardData.SpellTargetType spellType { get; set; }
     public CardZone CurrentZone { get; private set; }
     private int temporaryManaModifier = 0;
@@ -283,7 +284,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (!TryParseIntEffect(effect, "draw", out int cards))
                 return;
 
-            // Draw(cards);
+            deckManager.Draw(cards, Owner);
             return;
         }
 
@@ -314,7 +315,44 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
 
+        if (effect.StartsWith("damage") && effect.Contains(",target"))
+        {
+            BeginTargetedEffect(effect);
+            return;
+        }
+
         Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
+    }
+    private void BeginTargetedEffect(string effect)
+    {
+        pendingTargetedEffect = effect;
+
+        gameManager.BeginEffectTargeting(
+            source: this,
+            owner: Owner,
+            onTargetChosen: OnEffectTargetChosen
+        );
+    }
+    private void OnEffectTargetChosen(IAttackable target)
+    {
+        if (string.IsNullOrEmpty(pendingTargetedEffect))
+            return;
+
+        TryExecuteDamage(pendingTargetedEffect, target);
+        pendingTargetedEffect = null;
+    }
+    private void TryExecuteDamage(string effect, IAttackable target)
+    {
+        if (!TryParseIntEffect(effect, "damage", out int amount))
+            return;
+
+        if (target == null)
+        {
+            Debug.LogError($"Damage effect requires a target on {Data.name}");
+            return;
+        }
+
+        target.TakeDamage(amount);
     }
 
     #endregion
