@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
 using DG.Tweening;
+using System.Linq;
 
 public interface IAttackable
 {
@@ -743,7 +744,7 @@ public class GameManager : MonoBehaviour
     }
     private bool IsValidEffectTarget(PlayerOwner owner, IAttackable target, EffectTarget effectTargetType)
     {
-        if (target.Owner == owner) return false;
+        //if (target.Owner == owner) return false;
         if ((target is CoreTarget || target is CoreInstance) && effectTargetType == EffectTarget.Unit)
             return false;
         if ((target is CardInstance) && effectTargetType == EffectTarget.Core)
@@ -751,6 +752,32 @@ public class GameManager : MonoBehaviour
 
         return true;
     }
+    public IAttackable ChooseEnemyEffectTarget(EffectTarget type)
+    {
+        List<IAttackable> targets = GetValidTargets(PlayerOwner.Player);
+        targets.Add(PlayerCore);
+        if (targets.Count == 0)
+            return null;
+
+        // Filter by effect target type
+        targets = targets.Where(t =>
+        {
+            if (type == EffectTarget.Unit)
+                return t is CardInstance;
+            if (type == EffectTarget.Core)
+                return t is CoreInstance;
+            return true; // Any
+        }).ToList();
+
+        if (targets.Count == 0)
+            return null;
+
+        // Simple AI: random valid target
+        IAttackable choice = targets[Random.Range(0, targets.Count)];
+        Debug.Log("Enemy triggered effect on " + choice.ToString() + " ");
+        return choice;
+    }
+
     public void HandleTargetClick(IAttackable target)
     {
         if (!isTargetingEffect)

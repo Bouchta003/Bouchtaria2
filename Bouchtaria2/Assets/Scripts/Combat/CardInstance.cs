@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -336,12 +336,19 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.ToLower().Contains("targetunit")) type = EffectTarget.Unit;
         if (effect.ToLower().Contains("targetcore")) type = EffectTarget.Core;
         pendingTargetedEffect = effect;
-
-        gameManager.BeginEffectTargeting(
-            source: this,
-            owner: Owner,
-            onTargetChosen: OnEffectTargetChosen, type
-        );
+        if (Owner == PlayerOwner.Player)
+        {
+            gameManager.BeginEffectTargeting(
+                source: this,
+                owner: Owner,
+                onTargetChosen: OnEffectTargetChosen, type);
+        }
+        else
+        {
+            // 🔑 ENEMY: auto-resolve
+            IAttackable target = gameManager.ChooseEnemyEffectTarget(type);
+            OnEffectTargetChosen(target);
+        }
     }
     private void OnEffectTargetChosen(IAttackable target)
     {
