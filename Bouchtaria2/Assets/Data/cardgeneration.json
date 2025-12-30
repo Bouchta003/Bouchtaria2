@@ -28,8 +28,8 @@
       "effectText": "Quickstrike",
       "artPath": "CardArt/swift_recruit",
       "artCompactPath": "CardArt/swift_recruit_compact",
-      "packable": true,
-      "token": false,
+      "packable": false,
+      "token": true,
       "signature": false
     },
     "2": {
