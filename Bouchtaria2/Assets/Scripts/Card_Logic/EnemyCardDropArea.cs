@@ -110,11 +110,40 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
             return;
 
         enemyPrefabCards.Remove(cardGO);
-        cardGO.SetActive(false) ;
-
+        //cardGO.SetActive(false) ;
+        Destroy(cardGO);
         UpdateEnemyCardPositions();
     }
+    public void AddSummonedCard(CardInstance cardInst)
+    {
+        // Safety
+        if (IsFull())
+            return;
 
+        // Force board state
+        cardInst.SetZone(CardZone.Board);
+        cardInst.Owner = Owner;
+        cardInst.IsSummoningSick = true;
+
+        // Switch to compact view
+        CardView view = cardInst.GetComponent<CardView>();
+        if (view != null)
+            view.UpdateMode();
+
+        // Add to board list
+        if (Owner == PlayerOwner.Enemy)
+            enemyPrefabCards.Add(cardInst.gameObject);
+
+        // Position immediately
+        if (Owner == PlayerOwner.Enemy)
+            UpdateEnemyCardPositions();
+    }
+
+    public bool IsFull()
+    {
+        if (enemyPrefabCards.Count >= maxBoardSize) return true;
+        else return false;
+    }
     public void UpdateEnemyCardPositions()
     {
         // ❗ Do not reflow during attack animations

@@ -53,6 +53,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     private int temporaryManaModifier = 0;
     public bool HasAttackedThisTurn { get; set; }
     public bool IsSummoningSick { get; set; }
+    public bool WasPlayed { get; set; }
     public CardView cardView { get; set; }
 
     private Dictionary<EffectTrigger, List<string>> parsedEffects =    new Dictionary<EffectTrigger, List<string>>();
@@ -87,6 +88,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         gameManager = FindFirstObjectByType<GameManager>();
         deckManager = FindFirstObjectByType<DeckManager>();
         cardView = GetComponent<CardView>();
+
+        WasPlayed = true;
 
         ParseEffects();
     }
@@ -166,7 +169,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         TriggerDeploy();
     }
     private void TriggerDeploy()
-    {
+    {if(WasPlayed)
         TriggerEffects(EffectTrigger.Deploy);
     }
     private void TriggerBerserk()
@@ -321,6 +324,13 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
 
+        if (effect.StartsWith("summon"))
+        {
+            TryExecuteSummon(effect);
+            return;
+        }
+
+
         if (effect.StartsWith("damage") && effect.Contains(",target"))
         {
             BeginTargetedEffect(effect);
@@ -329,6 +339,14 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
     }
+    private void TryExecuteSummon(string effect)
+    {
+        if (!TryParseIntEffect(effect, "summon", out int cardId))
+            return;
+
+        gameManager.TrySummonForOwner(Owner, cardId);
+    }
+
     private void BeginTargetedEffect(string effect)
     {
         EffectTarget type = EffectTarget.None;

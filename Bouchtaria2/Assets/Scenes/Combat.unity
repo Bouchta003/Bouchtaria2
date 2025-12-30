@@ -516,17 +516,19 @@ MonoBehaviour:
   deckManager: {fileID: 752328686}
   allyDropArea: {fileID: 1531594430}
   enemyDropArea: {fileID: 1449377217}
+  allyHand: {fileID: 574209137}
+  enemyHand: {fileID: 595603584}
   baseManaCap: 10
   manacounterAlly: {fileID: 1015722741}
   manacounterEnmy: {fileID: 589142854}
   attackCursor: {fileID: 1698028025}
-  isTargettingAttack: 0
   allyTraitSystem: {fileID: 116247822}
   enemyTraitSystem: {fileID: 116247821}
   allyTraitUI: {fileID: 1501906151}
   enemyTraitUI: {fileID: 69533397}
   winLoseUI: {fileID: 554539686}
   mainCamera: {fileID: 0}
+  isTargettingAttack: 0
 --- !u!114 &116247820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -797,6 +799,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TurnManager
   deckManager: {fileID: 752328686}
+  gameManager: {fileID: 0}
 --- !u!4 &349476111
 Transform:
   m_ObjectHideFlags: 0

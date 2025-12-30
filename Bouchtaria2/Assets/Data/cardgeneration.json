@@ -8,7 +8,7 @@
       "atkValue": 1,
       "hpValue": 3,
       "traits": ["Neutral"],
-      "effect": "d[damage(2),targetcore]",
+      "effect": "d[summon(1)]",
       "effectText": "Protect",
       "artPath": "CardArt/village_guard",
       "artCompactPath": "CardArt/village_guard_compact",

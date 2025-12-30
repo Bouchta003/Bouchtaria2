@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections;
 using DG.Tweening;
 using System.Linq;
+using UnityEngine.Rendering;
 
 public interface IAttackable
 {
@@ -36,6 +37,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private DeckManager deckManager;
     [SerializeField] private AllyCardDropArea allyDropArea;
     [SerializeField] private EnemyCardDropArea enemyDropArea;
+    [SerializeField] private HandManager allyHand;
+    [SerializeField] private HandManager enemyHand;
 
     private Transform playerCoreProxy;
     private Transform enemyCoreProxy;
@@ -332,6 +335,33 @@ public class GameManager : MonoBehaviour
 
     #endregion
 
+    #region Effects
+    public void TrySummonForOwner(PlayerOwner owner, int cardId)
+    {
+        var board = GetBoardForOwner(owner);
+
+        if (board.IsFull())
+            return;
+
+        CardData data = CardDatabase.Instance.GetCardById(cardId);
+        if (data == null)
+            return;
+
+        CardInstance cardInst =
+            CardFactory.Instance.CreateCard(data, owner);
+        if (owner == PlayerOwner.Player) {
+            cardInst.transform.parent = allyHand.transform;
+            cardInst.GetComponent<SortingGroup>().sortingOrder = 1;
+            allyDropArea.AddSummonedCard(cardInst); }
+        else
+        {
+            cardInst.transform.parent = enemyHand.transform;
+            cardInst.GetComponent<SortingGroup>().sortingOrder = 1;
+            //put sorting order to 1 if necessary and limit board size
+            enemyDropArea.AddSummonedCard(cardInst); }
+    }
+
+    #endregion
     #region Combat Manager
     public void ShakeCameraForDamage(int damage)
     {

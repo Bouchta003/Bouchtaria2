@@ -61,6 +61,31 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         allyPrefabCards.Add(card.gameObject);
         UpdateAllyCardPositions();
     }
+    public void AddSummonedCard(CardInstance cardInst)
+    {
+        // Safety
+        if (IsFull())
+            return;
+
+        // Force board state
+        cardInst.SetZone(CardZone.Board);
+        cardInst.Owner = Owner;
+        cardInst.IsSummoningSick = true;
+
+        // Switch to compact view
+        CardView view = cardInst.GetComponent<CardView>();
+        if (view != null)
+            view.UpdateMode();
+
+        // Add to board list
+        if (Owner == PlayerOwner.Player)
+            allyPrefabCards.Add(cardInst.gameObject);
+
+        // Position immediately
+        if (Owner == PlayerOwner.Player)
+            UpdateAllyCardPositions();
+    }
+
     public bool HasProtectUnits()
     {
         foreach (GameObject cardGO in allyPrefabCards)
@@ -70,6 +95,11 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
                 return true;
         }
         return false;
+    }
+    public bool IsFull()
+    {
+        if (allyPrefabCards.Count >= maxBoardSize) return true;
+        else return false;
     }
     public List<GameObject> GetCards()
     {
@@ -84,8 +114,8 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
 
         allyPrefabCards.Remove(cardGO);
 
-        cardGO.SetActive(false);
-
+        //cardGO.SetActive(false);
+        Destroy(cardGO);
         UpdateAllyCardPositions();
     }
     public void UpdateAllyCardPositions()
