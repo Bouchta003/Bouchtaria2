@@ -293,6 +293,7 @@ public class CardView : MonoBehaviour,
         color = TraitColorDatabase.Get(trait);
         return true;
     }
+    #region Glow
     public void SetGlow(CardGlowState state)
     {
         if (currentGlowState == state)
@@ -362,21 +363,6 @@ public class CardView : MonoBehaviour,
             yield return null;
         }
     }
-
-    private IEnumerator GlowFadeRoutine(Color target)
-    {
-        Color start = glowRenderer.color;
-        float t = 0f;
-
-        while (t < 1f)
-        {
-            t += Time.deltaTime * 10f;
-            glowRenderer.color = Color.Lerp(start, target, t);
-            yield return null;
-        }
-
-        glowRenderer.color = target;
-    }
     private IEnumerator FadeOutGlow()
     {
         Color start = glowRenderer.color;
@@ -397,7 +383,7 @@ public class CardView : MonoBehaviour,
         glowRenderer.color = Color.clear;
         glowRenderer.gameObject.SetActive(false);
     }
-
+    #endregion
     /// <summary>
     /// Refresh owned / locked visual state
     /// </summary>

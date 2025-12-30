@@ -17,22 +17,55 @@ public class ScanController : MonoBehaviour
         //panelInstance.gameObject.SetActive(false);
         DontDestroyOnLoad(panelInstance.gameObject);
     }
-
     private void Update()
     {
-        bool shouldShow =
-            ScanInput.Instance != null &&
-            ScanInput.Instance.IsScanActive &&
-            hoveredCard != null;
-
-        if (shouldShow)
+        if (ScanInput.Instance == null || !ScanInput.Instance.IsScanActive)
         {
-            panelInstance.Show(hoveredCard.CardData);
+            panelInstance.Hide();
+            return;
         }
-        else if (!shouldShow)
+
+        CardView cardUnderMouse = GetCardUnderMouse();
+
+        if (cardUnderMouse != null)
+        {
+            panelInstance.Show(cardUnderMouse.CardData);
+        }
+        else
         {
             panelInstance.Hide();
         }
+    }
+    private CardView GetCardUnderMouse()
+    {
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        Collider2D[] hits = Physics2D.OverlapPointAll(mousePos);
+
+        if (hits.Length == 0)
+            return null;
+
+        CardView bestCard = null;
+        int bestSortingOrder = int.MinValue;
+
+        foreach (Collider2D col in hits)
+        {
+            CardView view = col.GetComponent<CardView>();
+            if (view == null)
+                continue;
+
+            SpriteRenderer sr = view.GetComponentInChildren<SpriteRenderer>();
+            if (sr == null)
+                continue;
+
+            if (sr.sortingOrder > bestSortingOrder)
+            {
+                bestSortingOrder = sr.sortingOrder;
+                bestCard = view;
+            }
+        }
+
+        return bestCard;
     }
 
     public void OnCardHoverEnter(CardView card)
