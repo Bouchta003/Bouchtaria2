@@ -512,7 +512,7 @@ public class GameManager : MonoBehaviour
             }
             foreach (IAttackable targets in GetValidTargets(attacker))
             {
-                if (target is CardInstance ci)
+                if (targets is CardInstance ci)
                 {
                     ci.GetComponent<CardView>()
                         .SetGlow(CardView.CardGlowState.CanBeTargeted);

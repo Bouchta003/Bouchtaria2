@@ -14,6 +14,7 @@ public class TurnManager : MonoBehaviour
     public PlayerOwner CurrentPlayer { get; private set; }
     public TurnPhase CurrentPhase { get; private set; }
     [SerializeField] DeckManager deckManager;
+    [SerializeField] GameManager gameManager;
     public event Action<PlayerOwner> OnTurnStarted;
     public event Action<PlayerOwner> OnTurnEnded;
 
@@ -44,8 +45,15 @@ public class TurnManager : MonoBehaviour
         if (CurrentPlayer == PlayerOwner.Player)
         {
             AllyCardDropArea allydrop = FindFirstObjectByType<AllyCardDropArea>();
-            GameManager gameManager = FindFirstObjectByType<GameManager>();
             foreach (GameObject cardGO in allydrop.allyPrefabCards)
+            {
+                CardInstance ci = cardGO.GetComponent<CardInstance>();
+                CardView view = ci.GetComponent<CardView>();
+
+                view.SetGlow(CardView.CardGlowState.None);
+            }
+            EnemyCardDropArea enemyDrop = FindFirstObjectByType<EnemyCardDropArea>();
+            foreach (GameObject cardGO in enemyDrop.enemyPrefabCards)
             {
                 CardInstance ci = cardGO.GetComponent<CardInstance>();
                 CardView view = ci.GetComponent<CardView>();
@@ -84,6 +92,14 @@ public class TurnManager : MonoBehaviour
                     view.SetGlow(CardView.CardGlowState.CanAttack);
                 else
                     view.SetGlow(CardView.CardGlowState.None);
+            }
+            foreach (IAttackable targets in gameManager.GetValidTargets(PlayerOwner.Enemy))
+            {
+                if (targets is CardInstance ci)
+                {
+                    ci.GetComponent<CardView>()
+                        .SetGlow(CardView.CardGlowState.CanBeTargeted);
+                }
             }
         }
     }
