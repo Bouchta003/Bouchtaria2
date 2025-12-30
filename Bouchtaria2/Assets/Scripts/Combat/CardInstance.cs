@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -14,6 +15,13 @@ public enum PlayerOwner
 {
     Player,
     Enemy
+}
+public enum EffectTrigger
+{
+    Deploy,    // d
+    Berserk,   // b
+    Requiem,   // r
+    Strike,    // s
 }
 
 public class CardInstance : MonoBehaviour, IAttackable
@@ -39,6 +47,9 @@ public class CardInstance : MonoBehaviour, IAttackable
     public bool HasAttackedThisTurn { get; set; }
     public bool IsSummoningSick { get; set; }
     public CardView cardView { get; set; }
+
+    private Dictionary<EffectTrigger, List<string>> parsedEffects =    new Dictionary<EffectTrigger, List<string>>();
+
     public void AddTemporaryManaModifier(int amount)
     {
         temporaryManaModifier += amount;
@@ -62,12 +73,6 @@ public class CardInstance : MonoBehaviour, IAttackable
         CurrentEffectText = data.effectText;
         CurrentZone = CardZone.Deck;
         Transform = transform;
-        if (data.effect.ToLower().Contains("unit")) spellType = CardData.SpellTargetType.Unit;
-        else
-        if (data.effect.ToLower().Contains("core")) spellType = CardData.SpellTargetType.Core;
-        else
-        if (data.effect.ToLower().Contains("any")) spellType = CardData.SpellTargetType.Any;
-        else spellType = CardData.SpellTargetType.None;
 
         HasAttackedThisTurn = false;
         IsSummoningSick = true;
@@ -75,6 +80,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         gameManager = FindFirstObjectByType<GameManager>();
         deckManager = FindFirstObjectByType<DeckManager>();
         cardView = GetComponent<CardView>();
+
+        ParseEffects();
     }
     private void Update()
     {
@@ -89,10 +96,10 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     public bool HasKeyword(string keywordString)
     {
-        if (Data == null || Data.effect == null)
+        if (Data == null || CurrentEffect == null)
             return false;
 
-        if (Data.effect.Contains(keywordString))
+        if (CurrentEffect.Contains(keywordString))
         {
             return true;
         }
@@ -116,6 +123,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             IsSummoningSick = false;
     }
     #region EffectTriggers :
+    #region Spells
     public void OnPlaySpell()
     {
         if (spellType == CardData.SpellTargetType.None)
@@ -137,7 +145,6 @@ public class CardInstance : MonoBehaviour, IAttackable
         TriggerSpell(target);
         Destroy(gameObject);
     }
-
     private void TriggerSpell()
     {
         Debug.Log($"Spell {name} resolved");
@@ -146,41 +153,24 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         Debug.Log($"Spell {name} resolved on {target}");
     }
-
+    #endregion
     public void OnEnterBoard()
     {
         TriggerDeploy();
     }
     private void TriggerDeploy()
     {
-        //Add Deploy: condition
-        if (string.IsNullOrEmpty(Data.effect))
-            return;
-
-        TryTriggerEffect(Data.effect);
+        TriggerEffects(EffectTrigger.Deploy);
     }
     private void TriggerBerserk()
     {
-        //Add Berserk: condition
-        if (string.IsNullOrEmpty(Data.effect))
-            return;
-
-        TryTriggerEffect(Data.effect);
+        TriggerEffects(EffectTrigger.Berserk);
     }
-    private void TryTriggerEffect(string effect)
+
+    private void TriggerRequiem()
     {
-        if (TryParseIntEffect(effect.ToLower(), "morphto", out int targetId))
-            MorphTo(targetId);
-        else if (TryParseIntEffect(effect.ToLower(), "draw", out int drawCount))
-            Debug.Log("Draw " + drawCount);
-        else if (TryParseIntEffect(effect.ToLower(), "autoheal", out int autoheal))
-            AutoHealCore(autoheal);
-        else if (TryParseIntEffect(effect.ToLower(), "autodmg", out int autodmg))
-            AutoDamageCore(autodmg);
-        else if (TryParseIntEffect(effect.ToLower(), "autoshield", out int autoshield))
-            AutoShieldCore(autoshield);
+        TriggerEffects(EffectTrigger.Requiem);
     }
-
     private bool TryParseIntEffect(    string effect,    string effectName,    out int value)
     {
         value = default;
@@ -210,15 +200,123 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         return true;
     }
-
-    private void TriggerRequiem()
+    private void ParseEffects()
     {
-        //Add Deploy: condition
-        if (string.IsNullOrEmpty(Data.effect))
+        parsedEffects.Clear();
+
+        if (string.IsNullOrWhiteSpace(CurrentEffect))
             return;
 
-        TryTriggerEffect(Data.effect);
+        // Split triggers by space
+        string[] triggerBlocks = CurrentEffect.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (string block in triggerBlocks)
+        {
+            int open = block.IndexOf('[');
+            int close = block.LastIndexOf(']');
+
+            if (open <= 0 || close <= open)
+            {
+                continue;
+            }
+
+            string triggerStr = block.Substring(0, open);
+            string content = block.Substring(open + 1, close - open - 1);
+
+            if (!TryParseTrigger(triggerStr, out EffectTrigger trigger))
+            {
+                Debug.LogError($"Unknown trigger '{triggerStr}' on card {Data.name}");
+                continue;
+            }
+
+            string[] effects = content.Split(';', StringSplitOptions.RemoveEmptyEntries);
+
+            if (!parsedEffects.ContainsKey(trigger))
+                parsedEffects[trigger] = new List<string>();
+
+            foreach (string e in effects)
+                parsedEffects[trigger].Add(e.Trim());
+        }
     }
+    private bool TryParseTrigger(string str, out EffectTrigger trigger)
+    {
+        trigger = default;
+
+        switch (str)
+        {
+            case "d":
+                trigger = EffectTrigger.Deploy;
+                return true;
+            case "b":
+                trigger = EffectTrigger.Berserk;
+                return true;
+            case "r":
+                trigger = EffectTrigger.Requiem;
+                return true;
+            default:
+                return false;
+        }
+    }
+    private void TriggerEffects(EffectTrigger trigger)
+    {
+        if (!parsedEffects.TryGetValue(trigger, out var effects))
+            return;
+
+        foreach (string effect in effects)
+            ExecuteEffect(effect);
+    }
+    private void ExecuteEffect(string effect)
+    {
+        effect = effect.ToLowerInvariant();
+
+        if (effect.StartsWith("morphto"))
+        {
+            if (!TryParseIntEffect(effect, "morphto", out int id))
+                return;
+
+            MorphTo(id);
+            return;
+        }
+
+        if (effect.StartsWith("draw"))
+        {
+            if (!TryParseIntEffect(effect, "draw", out int cards))
+                return;
+
+            // Draw(cards);
+            return;
+        }
+
+        if (effect.StartsWith("autodmg"))
+        {
+            if (!TryParseIntEffect(effect, "autodmg", out int dmg))
+                return;
+
+            AutoDamageCore(dmg);
+            return;
+        }
+
+        if (effect.StartsWith("autoheal"))
+        {
+            if (!TryParseIntEffect(effect, "autoheal", out int heal))
+                return;
+
+            AutoHealCore(heal);
+            return;
+        }
+
+        if (effect.StartsWith("autoshield"))
+        {
+            if (!TryParseIntEffect(effect, "autoshield", out int shield))
+                return;
+
+            AutoShieldCore(shield);
+            return;
+        }
+
+        Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
+    }
+
     #endregion
     #region Effects
     public void MorphTo(int newCardId)
@@ -242,6 +340,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         CurrentEffect = newData.effect;
         CurrentEffectText = newData.effectText;
+        ParseEffects();
 
         // Notify view
         cardView.UpdateMode();
