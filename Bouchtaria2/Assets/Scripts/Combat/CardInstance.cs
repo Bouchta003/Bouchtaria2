@@ -23,7 +23,13 @@ public enum EffectTrigger
     Requiem,   // r
     Strike,    // s
 }
-
+public enum EffectTarget
+{
+    None,
+    Any,
+    Unit, 
+    Core,
+}
 public class CardInstance : MonoBehaviour, IAttackable
 {
     GameManager gameManager;
@@ -325,12 +331,16 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void BeginTargetedEffect(string effect)
     {
+        EffectTarget type = EffectTarget.None;
+        if (effect.ToLower().Contains("targetany")) type = EffectTarget.Any;
+        if (effect.ToLower().Contains("targetunit")) type = EffectTarget.Unit;
+        if (effect.ToLower().Contains("targetcore")) type = EffectTarget.Core;
         pendingTargetedEffect = effect;
 
         gameManager.BeginEffectTargeting(
             source: this,
             owner: Owner,
-            onTargetChosen: OnEffectTargetChosen
+            onTargetChosen: OnEffectTargetChosen, type
         );
     }
     private void OnEffectTargetChosen(IAttackable target)

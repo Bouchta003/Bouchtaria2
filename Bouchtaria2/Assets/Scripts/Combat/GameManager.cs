@@ -56,28 +56,34 @@ public class GameManager : MonoBehaviour
 
     [Header("Cursor")]
     [SerializeField] Image attackCursor;
-    public bool isTargettingAttack;
-    Card currentAttacker;
+
     [Header("Trait Systems")]
     [SerializeField] private TraitSystem allyTraitSystem;
     [SerializeField] private TraitSystem enemyTraitSystem;
     [SerializeField] private TraitUIManager allyTraitUI;
     [SerializeField] private TraitUIManager enemyTraitUI;
 
-    private readonly List<ITraitProgression> activeProgressions = new();
     [SerializeField] private WinLoseUI winLoseUI;
-    public bool IsCombatAnimating { get; private set; }
-    private readonly Queue<AttackRequest> attackQueue = new Queue<AttackRequest>();
-    private bool isResolvingAttack = false;
     [Header("Camera Shake")]
     [SerializeField] private Camera mainCamera;
 
+    //Animation
+    public bool IsCombatAnimating { get; private set; }
+    //Trait logic
+    private readonly List<ITraitProgression> activeProgressions = new();
+    //Attack logic
+    private readonly Queue<AttackRequest> attackQueue = new Queue<AttackRequest>();
+    private bool isResolvingAttack = false;
+    public bool isTargettingAttack;
+    Card currentAttacker;
+    //Camera shake
     private Vector3 cameraBasePos;
     private Tween cameraShakeTween;
+    //Target effects
     private bool isTargetingEffect;
     private System.Action<IAttackable> onEffectTargetChosen;
     private CardInstance effectSource;
-
+    private EffectTarget targetType = EffectTarget.None;
     private void Awake()
     {
         if (mainCamera == null)
@@ -727,27 +733,30 @@ public class GameManager : MonoBehaviour
     public void BeginEffectTargeting(
     CardInstance source,
     PlayerOwner owner,
-    System.Action<IAttackable> onTargetChosen)
+    System.Action<IAttackable> onTargetChosen, EffectTarget effectTargetType)
     {
         isTargetingEffect = true;
         effectSource = source;
         onEffectTargetChosen = onTargetChosen;
-
+        targetType = effectTargetType;
         attackCursor.gameObject.SetActive(true);
     }
-    private bool IsValidEffectTarget(PlayerOwner owner, IAttackable target)
+    private bool IsValidEffectTarget(PlayerOwner owner, IAttackable target, EffectTarget effectTargetType)
     {
-        // Example rules:
-        // - enemy units
-        // - enemy core
-        return target.Owner != owner;
+        if (target.Owner == owner) return false;
+        if ((target is CoreTarget || target is CoreInstance) && effectTargetType == EffectTarget.Unit)
+            return false;
+        if ((target is CardInstance) && effectTargetType == EffectTarget.Core)
+            return false;
+
+        return true;
     }
     public void HandleTargetClick(IAttackable target)
     {
         if (!isTargetingEffect)
             return;
 
-        if (!IsValidEffectTarget(effectSource.Owner, target))
+        if (!IsValidEffectTarget(effectSource.Owner, target, targetType))
             return;
 
         isTargetingEffect = false;
