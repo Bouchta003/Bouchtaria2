@@ -48,13 +48,13 @@ public class DeckManager : MonoBehaviour
             deckList = GetTestMinionDeckFromServer();
         else
             deckList = GetTestMinionDeckFromServer();
+
         Shuffle(deckList);
 
         Queue<CardData> deck = new Queue<CardData>();
 
         foreach (var card in deckList)
         {
-            deck.Enqueue(card);
             deck.Enqueue(card);
         }
 
@@ -122,8 +122,12 @@ public class DeckManager : MonoBehaviour
 
         foreach (CardData card in CardDatabase.Instance.Cards.Values)
         {
-            if (card.traits.Contains("Pokemon"))
+            if (card.traits.Contains("Pokemon") && card.packable)
+            {
                 deck.Add(card);
+                deck.Add(card);
+                deck.Add(card);
+            }
         }
 
         return deck;
