@@ -171,6 +171,20 @@ public class ScanPanelView : MonoBehaviour
                     "Transforms into another unit and keeps damage.";
                 relatedCardsId.Add(GetEffectID(keyword));
             }
+            else if (keyword.Contains("blessed"))
+            {
+                keyName.text = "Blessed";
+                keyDescription.text =
+                    "Has a divine shield that absorbs one instance of damage.";
+                relatedCardsId.Add(GetEffectID(keyword));
+            }
+            else if (keyword.Contains("hidden"))
+            {
+                keyName.text = "Hidden";
+                keyDescription.text =
+                    "Cannot be target by attacks until this unit attacks.";
+                relatedCardsId.Add(GetEffectID(keyword));
+            }
             else if (keyword.Contains("quickstrike"))
             {
                 keyName.text = "QuickStrike";

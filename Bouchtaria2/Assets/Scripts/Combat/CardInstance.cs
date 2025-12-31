@@ -54,6 +54,8 @@ public class CardInstance : MonoBehaviour, IAttackable
     public CardZone CurrentZone { get; private set; }
     private int temporaryManaModifier = 0;
     public bool HasAttackedThisTurn { get; set; }
+    public int ThornsDamage { get; set; }
+    public bool HasAttackedTwiceThisTurn { get; set; }
     public bool IsSummoningSick { get; set; }
     public bool WasPlayed { get; set; }
     public bool IsDisplay { get; set; }
@@ -84,8 +86,10 @@ public class CardInstance : MonoBehaviour, IAttackable
         CurrentEffectText = data.effectText;
         CurrentZone = CardZone.Deck;
         Transform = transform;
+        ThornsDamage = GetThornDamage();
 
         HasAttackedThisTurn = false;
+        HasAttackedTwiceThisTurn = false;
         IsSummoningSick = true;
         IsDisplay = false;
         gameManager = FindFirstObjectByType<GameManager>();
@@ -95,6 +99,36 @@ public class CardInstance : MonoBehaviour, IAttackable
         WasPlayed = true;
 
         ParseEffects();
+    }
+    private int GetThornDamage()
+    {
+        int value = -1;
+
+        if (!CurrentEffect.Contains("thorns"))
+        {
+            return -1;
+        }
+
+        int startEffect = CurrentEffect.IndexOf("thorns");
+
+        string thornsEffect = CurrentEffect.Substring(startEffect);
+
+        int startDmg = thornsEffect.IndexOf('(');
+        int endDmg = thornsEffect.IndexOf(')');
+
+        if (startDmg < 0 || endDmg < 0 || endDmg <= startDmg + 1)
+        {
+            return -1;
+        }
+
+        string valueStr = thornsEffect.Substring(startDmg + 1, endDmg - startDmg - 1);
+
+        if (int.TryParse(valueStr, out value))
+        {
+            return value;
+        }
+        else return -1;
+
     }
     public void RemoveEffect(string effect)
     {
@@ -148,6 +182,8 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void OnTurnStart()
     {
         HasAttackedThisTurn = false;
+        if(HasKeyword("haste"))
+            HasAttackedTwiceThisTurn = false;
 
         if (CurrentZone == CardZone.Board)
             IsSummoningSick = false;
@@ -203,7 +239,6 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         TriggerEffects(EffectTrigger.Berserk);
     }
-
     private void TriggerRequiem()
     {
         TriggerEffects(EffectTrigger.Requiem);
@@ -386,6 +421,38 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
     }
+
+    private void BeginTargetedEffect(string effect)
+    {
+        EffectTarget type = EffectTarget.None;
+        if (effect.ToLower().Contains("targetany")) type = EffectTarget.Any;
+        if (effect.ToLower().Contains("targetunit")) type = EffectTarget.Unit;
+        if (effect.ToLower().Contains("targetcore")) type = EffectTarget.Core;
+        pendingTargetedEffect = effect;
+        if (Owner == PlayerOwner.Player)
+        {
+            gameManager.BeginEffectTargeting(
+                source: this,
+                owner: Owner,
+                onTargetChosen: OnEffectTargetChosen, type);
+        }
+        else
+        {
+            // 🔑 ENEMY: auto-resolve
+            IAttackable target = gameManager.ChooseEnemyEffectTarget(type);
+            OnEffectTargetChosen(target);
+        }
+    }
+    private void OnEffectTargetChosen(IAttackable target)
+    {
+        if (string.IsNullOrEmpty(pendingTargetedEffect))
+            return;
+
+        TryExecuteDamage(pendingTargetedEffect, target);
+        pendingTargetedEffect = null;
+    }
+    #endregion
+    #region Effects
     private void TryExecuteSummon(string effect)
     {
         if (!TryParseIntEffect(effect, "summon", out int cardId))
@@ -503,38 +570,6 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         target.TakeDamage(amount);
     }
-
-    private void BeginTargetedEffect(string effect)
-    {
-        EffectTarget type = EffectTarget.None;
-        if (effect.ToLower().Contains("targetany")) type = EffectTarget.Any;
-        if (effect.ToLower().Contains("targetunit")) type = EffectTarget.Unit;
-        if (effect.ToLower().Contains("targetcore")) type = EffectTarget.Core;
-        pendingTargetedEffect = effect;
-        if (Owner == PlayerOwner.Player)
-        {
-            gameManager.BeginEffectTargeting(
-                source: this,
-                owner: Owner,
-                onTargetChosen: OnEffectTargetChosen, type);
-        }
-        else
-        {
-            // 🔑 ENEMY: auto-resolve
-            IAttackable target = gameManager.ChooseEnemyEffectTarget(type);
-            OnEffectTargetChosen(target);
-        }
-    }
-    private void OnEffectTargetChosen(IAttackable target)
-    {
-        if (string.IsNullOrEmpty(pendingTargetedEffect))
-            return;
-
-        TryExecuteDamage(pendingTargetedEffect, target);
-        pendingTargetedEffect = null;
-    }
-    #endregion
-    #region Effects
     public void MorphTo(int newCardId)
     {
         CardData newData = CardDatabase.Instance.GetCardById(newCardId);

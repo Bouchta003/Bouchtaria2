@@ -36,6 +36,7 @@ public class EnemyAIController : MonoBehaviour
 
         // Attacks
         yield return StartCoroutine(TryAttack());
+        yield return StartCoroutine(TryAttack());
 
         //Summon if new place
         yield return StartCoroutine(TrySummon());
@@ -184,7 +185,9 @@ public class EnemyAIController : MonoBehaviour
 
         foreach (CardInstance attacker in attackers)
         {
-            if (attacker == null || attacker.HasAttackedThisTurn || attacker.CurrentAttack<=0)
+            if (attacker == null || (attacker.HasAttackedThisTurn && !attacker.HasKeyword("haste")) ||
+            (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn)
+                || attacker.CurrentAttack<=0)
                 continue;
 
             var targets = gameManager.GetValidTargets(attacker);

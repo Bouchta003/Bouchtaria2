@@ -495,7 +495,8 @@ public class GameManager : MonoBehaviour
         if (!TurnManager.Instance.IsPlayerTurn(attackerInst.Owner))
             return;
 
-        if (attackerInst.HasAttackedThisTurn || attackerInst.IsSummoningSick)
+        if ((attackerInst.HasAttackedThisTurn && !attackerInst.HasKeyword("haste"))||
+            (attackerInst.HasAttackedThisTurn && attackerInst.HasKeyword("haste") && attackerInst.HasAttackedTwiceThisTurn) || attackerInst.IsSummoningSick)
             return;
 
         // 🔑 Cancel previous selection safely
@@ -508,7 +509,8 @@ public class GameManager : MonoBehaviour
         if (!TurnManager.Instance.IsPlayerTurn(attacker.Owner))
             return false;
 
-        if (attacker.HasAttackedThisTurn)
+        if ((attacker.HasAttackedThisTurn && !attacker.HasKeyword("haste")) ||
+            (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn))
             return false;
 
         if (attacker.IsSummoningSick)
@@ -627,7 +629,9 @@ public class GameManager : MonoBehaviour
 
         if (attacker.Owner == target.Owner)
             return;
-
+        //Handle Haste Scenario
+        if (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste"))
+            attacker.HasAttackedTwiceThisTurn = true;
         attacker.HasAttackedThisTurn = true;
         attacker.RemoveEffect("hidden");
         if (attacker.Owner == PlayerOwner.Player)
@@ -658,14 +662,19 @@ public class GameManager : MonoBehaviour
             bool isKill = false;
             int attackerDmg = attacker.CurrentAttack;
             int defenderDmg = targetUnit.CurrentAttack;
-            if (attackerDmg >= targetUnit.CurrentHealth && !targetUnit.CurrentEffect.Contains("blessed")) isKill = true;
+            if (attackerDmg >= targetUnit.CurrentHealth && !targetUnit.HasKeyword("blessed")) isKill = true;
+            int thornDamage = 0;
+            if (targetUnit.HasKeyword("thorns"))
+            {
+                thornDamage = targetUnit.ThornsDamage;
+            }
 
             if (isKill)
             {
                 OnCardKilled?.Invoke(attacker);
             }
 
-            attacker.TakeDamage(defenderDmg);
+            attacker.TakeDamage(defenderDmg+thornDamage);
             targetUnit.TakeDamage(attackerDmg);
 
             return;
@@ -761,7 +770,9 @@ public class GameManager : MonoBehaviour
         if (attacker == null || target == null)
             return;
 
-        if (attacker.HasAttackedThisTurn || attacker.IsSummoningSick)
+        if ((attacker.HasAttackedThisTurn && !attacker.HasKeyword("haste")) || 
+            (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn) || 
+            attacker.IsSummoningSick)
             return;
 
         attackQueue.Enqueue(new AttackRequest(attacker, target));
@@ -791,7 +802,8 @@ public class GameManager : MonoBehaviour
             // Attacker validation
             if (req.Attacker == null ||
                 req.Attacker.CurrentZone != CardZone.Board ||
-                req.Attacker.HasAttackedThisTurn)
+                (req.Attacker.HasAttackedThisTurn && !req.Attacker.HasKeyword("haste")) || 
+                (req.Attacker.HasAttackedThisTurn && req.Attacker.HasKeyword("haste") && req.Attacker.HasAttackedTwiceThisTurn))
             {
                 continue;
             }
