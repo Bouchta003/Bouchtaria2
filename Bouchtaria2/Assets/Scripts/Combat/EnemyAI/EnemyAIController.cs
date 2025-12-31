@@ -26,34 +26,99 @@ public class EnemyAIController : MonoBehaviour
     }
     private IEnumerator EnemyTurnRoutine()
     {
-        // Small delay at start of enemy turn (readability)
         yield return new WaitForSeconds(0.3f);
 
-        TrySummon();
+        // Spells
+        yield return StartCoroutine(TryPlaySpells());
 
-        // Pause so summon is readable
-        yield return new WaitForSeconds(0.3f);
+        // Summons
+        yield return StartCoroutine(TrySummon());
 
-        TryAttack();
+        // Attacks
+        yield return StartCoroutine(TryAttack());
 
-        // 🔴 IMPORTANT: wait until all attack animations are done
-        yield return new WaitUntil(() => !gameManager.IsResolvingAttackQueue());
+        //Summon if new place
+        yield return StartCoroutine(TrySummon());
 
-        // Small delay before ending turn
         yield return new WaitForSeconds(0.2f);
 
         EndEnemyTurn();
     }
-    private void TrySummon()
+
+
+    private IEnumerator TryPlaySpells()
     {
         if (enemyHand.handCards.Count == 0)
-            return;
+            yield break;
 
+        List<CardInstance> playableSpells = new();
+
+        foreach (GameObject cardGO in enemyHand.handCards)
+        {
+            CardInstance inst = cardGO.GetComponent<CardInstance>();
+            if (inst == null)
+                continue;
+
+            if (inst.Data.cardType.ToLower() != "spell")
+                continue;
+
+            if (inst.CurrentEffect.Contains("target"))
+                continue;
+
+            if (inst.CurrentManaCost > gameManager.EnemyCurrentMana)
+                continue;
+
+            playableSpells.Add(inst);
+        }
+
+        playableSpells.Sort((a, b) =>
+            a.CurrentManaCost.CompareTo(b.CurrentManaCost));
+
+        foreach (CardInstance spell in playableSpells)
+        {
+            if (spell == null)
+                continue;
+
+            if (spell.CurrentManaCost > gameManager.EnemyCurrentMana)
+                break;
+
+            PlaySpell(spell);
+
+            // 🔹 WAIT between spells
+            yield return new WaitForSeconds(0.35f);
+        }
+    }
+
+    private void PlaySpell(CardInstance spell)
+    {
+        // Spend mana
+        gameManager.UseMana(spell.CurrentManaCost, PlayerOwner.Enemy);
+
+        // Trigger deploy effects (spells use deploy)
+        spell.OnEnterBoard();
+
+        // Remove from hand & destroy
+        enemyHand.handCards.Remove(spell.gameObject);
+        Destroy(spell.gameObject);
+    }
+    private IEnumerator TrySummon()
+    {
+        while (true)
+        {
+            if (enemyBoard.enemyPrefabCards.Count >=enemyBoard.maxBoardSize)
+                yield break;
+            CardInstance card = GetBestPlayableMinion();
+            if (card == null)
+                yield break;
+            Summon(card.GetComponent<Card>());
+
+            // 🔹 WAIT between summons
+            yield return new WaitForSeconds(0.35f);
+        }
+    }
+    CardInstance GetBestPlayableMinion()
+    {
         int availableMana = gameManager.EnemyCurrentMana;
-
-        if (enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
-            return;
-
         // Collect playable minions
         List<CardInstance> playable = new();
 
@@ -73,32 +138,30 @@ public class EnemyAIController : MonoBehaviour
         }
 
         // Sort by cheapest first (maximize mana usage)
-        playable.Sort((a, b) => a.CurrentManaCost.CompareTo(b.CurrentManaCost));
-
-        // Greedy summon loop
-        foreach (CardInstance inst in playable)
+        if(playable.Count>0 && playable != null)
         {
-            if (enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
-                break;
-
-            if (inst.CurrentManaCost > gameManager.EnemyCurrentMana)
-                continue;
-
-            Card card = inst.GetComponent<Card>();
-            enemyBoard.OnCardDrop(card);
-
-            // small readability delay handled by EnemyTurnRoutine
+            playable.Sort((b, a) => b.CurrentManaCost.CompareTo(a.CurrentManaCost));
+            return playable[0];
         }
+        return null;
     }
-    private void TryAttack()
+    private void Summon(Card card)
+    {
+        enemyBoard.OnCardDrop(card);
+    }
+    private IEnumerator TryAttack()
     {
         List<CardInstance> attackers = new();
 
         foreach (GameObject go in enemyBoard.enemyPrefabCards)
         {
+            if (go == null || !go.activeSelf)
+                continue;
+
             CardInstance instance = go.GetComponent<CardInstance>();
             if (instance == null)
                 continue;
+
             if (instance.CurrentAttack <= 0)
                 continue;
 
@@ -109,28 +172,28 @@ public class EnemyAIController : MonoBehaviour
         }
 
         if (attackers.Count == 0)
-            return;
+            yield break;
 
-        // Optional: sort attackers (biggest first = more pressure)
+        // Strongest first (optional)
         attackers.Sort((a, b) => b.CurrentAttack.CompareTo(a.CurrentAttack));
 
         foreach (CardInstance attacker in attackers)
         {
-            AttackWith(attacker);
+            if (attacker == null || attacker.HasAttackedThisTurn || attacker.CurrentAttack<=0)
+                continue;
+
+            var targets = gameManager.GetValidTargets(attacker);
+            if (targets.Count == 0)
+                continue;
+
+            gameManager.QueueAttack(attacker, targets[0]);
+
+            // 🔹 Wait until THIS attack finishes
+            yield return new WaitUntil(() => !gameManager.IsResolvingAttackQueue());
+
+            // 🔹 Small delay for readability
+            yield return new WaitForSeconds(0.25f);
         }
-    }
-
-    private void AttackWith(CardInstance attacker)
-    {
-        var targets = gameManager.GetValidTargets(attacker);
-
-        if (targets.Count == 0)
-            return;
-
-        var target = targets[0]; // Only attack first target
-
-        gameManager.QueueAttack(attacker, target);
-
     }
     private void EndEnemyTurn()
     {

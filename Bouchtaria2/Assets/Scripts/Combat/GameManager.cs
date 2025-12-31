@@ -371,7 +371,7 @@ public class GameManager : MonoBehaviour
     }
     public void TrySummonForOther(PlayerOwner owner, int cardId)
     {
-        var board = GetBoardForOwner(owner);
+        var board = GetBoardForOther(owner);
 
         if (board.IsFull())
             return;
@@ -386,18 +386,26 @@ public class GameManager : MonoBehaviour
         if (owner == PlayerOwner.Player)
         {
             cardInst.transform.parent = enemyHand.transform;
-            cardInst.GetComponent<SortingGroup>().sortingOrder = 1;
+            cardInst.GetComponent<SortingGroup>().sortingOrder =2;
             enemyDropArea.AddSummonedCard(cardInst);
         }
         else
         {
             cardInst.transform.parent = allyHand.transform;
-            cardInst.GetComponent<SortingGroup>().sortingOrder = 1;
+            cardInst.GetComponent<SortingGroup>().sortingOrder =2;
             allyDropArea.AddSummonedCard(cardInst);
         }
     }
-    public void Discover(int id1, int id2, int id3)
+    public void Discover(int id1, int id2, int id3, PlayerOwner owner)
     {
+        if(owner == PlayerOwner.Enemy)
+        {
+            int randint = Random.Range(0, 3);
+            if (randint == 0) AddCardToHand(PlayerOwner.Enemy, id1);
+            if (randint == 1) AddCardToHand(PlayerOwner.Enemy, id2);
+            if (randint == 2) AddCardToHand(PlayerOwner.Enemy, id3);
+            return;
+        }
         isDiscovering = true;
         discoverDisplay.SetActive(true);
         CardData data1 = CardDatabase.Instance.GetCardById(id1);
@@ -509,6 +517,12 @@ public class GameManager : MonoBehaviour
         return owner == PlayerOwner.Player
             ? allyDropArea
             : enemyDropArea;
+    }
+    private ICardDropArea GetBoardForOther(PlayerOwner owner)
+    {
+        return owner == PlayerOwner.Player
+            ? enemyDropArea
+            : allyDropArea;
     }
     private CoreInstance GetCoreForOwner(PlayerOwner owner)
     {

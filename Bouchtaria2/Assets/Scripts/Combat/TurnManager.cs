@@ -1,5 +1,7 @@
 using UnityEngine;
 using System;
+using UnityEngine.UI;
+
 public enum TurnPhase
 {
     Start,
@@ -15,6 +17,7 @@ public class TurnManager : MonoBehaviour
     public TurnPhase CurrentPhase { get; private set; }
     [SerializeField] DeckManager deckManager;
     [SerializeField] GameManager gameManager;
+    [SerializeField] Image endButton;
     public event Action<PlayerOwner> OnTurnStarted;
     public event Action<PlayerOwner> OnTurnEnded;
 
@@ -28,7 +31,6 @@ public class TurnManager : MonoBehaviour
 
         Instance = this;
     }
-
     public void StartFirstTurn()
     {
         CurrentPlayer = PlayerOwner.Player;
@@ -79,6 +81,13 @@ public class TurnManager : MonoBehaviour
         // Immediately enter main phase
         CurrentPhase = TurnPhase.Main;
 
+        //Update Button color
+        if (CurrentPlayer == PlayerOwner.Player)
+            endButton.color = new Color(0, 0.75f, 1);
+        else
+            endButton.color = new Color(1, 0.5f, 0);
+
+        //Update card can attack or attackable visuals
         if (CurrentPlayer == PlayerOwner.Player)
         {
             AllyCardDropArea allydrop = FindFirstObjectByType<AllyCardDropArea>();

@@ -606,8 +606,7 @@ public class PokemonTier3Effect : IDeckTraitEffect
     {
 
         if (used) return;
-        if (owner == PlayerOwner.Player)
-            gm.Discover(29,28,27);//FIX IDs
+        gm.Discover(29,28,27, owner);//FIX IDs
 
         used = true;
     }
