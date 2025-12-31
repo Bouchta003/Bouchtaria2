@@ -99,6 +99,8 @@ public class EnemyAIController : MonoBehaviour
             CardInstance instance = go.GetComponent<CardInstance>();
             if (instance == null)
                 continue;
+            if (instance.CurrentAttack <= 0)
+                continue;
 
             if (!gameManager.CanSelectAttacker(instance))
                 continue;

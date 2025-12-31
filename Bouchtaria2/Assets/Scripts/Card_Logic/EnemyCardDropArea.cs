@@ -82,17 +82,32 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     private void OnEnable()
     {
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
+        TurnManager.Instance.OnTurnStarted += HandleTurnEnd;
     }
 
     private void OnDisable()
     {
         if (TurnManager.Instance != null)
+        {
             TurnManager.Instance.OnTurnStarted -= HandleTurnStart;
+            TurnManager.Instance.OnTurnStarted -= HandleTurnEnd;
+        }
     }
+    private void HandleTurnEnd(PlayerOwner owner)
+    {
+        // Only trigger for the owner of THIS board
+        if (owner != PlayerOwner.Player)
+            return;
 
+        foreach (var cardGO in enemyPrefabCards)
+        {
+            var instance = cardGO.GetComponent<CardInstance>();
+            instance.OnTurnEnd();
+        }
+    }
     private void HandleTurnStart(PlayerOwner owner)
     {
-        if (owner != PlayerOwner.Enemy)
+        if (owner != PlayerOwner.Player)
             return;
 
         foreach (var cardGO in enemyPrefabCards)
@@ -101,7 +116,6 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
             instance.OnTurnStart();
         }
     }
-
     public void HandleEnemyDeath(CardInstance instance)
     {
         GameObject cardGO = instance.gameObject;

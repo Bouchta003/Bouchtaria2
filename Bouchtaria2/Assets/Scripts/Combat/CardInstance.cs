@@ -22,6 +22,8 @@ public enum EffectTrigger
     Berserk,   // b
     Requiem,   // r
     Strike,    // s
+    EndOfTurn,
+    StartOfTurn,
 }
 public enum EffectTarget
 {
@@ -135,6 +137,13 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (CurrentZone == CardZone.Board)
             IsSummoningSick = false;
+
+        TriggerEffects(EffectTrigger.StartOfTurn);
+    }
+    public void OnTurnEnd()
+    {
+        if (CurrentZone == CardZone.Board)
+            TriggerEffects(EffectTrigger.EndOfTurn);
     }
     #region EffectTriggers :
     #region Spells
@@ -267,6 +276,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "r":
                 trigger = EffectTrigger.Requiem;
                 return true;
+            case "eot":
+                trigger = EffectTrigger.EndOfTurn;
+                return true;
+            case "sot":
+                trigger = EffectTrigger.StartOfTurn;
+                return true;
             default:
                 return false;
         }
@@ -343,7 +358,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteAddCard(effect);
             return;
         }
-
+        if (effect.StartsWith("buff"))
+        {
+            TryExecuteBuff(effect);
+            return;
+        }
 
         if (effect.StartsWith("damage") && effect.Contains(",target"))
         {
@@ -357,8 +376,10 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (!TryParseIntEffect(effect, "summon", out int cardId))
             return;
-
-        gameManager.TrySummonForOwner(Owner, cardId);
+        if(effect.StartsWith("summonforother"))
+            gameManager.TrySummonForOther(Owner, cardId);
+        else
+            gameManager.TrySummonForOwner(Owner, cardId);
     }
     private void TryExecuteDiscover(string effect)
     {
@@ -402,6 +423,72 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         gameManager.AddCardToHand(Owner, cardId);
     }
+    private void TryExecuteBuff(string effect)
+    {
+        if (!effect.StartsWith("buff"))
+        {
+            Debug.LogError(
+                $"Invalid buff effect on card {Data.name}");
+            return;
+        }
+
+        //Determining buff value
+        int start = effect.IndexOf('(');
+        int end = effect.IndexOf(')');
+
+        if (start < 0 || end < 0 || end <= start + 1)
+        {
+            Debug.LogError($"Malformed {effect} effect on card {Data.name}");
+            return;
+        }
+
+        string valueStr = effect.Substring(start + 1, end - start - 1);
+        string[] stats = valueStr.Split(','); int atk = -1; int hp = -1;
+        if (stats.Length < 2)
+        {
+            //Keyword logic
+            return;
+        }
+        if (int.TryParse(stats[0], out int atkbuff))
+        {
+            atk = atkbuff;
+        }
+        if (int.TryParse(stats[1], out int hpbuff))
+        {
+            hp = hpbuff;
+        }
+        //Self Buff Logic :
+        if (effect.StartsWith("buffself"))
+        {
+            CurrentAttack += atk;
+            CurrentHealth += hp;
+        }
+        else
+        {
+            //Buff another card logic
+        }
+
+        //Update view
+        view.hpTextBoard.text = CurrentHealth.ToString();
+        if (CurrentHealth < Data.hpValue) view.hpTextBoard.color = Color.red;
+        else if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
+        else if (CurrentHealth == Data.hpValue) view.hpTextBoard.color = Color.white;
+        if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
+    }
+    private void TryExecuteDamage(string effect, IAttackable target)
+    {
+        if (!TryParseIntEffect(effect, "damage", out int amount))
+            return;
+
+        if (target == null)
+        {
+            Debug.LogError($"Damage effect requires a target on {Data.name}");
+            return;
+        }
+
+        target.TakeDamage(amount);
+    }
+
     private void BeginTargetedEffect(string effect)
     {
         EffectTarget type = EffectTarget.None;
@@ -431,20 +518,6 @@ public class CardInstance : MonoBehaviour, IAttackable
         TryExecuteDamage(pendingTargetedEffect, target);
         pendingTargetedEffect = null;
     }
-    private void TryExecuteDamage(string effect, IAttackable target)
-    {
-        if (!TryParseIntEffect(effect, "damage", out int amount))
-            return;
-
-        if (target == null)
-        {
-            Debug.LogError($"Damage effect requires a target on {Data.name}");
-            return;
-        }
-
-        target.TakeDamage(amount);
-    }
-
     #endregion
     #region Effects
     public void MorphTo(int newCardId)

@@ -198,8 +198,12 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         // Only trigger for the owner of THIS board
         if (owner != PlayerOwner.Player)
             return;
-        
-        //TriggerGunners(1);
+
+        foreach (var cardGO in allyPrefabCards)
+        {
+            var instance = cardGO.GetComponent<CardInstance>();
+            instance.OnTurnEnd();
+        }
     }
     private void HandleTurnStart(PlayerOwner owner)
     {
