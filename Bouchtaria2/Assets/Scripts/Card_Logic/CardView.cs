@@ -53,6 +53,8 @@ public class CardView : MonoBehaviour,
     [SerializeField] GameObject protectSprite;
     [SerializeField] GameObject quickStrikeSprite;
     [SerializeField] GameObject evolveSprite;
+    [SerializeField] GameObject blessedSprite;
+    [SerializeField] GameObject hiddenSprite;
     public enum CardGlowState
     {
         None,
@@ -275,13 +277,19 @@ public class CardView : MonoBehaviour,
         protectSprite.SetActive(false);
         quickStrikeSprite.SetActive(false);
         evolveSprite.SetActive(false);
+        blessedSprite.SetActive(false);
+        hiddenSprite.SetActive(false);
 
         if (inst.CurrentEffect.ToLower().Contains("protect"))
             protectSprite.SetActive(true);
         if (inst.CurrentEffect.ToLower().Contains("quickstrike"))
-            quickStrikeSprite.SetActive(true); 
+            quickStrikeSprite.SetActive(true);
         if (inst.CurrentEffect.ToLower().Contains("morphto"))
             evolveSprite.SetActive(true);
+        if (inst.CurrentEffect.ToLower().Contains("blessed"))
+            blessedSprite.SetActive(true); 
+        if (inst.CurrentEffect.ToLower().Contains("hidden"))
+            hiddenSprite.SetActive(true);
 
         Refresh();
     }

@@ -545,7 +545,7 @@ public class GameManager : MonoBehaviour
         );
 
         // Only consider alive units
-        List<CardInstance> aliveUnits = new();
+        List<CardInstance> aliveNonHiddenUnits = new();
 
         foreach (var go in defendingBoard.GetCards())
         {
@@ -553,15 +553,15 @@ public class GameManager : MonoBehaviour
                 continue;
 
             CardInstance ci = go.GetComponent<CardInstance>();
-            if (ci == null || ci.IsDead)
+            if (ci == null || ci.IsDead || ci.HasKeyword("hidden"))
                 continue;
 
-            aliveUnits.Add(ci);
+            aliveNonHiddenUnits.Add(ci);
         }
 
-        bool hasProtect = aliveUnits.Exists(ci => ci.HasKeyword("protect"));
+        bool hasProtect = aliveNonHiddenUnits.Exists(ci => ci.HasKeyword("protect"));
 
-        foreach (var ci in aliveUnits)
+        foreach (var ci in aliveNonHiddenUnits)
         {
             if (hasProtect && !ci.HasKeyword("protect"))
                 continue;
@@ -585,7 +585,7 @@ public class GameManager : MonoBehaviour
         );
 
         // Only consider alive units
-        List<CardInstance> aliveUnits = new();
+        List<CardInstance> aliveNonHiddenUnits = new();
 
         foreach (var go in defendingBoard.GetCards())
         {
@@ -593,15 +593,15 @@ public class GameManager : MonoBehaviour
                 continue;
 
             CardInstance ci = go.GetComponent<CardInstance>();
-            if (ci == null || ci.IsDead)
+            if (ci == null || ci.IsDead || ci.HasKeyword("hidden"))
                 continue;
 
-            aliveUnits.Add(ci);
+            aliveNonHiddenUnits.Add(ci);
         }
 
-        bool hasProtect = aliveUnits.Exists(ci => ci.HasKeyword("protect"));
+        bool hasProtect = aliveNonHiddenUnits.Exists(ci => ci.HasKeyword("protect"));
 
-        foreach (var ci in aliveUnits)
+        foreach (var ci in aliveNonHiddenUnits)
         {
             if (hasProtect && !ci.HasKeyword("protect"))
                 continue;
@@ -629,6 +629,7 @@ public class GameManager : MonoBehaviour
             return;
 
         attacker.HasAttackedThisTurn = true;
+        attacker.RemoveEffect("hidden");
         if (attacker.Owner == PlayerOwner.Player)
         {
             foreach (GameObject cardGO in allyDropArea.allyPrefabCards)
@@ -657,7 +658,7 @@ public class GameManager : MonoBehaviour
             bool isKill = false;
             int attackerDmg = attacker.CurrentAttack;
             int defenderDmg = targetUnit.CurrentAttack;
-            if (attackerDmg >= targetUnit.CurrentHealth) isKill = true;
+            if (attackerDmg >= targetUnit.CurrentHealth && !targetUnit.CurrentEffect.Contains("blessed")) isKill = true;
 
             if (isKill)
             {
@@ -710,15 +711,13 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (CanAttackUnit(clickedInst))
+        if (GetValidTargets(attackerInst).Contains(clickedInst))
         {
             QueueAttack(attackerInst, clickedInst);
         }
     }
     public bool CanAttackUnit(CardInstance target)
     {
-        // Basic checks (turn, owner, already attacked, etc.)
-
         if (target.Owner == PlayerOwner.Player)
         {
             if (!target.HasKeyword("protect") && allyDropArea.HasProtectUnits())

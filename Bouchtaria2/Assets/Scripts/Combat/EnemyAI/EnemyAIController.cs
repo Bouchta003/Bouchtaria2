@@ -72,7 +72,7 @@ public class EnemyAIController : MonoBehaviour
         }
 
         playableSpells.Sort((a, b) =>
-            a.CurrentManaCost.CompareTo(b.CurrentManaCost));
+            b.CurrentManaCost.CompareTo(a.CurrentManaCost));
 
         foreach (CardInstance spell in playableSpells)
         {

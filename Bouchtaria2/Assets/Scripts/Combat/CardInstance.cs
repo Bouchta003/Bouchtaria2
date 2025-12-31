@@ -96,6 +96,20 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         ParseEffects();
     }
+    public void RemoveEffect(string effect)
+    {
+        if (CurrentEffect.Contains(effect))
+        {
+            CurrentEffect = string.Join(
+                " ",
+                CurrentEffect
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .Where(token => token != effect)
+                );
+            view.UpdateMode();
+            return;
+        }
+    }
     private void Update()
     {
         if (Data != null)
@@ -572,6 +586,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void TakeDamage(int amount)
     {
         if (amount <= 0) return;
+        RemoveEffect("blessed");
         CurrentHealth -= amount;
 
         if (CurrentHealth <= 0)
