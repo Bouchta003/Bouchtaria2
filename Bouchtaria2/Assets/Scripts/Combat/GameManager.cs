@@ -80,6 +80,8 @@ public class GameManager : MonoBehaviour
     private bool isResolvingAttack = false;
     public bool isTargettingAttack;
     Card currentAttacker;
+    public event System.Action<CardInstance> OnCardKilled;
+
     //Camera shake
     private Vector3 cameraBasePos;
     private Tween cameraShakeTween;
@@ -197,10 +199,10 @@ public class GameManager : MonoBehaviour
             ITraitProgression progression = trait switch
             {
                 CardData.Trait.Neutral => new NeutralProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
+                CardData.Trait.Pokemon => new PokemonProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea, this),
                 CardData.Trait.Speedster => throw new System.NotImplementedException(),
                 CardData.Trait.Gunner => throw new System.NotImplementedException(),
                 CardData.Trait.Inazuma => throw new System.NotImplementedException(),
-                CardData.Trait.Pokemon => throw new System.NotImplementedException(),
                 CardData.Trait.Blizzard => throw new System.NotImplementedException(),
                 CardData.Trait.Workout => throw new System.NotImplementedException(),
                 CardData.Trait.Faith => throw new System.NotImplementedException(),
@@ -209,7 +211,8 @@ public class GameManager : MonoBehaviour
                 CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
                 CardData.Trait.Combo => throw new System.NotImplementedException(),
                 CardData.Trait.Healer => throw new System.NotImplementedException(),
-                CardData.Trait.Meme => throw new System.NotImplementedException()
+                CardData.Trait.Meme => throw new System.NotImplementedException(),
+                _ => throw new System.NotImplementedException()
             };
 
             //CardData.Trait.Gunner => new GunnerProgression( owner, maxTier,traitSystem, allyDropArea, enemyDropArea), _ => null};
@@ -433,6 +436,7 @@ public class GameManager : MonoBehaviour
         hand.UpdateCardPositions();
     }
     #endregion
+
     #region Combat Manager
     public void ShakeCameraForDamage(int damage)
     {
@@ -632,11 +636,18 @@ public class GameManager : MonoBehaviour
         // UNIT vs UNIT
         if (target is CardInstance targetUnit)
         {
+            bool isKill = false;
             int attackerDmg = attacker.CurrentAttack;
             int defenderDmg = targetUnit.CurrentAttack;
-
+            if (attackerDmg > targetUnit.CurrentHealth) isKill = true;
             attacker.TakeDamage(defenderDmg);
             targetUnit.TakeDamage(attackerDmg);
+
+            if (isKill)
+            {
+                OnCardKilled?.Invoke(attacker);
+            }
+
             return;
         }
 
@@ -832,10 +843,7 @@ public class GameManager : MonoBehaviour
 
         isResolvingAttack = false;
     }
-    public void BeginEffectTargeting(
-    CardInstance source,
-    PlayerOwner owner,
-    System.Action<IAttackable> onTargetChosen, EffectTarget effectTargetType)
+    public void BeginEffectTargeting(    CardInstance source,    PlayerOwner owner,    System.Action<IAttackable> onTargetChosen, EffectTarget effectTargetType)
     {
         isTargetingEffect = true;
         effectSource = source;

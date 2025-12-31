@@ -122,7 +122,7 @@ public class DeckManager : MonoBehaviour
 
         foreach (CardData card in CardDatabase.Instance.Cards.Values)
         {
-            if (card.manaCost<3 && card.packable)
+            if (card.traits.Contains("Pokemon"))
                 deck.Add(card);
         }
 

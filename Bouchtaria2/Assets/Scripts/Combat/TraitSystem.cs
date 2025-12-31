@@ -69,12 +69,7 @@ public class NeutralProgression : ITraitProgression
     private readonly AllyCardDropArea allyBoard;
     private readonly EnemyCardDropArea enemyBoard;
 
-    public NeutralProgression(
-        PlayerOwner owner,
-        int maxTier,
-        TraitSystem traitSystem,
-        AllyCardDropArea allyBoard,
-        EnemyCardDropArea enemyBoard)
+    public NeutralProgression(PlayerOwner owner,int maxTier,TraitSystem traitSystem,AllyCardDropArea allyBoard,EnemyCardDropArea enemyBoard)
     {
         Owner = owner;
         this.maxTier = maxTier;
@@ -306,6 +301,319 @@ public class NeutralTier2Effect : IDeckTraitEffect
 
         foreach (var go in hand.handCards)
             yield return go.GetComponent<CardInstance>();
+    }
+}
+#endregion
+#region Pokemon Trait
+public class PokemonProgression : ITraitProgression
+{
+    public CardData.Trait Trait => CardData.Trait.Pokemon;
+    public PlayerOwner Owner { get; }
+    public int CurrentTier { get; private set; }
+
+    private readonly int maxTier;
+    private int pokemonKills = 0;
+
+    public int CurrentProgress => pokemonKills;
+
+    public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
+
+    private readonly TraitSystem traitSystem;
+    private readonly AllyCardDropArea allyBoard;
+    private readonly EnemyCardDropArea enemyBoard;
+    private readonly GameManager gameManager;
+
+    public PokemonProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem, AllyCardDropArea allyBoard, EnemyCardDropArea enemyBoard, GameManager gameManager)
+    {
+        Owner = owner;
+        this.maxTier = maxTier;
+        this.traitSystem = traitSystem;
+        this.allyBoard = allyBoard;
+        this.enemyBoard = enemyBoard;
+        this.gameManager = gameManager;
+    }
+    public void ResetProgression()
+    {
+        pokemonKills = 0;
+    }
+    public void PushInitialState()
+    {
+        int cap = GetCurrentCap();
+        OnProgressUpdated?.Invoke(Trait, pokemonKills, cap, Owner);
+    }
+    public void Register()
+    {
+        Debug.Log($"[PokemonProgression] Register for {Owner}");
+
+        gameManager.OnCardKilled += OnCardKill;
+
+        OnProgressUpdated?.Invoke(Trait, pokemonKills, GetCurrentCap(), Owner);
+    }
+    public void Unregister()
+    {
+        gameManager.OnCardKilled -= OnCardKill;
+    }
+
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 3,
+            1 => 6,
+            2 => 10,
+            _ => 999
+        };
+    }
+
+    private void OnCardKill(CardInstance card)
+    {
+        if (card.Owner != Owner)
+            return;
+
+        if (!card.HasTrait("Pokemon"))
+            return;
+        pokemonKills++;
+        OnProgressUpdated?.Invoke(Trait, pokemonKills, GetCurrentCap(), Owner);
+
+        Debug.Log($"Pokemon card kill for :{Owner}, count is now {pokemonKills}");
+
+        if (pokemonKills >= 3 && CurrentTier < 1 && maxTier >= 1)
+        {
+            UnlockTier1();
+        }
+
+        if (pokemonKills >= 6 && CurrentTier < 2 && maxTier >= 2)
+        {
+            UnlockTier2();
+        }
+        if (pokemonKills >= 10 && CurrentTier < 3 && maxTier >= 3)
+        {
+            UnlockTier3();
+        }
+
+    }
+
+    private void UnlockTier1()
+    {
+        CurrentTier = 1;
+
+        traitSystem.ActivateEffect(
+            new PokemonTier1Effect(Owner)
+        );
+
+        Debug.Log($"{Owner} unlocked Pokemon Tier 1");
+    }
+    private void UnlockTier2()
+    {
+        CurrentTier = 2;
+        traitSystem.ActivateEffect(
+            new PokemonTier2Effect(Owner)
+        );
+
+        Debug.Log($"{Owner} unlocked Pokemon Tier 2");
+    }
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+        DeckManager deckManager = Object.FindFirstObjectByType<DeckManager>();
+        traitSystem.ActivateEffect(
+            new PokemonTier3Effect(Owner, gameManager)
+        );
+        Debug.Log($"{Owner} unlocked Pokemon Tier 3");
+    }
+
+}
+public class PokemonTier1Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Pokemon;
+    public int Tier => 1;
+
+    private readonly PlayerOwner owner;
+    private bool used;
+
+    public PokemonTier1Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+    public void OnRegister()
+    {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed += OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed += OnCardPlayed;
+    }
+    public void OnUnregister()
+    {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed -= OnCardPlayed;
+    }
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (used)
+            return;
+
+        if (card.Owner != owner)
+            return;
+
+        if (card.Data.cardType != "minion")
+            return;
+
+        Debug.Log($"Evolving instant card {card.name}, for {owner}");
+        int detectedID = GetEvolutionId(card.CurrentEffect);
+        card.MorphTo(detectedID);
+        used = true;
+    }
+    private int GetEvolutionId(string effect)
+    {
+        int value = -1;
+
+        if (!effect.Contains("morphto"))
+        {
+            return -1;
+        }
+
+        int startEffect = effect.IndexOf("morphto");
+
+        string morphEffect = effect.Substring(startEffect);
+
+        int startID = morphEffect.IndexOf('(');
+        int endID = morphEffect.IndexOf(')');
+
+        if (startID < 0 || endID < 0 || endID <= startID + 1)
+        {
+            return -1;
+        }
+
+        string valueStr = morphEffect.Substring(startID + 1, endID - startID - 1);
+
+        if (int.TryParse(valueStr, out value))
+        {
+            return value;
+        }
+        else return -1;
+    }
+}
+public class PokemonTier2Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Pokemon;
+    public int Tier => 1;
+
+    private readonly PlayerOwner owner;
+    private bool used;
+
+    public PokemonTier2Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+    public void OnRegister()
+    {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed += OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed += OnCardPlayed;
+    }
+    public void OnUnregister()
+    {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed -= OnCardPlayed;
+    }
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (used)
+            return;
+
+        if (card.Owner != owner)
+            return;
+
+        if (card.Data.cardType != "minion")
+            return;
+
+        Debug.Log($"Evolving instant card {card.name}, for {owner}");
+        card.MorphTo(GetEvolutionId(card.CurrentEffect));
+        card.ModifyStats(2,2);
+        used = true;
+    }
+    private int GetEvolutionId(string effect)
+    {
+        int value = -1;
+
+        if (!effect.Contains("morphto"))
+        {
+            return -1;
+        }
+
+        int startEffect = effect.IndexOf("morphto");
+
+        string morphEffect = effect.Substring(startEffect);
+
+        int startID = morphEffect.IndexOf('(');
+        int endID = morphEffect.IndexOf(')');
+
+        if (startID < 0 || endID < 0 || endID <= startID + 1)
+        {
+            return -1;
+        }
+
+        string valueStr = effect.Substring(startID + 1, endID - startID - 1);
+
+        if (int.TryParse(valueStr, out value))
+        {
+            return value;
+        }
+        else return -1;
+    }
+}
+public class PokemonTier3Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Pokemon;
+    public int Tier => 3;
+
+    private readonly PlayerOwner owner;
+    private bool used;
+    GameManager gm;
+
+
+    public PokemonTier3Effect(PlayerOwner owner, GameManager gm)
+    {
+        this.owner = owner;
+        this.gm = gm;
+    }
+    public void OnRegister()
+    {
+        DiscoverLegendary();
+    }
+    void DiscoverLegendary()
+    {
+
+        if (used) return;
+        if (owner == PlayerOwner.Player)
+            gm.Discover(0, 1, 2);//FIX IDs
+
+        used = true;
+    }
+    public void OnUnregister()
+    {
+        throw new System.NotImplementedException();
     }
 }
 #endregion
