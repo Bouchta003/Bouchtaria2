@@ -122,7 +122,7 @@ public class DeckManager : MonoBehaviour
 
         foreach (CardData card in CardDatabase.Instance.Cards.Values)
         {
-            if (card.cardType == "minion" && card.manaCost<3)
+            if (card.cardType == "minion" && card.manaCost<3 ||card.name == "Starter Choice")
                 deck.Add(card);
         }
 

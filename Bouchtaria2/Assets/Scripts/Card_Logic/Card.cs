@@ -39,6 +39,7 @@ public class Card : MonoBehaviour
         {
             if (thisInstance.IsDisplay) { 
                 Debug.Log($"Discovered {thisInstance.Data.name}");
+                gameManager.AddCardToHand(thisInstance.Owner,thisInstance.Data.id);
                 gameManager.isDiscovering = false;
                 gameManager.discoverDisplay.SetActive(false);
             }

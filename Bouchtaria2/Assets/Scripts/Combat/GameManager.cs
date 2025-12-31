@@ -380,6 +380,28 @@ public class GameManager : MonoBehaviour
         dataInst3.IsDisplay = true;
         dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;
     }
+
+    public void AddCardToHand(PlayerOwner owner, int id)
+    {
+        HandManager hand = owner == PlayerOwner.Player
+            ? allyHand
+            : enemyHand;
+
+        if (hand.handCards.Count >= hand.maxHandSize)
+        {
+            Debug.Log($"{owner} hand is full.");
+            return;
+        }
+
+        CardData data = CardDatabase.Instance.GetCardById(id);
+
+        CardInstance card =
+            CardFactory.Instance.CreateCard(data, owner);
+
+        card.SetZone(CardZone.Hand);
+        hand.AddCard(card.gameObject);
+        hand.UpdateCardPositions();
+    }
     #endregion
     #region Combat Manager
     public void ShakeCameraForDamage(int damage)

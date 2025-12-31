@@ -23,13 +23,23 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
     public void OnCardDrop(Card card)
     {
         //Verify Mana Legality 
-        if (card.gameObject.GetComponent<CardInstance>().CurrentManaCost > gm.AllyCurrentMana ||
-            card.gameObject.GetComponent<CardInstance>().Data.cardType.ToLower() == "spell" || 
+        if (card.gameObject.GetComponent<CardInstance>().CurrentManaCost > gm.AllyCurrentMana ||             
             !TurnManager.Instance.IsPlayerTurn(PlayerOwner.Player))
         {
             card.ResetCard();
             return;
         }
+        CardInstance cardInst = card.gameObject.GetComponent<CardInstance>();
+        //SpellCast
+        if (cardInst.Data.cardType == "spell")
+        {
+            cardInst.OnEnterBoard();
+            Destroy(cardInst.gameObject);
+            handManager.RemoveCardFromHand(card.gameObject);
+            gm.UseMana(card.gameObject.GetComponent<CardInstance>().CurrentManaCost, PlayerOwner.Player);
+            return;
+        }
+
         //Verify board space Legality
         if (allyPrefabCards.Count >= maxBoardSize) return;
 
@@ -42,7 +52,6 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         gm.UseMana(card.gameObject.GetComponent<CardInstance>().CurrentManaCost, PlayerOwner.Player);
 
         //Instantiate card compact instead on board
-        CardInstance cardInst = card.gameObject.GetComponent<CardInstance>();
         cardInst.SetZone(CardZone.Board);
         cardInst.Owner = PlayerOwner.Player;
         if (cardInst.HasKeyword("quickstrike") || cardInst.HasKeyword("charge"))

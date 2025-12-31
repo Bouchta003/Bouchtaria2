@@ -338,6 +338,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteDiscover(effect);
             return;
         }
+        if (effect.StartsWith("addcard"))
+        {
+            TryExecuteAddCard(effect);
+            return;
+        }
 
 
         if (effect.StartsWith("damage") && effect.Contains(",target"))
@@ -389,6 +394,13 @@ public class CardInstance : MonoBehaviour, IAttackable
                 id3 = iddd;
             }
         gameManager.Discover(id1,id2,id3);
+    }
+    private void TryExecuteAddCard(string effect)
+    {
+        if (!TryParseIntEffect(effect, "addcard", out int cardId))
+            return;
+
+        gameManager.AddCardToHand(Owner, cardId);
     }
     private void BeginTargetedEffect(string effect)
     {
