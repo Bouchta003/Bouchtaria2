@@ -142,8 +142,6 @@ public class GameManager : MonoBehaviour
         manacounterAlly.text = $"{AllyCurrentMana}/{AllyCurrentMaxMana}";
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
-
-        if (Input.GetKeyDown(KeyCode.U)) Discover();
     }
     #region Turn Logic
     private void HandleTurnStart(PlayerOwner owner)
@@ -365,19 +363,19 @@ public class GameManager : MonoBehaviour
             //put sorting order to 1 if necessary and limit board size
             enemyDropArea.AddSummonedCard(cardInst); }
     }
-    public void Discover()
+    public void Discover(int id1, int id2, int id3)
     {
         isDiscovering = true;
         discoverDisplay.SetActive(true);
-        CardData data1 = CardDatabase.Instance.GetCardById(01);
+        CardData data1 = CardDatabase.Instance.GetCardById(id1);
         CardInstance dataInst1 = CardFactory.Instance.CreateCardInPosition(data1, PlayerOwner.Player, Vector3.zero, new Vector3(0.6f,0.6f,0.6f), discoverDisplay.transform);
         dataInst1.IsDisplay = true;
         dataInst1.GetComponent<SortingGroup>().sortingOrder = 201;
-        CardData data2 = CardDatabase.Instance.GetCardById(02);
+        CardData data2 = CardDatabase.Instance.GetCardById(id2);
         CardInstance dataInst2 = CardFactory.Instance.CreateCardInPosition(data2, PlayerOwner.Player, new Vector3(5,0,0), new Vector3(0.6f,0.6f,0.6f), discoverDisplay.transform);
         dataInst2.IsDisplay = true;
         dataInst2.GetComponent<SortingGroup>().sortingOrder = 201;
-        CardData data3 = CardDatabase.Instance.GetCardById(03);
+        CardData data3 = CardDatabase.Instance.GetCardById(id3);
         CardInstance dataInst3 = CardFactory.Instance.CreateCardInPosition(data3, PlayerOwner.Player, new Vector3(-5, 0, 0), new Vector3(0.6f,0.6f,0.6f), discoverDisplay.transform);
         dataInst3.IsDisplay = true;
         dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;

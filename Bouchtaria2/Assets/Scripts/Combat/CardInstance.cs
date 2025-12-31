@@ -333,6 +333,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteSummon(effect);
             return;
         }
+        if (effect.StartsWith("discover"))
+        {
+            TryExecuteDiscover(effect);
+            return;
+        }
 
 
         if (effect.StartsWith("damage") && effect.Contains(",target"))
@@ -350,7 +355,41 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         gameManager.TrySummonForOwner(Owner, cardId);
     }
+    private void TryExecuteDiscover(string effect)
+    {
+        if (Owner == PlayerOwner.Enemy) return;
+        if (!effect.StartsWith("discover"))
+        {
+            Debug.LogError(
+                $"Invalid discover effect on card {Data.name}");
+            return;
+        }
 
+        int start = effect.IndexOf('(');
+        int end = effect.IndexOf(')');
+
+        if (start < 0 || end < 0 || end <= start + 1)
+        {
+            Debug.LogError($"Malformed {effect} effect on card {Data.name}");
+            return;
+        }
+
+        string valueStr = effect.Substring(start + 1, end - start - 1);
+        string[] discoversCards = valueStr.Split(',');int id1 = -1; int id2 = -1;int id3 = -1;
+            if (int.TryParse(discoversCards[0], out int id))
+            {
+                id1 = id;
+            }
+            if (int.TryParse(discoversCards[1], out int idd))
+            {
+                id2 = idd;
+            }
+            if (int.TryParse(discoversCards[2], out int iddd))
+            {
+                id3 = iddd;
+            }
+        gameManager.Discover(id1,id2,id3);
+    }
     private void BeginTargetedEffect(string effect)
     {
         EffectTarget type = EffectTarget.None;
