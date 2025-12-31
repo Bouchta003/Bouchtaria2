@@ -9,6 +9,7 @@ public class Card : MonoBehaviour
     EnemyCardDropArea enemyCardDropArea;
     AllyCardDropArea allyCardDropArea;
     HandManager handManager;
+    GameManager gameManager;
     CardInstance thisInstance;
     bool isDragging; // 🔑 NEW
 
@@ -20,7 +21,7 @@ public class Card : MonoBehaviour
         col = GetComponent<Collider2D>();
         col.enabled = true; // ALWAYS enable
 
-
+        gameManager = FindFirstObjectByType<GameManager>();
         thisInstance = gameObject.GetComponent<CardInstance>();
     }
 
@@ -34,6 +35,15 @@ public class Card : MonoBehaviour
 
     public void OnPointerDown()
     {
+        if (gameManager.isDiscovering)
+        {
+            if (thisInstance.IsDisplay) { 
+                Debug.Log($"Discovered {thisInstance.Data.name}");
+                gameManager.isDiscovering = false;
+                gameManager.discoverDisplay.SetActive(false);
+            }
+            return;
+        }
         if (thisInstance.CurrentZone == CardZone.Hand)
         {
             isDragging = true;
@@ -47,10 +57,8 @@ public class Card : MonoBehaviour
 
         if (thisInstance.CurrentZone == CardZone.Board)
         {
-            FindFirstObjectByType<GameManager>()
-                .HandleBoardCardClick(this);
-            FindFirstObjectByType<GameManager>()
-                .HandleTargetClick(GetComponent<CardInstance>());
+            gameManager.HandleBoardCardClick(this);
+            gameManager.HandleTargetClick(GetComponent<CardInstance>());
         }
     }
 

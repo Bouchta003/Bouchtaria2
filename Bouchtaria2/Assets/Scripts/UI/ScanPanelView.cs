@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using TMPro;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ScanPanelView : MonoBehaviour
 {
@@ -9,8 +10,12 @@ public class ScanPanelView : MonoBehaviour
 
     [Header("UI Content")]
     [SerializeField] private TMP_Text effectText;
+    [SerializeField] private TMP_Text nameText;
     [SerializeField] private Transform keywordContainer;
+    [SerializeField] private Transform relatedContainer;
     [SerializeField] private GameObject keywordPrefab;
+    [SerializeField] private GameObject relatedPrefab;
+    List<int> relatedCardsId = new List<int>();
 
     [Header("Animation")]
     [SerializeField] private float slideDuration = 0.25f;
@@ -19,6 +24,7 @@ public class ScanPanelView : MonoBehaviour
 
     private Coroutine slideRoutine;
     private bool isVisible;
+    public PlayerOwner owner;
 
     void Awake()
     {
@@ -28,7 +34,7 @@ public class ScanPanelView : MonoBehaviour
             enabled = false;
             return;
         }
-
+        GetComponent<Canvas>().worldCamera = FindFirstObjectByType<Camera>();
         // Start hidden (off-screen)
         Vector3 pos = panelRoot.localPosition;
         pos.x = hiddenX;
@@ -41,9 +47,11 @@ public class ScanPanelView : MonoBehaviour
     // Public API
     // =========================
 
-    public void Show(CardData card)
+    public void Show(CardView card)
     {
-        Populate(card);
+        if (card.GetComponent<CardInstance>().CurrentZone == CardZone.Board)
+            PopulateBoard(card);
+        else PopulateHand(card);
         Slide(true);
     }
 
@@ -93,61 +101,118 @@ public class ScanPanelView : MonoBehaviour
     // Content
     // =========================
 
-    private void Populate(CardData card)
+    private void PopulateHand(CardView cardView)
     {
-        if (card == null)
+        if (cardView == null)
             return;
 
+        CardData card = cardView.CardData;
+
+
+        nameText.text = card.name;
         effectText.text = card.effectText;
 
         foreach (Transform child in keywordContainer)
             Destroy(child.gameObject);
-
         //KeyWordCheck
-        string[] keywordList = card.effect.Split('/');
-        foreach(string keyword in keywordList)
+        string[] keywordList = card.effect.Split(' ');
+        UpdateTexts(keywordList);
+        DisplayRelatedCards();
+    }
+    private void PopulateBoard(CardView cardView)
+    {
+        if (cardView == null)
+            return;
+
+        CardInstance card = cardView.GetComponent<CardInstance>();
+
+
+        nameText.text = card.Data.name;
+        effectText.text = card.CurrentEffectText;
+
+        foreach (Transform child in keywordContainer)
+            Destroy(child.gameObject);
+        //KeyWordCheck
+        string[] keywordList = card.CurrentEffect.Split(' ');
+
+        UpdateTexts(keywordList);
+        DisplayRelatedCards();
+    }
+    void DisplayRelatedCards()
+    {
+        foreach (int id in relatedCardsId)
         {
-            if (CardHasKeyword(card, keyword))
+            GameObject entry = Instantiate(relatedPrefab, relatedContainer);
+            CardData data = CardDatabase.Instance.GetCardById(id);
+            entry.GetComponentInChildren<TextMeshProUGUI>().text = data.effectText;
+            CardFactory.Instance.CreateCardInPosition(data,owner, new Vector3(-150,0,0), new Vector3(20,20,20), entry.transform);
+        }
+        relatedCardsId.Clear();
+    }
+    private void UpdateTexts(string[] keywordList)
+    {
+        foreach (string raw in keywordList)
+        {
+            string keyword = raw.ToLowerInvariant();
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+
+            if (keyword.Contains("protect"))
             {
-                GameObject entry = Instantiate(keywordPrefab, keywordContainer);
-                GameObject keyName = entry.transform.GetChild(0).gameObject;
-                GameObject keyDescription = entry.transform.GetChild(1).gameObject;
-                switch (keyword.ToLower())
-                {
-                    case "protect":
-                        keyName.GetComponent<TextMeshProUGUI>().text = "Protect";
-                        keyDescription.GetComponent<TextMeshProUGUI>().text = "Forces the enemies to attack this unit. \nSpells aren't affected by Taunt.";
-                        break;
-                    case "deploy":
-                        keyName.GetComponent<TextMeshProUGUI>().text = "Deploy";
-                        keyDescription.GetComponent<TextMeshProUGUI>().text = "Does something when summonned";
-                        break;
-                    case "quickstrike":
-                        keyName.GetComponent<TextMeshProUGUI>().text = "QuickStrike";
-                        keyDescription.GetComponent<TextMeshProUGUI>().text = "Can attack minions the turn it was summonned.";
-                        break;
-                    case "haste":
-                        keyName.GetComponent<TextMeshProUGUI>().text = "Haste";
-                        keyDescription.GetComponent<TextMeshProUGUI>().text = "Can attack twice per turn \n(non stackable).";
-                        break;
-                    default:
-                        Debug.Log("UnknownKeyword : " + keyword);
-                        break;
-                }
+                keyName.text = "Protect";
+                keyDescription.text =
+                    "Forces enemies to attack this unit.";
+            }
+            else if (keyword.Contains("morphto"))
+            {
+                keyName.text = "Morph";
+                keyDescription.text =
+                    "Transforms into another unit and keeps damage.";
+                relatedCardsId.Add(GetEffectID(keyword));
+            }
+            else if (keyword.Contains("quickstrike"))
+            {
+                keyName.text = "QuickStrike";
+                keyDescription.text =
+                    "Can attack the turn it is summoned.";
+            }
+            else if (keyword.Contains("haste"))
+            {
+                keyName.text = "Haste";
+                keyDescription.text =
+                    "Can attack twice per turn (not stackable).";
+            }
+            else if (keyword.Contains("summon"))
+            {
+                keyName.text = "Summon";
+                keyDescription.text =
+                    "Summons a unit without triggering its Deploy effect.";
+                relatedCardsId.Add(GetEffectID(keyword));
+            }
+            else
+            {
+                Destroy(entry);
             }
         }
     }
-    public bool CardHasKeyword(CardData card, string keywordString)
+    private int GetEffectID(string effect)
     {
-        if (card == null || card.effect == null)
-            return false;
+        int start = effect.IndexOf('(');
+        int end = effect.IndexOf(')');
 
-        if (System.Enum.TryParse(keywordString, true, out CardData.KeyWords parsedKeyword))
+        if (start < 0 || end < 0 || end <= start + 1)
         {
-            return true;
+            Debug.LogError($"Malformed effect");
+        }
+        string valueStr = effect.Substring(start + 1, end - start - 1);
+        if (int.TryParse(valueStr, out int value))
+        {
+            return value;
         }
 
-        return false;
+        Debug.LogError(
+            $"Invalid parameter '{valueStr}' on effect {effect}");
+        return -1;
     }
-
 }

@@ -29,7 +29,8 @@ public class ScanController : MonoBehaviour
 
         if (cardUnderMouse != null)
         {
-            panelInstance.Show(cardUnderMouse.CardData);
+            panelInstance.owner = cardUnderMouse.GetComponent<CardInstance>().Owner;
+            panelInstance.Show(cardUnderMouse);
         }
         else
         {

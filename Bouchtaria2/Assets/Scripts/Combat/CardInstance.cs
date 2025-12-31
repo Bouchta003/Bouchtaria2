@@ -54,6 +54,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public bool HasAttackedThisTurn { get; set; }
     public bool IsSummoningSick { get; set; }
     public bool WasPlayed { get; set; }
+    public bool IsDisplay { get; set; }
     public CardView cardView { get; set; }
 
     private Dictionary<EffectTrigger, List<string>> parsedEffects =    new Dictionary<EffectTrigger, List<string>>();
@@ -84,7 +85,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         HasAttackedThisTurn = false;
         IsSummoningSick = true;
-
+        IsDisplay = false;
         gameManager = FindFirstObjectByType<GameManager>();
         deckManager = FindFirstObjectByType<DeckManager>();
         cardView = GetComponent<CardView>();
@@ -95,10 +96,13 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void Update()
     {
-        if (CurrentManaCost < BaseManaCost) cardView.manaText.color = Color.green;
-        if (CurrentManaCost > BaseManaCost) cardView.manaText.color = Color.red;
-        if (CurrentManaCost == BaseManaCost) cardView.manaText.color = Color.white;
-        cardView.manaText.text = CurrentManaCost.ToString();
+        if (Data != null)
+        {
+            if (CurrentManaCost < BaseManaCost) cardView.manaText.color = Color.green;
+            if (CurrentManaCost > BaseManaCost) cardView.manaText.color = Color.red;
+            if (CurrentManaCost == BaseManaCost) cardView.manaText.color = Color.white;
+            cardView.manaText.text = CurrentManaCost.ToString();
+        }
     }
     public bool HasTrait(string trait)
     {
