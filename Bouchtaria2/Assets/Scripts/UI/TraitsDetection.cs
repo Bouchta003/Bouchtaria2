@@ -67,7 +67,7 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Combo, new[] { 5, 8 } },
             { CardData.Trait.Healer, new[] { 6, 9 } },
             { CardData.Trait.Inazuma, new[] { 11 } },
-            { CardData.Trait.Pokemon, new[] { 10 } },
+            { CardData.Trait.Pokemon, new[] { 3,6,9 } },
             { CardData.Trait.Neutral, new[] { 4,8,15 } },
             { CardData.Trait.Blizzard, new[] { 5, 10 } },
             { CardData.Trait.Meme, new[] { 6, 9 } }

@@ -639,14 +639,15 @@ public class GameManager : MonoBehaviour
             bool isKill = false;
             int attackerDmg = attacker.CurrentAttack;
             int defenderDmg = targetUnit.CurrentAttack;
-            if (attackerDmg > targetUnit.CurrentHealth) isKill = true;
-            attacker.TakeDamage(defenderDmg);
-            targetUnit.TakeDamage(attackerDmg);
+            if (attackerDmg >= targetUnit.CurrentHealth) isKill = true;
 
             if (isKill)
             {
                 OnCardKilled?.Invoke(attacker);
             }
+
+            attacker.TakeDamage(defenderDmg);
+            targetUnit.TakeDamage(attackerDmg);
 
             return;
         }

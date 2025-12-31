@@ -415,7 +415,6 @@ public class PokemonProgression : ITraitProgression
     private void UnlockTier3()
     {
         CurrentTier = 3;
-        DeckManager deckManager = Object.FindFirstObjectByType<DeckManager>();
         traitSystem.ActivateEffect(
             new PokemonTier3Effect(Owner, gameManager)
         );
@@ -574,14 +573,15 @@ public class PokemonTier2Effect : IDeckTraitEffect
             return -1;
         }
 
-        string valueStr = effect.Substring(startID + 1, endID - startID - 1);
+        string valueStr = morphEffect.Substring(startID + 1, endID - startID - 1);
 
         if (int.TryParse(valueStr, out value))
         {
             return value;
         }
         else return -1;
-    }
+    
+}
 }
 public class PokemonTier3Effect : IDeckTraitEffect
 {

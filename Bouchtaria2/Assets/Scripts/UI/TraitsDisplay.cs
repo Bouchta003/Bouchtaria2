@@ -72,10 +72,10 @@ public class TraitsDisplay : MonoBehaviour
         switch (thisTrait)
         {
             case CardData.Trait.Pokemon:
-                display += "Kill enemies to activate :" +
+                display += $"Kill enemies to activate : {Progression}/{CurrentCap}" +
                     "\nTier 1 : The next Pokemon you play evolves instantly.";
                 if (tier > 1) display +=
-                        "\nTier 2 : The next Pokemon you play evolves instantlyand costs (2) less.";
+                        "\nTier 2 : The next Pokemon you play evolves instantly and gains +2/+2.";
                 if (tier > 2) display +=
                          "\nTier 3 : Discover a LEGENDARY Pokemon.";
                 break;
