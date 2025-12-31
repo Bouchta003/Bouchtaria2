@@ -82,7 +82,12 @@ public class EnemyAIController : MonoBehaviour
             if (spell.CurrentManaCost > gameManager.EnemyCurrentMana)
                 break;
 
+            yield return StartCoroutine(
+                gameManager.ShowEnemySpell(spell.Data)
+            );
+
             PlaySpell(spell);
+
 
             // 🔹 WAIT between spells
             yield return new WaitForSeconds(0.35f);

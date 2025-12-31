@@ -60,6 +60,10 @@ public class GameManager : MonoBehaviour
 
     [Header("Cursor")]
     [SerializeField] Image attackCursor;
+    
+    [Header("EnemySpellReveal")]
+    [SerializeField] GameObject enemySpellReveal;
+    [SerializeField] GameObject enemySpellAnchor;
 
     [Header("Trait Systems")]
     [SerializeField] private TraitSystem allyTraitSystem;
@@ -917,6 +921,27 @@ public class GameManager : MonoBehaviour
 
         onEffectTargetChosen = null;
         effectSource = null;
+    }
+    public IEnumerator ShowEnemySpell(CardData data)
+    {
+        enemySpellReveal.SetActive(true);
+
+        // Create preview card
+        CardInstance preview =
+            CardFactory.Instance.CreateCardInPosition(
+                data,
+                PlayerOwner.Enemy,Vector3.zero,Vector3.one,
+                enemySpellAnchor.transform
+            );
+        preview.GetComponent<SortingGroup>().sortingOrder = 500;
+        preview.SetZone(CardZone.Board);
+        preview.GetComponent<CardView>().UpdateMode();
+        preview.IsDisplay = true; preview.GetComponent<Collider2D>().enabled = false;
+
+        yield return new WaitForSeconds(1.0f);
+
+        Destroy(preview.gameObject);
+        enemySpellReveal.SetActive(false);
     }
 
     #endregion
