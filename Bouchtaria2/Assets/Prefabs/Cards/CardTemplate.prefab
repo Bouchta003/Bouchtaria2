@@ -258,7 +258,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 50
   m_Sprite: {fileID: -6684430161380966744, guid: 0990d7dfad2f5f74199f755259f745bd, type: 3}
   m_Color: {r: 0.3886792, g: 0.3886792, b: 0.3886792, a: 1}
   m_FlipX: 0
@@ -285,7 +285,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1790399442368981388
 Transform:
   m_ObjectHideFlags: 0
@@ -728,6 +728,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Card
   isDragging: 0
+  rb: {fileID: 0}
   handVisual: {fileID: 9106738069904245945}
   boardVisual: {fileID: 1627327091352741481}
 --- !u!114 &3253690093743192391
@@ -1490,7 +1491,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2358690887989335508
 Transform:
   m_ObjectHideFlags: 0
@@ -2062,13 +2063,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2569500984694730431}
+  - component: {fileID: 5365817463245811776}
   m_Layer: 0
   m_Name: LockOverlay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2569500984694730431
 Transform:
   m_ObjectHideFlags: 0
@@ -2086,6 +2088,24 @@ Transform:
   - {fileID: 6657591951954863312}
   m_Father: {fileID: 2358690887989335508}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5365817463245811776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4327226774411552579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ead4674832ae98641adbb0ba532a4070, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LockOverlayAnimation
+  lockSprite: {fileID: 1285266382588897324}
+  greyOverlay: {fileID: 6657591951954863312}
+  lockFallSpeed: 18
+  overlayFallSpeed: 13
+  fallDistance: 20
+  delayBetween: 0.15
 --- !u!1 &4730907101843546713
 GameObject:
   m_ObjectHideFlags: 0

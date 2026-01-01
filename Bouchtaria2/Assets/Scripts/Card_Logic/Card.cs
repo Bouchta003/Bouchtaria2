@@ -76,7 +76,8 @@ public class Card : MonoBehaviour
                 {
                     DeckBuilding.Instance.UseUserDust(100);
                     UserCollectionManager.Instance.UnlockCard(GetComponent<CardView>().CardData.id);
-                    DeckBuilding.Instance.collection.ShowPage(DeckBuilding.Instance.collection.currentPage);
+                    //DeckBuilding.Instance.collection.ShowPage(DeckBuilding.Instance.collection.currentPage);replace by lock drop animation
+                    GetComponentInChildren<LockOverlayAnimation>()?.PlayUnlockAnimation();
                 }
                 return;
             }
