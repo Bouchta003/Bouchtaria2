@@ -193,6 +193,12 @@ public class CardView : MonoBehaviour,
         manaText.text = thisInstance.CurrentManaCost.ToString();
         atkText.text = thisInstance.CurrentAttack.ToString();
         hpText.text = thisInstance.CurrentHealth.ToString();
+        if (SceneManager.GetActiveScene().name == "Collection")
+        {
+            manaText.text = card.manaCost.ToString();
+            atkText.text = card.atkValue.ToString();
+            hpText.text = card.hpValue.ToString();
+        }
 
         frameRenderer.color = Color.white;
         frameRenderer2.color = Color.white;

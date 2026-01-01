@@ -25,7 +25,9 @@ public class CollectionScreen : MonoBehaviour
     public int filterValue = 0;
     public CardData.Trait traitValue = 0;
 
-    private int currentPage = 0;
+    public bool isDeck = false;
+
+    public int currentPage = 0;
     public enum Filter { None, Ownership, Name, Mana, Attack, Health, Trait, Type }
     public List<Filter> currentFilters = new List<Filter>();
     private IEnumerator Start()
@@ -52,6 +54,10 @@ public class CollectionScreen : MonoBehaviour
 
     private void Update()
     {
+        if(isDeck)
+        {
+            return;
+        }
         if (currentFilters.Contains(Filter.None)) ownedButtonLabel.text = "All \nCards";
         else ownedButtonLabel.text = "Owned Cards";
 
@@ -77,12 +83,21 @@ public class CollectionScreen : MonoBehaviour
                 view.Refresh();
         }
     }
-    private void ShowPage(int pageIndex)
+    public void ShowPage(int pageIndex)
     {
         ClearGrid();
-
+        
         // 🔹 Get cards based on current filter (ALL or OWNED)
         List<CardData> filteredCards = GetFilteredCards(currentFilters, filterText, filterValue);
+        
+        if (isDeck)
+        {
+            filteredCards.Clear();
+            foreach(int id in DeckBuilding.Instance.CurrentDeck)
+            {
+                filteredCards.Add(CardDatabase.Instance.GetCardById(id));
+            }
+        }
 
         currentPage = Mathf.Clamp(
             pageIndex,
@@ -234,7 +249,7 @@ public class CollectionScreen : MonoBehaviour
     {
         NormalizeFilters();
         currentPage = 0;
-        ShowPage(0);
+        ShowPage(currentPage);
     }
     private void OnEnable()
     {

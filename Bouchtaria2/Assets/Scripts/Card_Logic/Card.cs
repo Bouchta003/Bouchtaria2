@@ -10,7 +10,6 @@ public class Card : MonoBehaviour
     AllyCardDropArea allyCardDropArea;
     HandManager handManager;
     GameManager gameManager;
-    DeckBuilding deckBuilding;
     CardInstance thisInstance;
     public bool isDragging; // 🔑 NEW
     [SerializeField] Rigidbody2D rb;
@@ -33,7 +32,6 @@ public class Card : MonoBehaviour
         col = GetComponent<Collider2D>();
         enemyCardDropArea = FindFirstObjectByType<EnemyCardDropArea>();
         allyCardDropArea = FindFirstObjectByType<AllyCardDropArea>();
-        deckBuilding = FindFirstObjectByType<DeckBuilding>();
     }
     #region Pointer-based input (called by CardInputManager)
 
@@ -102,7 +100,10 @@ public class Card : MonoBehaviour
 
             if (chest != null && chest.IsTriggered() && chest.GetHoveringCard() == this)
             {
-                DeckBuilding.Instance.DropCardToChest(this);
+                if (DeckBuilding.Instance.collection.isDeck)
+                    DeckBuilding.Instance.RemoveCardFromChest(this);
+                else
+                    DeckBuilding.Instance.DropCardToChest(this);
                 ResetCard();
                 return;
             }
