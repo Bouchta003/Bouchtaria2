@@ -31,7 +31,9 @@ public class DeckBuilding : MonoBehaviour
 
     //DeckCount Display
     private Coroutine counterRoutine;
+    private Coroutine warningRoutine;
     [SerializeField] private TMP_Text counterPopup;
+    [SerializeField] private GameObject warningPopup;
     [SerializeField] private float popupDuration = 0.6f;
     [SerializeField] private float popupScale = 1.2f;
     private void Awake()
@@ -82,16 +84,25 @@ public class DeckBuilding : MonoBehaviour
     {
         // Ownership
         if (!IsCardOwned(cardId))
+        {
+            ShowWarning("You do not own this card, you may not add it to your deck.");
             return false;
+        }
 
         // Copy limit
         int copies = CurrentDeck.Count(id => id == cardId);
         if (copies >= 2)
+        {
+            ShowWarning("A deck can only have 2 copies of each card.");
             return false;
+        }
 
         // Deck size safety
         if (CurrentDeck.Count >= 30)
+        {
+            ShowWarning("Your deck already has 30 cards.");
             return false;
+        }
 
         return true;
     }
@@ -122,14 +133,14 @@ public class DeckBuilding : MonoBehaviour
     {
         // 🔒 Validation
         if (string.IsNullOrWhiteSpace(DeckNameInput.text))
-        {
-            Debug.LogWarning("Deck name is empty.");
+        {            
+            ShowWarning("Deck name is empty.");
             return;
         }
 
         if (CurrentDeck == null || CurrentDeck.Count != 30)
         {
-            Debug.LogWarning($"Deck must contain exactly 30 cards (currently {CurrentDeck.Count}).");
+            ShowWarning($"Deck must contain exactly 30 cards (currently {CurrentDeck.Count}).");
             return;
         }
         // Final validation pass
@@ -137,13 +148,13 @@ public class DeckBuilding : MonoBehaviour
         {
             if (!IsCardOwned(id))
             {
-                Debug.LogError("Deck contains unowned cards. Aborting save.");
+                ShowWarning("Deck contains unowned cards. Aborting save.");
                 return;
             }
 
             if (CurrentDeck.Count(x => x == id) > 2)
             {
-                Debug.LogError("Deck violates copy limit. Aborting save.");
+                ShowWarning("Deck violates copy limit. Aborting save.");
                 return;
             }
         }
@@ -151,7 +162,7 @@ public class DeckBuilding : MonoBehaviour
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
         if (user == null)
         {
-            Debug.LogError("No authenticated user.");
+            ShowWarning("No authenticated user.");
             return;
         }
 
@@ -202,7 +213,7 @@ public class DeckBuilding : MonoBehaviour
                 {
                     if (saveTask.IsFaulted)
                     {
-                        Debug.LogError("Failed to save deck: " + saveTask.Exception);
+                        ShowWarning("Failed to save deck: " + saveTask.Exception);
                     }
                     else
                     {
@@ -266,6 +277,56 @@ public class DeckBuilding : MonoBehaviour
 
         currentDeckIndex = (currentDeckIndex + 1) % deckNames.Count;
         LoadDeck(deckNames[currentDeckIndex]);
+    }
+    public void ShowWarning(string message)
+    {
+        if (warningRoutine != null)
+            StopCoroutine(warningRoutine);
+
+        warningRoutine = StartCoroutine(WarningRoutine(message));
+    }
+    private IEnumerator WarningRoutine(string message)
+    {
+        TextMeshProUGUI warningText = warningPopup.GetComponentInChildren<TextMeshProUGUI>();
+        warningPopup.gameObject.SetActive(true);
+        warningText.text = $"{message}";
+
+        RectTransform rt = warningText.rectTransform;
+        CanvasGroup cg = warningPopup.GetComponent<CanvasGroup>();
+
+        if (cg == null)
+            cg = warningPopup.gameObject.AddComponent<CanvasGroup>();
+
+        rt.localScale = Vector3.one * 0.9f;
+        cg.alpha = 0f;
+
+        // Fade + pop in
+        float t = 0f;
+        while (t < 0.15f)
+        {
+            t += Time.deltaTime;
+            float k = t / 0.15f;
+
+            rt.localScale = Vector3.Lerp(Vector3.one * 0.9f, Vector3.one * popupScale, k);
+            cg.alpha = k;
+            yield return null;
+        }
+
+        rt.localScale = Vector3.one;
+
+        // Hold
+        yield return new WaitForSeconds(3f);
+
+        // Fade out
+        t = 0f;
+        while (t < 0.2f)
+        {
+            t += Time.deltaTime;
+            cg.alpha = 1f - (t / 0.2f);
+            yield return null;
+        }
+
+        warningPopup.gameObject.SetActive(false);
     }
     public void ShowProgress(int current, int cap)
     {
