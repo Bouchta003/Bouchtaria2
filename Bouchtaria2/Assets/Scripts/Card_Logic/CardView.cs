@@ -401,9 +401,6 @@ public class CardView : MonoBehaviour,
         glowRenderer.gameObject.SetActive(false);
     }
     #endregion
-    /// <summary>
-    /// Refresh owned / locked visual state
-    /// </summary>
     public void Refresh()
     {
         if (SceneManager.GetActiveScene().name != "Collection") return;

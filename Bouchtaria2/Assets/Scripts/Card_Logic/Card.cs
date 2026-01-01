@@ -10,8 +10,11 @@ public class Card : MonoBehaviour
     AllyCardDropArea allyCardDropArea;
     HandManager handManager;
     GameManager gameManager;
+    DeckBuilding deckBuilding;
     CardInstance thisInstance;
-    bool isDragging; // 🔑 NEW
+    public bool isDragging; // 🔑 NEW
+    [SerializeField] Rigidbody2D rb;
+
 
     [Header("Visuals")]
     [SerializeField] private SpriteRenderer handVisual;
@@ -30,36 +33,47 @@ public class Card : MonoBehaviour
         col = GetComponent<Collider2D>();
         enemyCardDropArea = FindFirstObjectByType<EnemyCardDropArea>();
         allyCardDropArea = FindFirstObjectByType<AllyCardDropArea>();
+        deckBuilding = FindFirstObjectByType<DeckBuilding>();
     }
     #region Pointer-based input (called by CardInputManager)
 
     public void OnPointerDown()
     {
-        if (gameManager.isDiscovering)
+        if(SceneManager.GetActiveScene().name == "Combat")
         {
-            if (thisInstance.IsDisplay) { 
-                Debug.Log($"Discovered {thisInstance.Data.name}");
-                gameManager.AddCardToHand(thisInstance.Owner,thisInstance.Data.id);
-                gameManager.isDiscovering = false;
-                gameManager.discoverDisplay.SetActive(false);
+            if (gameManager.isDiscovering)
+            {
+                if (thisInstance.IsDisplay)
+                {
+                    Debug.Log($"Discovered {thisInstance.Data.name}");
+                    gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id);
+                    gameManager.isDiscovering = false;
+                    gameManager.discoverDisplay.SetActive(false);
+                }
+                return;
             }
-            return;
+            if (thisInstance.CurrentZone == CardZone.Hand)
+            {
+                isDragging = true;
+                startDragPosition = transform.position;
+                transform.position = GetMousePositionInWorldSpace();
+
+                if (handManager != null)
+                    handManager.RaiseCard(gameObject, 500);
+                return;
+            }
+
+            if (thisInstance.CurrentZone == CardZone.Board)
+            {
+                gameManager.HandleBoardCardClick(this);
+                gameManager.HandleTargetClick(GetComponent<CardInstance>());
+            }
         }
-        if (thisInstance.CurrentZone == CardZone.Hand)
+        else
         {
             isDragging = true;
             startDragPosition = transform.position;
             transform.position = GetMousePositionInWorldSpace();
-
-            if (handManager != null)
-                handManager.RaiseCard(gameObject, 500);
-            return;
-        }
-
-        if (thisInstance.CurrentZone == CardZone.Board)
-        {
-            gameManager.HandleBoardCardClick(this);
-            gameManager.HandleTargetClick(GetComponent<CardInstance>());
         }
     }
 
@@ -68,7 +82,7 @@ public class Card : MonoBehaviour
         if (!isDragging)
             return;
 
-        if (thisInstance.CurrentZone != CardZone.Hand)
+        if (thisInstance.CurrentZone != CardZone.Hand && SceneManager.GetActiveScene().name == "Combat")
             return;
 
         transform.position = GetMousePositionInWorldSpace();
@@ -80,6 +94,22 @@ public class Card : MonoBehaviour
             return;
 
         isDragging = false;
+
+        //Collection drops
+        if (SceneManager.GetActiveScene().name == "Collection")
+        {
+            ChestAnimation chest = FindFirstObjectByType<ChestAnimation>();
+
+            if (chest != null && chest.IsTriggered() && chest.GetHoveringCard() == this)
+            {
+                DeckBuilding.Instance.DropCardToChest(this);
+                ResetCard();
+                return;
+            }
+
+            ResetCard();
+            return;
+        }
 
         Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
