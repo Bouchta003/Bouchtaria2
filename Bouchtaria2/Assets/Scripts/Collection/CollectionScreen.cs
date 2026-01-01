@@ -166,6 +166,7 @@ public class CollectionScreen : MonoBehaviour
 
         return new Vector2(width, height);
     }
+
     private List<CardData> GetFilteredCards(
     List<Filter> filterTypes,
     string filterText,

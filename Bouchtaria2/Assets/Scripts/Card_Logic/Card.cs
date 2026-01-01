@@ -75,7 +75,8 @@ public class Card : MonoBehaviour
                 if (DeckBuilding.Instance.UserDust >= 100)
                 {
                     DeckBuilding.Instance.UseUserDust(100);
-                    DeckBuilding.Instance.UnlockCard(GetComponent<CardView>().CardData.id);
+                    UserCollectionManager.Instance.UnlockCard(GetComponent<CardView>().CardData.id);
+                    DeckBuilding.Instance.collection.ShowPage(DeckBuilding.Instance.collection.currentPage);
                 }
                 return;
             }

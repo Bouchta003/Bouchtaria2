@@ -469,36 +469,5 @@ public class DeckBuilding : MonoBehaviour
             });
 
     }
-    public void UnlockCard(int cardId)
-    {
-        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
-        if (user == null)
-        {
-            Debug.LogError("No authenticated user.");
-            return;
-        }
-
-        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
-
-        db.Collection("users")
-          .Document(user.UserId)
-          .Collection("collection")
-          .Document(cardId.ToString())
-          .SetAsync(new Dictionary<string, object>
-          {
-          { "owned", true }
-          }, SetOptions.MergeAll)
-          .ContinueWithOnMainThread(task =>
-          {
-              if (task.IsFaulted)
-                  Debug.LogError($"Failed to unlock card {cardId}.");
-              else
-              { 
-                  Debug.Log($"Card {cardId} unlocked.");
-                  collection.ShowPage(collection.currentPage);
-              }
-          });
-    }
-
     #endregion
 }
