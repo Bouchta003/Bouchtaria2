@@ -258,7 +258,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 50
+  m_SortingOrder: 9
   m_Sprite: {fileID: -6684430161380966744, guid: 0990d7dfad2f5f74199f755259f745bd, type: 3}
   m_Color: {r: 0.3886792, g: 0.3886792, b: 0.3886792, a: 1}
   m_FlipX: 0
@@ -2070,7 +2070,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2569500984694730431
 Transform:
   m_ObjectHideFlags: 0
@@ -2102,6 +2102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LockOverlayAnimation
   lockSprite: {fileID: 1285266382588897324}
   greyOverlay: {fileID: 6657591951954863312}
+  artworkSprite: {fileID: 7098272212268643480}
   lockFallSpeed: 18
   overlayFallSpeed: 13
   fallDistance: 20

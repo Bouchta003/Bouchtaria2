@@ -6,6 +6,7 @@ public class LockOverlayAnimation : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform lockSprite;
     [SerializeField] private Transform greyOverlay;
+    [SerializeField] private Transform artworkSprite;
 
     [Header("Animation")]
     [SerializeField] private float lockFallSpeed = 6f;
@@ -29,6 +30,7 @@ public class LockOverlayAnimation : MonoBehaviour
 
     private IEnumerator UnlockRoutine()
     {
+        RestoreCardVisual();
         // 1️⃣ Lock falls
         yield return StartCoroutine(Fall(lockSprite, lockFallSpeed));
 
@@ -41,6 +43,11 @@ public class LockOverlayAnimation : MonoBehaviour
         // 4️⃣ Disable both
         lockSprite.gameObject.SetActive(false);
         greyOverlay.gameObject.SetActive(false);
+    }
+    private void RestoreCardVisual()
+    {
+        Color c = artworkSprite.GetComponent<SpriteRenderer>().color;
+        c.a = 1f; artworkSprite.GetComponent<SpriteRenderer>().color = c;
     }
 
     private IEnumerator Fall(Transform target, float speed)

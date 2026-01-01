@@ -21,6 +21,9 @@ public class DeckBuilding : MonoBehaviour
     [SerializeField] public TMP_InputField DeckNameInput;
     [SerializeField] public TextMeshProUGUI DustCounter;
 
+    [Header("Cursor")]
+    [SerializeField] Image craftCursor;
+
     public static DeckBuilding Instance;
 
     public List<int> CurrentDeck;
