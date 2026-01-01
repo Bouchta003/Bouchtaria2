@@ -69,6 +69,17 @@ public class Card : MonoBehaviour
         }
         else
         {
+            if (DeckBuilding.Instance.isCrafting && !UserCollectionManager.Instance.IsOwned(GetComponent<CardView>().CardData.id))
+            {
+                Debug.Log($"Should unlock card {GetComponent<CardView>().CardData.id}");
+                if (DeckBuilding.Instance.UserDust >= 100)
+                {
+                    DeckBuilding.Instance.UseUserDust(100);
+                    DeckBuilding.Instance.UnlockCard(GetComponent<CardView>().CardData.id);
+                }
+                return;
+            }
+
             isDragging = true;
             startDragPosition = transform.position;
             transform.position = GetMousePositionInWorldSpace();

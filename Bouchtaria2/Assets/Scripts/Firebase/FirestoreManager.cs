@@ -71,7 +71,9 @@ public class FirestoreManager : MonoBehaviour
                 userDoc.SetAsync(new System.Collections.Generic.Dictionary<string, object>
                 {
                     { "createdAt", Timestamp.GetCurrentTimestamp() },
-                    { "displayName", "Anonymous" }
+                    { "displayName", "Anonymous" },
+                    { "dust quantity",100 },
+                    { "gems",1000 },
                 })
                 .ContinueWithOnMainThread(setTask =>
                 {

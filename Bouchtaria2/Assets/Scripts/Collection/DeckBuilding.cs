@@ -7,6 +7,7 @@ using System;
 using TMPro;
 using System.Linq;
 using System.Collections;
+using Firebase.Extensions;
 
 public class DeckBuilding : MonoBehaviour
 {
@@ -18,12 +19,14 @@ public class DeckBuilding : MonoBehaviour
     [SerializeField] public GameObject CollectionLayout;
     [SerializeField] public GameObject DeckUI;
     [SerializeField] public TMP_InputField DeckNameInput;
+    [SerializeField] public TextMeshProUGUI DustCounter;
 
     public static DeckBuilding Instance;
 
     public List<int> CurrentDeck;
     public CollectionScreen collection;
-
+    public int UserDust;
+    public bool isCrafting = false;
     //Local Deck Storage
     private Dictionary<string, List<int>> userDecks = new();
     private List<string> deckNames = new();
@@ -47,8 +50,16 @@ public class DeckBuilding : MonoBehaviour
         Instance = this;
 
         collection = CollectionLayout.GetComponentInChildren<CollectionScreen>();
-    }
 
+        GetUserDust(dust =>
+        {
+            Debug.Log("User dust: " + dust);
+            UserDust = dust;
+            DustCounter.text = dust.ToString();
+        });
+
+    }
+    #region CardDropInChest
     public void DropCardToChest(Card card)
     {
         int cardId = card.GetComponent<CardView>().CardData.id;
@@ -60,7 +71,7 @@ public class DeckBuilding : MonoBehaviour
         }
 
         CurrentDeck.Add(cardId);
-        ShowProgress(CurrentDeck.Count,30);
+        ShowProgress(CurrentDeck.Count, 30);
         Debug.Log(DisplayDeckCardIDs(CurrentDeck));
     }
     public void RemoveCardFromChest(Card card)
@@ -72,14 +83,13 @@ public class DeckBuilding : MonoBehaviour
             ShowProgress(CurrentDeck.Count, 30);
         }
         else Debug.LogWarning("Couldn't remove card of id " + card.GetComponent<CardView>().CardData.id);
-        
+
         Debug.Log(DisplayDeckCardIDs(CurrentDeck));
     }
     private bool IsCardOwned(int cardId)
     {
         return UserCollectionManager.Instance.IsOwned(cardId);
     }
-
     private bool CanAddCard(int cardId)
     {
         // Ownership
@@ -106,13 +116,14 @@ public class DeckBuilding : MonoBehaviour
 
         return true;
     }
-
+    #endregion
+    #region Deck Creation
     public string DisplayDeckCardIDs(List<int> deck)
     {
         string result = "Current deck contains : ";
-        foreach(int id in deck)
+        foreach (int id in deck)
         {
-            result += id.ToString()+", ";
+            result += id.ToString() + ", ";
         }
         result += $"for a total of {deck.Count} cards.";
 
@@ -128,12 +139,11 @@ public class DeckBuilding : MonoBehaviour
 
         collection.ShowPage(collection.currentPage);
     }
-
     public void RegisterDeck()
     {
         // 🔒 Validation
         if (string.IsNullOrWhiteSpace(DeckNameInput.text))
-        {            
+        {
             ShowWarning("Deck name is empty.");
             return;
         }
@@ -278,6 +288,8 @@ public class DeckBuilding : MonoBehaviour
         currentDeckIndex = (currentDeckIndex + 1) % deckNames.Count;
         LoadDeck(deckNames[currentDeckIndex]);
     }
+    #endregion
+    #region Routines
     public void ShowWarning(string message)
     {
         if (warningRoutine != null)
@@ -377,4 +389,116 @@ public class DeckBuilding : MonoBehaviour
 
         counterPopup.gameObject.SetActive(false);
     }
+    #endregion
+    #region Crafting
+    public void GetUserDust(Action<int> onResult)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            onResult?.Invoke(0);
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        db.Collection("users")
+          .Document(user.UserId)
+          .GetSnapshotAsync()
+          .ContinueWithOnMainThread(task =>
+          {
+              if (task.IsFaulted || !task.Result.Exists)
+              {
+                  Debug.LogError("Failed to fetch user dust.");
+                  onResult?.Invoke(0);
+                  return;
+              }
+
+              int dust = task.Result.ContainsField("dust")
+                  ? task.Result.GetValue<int>("dust")
+                  : 0;
+
+              onResult?.Invoke(dust);
+          });
+    }
+    public void ToggleCraftMode()
+    {
+        isCrafting = !isCrafting;
+        if (isCrafting)
+        {
+            Debug.Log("start crafting");
+        }
+    }
+    public void UseUserDust(int amount)
+    {
+        ModifyUserDust(-Mathf.Abs(amount));
+    }
+    public void GainUserDust(int amount)
+    {
+        ModifyUserDust(Mathf.Abs(amount));
+    }
+    private void ModifyUserDust(int delta)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        db.Collection("users")
+          .Document(user.UserId)
+          .UpdateAsync("dust", FieldValue.Increment(delta))
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("Failed to modify dust.");
+                    return;
+                }
+
+                GetUserDust(dust =>
+                {
+                    UserDust = dust;
+                    DustCounter.text = dust.ToString();
+                    Debug.Log("User dust updated to: " + dust);
+                });
+            });
+
+    }
+    public void UnlockCard(int cardId)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        db.Collection("users")
+          .Document(user.UserId)
+          .Collection("collection")
+          .Document(cardId.ToString())
+          .SetAsync(new Dictionary<string, object>
+          {
+          { "owned", true }
+          }, SetOptions.MergeAll)
+          .ContinueWithOnMainThread(task =>
+          {
+              if (task.IsFaulted)
+                  Debug.LogError($"Failed to unlock card {cardId}.");
+              else
+              { 
+                  Debug.Log($"Card {cardId} unlocked.");
+                  collection.ShowPage(collection.currentPage);
+              }
+          });
+    }
+
+    #endregion
 }
