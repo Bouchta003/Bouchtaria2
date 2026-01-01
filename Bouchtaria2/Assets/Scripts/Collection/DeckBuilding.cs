@@ -1,17 +1,39 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using Firebase.Auth;
+using Firebase.Firestore;
+using System;
+using TMPro;
+using System.Linq;
+using System.Collections;
 
 public class DeckBuilding : MonoBehaviour
 {
     [Header("Chest Animator")]
     [SerializeField] ChestAnimation chestAnimation;
+    [SerializeField] Collider2D chestCOllider;
+
+    [Header("UI")]
     [SerializeField] public GameObject CollectionLayout;
     [SerializeField] public GameObject DeckUI;
+    [SerializeField] public TMP_InputField DeckNameInput;
 
-    [SerializeField] Collider2D chestCOllider;
     public static DeckBuilding Instance;
+
     public List<int> CurrentDeck;
     public CollectionScreen collection;
+
+    //Local Deck Storage
+    private Dictionary<string, List<int>> userDecks = new();
+    private List<string> deckNames = new();
+    private int currentDeckIndex = 0;
+
+    //DeckCount Display
+    private Coroutine counterRoutine;
+    [SerializeField] private TMP_Text counterPopup;
+    [SerializeField] private float popupDuration = 0.6f;
+    [SerializeField] private float popupScale = 1.2f;
     private void Awake()
     {
         if (Instance != null)
@@ -24,15 +46,19 @@ public class DeckBuilding : MonoBehaviour
 
         collection = CollectionLayout.GetComponentInChildren<CollectionScreen>();
     }
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     public void DropCardToChest(Card card)
     {
-        CurrentDeck.Add(card.GetComponent<CardView>().CardData.id);
+        int cardId = card.GetComponent<CardView>().CardData.id;
+
+        if (!CanAddCard(cardId))
+        {
+            Debug.LogWarning($"Cannot add card {cardId} to deck.");
+            return;
+        }
+
+        CurrentDeck.Add(cardId);
+        ShowProgress(CurrentDeck.Count,30);
         Debug.Log(DisplayDeckCardIDs(CurrentDeck));
     }
     public void RemoveCardFromChest(Card card)
@@ -41,11 +67,35 @@ public class DeckBuilding : MonoBehaviour
         {
             CurrentDeck.Remove(card.GetComponent<CardView>().CardData.id);
             collection.ShowPage(collection.currentPage);
+            ShowProgress(CurrentDeck.Count, 30);
         }
         else Debug.LogWarning("Couldn't remove card of id " + card.GetComponent<CardView>().CardData.id);
         
         Debug.Log(DisplayDeckCardIDs(CurrentDeck));
     }
+    private bool IsCardOwned(int cardId)
+    {
+        return UserCollectionManager.Instance.IsOwned(cardId);
+    }
+
+    private bool CanAddCard(int cardId)
+    {
+        // Ownership
+        if (!IsCardOwned(cardId))
+            return false;
+
+        // Copy limit
+        int copies = CurrentDeck.Count(id => id == cardId);
+        if (copies >= 2)
+            return false;
+
+        // Deck size safety
+        if (CurrentDeck.Count >= 30)
+            return false;
+
+        return true;
+    }
+
     public string DisplayDeckCardIDs(List<int> deck)
     {
         string result = "Current deck contains : ";
@@ -60,7 +110,210 @@ public class DeckBuilding : MonoBehaviour
     public void DisplayDeck()
     {
         collection.isDeck = !collection.isDeck;
-        collection.ShowPage(collection.currentPage);
         DeckUI.SetActive(collection.isDeck);
+
+        if (collection.isDeck)
+            FetchDecks();
+
+        collection.ShowPage(collection.currentPage);
+    }
+
+    public void RegisterDeck()
+    {
+        // 🔒 Validation
+        if (string.IsNullOrWhiteSpace(DeckNameInput.text))
+        {
+            Debug.LogWarning("Deck name is empty.");
+            return;
+        }
+
+        if (CurrentDeck == null || CurrentDeck.Count != 30)
+        {
+            Debug.LogWarning($"Deck must contain exactly 30 cards (currently {CurrentDeck.Count}).");
+            return;
+        }
+        // Final validation pass
+        foreach (int id in CurrentDeck)
+        {
+            if (!IsCardOwned(id))
+            {
+                Debug.LogError("Deck contains unowned cards. Aborting save.");
+                return;
+            }
+
+            if (CurrentDeck.Count(x => x == id) > 2)
+            {
+                Debug.LogError("Deck violates copy limit. Aborting save.");
+                return;
+            }
+        }
+
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+        string deckName = DeckNameInput.text.Trim();
+
+        CollectionReference decksRef =
+            db.Collection("users")
+              .Document(user.UserId)
+              .Collection("decks");
+
+        // 🔍 Look for existing deck with same name
+        decksRef.WhereEqualTo("name", deckName)
+            .GetSnapshotAsync()
+            .ContinueWith(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("Failed to query decks: " + task.Exception);
+                    return;
+                }
+
+                QuerySnapshot snapshot = task.Result;
+
+                DocumentReference deckDoc;
+
+                if (snapshot.Documents.Any())
+                {
+                    // ♻ Replace existing deck
+                    deckDoc = snapshot.Documents.First().Reference;
+                    Debug.Log($"Replacing existing deck '{deckName}'.");
+                }
+                else
+                {
+                    // ➕ Create new deck
+                    deckDoc = decksRef.Document();
+                    Debug.Log($"Creating new deck '{deckName}'.");
+                }
+
+                Dictionary<string, object> deckData = new Dictionary<string, object>
+                {
+                { "name", deckName },
+                { "cardIds", new List<int>(CurrentDeck) },
+                { "updatedAt", Timestamp.GetCurrentTimestamp() }
+                };
+
+                deckDoc.SetAsync(deckData).ContinueWith(saveTask =>
+                {
+                    if (saveTask.IsFaulted)
+                    {
+                        Debug.LogError("Failed to save deck: " + saveTask.Exception);
+                    }
+                    else
+                    {
+                        Debug.Log($"Deck '{deckName}' saved successfully.");
+                    }
+                });
+            });
+    }
+    public void FetchDecks()
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        db.Collection("users")
+          .Document(user.UserId)
+          .Collection("decks")
+          .GetSnapshotAsync()
+          .ContinueWith(task =>
+          {
+              if (task.IsFaulted)
+              {
+                  Debug.LogError("Failed to fetch decks: " + task.Exception);
+                  return;
+              }
+
+              userDecks.Clear();
+              deckNames.Clear();
+
+              foreach (DocumentSnapshot doc in task.Result.Documents)
+              {
+                  string name = doc.GetValue<string>("name");
+                  List<int> cardIds = doc.GetValue<List<int>>("cardIds");
+
+                  userDecks[name] = new List<int>(cardIds);
+                  deckNames.Add(name);
+              }
+
+              Debug.Log($"Fetched {deckNames.Count} decks.");
+          });
+    }
+    private void LoadDeck(string deckName)
+    {
+        if (!userDecks.ContainsKey(deckName))
+            return;
+
+        CurrentDeck = new List<int>(userDecks[deckName]);
+        DeckNameInput.text = deckName;
+
+        collection.ShowPage(collection.currentPage);
+    }
+    public void SwitchDeck()
+    {
+        if (deckNames.Count == 0)
+            return;
+
+        currentDeckIndex = (currentDeckIndex + 1) % deckNames.Count;
+        LoadDeck(deckNames[currentDeckIndex]);
+    }
+    public void ShowProgress(int current, int cap)
+    {
+        if (counterRoutine != null)
+            StopCoroutine(counterRoutine);
+
+        counterRoutine = StartCoroutine(counterPopupRoutine(current, cap));
+    }
+    private IEnumerator counterPopupRoutine(int current, int cap)
+    {
+        counterPopup.gameObject.SetActive(true);
+        counterPopup.text = $"{current} / {cap}";
+
+        RectTransform rt = counterPopup.rectTransform;
+        CanvasGroup cg = counterPopup.GetComponent<CanvasGroup>();
+
+        if (cg == null)
+            cg = counterPopup.gameObject.AddComponent<CanvasGroup>();
+
+        rt.localScale = Vector3.one * 0.9f;
+        cg.alpha = 0f;
+
+        // Fade + pop in
+        float t = 0f;
+        while (t < 0.15f)
+        {
+            t += Time.deltaTime;
+            float k = t / 0.15f;
+
+            rt.localScale = Vector3.Lerp(Vector3.one * 0.9f, Vector3.one * popupScale, k);
+            cg.alpha = k;
+            yield return null;
+        }
+
+        rt.localScale = Vector3.one;
+
+        // Hold
+        yield return new WaitForSeconds(popupDuration);
+
+        // Fade out
+        t = 0f;
+        while (t < 0.2f)
+        {
+            t += Time.deltaTime;
+            cg.alpha = 1f - (t / 0.2f);
+            yield return null;
+        }
+
+        counterPopup.gameObject.SetActive(false);
     }
 }
