@@ -145,7 +145,7 @@ public class ScanPanelView : MonoBehaviour
             GameObject entry = Instantiate(relatedPrefab, relatedContainer);
             CardData data = CardDatabase.Instance.GetCardById(id);
             entry.GetComponentInChildren<TextMeshProUGUI>().text = data.effectText;
-            CardFactory.Instance.CreateCardInPosition(data,owner, new Vector3(-150,0,0), new Vector3(20,20,20), entry.transform);
+            //CardFactory.Instance.CreateCardInPosition(data,owner, new Vector3(-150,0,0), new Vector3(20,20,20), entry.transform);
         }
         relatedCardsId.Clear();
     }
@@ -169,6 +169,13 @@ public class ScanPanelView : MonoBehaviour
                 keyName.text = "Morph";
                 keyDescription.text =
                     "Transforms into another unit and keeps damage.";
+                relatedCardsId.Add(GetEffectID(keyword));
+            }
+            else if (keyword.Contains("monsterpart"))
+            {
+                keyName.text = "Monster Parts";
+                keyDescription.text =
+                    "Cannot be used, get other monster parts to assemble into gear.";
                 relatedCardsId.Add(GetEffectID(keyword));
             }
             else if (keyword.Contains("blessed"))
@@ -218,6 +225,7 @@ public class ScanPanelView : MonoBehaviour
         if (start < 0 || end < 0 || end <= start + 1)
         {
             Debug.LogError($"Malformed effect");
+            return -1;
         }
         string valueStr = effect.Substring(start + 1, end - start - 1);
         if (int.TryParse(valueStr, out int value))

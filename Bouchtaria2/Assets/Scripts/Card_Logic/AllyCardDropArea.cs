@@ -33,6 +33,11 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         //SpellCast
         if (cardInst.Data.cardType == "spell")
         {
+            if (cardInst.CurrentEffect.Contains("monsterpart"))
+            {
+                card.ResetCard();
+                return;
+            }
             cardInst.OnEnterBoard();
             Destroy(cardInst.gameObject);
             handManager.RemoveCardFromHand(card.gameObject);

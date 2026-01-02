@@ -64,6 +64,9 @@ public class EnemyAIController : MonoBehaviour
                 continue;
 
             if (inst.CurrentEffect.Contains("target"))
+                continue; 
+            
+            if (inst.CurrentEffect.Contains("monsterpart"))
                 continue;
 
             if (inst.CurrentManaCost > gameManager.EnemyCurrentMana)
