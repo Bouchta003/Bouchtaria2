@@ -62,9 +62,6 @@ public class EnemyAIController : MonoBehaviour
 
             if (inst.Data.cardType.ToLower() != "spell")
                 continue;
-
-            if (inst.CurrentEffect.Contains("target"))
-                continue; 
             
             if (inst.CurrentEffect.Contains("monsterpart"))
                 continue;

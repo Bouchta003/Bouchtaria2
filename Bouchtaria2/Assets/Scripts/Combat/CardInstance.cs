@@ -268,7 +268,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (CurrentEffect.StartsWith("gear"))
         {
-            TryExecuteGear(CurrentEffect, "no", target);
+            TryExecuteGear(CurrentEffect, CurrentEffectText, target);
             return;
         }
 
@@ -515,6 +515,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         pendingTargetedEffect = null;
     }
+
     #endregion
     #region Effects
     private void TryExecuteSummon(string effect)
@@ -636,35 +637,139 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TryExecuteGear(string effect, string effectText, IAttackable target)
     {
-        Debug.Log("entered gear method");
-        if (target == null || target is CoreInstance)
+        if (target is not CardInstance targetInstance)
         {
-            Debug.LogError($"Gear effect requires a target on {Data.name}");
+            Debug.LogError($"Gear effect requires a unit target on {Data.name}");
             return;
         }
+
+        // Extract content inside gear(...)
         int start = effect.IndexOf('(');
         int end = effect.LastIndexOf(')');
 
-        if (start < 0 || end < 0 || end <= start + 1)
+        if (start < 0 || end <= start + 1)
         {
-            Debug.LogError($"Malformed {effect} effect on card {Data.name}");
+            Debug.LogError($"Malformed gear effect '{effect}' on {Data.name}");
             return;
         }
 
-        string valueStr = effect.Substring(start + 1, end - start - 1);
-        if(target is CardInstance targetInstance)
-        {
-            targetInstance.CurrentEffect += " " + valueStr;
-            Debug.Log("Target's new effect : " + targetInstance.CurrentEffect);
+        string inner = effect.Substring(start + 1, end - start - 1).Trim();
+        if (targetInstance.CurrentEffect.Contains("hunter")) inner += " selfbuff(1,1)";
+        // Split multiple inner effects by space
+        string[] subEffects = inner.Split(' ');
 
-            targetInstance.GetComponent<CardView>().UpdateMode();
-            if (targetInstance.IsSummoningSick && targetInstance.CurrentEffect.Contains("quickstrike"))
-            { targetInstance.IsSummoningSick = false; if(targetInstance.Owner==PlayerOwner.Player)gameManager.CheckGlow(); }
-            targetInstance.ThornsDamage = GetThornDamage();
-            targetInstance.CurrentEffectText += "\n" + effectText;
+        foreach (string subEffect in subEffects)
+        {
+            ApplySingleGearEffect(subEffect.Trim(), targetInstance);
         }
 
+        // Final visuals / text
+        targetInstance.CurrentEffectText += "\n" + effectText;
+        targetInstance.cardView.UpdateMode();
+
+        if (targetInstance.Owner == PlayerOwner.Player)
+            gameManager.CheckGlow();
     }
+    private void ApplySingleGearEffect(string subEffect, CardInstance target)
+    {
+        // KEYWORD (quickstrike, taunt, etc.)
+        if (!subEffect.Contains("("))
+        {
+            target.CurrentEffect += " " + subEffect;
+
+            if (subEffect == "quickstrike" && target.IsSummoningSick)
+                target.IsSummoningSick = false;
+
+            return;
+        }
+
+        // THORNS(x)
+        if (subEffect.StartsWith("thorns"))
+        {
+            int addedValue = GetSingleIntFromEffect(subEffect);
+            if (addedValue <= 0)
+                return;
+
+            // Check if target already has thorns
+            int currentThorns = target.ThornsDamage;
+            int newThornsValue = currentThorns + addedValue;
+
+            // Update runtime value
+            target.ThornsDamage = newThornsValue;
+
+            // Update effect string:
+            // 1. Remove existing thorns(x) if present
+            target.CurrentEffect = RemoveEffectByPrefix(target.CurrentEffect, "thorns");
+
+            // 2. Add updated thorns value
+            target.CurrentEffect += $" thorns({newThornsValue})";
+
+            return;
+        }
+
+        // SELFBUFF(a,b)
+        if (subEffect.StartsWith("selfbuff"))
+        {
+            (int atk, int hp) = GetTwoIntsFromEffect(subEffect);
+            target.ModifyStats(atk, hp);
+            target.CurrentEffect += " " + subEffect;
+            return;
+        }
+
+        Debug.LogWarning($"Unknown gear sub-effect '{subEffect}' on {Data.name}");
+    }
+    private int GetSingleIntFromEffect(string effect)
+    {
+        int start = effect.IndexOf('(');
+        int end = effect.IndexOf(')');
+        if (start < 0 || end <= start + 1)
+            return -1;
+
+        return int.TryParse(effect.Substring(start + 1, end - start - 1), out int v)
+            ? v
+            : -1;
+    }
+    private (int, int) GetTwoIntsFromEffect(string effect)
+    {
+        int start = effect.IndexOf('(');
+        int end = effect.IndexOf(')');
+        if (start < 0 || end <= start + 1)
+            return (0, 0);
+
+        string[] parts = effect.Substring(start + 1, end - start - 1).Split(',');
+        if (parts.Length != 2)
+            return (0, 0);
+
+        int.TryParse(parts[0], out int a);
+        int.TryParse(parts[1], out int b);
+        return (a, b);
+    }
+    private string RemoveEffectByPrefix(string effects, string prefix)
+    {
+        if (string.IsNullOrEmpty(effects))
+            return effects;
+
+        string[] parts = effects.Split(' ');
+        List<string> kept = new();
+
+        foreach (string part in parts)
+        {
+            if (!part.StartsWith(prefix))
+                kept.Add(part);
+        }
+
+        return string.Join(" ", kept).Trim();
+    }
+
+    private void FinalizeGear(CardInstance target, string effectText)
+    {
+        target.CurrentEffectText += "\n" + effectText;
+        target.cardView.UpdateMode();
+
+        if (target.Owner == PlayerOwner.Player)
+            gameManager.CheckGlow();
+    }
+
     public void MorphTo(int newCardId)
     {
         CardData newData = CardDatabase.Instance.GetCardById(newCardId);
@@ -739,7 +844,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         CurrentHealth+=hp;
         if (CurrentHealth < Data.hpValue) view.hpTextBoard.color = Color.red;
         if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
-        if (CurrentAttack > Data.atkValue) view.hpTextBoard.color = Color.green;
+        if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
     }
     public void Die()
     {

@@ -2,6 +2,7 @@
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class ScanPanelView : MonoBehaviour
 {
@@ -111,6 +112,14 @@ public class ScanPanelView : MonoBehaviour
 
         nameText.text = card.name;
         effectText.text = card.effectText;
+        if (SceneManager.GetActiveScene().name == "Combat")
+        {
+            CardInstance cardInst = cardView.GetComponent<CardInstance>();
+
+
+            nameText.text = cardInst.Data.name;
+            effectText.text = cardInst.CurrentEffectText;
+        }
 
         foreach (Transform child in keywordContainer)
             Destroy(child.gameObject);
@@ -140,6 +149,7 @@ public class ScanPanelView : MonoBehaviour
     }
     void DisplayRelatedCards()
     {
+        return;
         foreach (int id in relatedCardsId)
         {
             GameObject entry = Instantiate(relatedPrefab, relatedContainer);
@@ -176,21 +186,18 @@ public class ScanPanelView : MonoBehaviour
                 keyName.text = "Monster Parts";
                 keyDescription.text =
                     "Cannot be used, get other monster parts to assemble into gear.";
-                relatedCardsId.Add(GetEffectID(keyword));
             }
             else if (keyword.Contains("blessed"))
             {
                 keyName.text = "Blessed";
                 keyDescription.text =
                     "Has a divine shield that absorbs one instance of damage.";
-                relatedCardsId.Add(GetEffectID(keyword));
             }
             else if (keyword.Contains("hidden"))
             {
                 keyName.text = "Hidden";
                 keyDescription.text =
                     "Cannot be target by attacks until this unit attacks.";
-                relatedCardsId.Add(GetEffectID(keyword));
             }
             else if (keyword.Contains("quickstrike"))
             {

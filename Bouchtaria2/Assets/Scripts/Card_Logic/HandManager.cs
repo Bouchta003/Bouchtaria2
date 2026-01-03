@@ -92,6 +92,7 @@ public class HandManager : MonoBehaviour
                     newGear.CurrentEffectText = newEffectText;
                     Debug.Log(newGear.CurrentEffect+ "//" + newEffectText);
                     newGear.BaseManaCost = newMana;
+                    newGear.GetComponent<CardView>().UpdateMode();
                     // Restart verification cleanly after modification
                     VerifyMonsterParts();
                     return; // IMPORTANT: stop current iteration
