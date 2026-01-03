@@ -18,6 +18,17 @@ public class TraitsDetection : MonoBehaviour
 
     public Dictionary<CardData.Trait, int> RetrieveTraitTiersFromDeck(Queue<CardData> playerDeck, PlayerOwner owner)
     {
+        // 0. Clear existing trait prefabs
+        Transform parent =
+            owner == PlayerOwner.Player
+                ? traitLayoutAlly.transform
+                : traitLayoutEnemy.transform;
+
+        for (int i = parent.childCount - 1; i >= 0; i--)
+        {
+            Destroy(parent.GetChild(i).gameObject);
+        }
+
         // 1. Count fractional trait contributions
         Dictionary<CardData.Trait, float> traitCounts = new();
 
@@ -67,7 +78,8 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Combo, new[] { 5, 8 } },
             { CardData.Trait.Healer, new[] { 6, 9 } },
             { CardData.Trait.Inazuma, new[] { 11 } },
-            { CardData.Trait.Pokemon, new[] { 3,6,9 } },
+            { CardData.Trait.Pokemon, new[] { 4,8,12 } },
+            { CardData.Trait.MonsterHunter, new[] { 5, 10, 20 } },
             { CardData.Trait.Neutral, new[] { 4,8,15 } },
             { CardData.Trait.Blizzard, new[] { 5, 10 } },
             { CardData.Trait.Meme, new[] { 6, 9 } }
@@ -157,6 +169,9 @@ public class TraitsDetection : MonoBehaviour
                         break;
                     case CardData.Trait.Inazuma:
                         traitDisplay.iconSlot.sprite = traitDisplay.inazumaIcon;
+                        break;
+                    case CardData.Trait.MonsterHunter:
+                        traitDisplay.iconSlot.sprite = traitDisplay.monsterhunterIcon;
                         break;
                     case CardData.Trait.Blizzard:
                         traitDisplay.iconSlot.sprite = traitDisplay.blizzardIcon;

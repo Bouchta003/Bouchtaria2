@@ -208,6 +208,7 @@ public class GameManager : MonoBehaviour
                 CardData.Trait.Speedster => throw new System.NotImplementedException(),
                 CardData.Trait.Gunner => throw new System.NotImplementedException(),
                 CardData.Trait.Inazuma => throw new System.NotImplementedException(),
+                CardData.Trait.MonsterHunter => throw new System.NotImplementedException(),
                 CardData.Trait.Blizzard => throw new System.NotImplementedException(),
                 CardData.Trait.Workout => throw new System.NotImplementedException(),
                 CardData.Trait.Faith => throw new System.NotImplementedException(),

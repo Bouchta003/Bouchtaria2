@@ -18,6 +18,7 @@ public class DeckBuilding : MonoBehaviour
     [Header("UI")]
     [SerializeField] public GameObject CollectionLayout;
     [SerializeField] public GameObject DeckUI;
+    [SerializeField] public GameObject IndexUI;
     [SerializeField] public TMP_InputField DeckNameInput;
     [SerializeField] public TextMeshProUGUI DustCounter;
 
@@ -34,7 +35,8 @@ public class DeckBuilding : MonoBehaviour
     private Dictionary<string, List<int>> userDecks = new();
     private List<string> deckNames = new();
     private int currentDeckIndex = 0;
-
+    public Dictionary<CardData.Trait, int> AllyTraitsUnlockable;
+    [SerializeField] private TraitsDetection traitsDetection;
     //DeckCount Display
     private Coroutine counterRoutine;
     private Coroutine warningRoutine;
@@ -62,6 +64,10 @@ public class DeckBuilding : MonoBehaviour
         });
 
     }
+    public void ShowIndex()
+    {
+        IndexUI.SetActive(!IndexUI.activeSelf);
+    }
     #region CardDropInChest
     public void DropCardToChest(Card card)
     {
@@ -75,6 +81,7 @@ public class DeckBuilding : MonoBehaviour
 
         CurrentDeck.Add(cardId);
         ShowProgress(CurrentDeck.Count, 30);
+        DetectUnlockableTraits();
         Debug.Log(DisplayDeckCardIDs(CurrentDeck));
     }
     public void RemoveCardFromChest(Card card)
@@ -86,6 +93,7 @@ public class DeckBuilding : MonoBehaviour
             ShowProgress(CurrentDeck.Count, 30);
         }
         else Debug.LogWarning("Couldn't remove card of id " + card.GetComponent<CardView>().CardData.id);
+        DetectUnlockableTraits();
 
         Debug.Log(DisplayDeckCardIDs(CurrentDeck));
     }
@@ -141,6 +149,7 @@ public class DeckBuilding : MonoBehaviour
             FetchDecks();
 
         collection.ShowPage(collection.currentPage);
+        DetectUnlockableTraits();
     }
     public void RegisterDeck()
     {
@@ -282,6 +291,7 @@ public class DeckBuilding : MonoBehaviour
         DeckNameInput.text = deckName;
 
         collection.ShowPage(collection.currentPage);
+        DetectUnlockableTraits();
     }
     public void SwitchDeck()
     {
@@ -290,6 +300,26 @@ public class DeckBuilding : MonoBehaviour
 
         currentDeckIndex = (currentDeckIndex + 1) % deckNames.Count;
         LoadDeck(deckNames[currentDeckIndex]);
+    }
+    public void DetectUnlockableTraits()
+    {
+        //Destroy all traits
+        AllyTraitsUnlockable =
+            traitsDetection.RetrieveTraitTiersFromDeck(
+                GetDeckQueue(),
+                PlayerOwner.Player
+            );
+    }
+    private Queue<CardData> GetDeckQueue()
+    {
+        Queue<CardData> deck = new Queue<CardData>();
+
+        foreach (int cardID in CurrentDeck)
+        {
+            deck.Enqueue(CardDatabase.Instance.GetCardById(cardID));
+        }
+
+        return deck;
     }
     #endregion
     #region Routines

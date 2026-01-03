@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1923a5453900f4046a727c70b5452275
+guid: e3d394b5e0c75c247a63816e22f83b96
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3300177487904253893
-    second: Shoe--Streamline-Tabler_0
+      213: 5994150387677344084
+    second: image_2026-01-03_164224077-removebg-preview_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Shoe--Streamline-Tabler_0
+      name: image_2026-01-03_164224077-removebg-preview_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 96
-        height: 96
+        x: 61
+        y: 30
+        width: 378
+        height: 440
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b38d9b15f0a6332d0800000000000000
-      internalID: -3300177487904253893
+      spriteID: 45137cbe4008f2350800000000000000
+      internalID: 5994150387677344084
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 3966e86f43063fb4695b7fb8af8a6146
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Shoe--Streamline-Tabler_0: -3300177487904253893
+      image_2026-01-03_164224077-removebg-preview_0: 5994150387677344084
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

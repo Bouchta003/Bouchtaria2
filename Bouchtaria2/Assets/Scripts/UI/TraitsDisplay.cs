@@ -8,6 +8,7 @@ public class TraitsDisplay : MonoBehaviour
     [Header("Traits Icons")]
     [SerializeField] public Sprite pokemonIcon;//
     [SerializeField] public Sprite inazumaIcon;//
+    [SerializeField] public Sprite monsterhunterIcon;//
     [SerializeField] public Sprite healIcon;//
     [SerializeField] public Sprite blizzardIcon;//
     [SerializeField] public Sprite gunnerIcon;
@@ -86,6 +87,14 @@ public class TraitsDisplay : MonoBehaviour
                         "\nTier 2 : The first card you draw that costs 3 mana or more each turn costs 1 less.";
                 if (tier > 2) display +=
                          "\nTier 3 : NEUTRAL-ize the enemy team.";
+                break;
+            case CardData.Trait.MonsterHunter:
+                display += $"Colossal Monsters have died : {Progression}/{CurrentCap}" +
+                    "\nTier 1 : Summon a random tier one monster.";
+                if (tier > 1) display +=
+                        "\nTier 2 : Summon a random tier two unique monster";
+                if (tier > 2) display +=
+                         "\nTier 3 : Summon a random nuclear monster.";
                 break;
             default:
                 display += "Need to define this trait's tier logic";
