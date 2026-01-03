@@ -901,10 +901,18 @@ public class GameManager : MonoBehaviour
 
         return true;
     }
-    public IAttackable ChooseEnemyEffectTarget(EffectTarget type)
+    public IAttackable ChooseEnemyEffectTarget(EffectTarget type, bool targetPlayer, bool canTargetCore)
     {
         List<IAttackable> targets = GetValidTargets(PlayerOwner.Player);
+        if (!targetPlayer)
+        {
+            targets = GetValidTargets(PlayerOwner.Enemy);
+            if(canTargetCore)
+            targets.Add(EnemyCore);
+        }
+        else if(canTargetCore)
         targets.Add(PlayerCore);
+
         if (targets.Count == 0)
             return null;
 

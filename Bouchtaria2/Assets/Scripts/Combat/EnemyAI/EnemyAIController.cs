@@ -97,11 +97,17 @@ public class EnemyAIController : MonoBehaviour
 
     private void PlaySpell(CardInstance spell)
     {
-        // Spend mana
+        //Verify if there is board before playing buff spell :
+        if (spell.CurrentEffect.Contains("gear") || (spell.CurrentEffect.Contains("heal")&& !spell.CurrentEffect.Contains("autoheal")) || spell.CurrentEffect.Contains("buff"))
+        {
+            if (enemyBoard.enemyPrefabCards.Count <= 0) return;
+        }
+
+            // Spend mana
         gameManager.UseMana(spell.CurrentManaCost, PlayerOwner.Enemy);
 
         // Trigger deploy effects (spells use deploy)
-        spell.OnEnterBoard();
+        spell.OnPlaySpell();
 
         // Remove from hand & destroy
         enemyHand.handCards.Remove(spell.gameObject);

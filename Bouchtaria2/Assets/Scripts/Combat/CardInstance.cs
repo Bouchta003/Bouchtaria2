@@ -224,13 +224,31 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else
         {
-            // Enemy auto-target
-            IAttackable target =
-                gameManager.ChooseEnemyEffectTarget(
-                    ConvertSpellTargetType(spellType));
+            // Enemy TARGET spell
+            if (CurrentEffect.Contains("gear") || CurrentEffect.Contains("heal") || CurrentEffect.Contains("buff"))
+            {
+                IAttackable target =
+                    gameManager.ChooseEnemyEffectTarget(
+                        EffectTarget.Unit, false, false);
 
-            ResolveSpell(target);
+                if (target == null)
+                {
+                    Debug.LogWarning($"Enemy tried to play gear spell '{Data.name}' but no valid target.");
+                    return;
+                }
+
+                ResolveSpell(target);
+                return;
+            }
+
+            // Enemy NON-GEAR spell
+            IAttackable defaultTarget =
+                gameManager.ChooseEnemyEffectTarget(
+                    ConvertSpellTargetType(spellType), true, false);
+
+            ResolveSpell(defaultTarget);
         }
+
     }
 
     private EffectTarget ConvertSpellTargetType(CardData.SpellTargetType type)
@@ -494,9 +512,21 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else
         {
-            // 🔑 ENEMY: auto-resolve
-            IAttackable target = gameManager.ChooseEnemyEffectTarget(type);
-            OnEffectTargetChosen(target);
+            // Enemy auto-target
+            if (CurrentEffect.Contains("gear") || CurrentEffect.Contains("heal") || CurrentEffect.Contains("buff"))
+            {
+                IAttackable target =
+                  gameManager.ChooseEnemyEffectTarget(
+                      ConvertSpellTargetType(spellType), false, false);
+                OnEffectTargetChosen(target);
+            }
+            else
+            {
+                IAttackable target =
+               gameManager.ChooseEnemyEffectTarget(
+                   ConvertSpellTargetType(spellType), true, false);
+                OnEffectTargetChosen(target);
+            }
         }
     }
     private void OnEffectTargetChosen(IAttackable target)
