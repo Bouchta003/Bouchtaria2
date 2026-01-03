@@ -3,6 +3,7 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class ScanPanelView : MonoBehaviour
 {
@@ -149,13 +150,16 @@ public class ScanPanelView : MonoBehaviour
     }
     void DisplayRelatedCards()
     {
-        return;
         foreach (int id in relatedCardsId)
         {
             GameObject entry = Instantiate(relatedPrefab, relatedContainer);
             CardData data = CardDatabase.Instance.GetCardById(id);
-            entry.GetComponentInChildren<TextMeshProUGUI>().text = data.effectText;
-            //CardFactory.Instance.CreateCardInPosition(data,owner, new Vector3(-150,0,0), new Vector3(20,20,20), entry.transform);
+            entry.GetComponentInChildren<TextMeshProUGUI>().text = data.effectText; if(data.effectText == "") { entry.GetComponentInChildren<TextMeshProUGUI>().text = "No effect."; }
+            Transform CardPreview = entry.transform.GetChild(1);
+            Transform Artwork = CardPreview.GetChild(0); Artwork.GetComponent<Image>().sprite = data.artSpriteCompact;
+            Transform Mana = CardPreview.GetChild(3); Mana.GetComponentInChildren<TextMeshProUGUI>().text = data.manaCost.ToString();
+            Transform Atk = CardPreview.GetChild(4); Atk.GetComponentInChildren<TextMeshProUGUI>().text = data.atkValue.ToString();
+            Transform Hp = CardPreview.GetChild(5); Hp.GetComponentInChildren<TextMeshProUGUI>().text = data.hpValue.ToString();
         }
         relatedCardsId.Clear();
     }
@@ -180,6 +184,18 @@ public class ScanPanelView : MonoBehaviour
                 keyDescription.text =
                     "Transforms into another unit and keeps damage.";
                 relatedCardsId.Add(GetEffectID(keyword));
+            }
+            else if (keyword.Contains("thorns"))
+            {
+                keyName.text = "Thorns";
+                keyDescription.text =
+                    "When defending, deal damage to the attacker eaqual to the thorn value.";
+            }
+            else if (keyword.Contains("resist"))
+            {
+                keyName.text = "Resist";
+                keyDescription.text =
+                    "Reduces damage taken in combat by the Resist value.";
             }
             else if (keyword.Contains("monsterpart"))
             {

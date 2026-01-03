@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d856ee56029eacc4ea8bf9bb0d103d65
+guid: bf52279c6ade62d4ab1a45eb4d28b898
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6573694074534771786
-    second: twiceclone_0
+      213: 5126032855318358095
+    second: metang_compact_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: twiceclone_0
+      name: metang_compact_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 491
-        height: 736
+        width: 1024
+        height: 1024
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6b3c341711c85c4a0800000000000000
-      internalID: -6573694074534771786
+      spriteID: f486b3819b3532740800000000000000
+      internalID: 5126032855318358095
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      twiceclone_0: -6573694074534771786
+      metang_compact_0: 5126032855318358095
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
