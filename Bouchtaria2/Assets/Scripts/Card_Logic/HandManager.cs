@@ -58,7 +58,7 @@ public class HandManager : MonoBehaviour
         {
             CardInstance cardInst = handCard.GetComponent<CardInstance>();
 
-            if (cardInst.CurrentEffect.Contains("monsterpart"))
+            if (cardInst.CurrentEffect.Contains("monsterpart*"))
             {
                 assembledCards.Add(handCard);
 

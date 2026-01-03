@@ -132,5 +132,26 @@ public class CardDatabase : MonoBehaviour
 
         return data;
     }
+    public List<CardData> GetCardsByEffect(string effect)
+    {
+        if (Cards == null)
+        {
+            Debug.LogError("CardDatabase: Cards not initialized");
+            return null;
+        }
+
+        List<CardData> result = new List<CardData>();
+
+        foreach (CardData card in Cards.Values)
+        {
+            if (!string.IsNullOrEmpty(card.effect) &&
+                card.effect.Contains(effect))
+            {
+                result.Add(card);
+            }
+        }
+
+        return result;
+    }
 
 }

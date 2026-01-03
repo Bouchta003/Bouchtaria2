@@ -290,6 +290,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
 
+        if (CurrentEffect.StartsWith("buff"))
+        {
+            TryExecuteBuff(CurrentEffect, target);
+            return;
+        }
+
         // Non-target effects (draw, summon, etc.)
         ExecuteEffect(CurrentEffect);
     }
@@ -379,7 +385,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         if (effect.StartsWith("buff"))
         {
-            TryExecuteBuff(effect);
+            TryExecuteBuff(effect, null);
+            return;
+        }
+        if (effect.StartsWith("buff") && effect.Contains(",target"))
+        {
+            BeginTargetedEffect(effect);
             return;
         }
         if (effect.StartsWith("damage") && effect.Contains(",target"))
@@ -542,6 +553,10 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             TryExecuteDamage(pendingTargetedEffect, target);
         }
+        else if (pendingTargetedEffect.StartsWith("buff"))
+        {
+            TryExecuteBuff(pendingTargetedEffect, target);
+        }
 
         pendingTargetedEffect = null;
     }
@@ -576,22 +591,13 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         string valueStr = effect.Substring(start + 1, end - start - 1);
-        string[] discoversCards = valueStr.Split(',');int id1 = -1; int id2 = -1;int id3 = -1;
-        
-        if (int.TryParse(discoversCards[0], out int id))
-        {
-            id1 = id;
-        }
-        if (int.TryParse(discoversCards[1], out int idd))
-        {
-            id2 = idd;
-        }
-        if (int.TryParse(discoversCards[2], out int iddd))
-        {
-            id3 = iddd;
-        }
+        string[] discoversCards = valueStr.Split(',');
 
-        gameManager.Discover(id1,id2,id3, Owner);
+        if (int.TryParse(discoversCards[0], out int id) && int.TryParse(discoversCards[1], out int idd) && int.TryParse(discoversCards[2], out int iddd))
+        {
+            gameManager.Discover(id, idd, iddd, Owner);
+        }
+        else gameManager.DiscoverEffect(valueStr, Owner);
     }
     private void TryExecuteAddCard(string effect)
     {
@@ -600,7 +606,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         gameManager.AddCardToHand(Owner, cardId);
     }
-    private void TryExecuteBuff(string effect)
+    private void TryExecuteBuff(string effect, IAttackable target)
     {
         if (!effect.StartsWith("buff"))
         {
@@ -642,14 +648,15 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else
         {
-            //Buff another card logic
+            if (target is CardInstance inst)
+                inst.ModifyStats(atk, hp);
         }
 
         //Update view
         view.hpTextBoard.text = CurrentHealth.ToString();
         if (CurrentHealth < Data.hpValue) view.hpTextBoard.color = Color.red;
-        else if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
-        else if (CurrentHealth == Data.hpValue) view.hpTextBoard.color = Color.white;
+        if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
+        if (CurrentHealth == Data.hpValue) view.hpTextBoard.color = Color.white;
         if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
     }
     private void TryExecuteDamage(string effect, IAttackable target)
@@ -875,6 +882,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (CurrentHealth < Data.hpValue) view.hpTextBoard.color = Color.red;
         if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
         if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
+        view.UpdateMode();
     }
     public void Die()
     {

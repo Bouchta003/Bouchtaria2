@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a6bf9e36a37fdde418e40e2c0ef7a4ea
+guid: 6220f0557c5226f4f8b21244850c27d2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -9150576205834671035
-    second: greatsword_0
+      213: -4022892318333251901
+    second: palico_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: greatsword_0
+      name: palico_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 508
-        height: 762
+        width: 800
+        height: 1200
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 54c25113c6f920180800000000000000
-      internalID: -9150576205834671035
+      spriteID: 3ce491c20c0db28c0800000000000000
+      internalID: -4022892318333251901
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      greatsword_0: -9150576205834671035
+      palico_0: -4022892318333251901
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
