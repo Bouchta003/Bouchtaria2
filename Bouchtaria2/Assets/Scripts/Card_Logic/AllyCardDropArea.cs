@@ -31,6 +31,8 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         }
         CardInstance cardInst = card.gameObject.GetComponent<CardInstance>();
         //SpellCast
+        //SpellCast
+        // Spell cast
         if (cardInst.Data.cardType == "spell")
         {
             if (cardInst.CurrentEffect.Contains("monsterpart"))
@@ -38,12 +40,22 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
                 card.ResetCard();
                 return;
             }
-            cardInst.OnEnterBoard();
-            Destroy(cardInst.gameObject);
+            // Spend mana immediately
+            gm.UseMana(cardInst.CurrentManaCost, PlayerOwner.Player);
+
+            // Remove from hand
             handManager.RemoveCardFromHand(card.gameObject);
-            gm.UseMana(card.gameObject.GetComponent<CardInstance>().CurrentManaCost, PlayerOwner.Player);
+            card.ResetCard();
+
+            cardInst.WasPlayed = true;
+
+            // 🔑 THIS is what you were missing
+            cardInst.OnPlaySpell();
+
+            Debug.Log($"Played {cardInst.Data.name} with the effect {cardInst.CurrentEffect}");
             return;
         }
+
 
         //Verify board space Legality
         if (allyPrefabCards.Count >= maxBoardSize) return;

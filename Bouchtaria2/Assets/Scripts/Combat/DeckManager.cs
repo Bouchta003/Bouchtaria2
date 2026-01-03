@@ -45,9 +45,9 @@ public class DeckManager : MonoBehaviour
     {
         List<CardData> deckList = new List<CardData>();
         if (owner == PlayerOwner.Player)
-            deckList = GetTestMinionDeckFromServer();
+            deckList = GetTestDeckForPlayer();
         else
-            deckList = GetTestMinionDeckFromServer();
+            deckList = GetTestDeckForEnemy();
 
         Shuffle(deckList);
 
@@ -116,7 +116,7 @@ public class DeckManager : MonoBehaviour
         }
     }
 
-    private List<CardData> GetTestMinionDeckFromServer()
+    private List<CardData> GetTestDeckForPlayer()
     {
         List<CardData> deck = new List<CardData>();
 
@@ -132,14 +132,18 @@ public class DeckManager : MonoBehaviour
 
         return deck;
     }
-    private List<CardData> GetTestSpellDeckFromServer()
+    private List<CardData> GetTestDeckForEnemy()
     {
         List<CardData> deck = new List<CardData>();
 
         foreach (CardData card in CardDatabase.Instance.Cards.Values)
         {
-            if (card.cardType == "spell")
+            if (card.traits.Contains("Pokemon") && card.packable)
+            {
                 deck.Add(card);
+                deck.Add(card);
+                deck.Add(card);
+            }
         }
 
         return deck;

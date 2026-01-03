@@ -12,7 +12,7 @@ public interface IAttackable
     Transform Transform{ get; } 
     PlayerOwner Owner { get; }
     int CurrentAttack { get; }
-
+    string CurrentEffect { get; set; }
     void TakeDamage(int amount);
 }
 public enum GameState
@@ -94,6 +94,7 @@ public class GameManager : MonoBehaviour
     private System.Action<IAttackable> onEffectTargetChosen;
     private CardInstance effectSource;
     private EffectTarget targetType = EffectTarget.None;
+    PlayerOwner effectOwner;
     [Header("Discovery")]
     [SerializeField] public GameObject discoverDisplay;
     public bool isDiscovering;
@@ -425,8 +426,7 @@ public class GameManager : MonoBehaviour
         dataInst3.IsDisplay = true;
         dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;
     }
-
-    public void AddCardToHand(PlayerOwner owner, int id)
+    public CardInstance AddCardToHand(PlayerOwner owner, int id)
     {
         HandManager hand = owner == PlayerOwner.Player
             ? allyHand
@@ -435,7 +435,7 @@ public class GameManager : MonoBehaviour
         if (hand.handCards.Count >= hand.maxHandSize)
         {
             Debug.Log($"{owner} hand is full.");
-            return;
+            return null;
         }
 
         CardData data = CardDatabase.Instance.GetCardById(id);
@@ -446,6 +446,8 @@ public class GameManager : MonoBehaviour
         card.SetZone(CardZone.Hand);
         hand.AddCard(card.gameObject);
         hand.UpdateCardPositions();
+
+        return card;
     }
     #endregion
 
@@ -619,6 +621,28 @@ public class GameManager : MonoBehaviour
 
         return targets;
     }
+    public void CheckGlow()
+    {
+            foreach (GameObject cardGO in allyDropArea.allyPrefabCards)
+            {
+                CardInstance ci = cardGO.GetComponent<CardInstance>();
+                CardView view = ci.GetComponent<CardView>();
+
+                if (CanSelectAttacker(ci))
+                    view.SetGlow(CardView.CardGlowState.CanAttack);
+                else
+                    view.SetGlow(CardView.CardGlowState.None);
+            }
+            foreach (IAttackable targets in GetValidTargets(PlayerOwner.Enemy))
+            {
+                if (targets is CardInstance ci)
+                {
+                    ci.GetComponent<CardView>()
+                        .SetGlow(CardView.CardGlowState.CanBeTargeted);
+                }
+            }
+        
+    }
     public void ResolveAttack(CardInstance attacker, IAttackable target)
     {
         if (attacker == null || target == null)
@@ -634,26 +658,10 @@ public class GameManager : MonoBehaviour
             attacker.HasAttackedTwiceThisTurn = true;
         attacker.HasAttackedThisTurn = true;
         attacker.RemoveEffect("hidden");
+
         if (attacker.Owner == PlayerOwner.Player)
         {
-            foreach (GameObject cardGO in allyDropArea.allyPrefabCards)
-            {
-                CardInstance ci = cardGO.GetComponent<CardInstance>();
-                CardView view = ci.GetComponent<CardView>();
-
-                if (CanSelectAttacker(ci))
-                    view.SetGlow(CardView.CardGlowState.CanAttack);
-                else
-                    view.SetGlow(CardView.CardGlowState.None);
-            }
-            foreach (IAttackable targets in GetValidTargets(attacker))
-            {
-                if (targets is CardInstance ci)
-                {
-                    ci.GetComponent<CardView>()
-                        .SetGlow(CardView.CardGlowState.CanBeTargeted);
-                }
-            }
+            CheckGlow();
         }
 
         // UNIT vs UNIT
@@ -877,8 +885,10 @@ public class GameManager : MonoBehaviour
     {
         isTargetingEffect = true;
         effectSource = source;
+        effectOwner = owner;
         onEffectTargetChosen = onTargetChosen;
         targetType = effectTargetType;
+
         attackCursor.gameObject.SetActive(true);
     }
     private bool IsValidEffectTarget(PlayerOwner owner, IAttackable target, EffectTarget effectTargetType)

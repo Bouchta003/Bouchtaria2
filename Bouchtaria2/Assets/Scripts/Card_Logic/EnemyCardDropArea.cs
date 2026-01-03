@@ -27,7 +27,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         CardInstance cardInst = card.GetComponent<CardInstance>();
 
         // Mana / legality
-        if (cardInst.CurrentManaCost > gm.EnemyCurrentMana)
+        if (cardInst.CurrentManaCost > gm.EnemyCurrentMana || cardInst.Owner==PlayerOwner.Player)
         {
             card.ResetCard();
             return;

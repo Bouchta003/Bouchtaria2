@@ -3,7 +3,7 @@ using UnityEngine.Splines;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine.Rendering;
-
+using System.Text.RegularExpressions;
 
 public class HandManager : MonoBehaviour
 {
@@ -37,6 +37,67 @@ public class HandManager : MonoBehaviour
 
         handCards.Add(card);
         UpdateCardPositions();
+    }
+    string CleanString(string input)
+    {
+        // Remove whole-word "monsterpart"
+        input = Regex.Replace(input, @"\bmonsterpart\b", "");
+
+        // Collapse multiple spaces into one
+        input = Regex.Replace(input, @"\s+", " ");
+
+        // Trim leading/trailing spaces
+        return input.Trim();
+    }
+    public void VerifyMonsterParts()
+    {
+        List<GameObject> assembledCards = new List<GameObject>();
+
+        // Iterate over a COPY so handCards can be modified safely
+        foreach (GameObject handCard in new List<GameObject>(handCards))
+        {
+            CardInstance cardInst = handCard.GetComponent<CardInstance>();
+
+            if (cardInst.CurrentEffect.Contains("monsterpart"))
+            {
+                assembledCards.Add(handCard);
+
+                if (assembledCards.Count >= 2)
+                {
+                    string newEffect = "";
+                    string newEffectText = "Gear : ";
+                    int newMana = 0;
+
+                    foreach (GameObject card in assembledCards)
+                    {
+                        CardInstance inst = card.GetComponent<CardInstance>();
+
+                        newEffect += inst.CurrentEffect + " ";
+                        newEffectText += inst.CurrentEffectText + " ";
+                        newMana += inst.CurrentManaCost;
+
+                        RemoveCardFromHand(card);
+                        Destroy(card);
+
+                    }
+
+                    newEffect = CleanString(newEffect);
+                    newEffectText = CleanString(newEffectText);
+
+
+                    UpdateCardPositions();
+
+                    CardInstance newGear = FindFirstObjectByType<GameManager>().AddCardToHand(Owner, 39);
+                    newGear.CurrentEffect = "gear("+newEffect+"),targetunit";
+                    newGear.CurrentEffectText = newEffectText;
+                    Debug.Log(newGear.CurrentEffect+ "//" + newEffectText);
+                    newGear.BaseManaCost = newMana;
+                    // Restart verification cleanly after modification
+                    VerifyMonsterParts();
+                    return; // IMPORTANT: stop current iteration
+                }
+            }
+        }
     }
 
     public void UpdateCardPositions()
@@ -74,6 +135,7 @@ public class HandManager : MonoBehaviour
                 group.sortingOrder = baseSortingOrder + i;
             }
         }
+        VerifyMonsterParts();
     }
 
     // =========================

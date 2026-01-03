@@ -42,9 +42,9 @@ public class CardInstance : MonoBehaviour, IAttackable
     CardView view;
     // Runtime state
     public int CurrentAttack { get; private set; }
-    public string CurrentEffect { get; private set; }
-    public string CurrentEffectText { get; private set; }
-    public int BaseManaCost { get; private set; }
+    public string CurrentEffect { get; set; }
+    public string CurrentEffectText { get; set; }
+    public int BaseManaCost { get; set; }
     public int CurrentHealth { get; private set; }
     public int CurrentManaCost => Mathf.Max(0, BaseManaCost + temporaryManaModifier);
     public bool IsDead = false;
@@ -62,7 +62,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public CardView cardView { get; set; }
 
     private Dictionary<EffectTrigger, List<string>> parsedEffects =    new Dictionary<EffectTrigger, List<string>>();
-
+    public string CurrentCastEffect;
     public void AddTemporaryManaModifier(int amount)
     {
         temporaryManaModifier += amount;
@@ -199,41 +199,184 @@ public class CardInstance : MonoBehaviour, IAttackable
     #region Spells
     public void OnPlaySpell()
     {
+        // Determine spell type
+        if (!CurrentEffect.Contains("target"))
+            spellType = CardData.SpellTargetType.None;
+        else
+            spellType = CardData.SpellTargetType.Any;
+
+        // NON-TARGET SPELL
         if (spellType == CardData.SpellTargetType.None)
         {
             ResolveSpell();
+            return;
+        }
+
+        // TARGET SPELL
+        if (Owner == PlayerOwner.Player)
+        {
+            gameManager.BeginEffectTargeting(
+                source: this,
+                owner: Owner,
+                onTargetChosen: ResolveSpell,
+                effectTargetType: ConvertSpellTargetType(spellType)
+            );
         }
         else
         {
-            //gameManager.BeginSpellTargeting(this);
+            // Enemy auto-target
+            IAttackable target =
+                gameManager.ChooseEnemyEffectTarget(
+                    ConvertSpellTargetType(spellType));
+
+            ResolveSpell(target);
         }
     }
-    public void ResolveSpell()
+
+    private EffectTarget ConvertSpellTargetType(CardData.SpellTargetType type)
     {
-        TriggerSpell();
-        Destroy(gameObject);
+        return type switch
+        {
+            CardData.SpellTargetType.Unit => EffectTarget.Unit,
+            CardData.SpellTargetType.Core => EffectTarget.Core,
+            CardData.SpellTargetType.Any => EffectTarget.Any,
+            _ => EffectTarget.None
+        };
     }
     public void ResolveSpell(IAttackable target)
     {
-        TriggerSpell(target);
+        ExecuteSpellEffects(target);
         Destroy(gameObject);
     }
-    private void TriggerSpell()
+
+    private void ResolveSpell()
     {
-        Debug.Log($"Spell {name} resolved");
+        ExecuteSpellEffects(null);
+        Destroy(gameObject);
     }
-    private void TriggerSpell(IAttackable target)
+    private void ExecuteSpellEffects(IAttackable target)
     {
-        Debug.Log($"Spell {name} resolved on {target}");
+        if (string.IsNullOrEmpty(CurrentEffect))
+            return;
+
+        // Directly resolve targeted effects
+        if (CurrentEffect.StartsWith("damage"))
+        {
+            TryExecuteDamage(CurrentEffect, target);
+            return;
+        }
+
+        if (CurrentEffect.StartsWith("gear"))
+        {
+            TryExecuteGear(CurrentEffect, "no", target);
+            return;
+        }
+
+        // Non-target effects (draw, summon, etc.)
+        ExecuteEffect(CurrentEffect);
     }
+
     #endregion
     public void OnEnterBoard()
     {
         TriggerDeploy();
     }
     private void TriggerDeploy()
-    {if(WasPlayed)
+    {
+        if(WasPlayed)
         TriggerEffects(EffectTrigger.Deploy);
+    }
+    private void TriggerEffects(EffectTrigger trigger)
+    {
+        if (!parsedEffects.TryGetValue(trigger, out var effects))
+            return;
+
+        foreach (string effect in effects)
+            ExecuteEffect(effect);
+    }
+    private void ExecuteEffect(string effect)
+    {
+        effect = effect.ToLowerInvariant();
+
+        Debug.Log("triggered : " + effect);
+        if (effect.StartsWith("morphto"))
+        {
+            if (!TryParseIntEffect(effect, "morphto", out int id))
+                return;
+
+            MorphTo(id);
+            return;
+        }
+
+        if (effect.StartsWith("draw"))
+        {
+            if (!TryParseIntEffect(effect, "draw", out int cards))
+                return;
+
+            deckManager.Draw(cards, Owner);
+            return;
+        }
+
+        if (effect.StartsWith("autodmg"))
+        {
+            if (!TryParseIntEffect(effect, "autodmg", out int dmg))
+                return;
+
+            AutoDamageCore(dmg);
+            return;
+        }
+
+        if (effect.StartsWith("autoheal"))
+        {
+            if (!TryParseIntEffect(effect, "autoheal", out int heal))
+                return;
+
+            AutoHealCore(heal);
+            return;
+        }
+
+        if (effect.StartsWith("autoshield"))
+        {
+            if (!TryParseIntEffect(effect, "autoshield", out int shield))
+                return;
+
+            AutoShieldCore(shield);
+            return;
+        }
+
+        if (effect.StartsWith("summon"))
+        {
+            TryExecuteSummon(effect);
+            return;
+        }
+        if (effect.StartsWith("discover"))
+        {
+            TryExecuteDiscover(effect);
+            return;
+        }
+        if (effect.StartsWith("addcard"))
+        {
+            TryExecuteAddCard(effect);
+            return;
+        }
+        if (effect.StartsWith("buff"))
+        {
+            TryExecuteBuff(effect);
+            return;
+        }
+        if (effect.StartsWith("damage") && effect.Contains(",target"))
+        {
+            BeginTargetedEffect(effect);
+            return;
+        }
+
+        if (effect.StartsWith("gear") && effect.Contains(",target"))
+        {
+            BeginTargetedEffect(effect);
+            return;
+        }
+
+        Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
     }
     private void TriggerBerserk()
     {
@@ -335,93 +478,6 @@ public class CardInstance : MonoBehaviour, IAttackable
                 return false;
         }
     }
-    private void TriggerEffects(EffectTrigger trigger)
-    {
-        if (!parsedEffects.TryGetValue(trigger, out var effects))
-            return;
-
-        foreach (string effect in effects)
-            ExecuteEffect(effect);
-    }
-    private void ExecuteEffect(string effect)
-    {
-        effect = effect.ToLowerInvariant();
-
-        if (effect.StartsWith("morphto"))
-        {
-            if (!TryParseIntEffect(effect, "morphto", out int id))
-                return;
-
-            MorphTo(id);
-            return;
-        }
-
-        if (effect.StartsWith("draw"))
-        {
-            if (!TryParseIntEffect(effect, "draw", out int cards))
-                return;
-
-            deckManager.Draw(cards, Owner);
-            return;
-        }
-
-        if (effect.StartsWith("autodmg"))
-        {
-            if (!TryParseIntEffect(effect, "autodmg", out int dmg))
-                return;
-
-            AutoDamageCore(dmg);
-            return;
-        }
-
-        if (effect.StartsWith("autoheal"))
-        {
-            if (!TryParseIntEffect(effect, "autoheal", out int heal))
-                return;
-
-            AutoHealCore(heal);
-            return;
-        }
-
-        if (effect.StartsWith("autoshield"))
-        {
-            if (!TryParseIntEffect(effect, "autoshield", out int shield))
-                return;
-
-            AutoShieldCore(shield);
-            return;
-        }
-
-        if (effect.StartsWith("summon"))
-        {
-            TryExecuteSummon(effect);
-            return;
-        }
-        if (effect.StartsWith("discover"))
-        {
-            TryExecuteDiscover(effect);
-            return;
-        }
-        if (effect.StartsWith("addcard"))
-        {
-            TryExecuteAddCard(effect);
-            return;
-        }
-        if (effect.StartsWith("buff"))
-        {
-            TryExecuteBuff(effect);
-            return;
-        }
-
-        if (effect.StartsWith("damage") && effect.Contains(",target"))
-        {
-            BeginTargetedEffect(effect);
-            return;
-        }
-
-        Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
-    }
-
     private void BeginTargetedEffect(string effect)
     {
         EffectTarget type = EffectTarget.None;
@@ -448,7 +504,15 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (string.IsNullOrEmpty(pendingTargetedEffect))
             return;
 
-        TryExecuteDamage(pendingTargetedEffect, target);
+        if (pendingTargetedEffect.StartsWith("gear"))
+        {
+            TryExecuteGear(pendingTargetedEffect, "no", target);
+        }
+        else if (pendingTargetedEffect.StartsWith("damage"))
+        {
+            TryExecuteDamage(pendingTargetedEffect, target);
+        }
+
         pendingTargetedEffect = null;
     }
     #endregion
@@ -569,6 +633,37 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         target.TakeDamage(amount);
+    }
+    private void TryExecuteGear(string effect, string effectText, IAttackable target)
+    {
+        Debug.Log("entered gear method");
+        if (target == null || target is CoreInstance)
+        {
+            Debug.LogError($"Gear effect requires a target on {Data.name}");
+            return;
+        }
+        int start = effect.IndexOf('(');
+        int end = effect.LastIndexOf(')');
+
+        if (start < 0 || end < 0 || end <= start + 1)
+        {
+            Debug.LogError($"Malformed {effect} effect on card {Data.name}");
+            return;
+        }
+
+        string valueStr = effect.Substring(start + 1, end - start - 1);
+        if(target is CardInstance targetInstance)
+        {
+            targetInstance.CurrentEffect += " " + valueStr;
+            Debug.Log("Target's new effect : " + targetInstance.CurrentEffect);
+
+            targetInstance.GetComponent<CardView>().UpdateMode();
+            if (targetInstance.IsSummoningSick && targetInstance.CurrentEffect.Contains("quickstrike"))
+            { targetInstance.IsSummoningSick = false; if(targetInstance.Owner==PlayerOwner.Player)gameManager.CheckGlow(); }
+            targetInstance.ThornsDamage = GetThornDamage();
+            targetInstance.CurrentEffectText += "\n" + effectText;
+        }
+
     }
     public void MorphTo(int newCardId)
     {
