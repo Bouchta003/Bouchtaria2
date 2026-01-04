@@ -94,14 +94,33 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     }
     private void HandleTurnEnd(PlayerOwner owner)
     {
-        // Only trigger for the owner of THIS board
         if (owner != PlayerOwner.Player)
             return;
 
-        foreach (var cardGO in enemyPrefabCards)
+        int index = 0;
+
+        // IMPORTANT:
+        // allyPrefabCards may grow during iteration (summons),
+        // so we loop by index and re-evaluate Count dynamically.
+        while (index < enemyPrefabCards.Count)
         {
-            var instance = cardGO.GetComponent<CardInstance>();
+            GameObject cardGO = enemyPrefabCards[index];
+
+            if (cardGO == null)
+            {
+                index++;
+                continue;
+            }
+
+            CardInstance instance = cardGO.GetComponent<CardInstance>();
+            if (instance == null || instance.IsDead)
+            {
+                index++;
+                continue;
+            }
+
             instance.OnTurnEnd();
+            index++;
         }
     }
     private void HandleTurnStart(PlayerOwner owner)

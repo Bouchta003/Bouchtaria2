@@ -372,14 +372,23 @@ public class GameManager : MonoBehaviour
         if (owner == PlayerOwner.Player) {
             cardInst.transform.parent = allyHand.transform;
             cardInst.GetComponent<SortingGroup>().sortingOrder = 1;
-            allyDropArea.AddSummonedCard(cardInst); 
+            allyDropArea.AddSummonedCard(cardInst);
+            allyDropArea.UpdateAllyCardPositions();
         }
         else
         {
             cardInst.transform.parent = enemyHand.transform;
-            cardInst.GetComponent<SortingGroup>().sortingOrder = 1;
+            cardInst.GetComponent<SortingGroup>().sortingOrder = 3;
+            cardInst.SetZone(CardZone.Board);
             //put sorting order to 1 if necessary and limit board size
-            enemyDropArea.AddSummonedCard(cardInst); 
+            enemyDropArea.AddSummonedCard(cardInst);
+            enemyDropArea.UpdateEnemyCardPositions();
+            Debug.Log(
+              $"[ENEMY SUMMON] pos={cardInst.transform.position} " +
+              $"localPos={cardInst.transform.localPosition} " +
+              $"zone={cardInst.CurrentZone}"
+            );
+
         }
     }
     public void TrySummonForOther(PlayerOwner owner, int cardId)

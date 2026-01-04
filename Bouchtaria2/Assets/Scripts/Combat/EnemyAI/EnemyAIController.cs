@@ -103,9 +103,6 @@ public class EnemyAIController : MonoBehaviour
             if (enemyBoard.enemyPrefabCards.Count <= 0) return;
         }
 
-            // Spend mana
-        gameManager.UseMana(spell.CurrentManaCost, PlayerOwner.Enemy);
-
         // Trigger deploy effects (spells use deploy)
         spell.OnPlaySpell();
 

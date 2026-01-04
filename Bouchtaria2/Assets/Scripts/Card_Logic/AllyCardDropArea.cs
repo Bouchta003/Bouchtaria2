@@ -40,7 +40,6 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
                 card.ResetCard();
                 return;
             }
-            gm.UseMana(card.gameObject.GetComponent<CardInstance>().CurrentManaCost, PlayerOwner.Player);
 
             // Remove from hand
             handManager.RemoveCardFromHand(card.gameObject);

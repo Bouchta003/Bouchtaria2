@@ -122,7 +122,7 @@ public class DeckManager : MonoBehaviour
 
         foreach (CardData card in CardDatabase.Instance.Cards.Values)
         {
-            if ((card.traits.Contains("MonsterHunter") || card.traits.Contains("Speedster")) && card.packable)
+            if (card.traits.Contains("MonsterHunter") && card.packable)
             {
                 deck.Add(card);
                 deck.Add(card);
@@ -138,7 +138,7 @@ public class DeckManager : MonoBehaviour
 
         foreach (CardData card in CardDatabase.Instance.Cards.Values)
         {
-            if (card.traits.Contains("Pokemon") && card.packable)
+            if (card.traits.Contains("MonsterHunter") && card.packable)
             {
                 deck.Add(card);
                 deck.Add(card);

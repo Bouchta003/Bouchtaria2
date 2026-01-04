@@ -676,7 +676,7 @@ public class MonsterHunterProgression : ITraitProgression
             0 => 3,
             1 => 6,
             2 => 9,
-            3 => 15,
+            3 => 999,
             _ => 9999,
         };
     }
