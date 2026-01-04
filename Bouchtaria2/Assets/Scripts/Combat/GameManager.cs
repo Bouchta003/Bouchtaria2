@@ -37,8 +37,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private DeckManager deckManager;
     [SerializeField] private AllyCardDropArea allyDropArea;
     [SerializeField] private EnemyCardDropArea enemyDropArea;
-    [SerializeField] private HandManager allyHand;
-    [SerializeField] private HandManager enemyHand;
+    [SerializeField] public HandManager allyHand;
+    [SerializeField] public HandManager enemyHand;
 
     private Transform playerCoreProxy;
     private Transform enemyCoreProxy;
@@ -205,10 +205,10 @@ public class GameManager : MonoBehaviour
             {
                 CardData.Trait.Neutral => new NeutralProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
                 CardData.Trait.Pokemon => new PokemonProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea, this),
-                CardData.Trait.Speedster => throw new System.NotImplementedException(),
+                CardData.Trait.MonsterHunter => new MonsterHunterProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea, this),
                 CardData.Trait.Gunner => throw new System.NotImplementedException(),
                 CardData.Trait.Inazuma => throw new System.NotImplementedException(),
-                CardData.Trait.MonsterHunter => throw new System.NotImplementedException(),
+                CardData.Trait.Speedster => throw new System.NotImplementedException(),
                 CardData.Trait.Blizzard => throw new System.NotImplementedException(),
                 CardData.Trait.Workout => throw new System.NotImplementedException(),
                 CardData.Trait.Faith => throw new System.NotImplementedException(),
@@ -310,6 +310,13 @@ public class GameManager : MonoBehaviour
             AllyCurrentMana -= mana;
         else
             EnemyCurrentMana -= mana;
+    }
+    public void GainMana(int mana, PlayerOwner owner)
+    {
+        if (owner == PlayerOwner.Player)
+            AllyCurrentMana += mana;
+        else
+            EnemyCurrentMana += mana;
     }
     private int GetEffectiveManaCap(PlayerOwner owner)
     {
@@ -486,6 +493,64 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Combat Manager
+    public void CancelCurrentTargeting()
+    {
+        // Cancel attack targeting
+        if (isTargettingAttack)
+        {
+            CancelAttackTargeting();
+            return;
+        }
+
+        // Cancel effect / spell targeting
+        if (isTargetingEffect)
+        {
+            CancelEffectTargeting();
+            return;
+        }
+    }
+    private void CancelEffectTargeting()
+    {
+        if (effectSource == null)
+            return;
+        Debug.Log("[CANCEL] Effect targeting cancelled");
+        if (effectSource is not CardInstance card)
+            return;
+
+        card.SetZone(CardZone.Hand);
+        card.GetComponent<CardView>().UpdateMode();
+        card.ClearTemporaryManaModifiers();
+        card.GetComponent<Card>().ResetCard();
+        card.DeployPending = false;
+        card.CurrentCastEffect = null;
+        GainMana(card.CurrentManaCost, PlayerOwner.Player);
+
+        allyHand.AddCard(card.gameObject);
+        allyHand.UpdateCardPositions();
+        allyDropArea.allyPrefabCards.Remove(card.gameObject);
+
+        isTargetingEffect = false;
+        attackCursor.gameObject.SetActive(false);
+
+        card = null;
+        onEffectTargetChosen = null;
+        targetType = EffectTarget.None;
+
+        CheckGlow();
+    }
+
+    private void CancelAttackTargeting()
+    {
+        isTargettingAttack = false;
+        attackCursor.gameObject.SetActive(false);
+
+        // IMPORTANT: do NOT mark attacker as having attacked
+        currentAttacker = null;
+
+        // Reset glows
+        CheckGlow();
+    }
+
     public void ShakeCameraForDamage(int damage)
     {
         float strength = 0f;
@@ -970,6 +1035,9 @@ public class GameManager : MonoBehaviour
     }
     public void HandleTargetClick(IAttackable target)
     {
+        if (!isTargetingEffect || effectSource == null)
+            return;
+
         if (!isTargetingEffect)
             return;
 

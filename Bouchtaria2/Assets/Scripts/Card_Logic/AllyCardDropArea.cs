@@ -40,8 +40,7 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
                 card.ResetCard();
                 return;
             }
-            // Spend mana immediately
-            gm.UseMana(cardInst.CurrentManaCost, PlayerOwner.Player);
+            gm.UseMana(card.gameObject.GetComponent<CardInstance>().CurrentManaCost, PlayerOwner.Player);
 
             // Remove from hand
             handManager.RemoveCardFromHand(card.gameObject);
@@ -71,12 +70,15 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         //Instantiate card compact instead on board
         cardInst.SetZone(CardZone.Board);
         cardInst.Owner = PlayerOwner.Player;
+
         if (cardInst.HasKeyword("quickstrike") || cardInst.HasKeyword("charge"))
             cardInst.IsSummoningSick = false;
         else
             cardInst.IsSummoningSick = true;
-        cardInst.OnEnterBoard(); 
-        
+        // DO NOT trigger deploy yet if it requires targeting
+        cardInst.DeployPending = cardInst.CurrentEffect.Contains("target");
+        cardInst.OnEnterBoard();
+
         //Call for  update
         OnCardPlayed?.Invoke(cardInst);
         

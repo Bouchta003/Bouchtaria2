@@ -60,6 +60,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public bool WasPlayed { get; set; }
     public bool IsDisplay { get; set; }
     public CardView cardView { get; set; }
+    public bool DeployPending { get; set; }
 
     private Dictionary<EffectTrigger, List<string>> parsedEffects =    new Dictionary<EffectTrigger, List<string>>();
     public string CurrentCastEffect;
@@ -263,15 +264,36 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     public void ResolveSpell(IAttackable target)
     {
+        gameManager.UseMana(CurrentManaCost, Owner);
+
         ExecuteSpellEffects(target);
+
+        // NOW remove from hand
+        HandManager hand = Owner == PlayerOwner.Player
+            ? gameManager.allyHand
+            : gameManager.enemyHand;
+
+        hand.handCards.Remove(gameObject);
+        hand.UpdateCardPositions();
+
         Destroy(gameObject);
     }
 
     private void ResolveSpell()
     {
+        gameManager.UseMana(CurrentManaCost, Owner);
         ExecuteSpellEffects(null);
+
+        HandManager hand = Owner == PlayerOwner.Player
+            ? gameManager.allyHand
+            : gameManager.enemyHand;
+
+        hand.handCards.Remove(gameObject);
+        hand.UpdateCardPositions();
+
         Destroy(gameObject);
     }
+
     private void ExecuteSpellEffects(IAttackable target)
     {
         if (string.IsNullOrEmpty(CurrentEffect))
@@ -307,8 +329,13 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TriggerDeploy()
     {
-        if(WasPlayed)
-        TriggerEffects(EffectTrigger.Deploy);
+        Debug.Log($"[DEPLOY] TriggerDeploy called on {Data.name} | Effect = {CurrentEffect}");
+
+        if (WasPlayed)
+        {
+            TriggerEffects(EffectTrigger.Deploy);
+            WasPlayed = true;
+        }
     }
     private void TriggerEffects(EffectTrigger trigger)
     {
@@ -321,8 +348,15 @@ public class CardInstance : MonoBehaviour, IAttackable
     private void ExecuteEffect(string effect)
     {
         effect = effect.ToLowerInvariant();
+        Debug.Log($"[DEPLOY] Executing effect: {effect}");
+        if (effect.Contains(",target"))
+        {
+            DeployPending = (CurrentZone == CardZone.Board);
+            BeginTargetedEffect(effect);
+            return;
+        }
 
-        Debug.Log("triggered : " + effect);
+
         if (effect.StartsWith("morphto"))
         {
             if (!TryParseIntEffect(effect, "morphto", out int id))
@@ -393,15 +427,15 @@ public class CardInstance : MonoBehaviour, IAttackable
             BeginTargetedEffect(effect);
             return;
         }
-        if (effect.StartsWith("damage") && effect.Contains(",target"))
+        if (effect.StartsWith("damage"))
         {
-            BeginTargetedEffect(effect);
+            TryExecuteDamage(effect, null);
             return;
         }
 
-        if (effect.StartsWith("gear") && effect.Contains(",target"))
+        if (effect.StartsWith("gear"))
         {
-            BeginTargetedEffect(effect);
+            TryExecuteGear(effect, CurrentEffectText, null);
             return;
         }
 
@@ -479,7 +513,9 @@ public class CardInstance : MonoBehaviour, IAttackable
                 parsedEffects[trigger] = new List<string>();
 
             foreach (string e in effects)
-                parsedEffects[trigger].Add(e.Trim());
+            { 
+                parsedEffects[trigger].Add(e.Trim()); Debug.Log($"[DEPLOY] Parsing deploy effects: {e}");
+            }
         }
     }
     private bool TryParseTrigger(string str, out EffectTrigger trigger)
@@ -509,6 +545,8 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void BeginTargetedEffect(string effect)
     {
+        Debug.Log($"[TARGET] BeginTargetedEffect called for {effect}");
+
         EffectTarget type = EffectTarget.None;
         if (effect.ToLower().Contains("targetany")) type = EffectTarget.Any;
         if (effect.ToLower().Contains("targetunit")) type = EffectTarget.Unit;
@@ -527,15 +565,13 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (CurrentEffect.Contains("gear") || CurrentEffect.Contains("heal") || CurrentEffect.Contains("buff"))
             {
                 IAttackable target =
-                  gameManager.ChooseEnemyEffectTarget(
-                      ConvertSpellTargetType(spellType), false, false);
+                  gameManager.ChooseEnemyEffectTarget(type, false, false);
                 OnEffectTargetChosen(target);
             }
             else
             {
                 IAttackable target =
-               gameManager.ChooseEnemyEffectTarget(
-                   ConvertSpellTargetType(spellType), true, false);
+               gameManager.ChooseEnemyEffectTarget(type, true, false);
                 OnEffectTargetChosen(target);
             }
         }
@@ -559,6 +595,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         pendingTargetedEffect = null;
+
     }
 
     #endregion

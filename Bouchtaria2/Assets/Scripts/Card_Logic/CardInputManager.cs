@@ -7,6 +7,13 @@ public class CardInputManager : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetMouseButtonDown(1)) // Right click
+        {
+            GameManager gm = FindFirstObjectByType<GameManager>();
+            if (gm != null)
+                gm.CancelCurrentTargeting();
+        }
+
         HandleHover();
         HandleClickAndDrag();
     }

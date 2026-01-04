@@ -616,3 +616,46 @@ public class PokemonTier3Effect : IDeckTraitEffect
     }
 }
 #endregion
+public class MonsterHunterProgression : ITraitProgression
+{
+    public CardData.Trait Trait => CardData.Trait.Pokemon;
+    public PlayerOwner Owner { get; }
+    public int CurrentTier { get; private set; }
+
+    private readonly int maxTier;
+    private int pokemonKills = 0;
+
+    public int CurrentProgress => pokemonKills;
+
+    public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
+
+    private readonly TraitSystem traitSystem;
+    private readonly AllyCardDropArea allyBoard;
+    private readonly EnemyCardDropArea enemyBoard;
+    private readonly GameManager gameManager;
+
+    public MonsterHunterProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem, AllyCardDropArea allyBoard, EnemyCardDropArea enemyBoard, GameManager gameManager)
+    {
+        Owner = owner;
+        this.maxTier = maxTier;
+        this.traitSystem = traitSystem;
+        this.allyBoard = allyBoard;
+        this.enemyBoard = enemyBoard;
+        this.gameManager = gameManager;
+    }
+    public void ResetProgression()
+    {
+    }
+    public void PushInitialState()
+    {
+    }
+    public void Register()
+    {
+        Debug.Log($"[MH] Register for {Owner}");
+    }
+    public void Unregister()
+    {
+        Debug.Log($"[MH] Unregister for {Owner}");
+    }
+
+}
