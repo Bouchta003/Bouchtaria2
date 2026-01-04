@@ -930,6 +930,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (CurrentZone != CardZone.Board)
             return;
+        gameManager.NotifyCardKilled(this);
 
         TriggerRequiem();
 

@@ -616,46 +616,227 @@ public class PokemonTier3Effect : IDeckTraitEffect
     }
 }
 #endregion
+#region MonsterHunter
 public class MonsterHunterProgression : ITraitProgression
 {
-    public CardData.Trait Trait => CardData.Trait.Pokemon;
+    public CardData.Trait Trait => CardData.Trait.MonsterHunter;
     public PlayerOwner Owner { get; }
     public int CurrentTier { get; private set; }
 
     private readonly int maxTier;
-    private int pokemonKills = 0;
+    private int colossusDeaths;
 
-    public int CurrentProgress => pokemonKills;
+    public int CurrentProgress => colossusDeaths;
 
     public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
 
     private readonly TraitSystem traitSystem;
-    private readonly AllyCardDropArea allyBoard;
-    private readonly EnemyCardDropArea enemyBoard;
     private readonly GameManager gameManager;
 
-    public MonsterHunterProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem, AllyCardDropArea allyBoard, EnemyCardDropArea enemyBoard, GameManager gameManager)
+    public MonsterHunterProgression(
+        PlayerOwner owner,
+        int maxTier,
+        TraitSystem traitSystem,
+        AllyCardDropArea allyBoard,
+        EnemyCardDropArea enemyBoard,
+        GameManager gameManager)
     {
         Owner = owner;
         this.maxTier = maxTier;
         this.traitSystem = traitSystem;
-        this.allyBoard = allyBoard;
-        this.enemyBoard = enemyBoard;
         this.gameManager = gameManager;
     }
-    public void ResetProgression()
-    {
-    }
-    public void PushInitialState()
-    {
-    }
+
     public void Register()
     {
-        Debug.Log($"[MH] Register for {Owner}");
-    }
-    public void Unregister()
-    {
-        Debug.Log($"[MH] Unregister for {Owner}");
+        Debug.Log($"[MonsterHunterProgression] Register for {Owner}");
+        gameManager.OnCardKilled += OnCardKilled;
+        PushInitialState();
     }
 
+    public void Unregister()
+    {
+        gameManager.OnCardKilled -= OnCardKilled;
+    }
+
+    public void ResetProgression()
+    {
+        colossusDeaths = 0;
+    }
+
+    public void PushInitialState()
+    {
+        OnProgressUpdated?.Invoke(Trait, colossusDeaths, GetCurrentCap(), Owner);
+    }
+
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 3,
+            1 => 6,
+            2 => 9,
+            3 => 12,
+            _ => 999
+        };
+    }
+
+    private void OnCardKilled(CardInstance card)
+    {
+        // 1. Must be ally
+        if (card.Owner != Owner)
+            return;
+
+        // 2. Must be colossus
+        if (card.BaseManaCost <= 1)
+            return;
+
+        // 3. Must have MonsterHunter trait
+        if (!card.HasTrait("MonsterHunter"))
+            return;
+
+        colossusDeaths++;
+        OnProgressUpdated?.Invoke(Trait, colossusDeaths, GetCurrentCap(), Owner);
+
+        Debug.Log($"[MH] Colossus death for {Owner}: {colossusDeaths}");
+
+        if (colossusDeaths >= 3 && CurrentTier < 1 && maxTier >= 1)
+            UnlockTier1();
+
+        if (colossusDeaths >= 6 && CurrentTier < 2 && maxTier >= 2)
+            UnlockTier2(); 
+        
+        if (colossusDeaths >= 9 && CurrentTier < 3 && maxTier >= 3)
+            UnlockTier3();
+    }
+
+    private void UnlockTier1()
+    {
+        CurrentTier = 1;
+        traitSystem.ActivateEffect(new MonsterHunterTier1Effect(Owner));
+    }
+
+    private void UnlockTier2()
+    {
+        CurrentTier = 2;
+        traitSystem.ActivateEffect(new MonsterHunterTier2Effect(Owner));
+    }
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+        traitSystem.ActivateEffect(new MonsterHunterTier3Effect(Owner));
+    }
 }
+public class MonsterHunterTier1Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.MonsterHunter;
+    public int Tier => 1;
+
+    private readonly PlayerOwner owner;
+    private bool used;
+
+    public MonsterHunterTier1Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        if (used) return;
+
+        SummonTierMonster(1);
+        used = true;
+    }
+
+    public void OnUnregister() { }
+
+    private void SummonTierMonster(int tier)
+    {
+        List<CardData> options =
+            CardDatabase.Instance.GetCardsByEffect($"tier{tier}monster*");
+
+        if (options == null || options.Count == 0)
+            return;
+
+        CardData chosen = options[Random.Range(0, options.Count)];
+
+        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+        gm.TrySummonForOwner(owner, chosen.id);
+    }
+}
+public class MonsterHunterTier2Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.MonsterHunter;
+    public int Tier => 2;
+
+    private readonly PlayerOwner owner;
+    private bool used;
+
+    public MonsterHunterTier2Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        if (used) return;
+
+        SummonTierMonster(2);
+        used = true;
+    }
+
+    public void OnUnregister() { }
+
+    private void SummonTierMonster(int tier)
+    {
+        List<CardData> options =
+            CardDatabase.Instance.GetCardsByEffect($"tier{tier}monster*");
+
+        if (options == null || options.Count == 0)
+            return;
+
+        CardData chosen = options[Random.Range(0, options.Count)];
+
+        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+        gm.TrySummonForOwner(owner, chosen.id);
+    }
+}
+public class MonsterHunterTier3Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.MonsterHunter;
+    public int Tier => 3;
+
+    private readonly PlayerOwner owner;
+    private bool used;
+
+    public MonsterHunterTier3Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        if (used) return;
+
+        SummonTierMonster(3);
+        used = true;
+    }
+
+    public void OnUnregister() { }
+
+    private void SummonTierMonster(int tier)
+    {
+        List<CardData> options =
+            CardDatabase.Instance.GetCardsByEffect($"tier{tier}monster*");
+
+        if (options == null || options.Count == 0)
+            return;
+
+        CardData chosen = options[Random.Range(0, options.Count)];
+
+        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+        gm.TrySummonForOwner(owner, chosen.id);
+    }
+}
+
+#endregion

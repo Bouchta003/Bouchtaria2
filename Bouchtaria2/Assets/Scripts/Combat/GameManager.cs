@@ -493,6 +493,11 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Combat Manager
+    public void NotifyCardKilled(CardInstance deadCard)
+    {
+        OnCardKilled?.Invoke(deadCard);
+    }
+
     public void CancelCurrentTargeting()
     {
         // Cancel attack targeting
