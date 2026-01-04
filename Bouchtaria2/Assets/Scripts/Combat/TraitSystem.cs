@@ -676,8 +676,8 @@ public class MonsterHunterProgression : ITraitProgression
             0 => 3,
             1 => 6,
             2 => 9,
-            3 => 12,
-            _ => 999
+            3 => 15,
+            _ => 9999,
         };
     }
 
@@ -826,6 +826,7 @@ public class MonsterHunterTier3Effect : IDeckTraitEffect
 
     private void SummonTierMonster(int tier)
     {
+        Debug.Log("Summon Tier3");
         List<CardData> options =
             CardDatabase.Instance.GetCardsByEffect($"tier{tier}monster*");
 
@@ -834,6 +835,7 @@ public class MonsterHunterTier3Effect : IDeckTraitEffect
 
         CardData chosen = options[Random.Range(0, options.Count)];
 
+        Debug.Log($"Options count = {options.Count} and chosen card is {chosen.name}");
         GameManager gm = Object.FindFirstObjectByType<GameManager>();
         gm.TrySummonForOwner(owner, chosen.id);
     }

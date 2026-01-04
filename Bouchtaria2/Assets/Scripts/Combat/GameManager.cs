@@ -780,7 +780,11 @@ public class GameManager : MonoBehaviour
             {
                 thornDamage = targetUnit.ThornsDamage;
             }
-
+            if (attacker.HasKeyword("bleed"))
+            {
+                targetUnit.IsBleeding = true;
+                targetUnit.GetComponent<CardView>().UpdateMode();
+            }
             if (isKill)
             {
                 OnCardKilled?.Invoke(attacker);
@@ -795,6 +799,10 @@ public class GameManager : MonoBehaviour
         // UNIT vs CORE
         if (target is CoreInstance core)
         {
+            if (attacker.HasKeyword("bleed"))
+            {
+                core.IsBleeding = true;
+            }
             core.TakeDamage(attacker.CurrentAttack);
             return;
         }

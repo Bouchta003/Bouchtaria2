@@ -214,16 +214,36 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
     #region Effect Triggers
     private void HandleTurnEnd(PlayerOwner owner)
     {
-        // Only trigger for the owner of THIS board
         if (owner != PlayerOwner.Player)
             return;
 
-        foreach (var cardGO in allyPrefabCards)
+        int index = 0;
+
+        // IMPORTANT:
+        // allyPrefabCards may grow during iteration (summons),
+        // so we loop by index and re-evaluate Count dynamically.
+        while (index < allyPrefabCards.Count)
         {
-            var instance = cardGO.GetComponent<CardInstance>();
+            GameObject cardGO = allyPrefabCards[index];
+
+            if (cardGO == null)
+            {
+                index++;
+                continue;
+            }
+
+            CardInstance instance = cardGO.GetComponent<CardInstance>();
+            if (instance == null || instance.IsDead)
+            {
+                index++;
+                continue;
+            }
+
             instance.OnTurnEnd();
+            index++;
         }
     }
+
     private void HandleTurnStart(PlayerOwner owner)
     {
         if (owner != PlayerOwner.Player)

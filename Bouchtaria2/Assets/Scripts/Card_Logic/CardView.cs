@@ -57,6 +57,7 @@ public class CardView : MonoBehaviour,
     [SerializeField] GameObject hiddenSprite;
     [SerializeField] GameObject hasteSprite;
     [SerializeField] GameObject thornSprite;
+    [SerializeField] GameObject bleedSprite;
     public enum CardGlowState
     {
         None,
@@ -289,6 +290,7 @@ public class CardView : MonoBehaviour,
         hiddenSprite.SetActive(false);
         thornSprite.SetActive(false);
         hasteSprite.SetActive(false);
+        bleedSprite.SetActive(false);
 
         if (inst.CurrentEffect.ToLower().Contains("protect"))
             protectSprite.SetActive(true);
@@ -304,6 +306,8 @@ public class CardView : MonoBehaviour,
             hasteSprite.SetActive(true);
         if (inst.CurrentEffect.ToLower().Contains("thorns"))
             thornSprite.SetActive(true);
+        if (inst.IsBleeding)
+            bleedSprite.SetActive(true);
         Refresh();
     }
     private bool TryGetTraitColor(string traitString, out Color color)

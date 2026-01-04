@@ -55,6 +55,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     private int temporaryManaModifier = 0;
     public bool HasAttackedThisTurn { get; set; }
     public int ThornsDamage { get; set; }
+    public bool IsBleeding { get; set; }
     public bool HasAttackedTwiceThisTurn { get; set; }
     public bool IsSummoningSick { get; set; }
     public bool WasPlayed { get; set; }
@@ -88,6 +89,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         CurrentZone = CardZone.Deck;
         Transform = transform;
         ThornsDamage = GetThornDamage();
+        IsBleeding = false;
 
         HasAttackedThisTurn = false;
         HasAttackedTwiceThisTurn = false;
@@ -194,7 +196,11 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void OnTurnEnd()
     {
         if (CurrentZone == CardZone.Board)
+        {
+            if (IsBleeding) TakeDamage(1);
+
             TriggerEffects(EffectTrigger.EndOfTurn);
+        }
     }
     #region EffectTriggers :
     #region Spells

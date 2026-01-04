@@ -62,6 +62,13 @@ public class TurnManager : MonoBehaviour
 
                 view.SetGlow(CardView.CardGlowState.None);
             }
+            //Ally EOT Core
+        gameManager.PlayerCore.Bleed();
+        }
+        else
+        {
+            //Enemy EOT Core
+            gameManager.EnemyCore.Bleed();
         }
         CurrentPhase = TurnPhase.End;
         OnTurnEnded?.Invoke(CurrentPlayer);
