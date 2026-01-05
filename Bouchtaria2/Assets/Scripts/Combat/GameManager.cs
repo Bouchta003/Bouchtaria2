@@ -1005,6 +1005,8 @@ public class GameManager : MonoBehaviour
         }
 
         isResolvingAttack = false;
+        enemyDropArea.FlushLayoutIfDirty();
+
     }
     public void BeginEffectTargeting(    CardInstance source,    PlayerOwner owner,    System.Action<IAttackable> onTargetChosen, EffectTarget effectTargetType)
     {

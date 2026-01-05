@@ -10,6 +10,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     [SerializeField] SplineContainer enemyBoardSpline;
     [SerializeField] Transform container;
     public Transform CardContainer { get; set; }
+    private bool layoutDirty;
 
     public PlayerOwner Owner => PlayerOwner.Enemy;
 
@@ -150,29 +151,32 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         Destroy(cardGO);
         UpdateEnemyCardPositions();
     }
+    public void MarkLayoutDirty()
+    {
+        layoutDirty = true;
+    }
+
     public void AddSummonedCard(CardInstance cardInst)
     {
-        // Safety
-        if (IsFull())
+        enemyPrefabCards.Add(cardInst.gameObject);
+        cardInst.SetZone(CardZone.Board);
+        cardInst.GetComponent<CardView>().UpdateMode();
+
+        if (gm != null && gm.IsResolvingAttackQueue())
+        {
+            layoutDirty = true;
+            return;
+        }
+
+        UpdateEnemyCardPositions();
+    }
+    public void FlushLayoutIfDirty()
+    {
+        if (!layoutDirty)
             return;
 
-        // Force board state
-        cardInst.SetZone(CardZone.Board);
-        cardInst.Owner = Owner;
-        cardInst.IsSummoningSick = true;
-
-        // Switch to compact view
-        CardView view = cardInst.GetComponent<CardView>();
-        if (view != null)
-            view.UpdateMode();
-
-        // Add to board list
-        if (Owner == PlayerOwner.Enemy)
-            enemyPrefabCards.Add(cardInst.gameObject);
-
-        // Position immediately
-        if (Owner == PlayerOwner.Enemy)
-            UpdateEnemyCardPositions();
+        layoutDirty = false;
+        UpdateEnemyCardPositions();
     }
 
     public bool IsFull()
