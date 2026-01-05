@@ -49,6 +49,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5010e56b8b528374a9b704ba45355543, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CoreInstance
+  attackProxy: {fileID: 0}
+  bleedUI: {fileID: 0}
 --- !u!114 &7361214691082936781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63,3 +65,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CoreView
   healthText: {fileID: 0}
   shieldText: {fileID: 0}
+  coreUI: {fileID: 0}
+  coreImage: {fileID: 0}

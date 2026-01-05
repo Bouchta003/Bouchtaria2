@@ -10,12 +10,17 @@ public class CoreInstance : MonoBehaviour, IAttackable
     public int CurrentHealth { get; private set; }
     public int CurrentAttack { get; private set; }
     public bool IsBleeding { get; set; }
+    public int BleedingTurns { get; set; }
     public int Shield { get; private set; }
     public event System.Action OnCoreChanged;
     [SerializeField] private Transform attackProxy;
+    [SerializeField] private GameObject bleedUI;
     public string CurrentEffect { get; set; }
     public Transform AttackProxy => attackProxy;
-
+    private void Update()
+    {
+        bleedUI.SetActive(IsBleeding);
+    }
     public bool IsDestroyed => CurrentHealth <= 0;
     public void Initialize(PlayerOwner owner, int maxHealth)
     {
@@ -60,6 +65,8 @@ public class CoreInstance : MonoBehaviour, IAttackable
         if(IsBleeding && CurrentHealth > 1)
         {
             TakeDamage(1);
+            BleedingTurns++;
+            if (BleedingTurns >= 3) { IsBleeding = false; BleedingTurns = 0; }
         }
     }
     public void AddShield(int amount)

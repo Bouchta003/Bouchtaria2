@@ -56,6 +56,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public bool HasAttackedThisTurn { get; set; }
     public int ThornsDamage { get; set; }
     public bool IsBleeding { get; set; }
+    public int BleedingTurns { get; set; }
     public bool HasAttackedTwiceThisTurn { get; set; }
     public bool IsSummoningSick { get; set; }
     public bool WasPlayed { get; set; }
@@ -197,9 +198,17 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (CurrentZone == CardZone.Board)
         {
-            if (IsBleeding) TakeDamage(1);
-
+            Bleed();
             TriggerEffects(EffectTrigger.EndOfTurn);
+        }
+    }
+    public void Bleed()
+    {
+        if (IsBleeding)
+        {
+            TakeDamage(1);
+            BleedingTurns++;
+            if (BleedingTurns >= 3) { IsBleeding = false; BleedingTurns = 0; view.UpdateMode(); }
         }
     }
     #region EffectTriggers :
