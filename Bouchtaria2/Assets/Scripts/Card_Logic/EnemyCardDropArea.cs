@@ -8,6 +8,8 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     [SerializeField] GameObject GameManager;
     [SerializeField] HandManager handManager;
     [SerializeField] SplineContainer enemyBoardSpline;
+    [SerializeField] Transform container;
+    public Transform CardContainer { get; set; }
 
     public PlayerOwner Owner => PlayerOwner.Enemy;
 
@@ -20,6 +22,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     private void Start()
     {
         gm = GameManager.GetComponent<GameManager>();
+        CardContainer = container;
     }
 
     public void OnCardDrop(Card card)
@@ -44,6 +47,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
 
         // Board setup
         cardInst.SetZone(CardZone.Board);
+        card.transform.SetParent(CardContainer, false);
         cardInst.Owner = PlayerOwner.Enemy;
 
         if (cardInst.HasKeyword("quickstrike") || cardInst.HasKeyword("charge"))

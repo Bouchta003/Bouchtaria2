@@ -366,18 +366,22 @@ public class GameManager : MonoBehaviour
         if (data == null)
             return;
 
+        ICardDropArea parent =
+    owner == PlayerOwner.Player
+        ? allyDropArea
+        : enemyDropArea;
+
         CardInstance cardInst =
-            CardFactory.Instance.CreateCard(data, owner);
-        
+            CardFactory.Instance.CreateCard(data, owner, parent.CardContainer);
+
         if (owner == PlayerOwner.Player) {
-            cardInst.transform.parent = allyHand.transform;
             cardInst.GetComponent<SortingGroup>().sortingOrder = 1;
+            cardInst.SetZone(CardZone.Board);
             allyDropArea.AddSummonedCard(cardInst);
             allyDropArea.UpdateAllyCardPositions();
         }
         else
         {
-            cardInst.transform.parent = enemyHand.transform;
             cardInst.GetComponent<SortingGroup>().sortingOrder = 3;
             cardInst.SetZone(CardZone.Board);
             //put sorting order to 1 if necessary and limit board size

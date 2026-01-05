@@ -88,7 +88,7 @@
       "atkValue": 2,
       "hpValue": 3,
       "traits": ["MonsterHunter"],
-      "effect": "d[discover(monster)]",
+      "effect": "d[discover(tier1monster)]",
       "effectText": "Discover a Monster to add to your hand",
       "artPath": "CardArt/alma",
       "artCompactPath": "CardArt/alma_compact",

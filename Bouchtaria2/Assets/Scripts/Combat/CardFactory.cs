@@ -37,6 +37,17 @@ public class CardFactory : MonoBehaviour
 
         return instance;
     }
+    public CardInstance CreateCard(CardData data, PlayerOwner owner, Transform parent)
+    {
+        GameObject cardGO = Instantiate(cardPrefab, parent);
+        CardInstance instance = cardGO.GetComponent<CardInstance>();
+
+        instance.Initialize(data, owner);
+        cardGO.GetComponent<CardView>().Init(data);
+
+        return instance;
+    }
+
     public CardInstance CreateCardInPosition(CardData data, PlayerOwner owner, Vector3 pos, Vector3 scale, Transform parent)
     {
         GameObject cardGO = Instantiate(cardPrefab, parent);

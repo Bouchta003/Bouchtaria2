@@ -10,6 +10,9 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
     [SerializeField] HandManager handManager;
     [SerializeField] EnemyCardDropArea enemyCardDropArea;
     [SerializeField] SplineContainer allyBoardSpline;
+    [SerializeField] Transform container;
+    public Transform CardContainer { get; set; }
+
     public PlayerOwner Owner => PlayerOwner.Player;
     GameManager gm;
     public int maxBoardSize = 6;
@@ -19,6 +22,7 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
     private void Start()
     {
         gm = GameManager.GetComponent<GameManager>();
+        CardContainer = container;
     }
     public void OnCardDrop(Card card)
     {
@@ -68,6 +72,7 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
 
         //Instantiate card compact instead on board
         cardInst.SetZone(CardZone.Board);
+        card.transform.SetParent(CardContainer, false);
         cardInst.Owner = PlayerOwner.Player;
 
         if (cardInst.HasKeyword("quickstrike") || cardInst.HasKeyword("charge"))
