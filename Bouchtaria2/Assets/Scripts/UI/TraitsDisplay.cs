@@ -104,6 +104,7 @@ public class TraitsDisplay : MonoBehaviour
     }
     public void ShowProgress(int current, int cap)
     {
+        if (cap >= 900) return;
         if (progressRoutine != null)
             StopCoroutine(progressRoutine);
 
