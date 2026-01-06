@@ -44,6 +44,9 @@ public class DeckBuilding : MonoBehaviour
     [SerializeField] private GameObject warningPopup;
     [SerializeField] private float popupDuration = 0.6f;
     [SerializeField] private float popupScale = 1.2f;
+
+    public event System.Action OnDecksLoaded;
+
     private void Awake()
     {
         if (Instance != null)
@@ -68,6 +71,11 @@ public class DeckBuilding : MonoBehaviour
     {
         IndexUI.SetActive(!IndexUI.activeSelf);
     }
+    public Dictionary<string, List<int>> GetUserDecks()
+    {
+        return new Dictionary<string, List<int>>(userDecks);
+    }
+
     #region CardDropInChest
     public void DropCardToChest(Card card)
     {
@@ -256,31 +264,35 @@ public class DeckBuilding : MonoBehaviour
         FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
 
         db.Collection("users")
-          .Document(user.UserId)
-          .Collection("decks")
-          .GetSnapshotAsync()
-          .ContinueWith(task =>
-          {
-              if (task.IsFaulted)
-              {
-                  Debug.LogError("Failed to fetch decks: " + task.Exception);
-                  return;
-              }
+  .Document(user.UserId)
+  .Collection("decks")
+  .GetSnapshotAsync()
+  .ContinueWithOnMainThread(task =>
+  {
+      if (task.IsFaulted)
+      {
+          Debug.LogError("Failed to fetch decks: " + task.Exception);
+          return;
+      }
 
-              userDecks.Clear();
-              deckNames.Clear();
+      userDecks.Clear();
+      deckNames.Clear();
 
-              foreach (DocumentSnapshot doc in task.Result.Documents)
-              {
-                  string name = doc.GetValue<string>("name");
-                  List<int> cardIds = doc.GetValue<List<int>>("cardIds");
+      foreach (DocumentSnapshot doc in task.Result.Documents)
+      {
+          string name = doc.GetValue<string>("name");
+          List<int> cardIds = doc.GetValue<List<int>>("cardIds");
 
-                  userDecks[name] = new List<int>(cardIds);
-                  deckNames.Add(name);
-              }
+          userDecks[name] = new List<int>(cardIds);
+          deckNames.Add(name);
+      }
 
-              Debug.Log($"Fetched {deckNames.Count} decks.");
-          });
+      Debug.Log($"Fetched {deckNames.Count} decks");
+
+      // ✅ NOW the data exists
+      OnDecksLoaded?.Invoke();
+  });
+
     }
     private void LoadDeck(string deckName)
     {

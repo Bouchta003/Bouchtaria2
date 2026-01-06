@@ -116,7 +116,7 @@ public class GameFlowController : MonoBehaviour
         }
         //IsThisLineNecessary ?
         UserCollectionManager.Instance.RefreshCollection();
-        SceneManager.LoadScene("Combat");
+        SceneManager.LoadScene("QuickMatch");
     }
     public void GoToCollection()
     {

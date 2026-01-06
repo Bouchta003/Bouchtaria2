@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Combat.unity
     guid: 4fe7e717383e38446b3818224fc1b0ec
+  - enabled: 1
+    path: Assets/Scenes/QuickMatch.unity
+    guid: f2c4f35f8059dc14f99e23bc87113cec
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

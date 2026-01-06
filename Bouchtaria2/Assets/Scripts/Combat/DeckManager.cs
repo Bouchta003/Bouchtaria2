@@ -115,37 +115,50 @@ public class DeckManager : MonoBehaviour
             (list[i], list[rnd]) = (list[rnd], list[i]);
         }
     }
-
     private List<CardData> GetTestDeckForPlayer()
     {
-        List<CardData> deck = new List<CardData>();
+        List<CardData> deck = new();
 
+        if (DeckSelectionCache.SelectedPlayerDeck != null)
+        {
+            foreach (int id in DeckSelectionCache.SelectedPlayerDeck)
+            {
+                deck.Add(CardDatabase.Instance.GetCardById(id));
+            }
+            Debug.Log($"Selected player's deck from db");
+            return deck;
+        }
+
+        // Fallback (editor / debug)
         foreach (CardData card in CardDatabase.Instance.Cards.Values)
         {
             if (card.traits.Contains("MonsterHunter") && card.packable)
-            {
                 deck.Add(card);
-                deck.Add(card);
-                deck.Add(card);
-            }
         }
-
+        Debug.LogWarning("Selected default deck");
         return deck;
     }
     private List<CardData> GetTestDeckForEnemy()
     {
-        List<CardData> deck = new List<CardData>();
+        List<CardData> deck = new();
 
+        if (DeckSelectionCache.SelectedEnemyDeck != null)
+        {
+            foreach (int id in DeckSelectionCache.SelectedEnemyDeck)
+            {
+                deck.Add(CardDatabase.Instance.GetCardById(id));
+            }
+            Debug.Log($"Selected enemy's deck from db");
+            return deck;
+        }
+
+        // Fallback (editor / debug)
         foreach (CardData card in CardDatabase.Instance.Cards.Values)
         {
             if (card.traits.Contains("MonsterHunter") && card.packable)
-            {
                 deck.Add(card);
-                deck.Add(card);
-                deck.Add(card);
-            }
         }
-
+        Debug.LogWarning("Selected default deck");
         return deck;
     }
 }
