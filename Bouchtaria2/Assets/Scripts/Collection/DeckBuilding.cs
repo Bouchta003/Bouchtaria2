@@ -252,6 +252,83 @@ public class DeckBuilding : MonoBehaviour
                 });
             });
     }
+    public void DeleteDeck()
+    {
+        string deckName = DeckNameInput.text;
+        if (string.IsNullOrWhiteSpace(deckName))
+        {
+            ShowWarning("Invalid deck name.");
+            return;
+        }
+
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            ShowWarning("No authenticated user.");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        CollectionReference decksRef =
+            db.Collection("users")
+              .Document(user.UserId)
+              .Collection("decks");
+
+        // Find deck by name
+        decksRef.WhereEqualTo("name", deckName)
+            .GetSnapshotAsync()
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("Failed to query deck: " + task.Exception);
+                    ShowWarning("Failed to delete deck.");
+                    return;
+                }
+
+                QuerySnapshot snapshot = task.Result;
+
+                if (!snapshot.Documents.Any())
+                {
+                    ShowWarning($"Deck '{deckName}' not found.");
+                    return;
+                }
+
+            // Delete all matching docs (should normally be one)
+            foreach (DocumentSnapshot doc in snapshot.Documents)
+                {
+                    doc.Reference.DeleteAsync().ContinueWithOnMainThread(deleteTask =>
+                    {
+                        if (deleteTask.IsFaulted)
+                        {
+                            Debug.LogError("Failed to delete deck: " + deleteTask.Exception);
+                            ShowWarning("Failed to delete deck.");
+                            return;
+                        }
+
+                    // Update local cache
+                    userDecks.Remove(deckName);
+                        deckNames.Remove(deckName);
+
+                    // Adjust current deck index safely
+                    if (deckNames.Count == 0)
+                        {
+                            CurrentDeck.Clear();
+                            DeckNameInput.text = string.Empty;
+                            currentDeckIndex = 0;
+                        }
+                        else
+                        {
+                            currentDeckIndex = Mathf.Clamp(currentDeckIndex, 0, deckNames.Count - 1);
+                            LoadDeck(deckNames[currentDeckIndex]);
+                        }
+
+                        Debug.Log($"Deck '{deckName}' deleted successfully.");
+                    });
+                }
+            });
+    }
     public void FetchDecks()
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;

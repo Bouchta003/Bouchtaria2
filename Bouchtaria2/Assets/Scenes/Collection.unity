@@ -11180,7 +11180,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -520, y: 490}
+  m_AnchoredPosition: {x: 643, y: 495}
   m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1794057592
@@ -11229,7 +11229,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2015256033}
         m_TargetAssemblyTypeName: DeckBuilding, Assembly-CSharp
-        m_MethodName: SwitchDeck
+        m_MethodName: DeleteDeck
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11259,7 +11259,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -3220171891797301713, guid: 265cf41cba5d7b44a8e933e11e91f899, type: 3}
+  m_Sprite: {fileID: -971592403499585737, guid: 757118776cd7bd441b18b763dbda4768, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
