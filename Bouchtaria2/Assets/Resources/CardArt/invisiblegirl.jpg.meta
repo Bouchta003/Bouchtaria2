@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9b77c6b46999c2747902ea64db0321bb
+guid: e8009aa4cb5df9d4d8ef25ad58bf8928
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8884450956226027453
-    second: taunt_0
+      213: -7611323685730780373
+    second: invisiblegirl_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: taunt_0
+      name: invisiblegirl_0
       rect:
         serializedVersion: 2
-        x: 45
-        y: 124
-        width: 710
-        height: 787
+        x: 0
+        y: 0
+        width: 1000
+        height: 1500
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: dbf5b36a219eb4b70800000000000000
-      internalID: 8884450956226027453
+      spriteID: b2bff713f652f5690800000000000000
+      internalID: -7611323685730780373
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      taunt_0: 8884450956226027453
+      invisiblegirl_0: -7611323685730780373
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

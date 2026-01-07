@@ -78,6 +78,8 @@ public class GameManager : MonoBehaviour
 
     public int PlayerHealBonus = 0;
     public int EnemyHealBonus = 0;
+    public bool PlayerDarkHeal = false;
+    public bool EnemyDarkHeal = false;
     //Animation
     public bool IsCombatAnimating { get; private set; }
     //Trait logic

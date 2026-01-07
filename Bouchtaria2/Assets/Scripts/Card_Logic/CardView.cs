@@ -294,6 +294,7 @@ public class CardView : MonoBehaviour,
         bleedSprite.SetActive(false);
         lifestealSprite.SetActive(false);
 
+
         if (inst.CurrentEffect.ToLower().Contains("protect"))
             protectSprite.SetActive(true);
         if (inst.CurrentEffect.ToLower().Contains("quickstrike"))

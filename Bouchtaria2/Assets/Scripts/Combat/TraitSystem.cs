@@ -900,7 +900,7 @@ public class HealerProgression : ITraitProgression
             0 => 10,
             1 => 20,
             2 => 30,
-            3 => 999,
+            3 => 9999,
             _ => 9999,
         };
     }
@@ -916,15 +916,30 @@ public class HealerProgression : ITraitProgression
 
         Debug.Log($"[Healer] Heal Amount for {Owner}: {healAmount}");
 
-        if (healAmount >= 5 && CurrentTier < 1 && maxTier >= 1)
+        if (healAmount >= 10 && CurrentTier < 1 && maxTier >= 1)
             UnlockTier1();
 
+        if (healAmount >= 20 && CurrentTier < 2 && maxTier >= 2)
+            UnlockTier2(); 
+        
+        if (healAmount >= 30 && CurrentTier < 3 && maxTier >= 3)
+            UnlockTier3();
     }
 
     private void UnlockTier1()
     {
         CurrentTier = 1;
         traitSystem.ActivateEffect(new HealerTier1Effect(Owner));
+    }
+    private void UnlockTier2()
+    {
+        CurrentTier = 2;
+        traitSystem.ActivateEffect(new HealerTier2Effect(Owner));
+    }
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+        traitSystem.ActivateEffect(new HealerTier3Effect(Owner));
     }
 }
 public class HealerTier1Effect : IDeckTraitEffect
@@ -952,6 +967,70 @@ public class HealerTier1Effect : IDeckTraitEffect
         else
         {
             gm.EnemyHealBonus += 2;
+        }
+        used = true;
+    }
+
+    public void OnUnregister() { }
+
+}
+public class HealerTier2Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Healer;
+    public int Tier => 2;
+
+    private readonly PlayerOwner owner;
+    private bool used;
+
+    public HealerTier2Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        if (used) return;
+
+        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+        if (owner == PlayerOwner.Player)
+        {
+            gm.PlayerHealBonus += 3;
+        }
+        else
+        {
+            gm.EnemyHealBonus += 3;
+        }
+        used = true;
+    }
+
+    public void OnUnregister() { }
+
+}
+public class HealerTier3Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Healer;
+    public int Tier => 3;
+
+    private readonly PlayerOwner owner;
+    private bool used;
+
+    public HealerTier3Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        if (used) return;
+
+        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+        if (owner == PlayerOwner.Player)
+        {
+            gm.PlayerDarkHeal=true;
+        }
+        else
+        {
+            gm.EnemyDarkHeal = true; ;
         }
         used = true;
     }

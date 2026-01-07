@@ -191,17 +191,11 @@ public class ScanPanelView : MonoBehaviour
                 keyDescription.text =
                     "When defending, deal damage to the attacker eaqual to the thorn value.";
             }
-            else if (keyword.Contains("resist"))
-            {
-                keyName.text = "Resist";
-                keyDescription.text =
-                    "Reduces damage taken in combat by the Resist value.";
-            }
             else if (keyword.Contains("lifesteal"))
             {
                 keyName.text = "Lifesteal";
                 keyDescription.text =
-                    "Combat damage heal the unit's core for the damage dealt.";
+                    "Heal the unit's core for the damage dealt during combat.";
             }
             else if (keyword.Contains("monsterpart"))
             {

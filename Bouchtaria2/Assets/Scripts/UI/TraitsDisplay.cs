@@ -92,9 +92,9 @@ public class TraitsDisplay : MonoBehaviour
                 display += $"Heal ally units or core to unlock : {Progression}/{CurrentCap}" +
                     "\nTier 1 : Your heals heal 2 more HP for the rest of the game.";
                 if (tier > 1) display +=
-                        "\nTier 2 : .";
+                        "\nTier 2 : Your heals heal 3 more HP for the rest of the game.";
                 if (tier > 2) display +=
-                         "\nTier 3 : .";
+                         "\nTier 3 : Your heals deal damage when targetting enemies this game.";
                 break;
             case CardData.Trait.MonsterHunter:
                 display += $"Colossal Monsters have died : {Progression}/{CurrentCap}" +
