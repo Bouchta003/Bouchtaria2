@@ -93,7 +93,11 @@ public class TurnManager : MonoBehaviour
             endButton.color = new Color(0, 0.75f, 1);
         else
             endButton.color = new Color(1, 0.5f, 0);
-
+        UpdateGlow();
+        
+    }
+    public void UpdateGlow()
+    {
         //Update card can attack or attackable visuals
         if (CurrentPlayer == PlayerOwner.Player)
         {
@@ -119,7 +123,6 @@ public class TurnManager : MonoBehaviour
             }
         }
     }
-
     // -------------------------
     // Permission helpers
     // -------------------------

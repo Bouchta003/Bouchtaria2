@@ -333,6 +333,18 @@ public class CardInstance : MonoBehaviour, IAttackable
                 TryExecuteDamage(effect, target);
                 continue;
             }
+
+            if (effect.StartsWith("silenceall"))
+            {
+                SilenceAll();
+                continue;
+            }
+            else if (effect.StartsWith("silence"))
+            {
+                if (target is CardInstance inst) TryExecuteSilence(inst);
+                continue;
+            }
+
             if (effect.StartsWith("sleepall"))
             {
                 SleepAll();
@@ -340,7 +352,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             }
             else if (effect.StartsWith("sleep"))
             {
-                if(target is CardInstance inst)TryExecuteSleep(inst);
+                if(target is CardInstance inst) TryExecuteSleep(inst);
                 continue;
             }
 
@@ -412,6 +424,16 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
         else if (effect.StartsWith("sleep"))
+        {
+            BeginTargetedEffect(effect);
+            return;
+        }
+        if (effect.StartsWith("silenceall"))
+        {
+            SilenceAll();
+            return;
+        }
+        else if (effect.StartsWith("silence"))
         {
             BeginTargetedEffect(effect);
             return;
@@ -676,6 +698,10 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             TryExecuteSleep(inst);
         }
+        else if (pendingTargetedEffect.StartsWith("silence") && target is CardInstance silenced)
+        {
+            TryExecuteSilence(silenced);
+        }
 
         pendingTargetedEffect = null;
 
@@ -800,6 +826,15 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         target.IsAsleep = true;target.view.UpdateMode();
     }
+    private void TryExecuteSilence(CardInstance target)
+    {
+        if (target == null)
+        {
+            Debug.LogError($"Silence effect requires a target on {Data.name}");
+            return;
+        }
+        target.Silence();
+    }
     private void TryExecuteHeal(string effect, IAttackable target)
     {
         if (!TryParseIntEffect(effect, "heal", out int amount))
@@ -861,6 +896,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (targetInstance.Owner == PlayerOwner.Player)
             gameManager.CheckGlow();
     }
+    
     private void ApplySingleGearEffect(string subEffect, CardInstance target)
     {
         // KEYWORD (quickstrike, taunt, etc.)
@@ -1013,7 +1049,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
             {
                 CardInstance inst = ally.GetComponent<CardInstance>();
-                inst.IsAsleep = true; inst.view.UpdateMode();
+                inst.IsAsleep = true;inst.view.UpdateMode();
             }
         }
         else
@@ -1025,6 +1061,40 @@ public class CardInstance : MonoBehaviour, IAttackable
                 inst.IsAsleep = true; inst.view.UpdateMode();
             }
         }
+    }
+    public void SilenceAll()
+    {
+        if (Owner == PlayerOwner.Enemy)
+        {
+            foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
+            {
+                CardInstance inst = ally.GetComponent<CardInstance>();
+                inst.Silence();
+            }
+        }
+        else
+        {
+            Debug.Log("All enemies silenced");
+            foreach (GameObject enemy in gameManager.enemyDropArea.enemyPrefabCards)
+            {
+                CardInstance inst = enemy.GetComponent<CardInstance>();
+                inst.Silence();
+            }
+        }
+    }
+    public void Silence()
+    {
+        Debug.Log($"Silenced {Data.name}");
+        //Reset effect
+        CurrentEffect = ""; CurrentEffectText = ""; parsedEffects.Clear();
+
+        //Reset Stats
+        CurrentAttack = Data.atkValue;CurrentHealth = Mathf.Min(CurrentHealth, Data.hpValue);
+        ThornsDamage = 0;
+
+        //Update display
+        view.UpdateMode();
+        TurnManager tm = FindFirstObjectByType<TurnManager>(); tm.UpdateGlow();
     }
     public void AutoDamageCore(int dmg)
     {
