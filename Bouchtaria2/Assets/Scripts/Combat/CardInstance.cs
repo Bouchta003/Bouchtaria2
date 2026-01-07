@@ -472,6 +472,10 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         TriggerEffects(EffectTrigger.Requiem);
     }
+    public void TriggerStrike()
+    {
+        TriggerEffects(EffectTrigger.Strike);
+    }
     private bool TryParseIntEffect(    string effect,    string effectName,    out int value)
     {
         value = default;
@@ -501,7 +505,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         return true;
     }
-    private void ParseEffects()
+    public void ParseEffects()
     {
         parsedEffects.Clear();
 
@@ -555,6 +559,9 @@ public class CardInstance : MonoBehaviour, IAttackable
                 return true;
             case "r":
                 trigger = EffectTrigger.Requiem;
+                return true;
+            case "s":
+                trigger = EffectTrigger.Strike;
                 return true;
             case "eot":
                 trigger = EffectTrigger.EndOfTurn;
@@ -779,6 +786,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         // Final visuals / text
         targetInstance.CurrentEffectText += "\n" + effectText;
         targetInstance.cardView.UpdateMode();
+        targetInstance.ParseEffects();
 
         if (targetInstance.Owner == PlayerOwner.Player)
             gameManager.CheckGlow();

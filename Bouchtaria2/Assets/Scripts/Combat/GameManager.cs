@@ -790,6 +790,7 @@ public class GameManager : MonoBehaviour
             int defenderDmg = targetUnit.CurrentAttack;
             if (attackerDmg >= targetUnit.CurrentHealth && !targetUnit.HasKeyword("blessed")) isKill = true;
             int thornDamage = 0;
+            attacker.TriggerStrike();
             if (targetUnit.HasKeyword("thorns"))
             {
                 thornDamage = targetUnit.ThornsDamage;
@@ -813,6 +814,7 @@ public class GameManager : MonoBehaviour
         // UNIT vs CORE
         if (target is CoreInstance core)
         {
+            attacker.TriggerStrike();
             if (attacker.HasKeyword("bleed"))
             {
                 core.IsBleeding = true;
