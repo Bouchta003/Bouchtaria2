@@ -14,6 +14,7 @@ public interface IAttackable
     int CurrentAttack { get; }
     string CurrentEffect { get; set; }
     void TakeDamage(int amount);
+    void Heal(int amount);
 }
 public enum GameState
 {

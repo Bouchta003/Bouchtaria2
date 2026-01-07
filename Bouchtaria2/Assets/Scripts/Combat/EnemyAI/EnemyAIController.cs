@@ -83,6 +83,10 @@ public class EnemyAIController : MonoBehaviour
             if (spell.CurrentManaCost > gameManager.EnemyCurrentMana)
                 break;
 
+            if (spell.CurrentEffect.Contains("gear") || (spell.CurrentEffect.Contains("heal") && !spell.CurrentEffect.Contains("autoheal")) || spell.CurrentEffect.Contains("buff"))
+            {
+                if (enemyBoard.enemyPrefabCards.Count <= 0) continue;
+            }
             yield return StartCoroutine(
                 gameManager.ShowEnemySpell(spell.Data)
             );
@@ -98,10 +102,6 @@ public class EnemyAIController : MonoBehaviour
     private void PlaySpell(CardInstance spell)
     {
         //Verify if there is board before playing buff spell :
-        if (spell.CurrentEffect.Contains("gear") || (spell.CurrentEffect.Contains("heal")&& !spell.CurrentEffect.Contains("autoheal")) || spell.CurrentEffect.Contains("buff"))
-        {
-            if (enemyBoard.enemyPrefabCards.Count <= 0) return;
-        }
 
         // Trigger deploy effects (spells use deploy)
         spell.OnPlaySpell();
