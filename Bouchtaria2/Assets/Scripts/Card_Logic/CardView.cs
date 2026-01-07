@@ -59,6 +59,7 @@ public class CardView : MonoBehaviour,
     [SerializeField] GameObject thornSprite;
     [SerializeField] GameObject bleedSprite;
     [SerializeField] GameObject lifestealSprite;
+    [SerializeField] GameObject sleepSprite;
     public enum CardGlowState
     {
         None,
@@ -293,6 +294,7 @@ public class CardView : MonoBehaviour,
         hasteSprite.SetActive(false);
         bleedSprite.SetActive(false);
         lifestealSprite.SetActive(false);
+        sleepSprite.SetActive(false);
 
 
         if (inst.CurrentEffect.ToLower().Contains("protect"))
@@ -308,7 +310,11 @@ public class CardView : MonoBehaviour,
         if (inst.CurrentEffect.ToLower().Contains("haste"))
             hasteSprite.SetActive(true);
         if (inst.CurrentEffect.ToLower().Contains("thorns"))
-            thornSprite.SetActive(true); 
+            thornSprite.SetActive(true);
+        if (inst.IsAsleep)
+            sleepSprite.SetActive(true);
+        else
+            sleepSprite.SetActive(false);
         if (inst.CurrentEffect.ToLower().Contains("lifesteal"))
             lifestealSprite.SetActive(true);
         if (inst.IsBleeding)

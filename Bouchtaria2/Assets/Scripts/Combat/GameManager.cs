@@ -418,6 +418,7 @@ public class GameManager : MonoBehaviour
         if (owner == PlayerOwner.Player)
         {
             cardInst.transform.parent = enemyHand.transform;
+            cardInst.Owner = PlayerOwner.Enemy;
             cardInst.GetComponent<SortingGroup>().sortingOrder =2;
             enemyDropArea.AddSummonedCard(cardInst);
         }
@@ -425,6 +426,7 @@ public class GameManager : MonoBehaviour
         {
             cardInst.transform.parent = allyHand.transform;
             cardInst.GetComponent<SortingGroup>().sortingOrder =2;
+            cardInst.Owner = PlayerOwner.Player;
             allyDropArea.AddSummonedCard(cardInst);
         }
     }
@@ -641,7 +643,7 @@ public class GameManager : MonoBehaviour
             (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn))
             return false;
 
-        if (attacker.IsSummoningSick)
+        if (attacker.IsSummoningSick || attacker.IsAsleep)
             return false;
 
         return true;

@@ -197,6 +197,12 @@ public class ScanPanelView : MonoBehaviour
                 keyDescription.text =
                     "Heal the unit's core for the damage dealt during combat.";
             }
+            else if (keyword.Contains("sleep"))
+            {
+                keyName.text = "Sleep";
+                keyDescription.text =
+                    "An asleep unit cannot attack, at the end of its turn it awakens.";
+            }
             else if (keyword.Contains("monsterpart"))
             {
                 keyName.text = "Monster Parts";

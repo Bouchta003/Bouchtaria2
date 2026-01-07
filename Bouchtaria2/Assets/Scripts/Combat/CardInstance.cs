@@ -61,6 +61,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public bool HasAttackedTwiceThisTurn { get; set; }
     public bool IsSummoningSick { get; set; }
     public bool WasPlayed { get; set; }
+    public bool IsAsleep { get; set; }
     public bool IsDisplay { get; set; }
     public CardView cardView { get; set; }
     public bool DeployPending { get; set; }
@@ -92,6 +93,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         Transform = transform;
         ThornsDamage = GetThornDamage();
         IsBleeding = false;
+        IsAsleep = false;
         CurrentMaxHealth = data.hpValue;
 
         HasAttackedThisTurn = false;
@@ -201,6 +203,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (CurrentZone == CardZone.Board)
         {
             Bleed();
+            if (IsAsleep) IsAsleep = false;
+            view.UpdateMode();
             TriggerEffects(EffectTrigger.EndOfTurn);
         }
     }
@@ -329,7 +333,17 @@ public class CardInstance : MonoBehaviour, IAttackable
                 TryExecuteDamage(effect, target);
                 continue;
             }
-            
+            if (effect.StartsWith("sleepall"))
+            {
+                SleepAll();
+                continue;
+            }
+            else if (effect.StartsWith("sleep"))
+            {
+                if(target is CardInstance inst)TryExecuteSleep(inst);
+                continue;
+            }
+
             if (effect.StartsWith("healall"))
             {
                 TryExecuteHealAll(effect);
@@ -392,7 +406,16 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
 
-
+        if (effect.StartsWith("sleepall"))
+        {
+            SleepAll();
+            return;
+        }
+        else if (effect.StartsWith("sleep"))
+        {
+            BeginTargetedEffect(effect);
+            return;
+        }
         if (effect.StartsWith("morphto"))
         {
             if (!TryParseIntEffect(effect, "morphto", out int id))
@@ -649,6 +672,10 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             TryExecuteBuff(pendingTargetedEffect, target);
         }
+        else if (pendingTargetedEffect.StartsWith("sleep") && target is CardInstance inst)
+        {
+            TryExecuteSleep(inst);
+        }
 
         pendingTargetedEffect = null;
 
@@ -763,6 +790,15 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         target.TakeDamage(amount);
+    }
+    private void TryExecuteSleep(CardInstance target)
+    {
+        if (target == null)
+        {
+            Debug.LogError($"Sleep effect requires a target on {Data.name}");
+            return;
+        }
+        target.IsAsleep = true;target.view.UpdateMode();
     }
     private void TryExecuteHeal(string effect, IAttackable target)
     {
@@ -967,6 +1003,26 @@ public class CardInstance : MonoBehaviour, IAttackable
             {
                 CardInstance inst = enemy.GetComponent<CardInstance>();
                 inst.Heal(heal);
+            }
+        }
+    }
+    public void SleepAll()
+    {
+        if (Owner == PlayerOwner.Enemy)
+        {
+            foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
+            {
+                CardInstance inst = ally.GetComponent<CardInstance>();
+                inst.IsAsleep = true; inst.view.UpdateMode();
+            }
+        }
+        else
+        {
+            Debug.Log("All enemies sleep");
+            foreach (GameObject enemy in gameManager.enemyDropArea.enemyPrefabCards)
+            {
+                CardInstance inst = enemy.GetComponent<CardInstance>();
+                inst.IsAsleep = true; inst.view.UpdateMode();
             }
         }
     }
