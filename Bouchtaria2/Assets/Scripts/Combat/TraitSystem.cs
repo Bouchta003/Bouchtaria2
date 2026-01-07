@@ -840,5 +840,123 @@ public class MonsterHunterTier3Effect : IDeckTraitEffect
         gm.TrySummonForOwner(owner, chosen.id);
     }
 }
+#endregion
+#region
 
+public class HealerProgression : ITraitProgression
+{
+    public CardData.Trait Trait => CardData.Trait.Healer;
+    public PlayerOwner Owner { get; }
+    public int CurrentTier { get; private set; }
+
+    private readonly int maxTier;
+    private int healAmount;
+
+    public int CurrentProgress => healAmount;
+
+    public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
+
+    private readonly TraitSystem traitSystem;
+    private readonly GameManager gameManager;
+
+    public HealerProgression(
+        PlayerOwner owner,
+        int maxTier,
+        TraitSystem traitSystem,
+        GameManager gameManager)
+    {
+        Owner = owner;
+        this.maxTier = maxTier;
+        this.traitSystem = traitSystem;
+        this.gameManager = gameManager;
+    }
+
+    public void Register()
+    {
+        Debug.Log($"[Healer] Register for {Owner}");
+        gameManager.OnOwnerHeal += OnAllyHeal;
+        PushInitialState();
+    }
+
+    public void Unregister()
+    {
+        gameManager.OnOwnerHeal -= OnAllyHeal;
+    }
+
+    public void ResetProgression()
+    {
+        healAmount = 0;
+    }
+
+    public void PushInitialState()
+    {
+        OnProgressUpdated?.Invoke(Trait, healAmount, GetCurrentCap(), Owner);
+    }
+
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 10,
+            1 => 20,
+            2 => 30,
+            3 => 999,
+            _ => 9999,
+        };
+    }
+
+    private void OnAllyHeal(PlayerOwner owner, int amount)
+    {
+        // 1. Must be ally
+        if (owner != Owner)
+            return;
+
+        healAmount+=amount;
+        OnProgressUpdated?.Invoke(Trait, healAmount, GetCurrentCap(), Owner);
+
+        Debug.Log($"[Healer] Heal Amount for {Owner}: {healAmount}");
+
+        if (healAmount >= 5 && CurrentTier < 1 && maxTier >= 1)
+            UnlockTier1();
+
+    }
+
+    private void UnlockTier1()
+    {
+        CurrentTier = 1;
+        traitSystem.ActivateEffect(new HealerTier1Effect(Owner));
+    }
+}
+public class HealerTier1Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Healer;
+    public int Tier => 1;
+
+    private readonly PlayerOwner owner;
+    private bool used;
+
+    public HealerTier1Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        if (used) return;
+
+        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+        if(owner==PlayerOwner.Player)
+        {
+            gm.PlayerHealBonus += 2;
+        }
+        else
+        {
+            gm.EnemyHealBonus += 2;
+        }
+        used = true;
+    }
+
+    public void OnUnregister() { }
+
+}
 #endregion

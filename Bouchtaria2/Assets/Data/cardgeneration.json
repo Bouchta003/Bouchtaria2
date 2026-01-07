@@ -714,6 +714,54 @@
       "packable": true,
       "token": false,
       "signature": false
+    },
+    "45": {
+      "id": 45,
+      "name": "Faust",
+      "cardType": "minion",
+      "manaCost": 4,
+      "atkValue": 3,
+      "hpValue": 5,
+      "traits": [ "Healer" ],
+      "effect": "lifesteal",
+      "effectText": "Lifesteal",
+      "artPath": "CardArt/faust",
+      "artCompactPath": "CardArt/faust_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
+    },
+    "46": {
+      "id": 46,
+      "name": "Faust's Flower",
+      "cardType": "spell",
+      "manaCost": 7,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "Healer" ],
+      "effect": "summon(45) summon(45)",
+      "effectText": "Summons two Fausts",
+      "artPath": "CardArt/faustflower",
+      "artCompactPath": "CardArt/faustflower_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
+    },
+    "47": {
+      "id": 47,
+      "name": "Bouchta BBQ",
+      "cardType": "spell",
+      "manaCost": 2,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "Healer" ],
+      "effect": "healall(2)",
+      "effectText": "Heal all allies and core by HP",
+      "artPath": "CardArt/bouchtabbq",
+      "artCompactPath": "CardArt/bouchtabbq_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
     }
   }
 }

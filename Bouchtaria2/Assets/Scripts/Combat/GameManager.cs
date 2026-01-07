@@ -36,8 +36,8 @@ public class GameManager : MonoBehaviour
 
     [Header("Deck and Board")]
     [SerializeField] private DeckManager deckManager;
-    [SerializeField] private AllyCardDropArea allyDropArea;
-    [SerializeField] private EnemyCardDropArea enemyDropArea;
+    [SerializeField] public AllyCardDropArea allyDropArea;
+    [SerializeField] public EnemyCardDropArea enemyDropArea;
     [SerializeField] public HandManager allyHand;
     [SerializeField] public HandManager enemyHand;
 
@@ -76,6 +76,8 @@ public class GameManager : MonoBehaviour
     [Header("Camera Shake")]
     [SerializeField] private Camera mainCamera;
 
+    public int PlayerHealBonus = 0;
+    public int EnemyHealBonus = 0;
     //Animation
     public bool IsCombatAnimating { get; private set; }
     //Trait logic
@@ -86,6 +88,7 @@ public class GameManager : MonoBehaviour
     public bool isTargettingAttack;
     Card currentAttacker;
     public event System.Action<CardInstance> OnCardKilled;
+    public event System.Action<PlayerOwner, int> OnOwnerHeal;
 
     //Camera shake
     private Vector3 cameraBasePos;
@@ -217,7 +220,7 @@ public class GameManager : MonoBehaviour
                 CardData.Trait.Hater => throw new System.NotImplementedException(),
                 CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
                 CardData.Trait.Combo => throw new System.NotImplementedException(),
-                CardData.Trait.Healer => throw new System.NotImplementedException(),
+                CardData.Trait.Healer => new HealerProgression(owner, maxTier, traitSystem, this),
                 CardData.Trait.Meme => throw new System.NotImplementedException(),
                 _ => throw new System.NotImplementedException()
             };
@@ -511,7 +514,10 @@ public class GameManager : MonoBehaviour
     {
         OnCardKilled?.Invoke(deadCard);
     }
-
+    public void NotifyHealed(PlayerOwner owner, int amount)
+    {
+        OnOwnerHeal?.Invoke(owner, amount);
+    }
     public void CancelCurrentTargeting()
     {
         // Cancel attack targeting
@@ -800,6 +806,14 @@ public class GameManager : MonoBehaviour
                 targetUnit.IsBleeding = true;
                 targetUnit.GetComponent<CardView>().UpdateMode();
             }
+            if (attacker.HasKeyword("lifesteal") && !targetUnit.HasKeyword("blessed"))
+            {
+                attacker.AutoHealCore(attacker.CurrentAttack);
+            }
+            if (targetUnit.HasKeyword("lifesteal") && !attacker.HasKeyword("blessed"))
+            {
+                targetUnit.AutoHealCore(targetUnit.CurrentAttack);
+            }
             if (isKill)
             {
                 OnCardKilled?.Invoke(attacker);
@@ -807,7 +821,7 @@ public class GameManager : MonoBehaviour
 
             attacker.TakeDamage(defenderDmg+thornDamage);
             targetUnit.TakeDamage(attackerDmg);
-
+            
             return;
         }
 
@@ -818,6 +832,11 @@ public class GameManager : MonoBehaviour
             if (attacker.HasKeyword("bleed"))
             {
                 core.IsBleeding = true;
+            }
+
+            if (attacker.HasKeyword("lifesteal"))
+            {
+                attacker.AutoHealCore(attacker.CurrentAttack);
             }
             core.TakeDamage(attacker.CurrentAttack);
             return;

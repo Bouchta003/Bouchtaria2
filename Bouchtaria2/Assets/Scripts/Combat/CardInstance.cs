@@ -310,39 +310,52 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         Destroy(gameObject);
     }
-
     private void ExecuteSpellEffects(IAttackable target)
     {
-        if (string.IsNullOrEmpty(CurrentEffect))
+        if (string.IsNullOrWhiteSpace(CurrentEffect))
             return;
 
-        // Directly resolve targeted effects
-        if (CurrentEffect.StartsWith("damage"))
+        // Same idea as minions: split by space
+        string[] effects = CurrentEffect
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (string rawEffect in effects)
         {
-            TryExecuteDamage(CurrentEffect, target);
-            return;
-        }
+            string effect = rawEffect.ToLowerInvariant();
 
-        if (CurrentEffect.StartsWith("heal"))
-        {
-            TryExecuteHeal(CurrentEffect, target);
-            return;
-        }
+            // Targeted spell effects
+            if (effect.StartsWith("damage"))
+            {
+                TryExecuteDamage(effect, target);
+                continue;
+            }
+            
+            if (effect.StartsWith("healall"))
+            {
+                TryExecuteHealAll(effect);
+                continue;
+            }
+            else   if (effect.StartsWith("heal"))
+            {
+                TryExecuteHeal(effect, target);
+                continue;
+            }
 
-        if (CurrentEffect.StartsWith("gear"))
-        {
-            TryExecuteGear(CurrentEffect, CurrentEffectText, target);
-            return;
-        }
+            if (effect.StartsWith("gear"))
+            {
+                TryExecuteGear(effect, CurrentEffectText, target);
+                continue;
+            }
 
-        if (CurrentEffect.StartsWith("buff"))
-        {
-            TryExecuteBuff(CurrentEffect, target);
-            return;
-        }
+            if (effect.StartsWith("buff"))
+            {
+                TryExecuteBuff(effect, target);
+                continue;
+            }
 
-        // Non-target effects (draw, summon, etc.)
-        ExecuteEffect(CurrentEffect);
+            // Non-target spell effects (summon, draw, etc.)
+            ExecuteEffect(effect);
+        }
     }
 
     #endregion
@@ -413,6 +426,15 @@ public class CardInstance : MonoBehaviour, IAttackable
                 return;
 
             AutoHealCore(heal);
+            return;
+        }
+
+        if (effect.StartsWith("healall"))
+        {
+            if (!TryParseIntEffect(effect, "healall", out int heal))
+                return;
+
+            HealAll(heal);
             return;
         }
 
@@ -755,6 +777,13 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         target.Heal(amount);
     }
+    private void TryExecuteHealAll(string effect)
+    {
+        if (!TryParseIntEffect(effect, "heal", out int amount))
+            return;
+
+        HealAll(amount);
+    }
     private void TryExecuteGear(string effect, string effectText, IAttackable target)
     {
         if (target is not CardInstance targetInstance)
@@ -897,6 +926,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         Data = newData;
 
         CurrentHealth = Mathf.Max(CurrentHealth, Data.hpValue - currentDamage);
+        CurrentMaxHealth = newData.hpValue;
         CurrentAttack = newData.atkValue;
         BaseManaCost = newData.manaCost;
 
@@ -913,6 +943,27 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.Heal(heal);
         else
             gameManager.EnemyCore.Heal(heal);
+    }
+    public void HealAll(int heal)
+    {
+        if (Owner == PlayerOwner.Player)
+        {  
+            gameManager.PlayerCore.Heal(heal);            
+            foreach(GameObject ally in gameManager.allyDropArea.allyPrefabCards)
+            {
+                CardInstance inst = ally.GetComponent<CardInstance>();
+                inst.Heal(heal);
+            }
+        }
+        else
+        {
+            gameManager.EnemyCore.Heal(heal);
+            foreach (GameObject enemy in gameManager.enemyDropArea.enemyPrefabCards)
+            {
+                CardInstance inst = enemy.GetComponent<CardInstance>();
+                inst.Heal(heal);
+            }
+        }
     }
     public void AutoDamageCore(int dmg)
     {
@@ -952,7 +1003,12 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void Heal(int amount)
     {
         if (amount <= 0) return;
-        CurrentHealth =Mathf.Min(CurrentHealth+amount,CurrentMaxHealth);
+        int bonus = 0;int preHeal = CurrentHealth;
+        GameManager gm = FindFirstObjectByType<GameManager>();
+        if (Owner == PlayerOwner.Player) bonus = gm.PlayerHealBonus;
+        else bonus = gm.EnemyHealBonus;
+        CurrentHealth = Mathf.Min(CurrentHealth += amount + bonus, CurrentMaxHealth);
+        int differenceHp =  CurrentHealth- preHeal;
 
         view.hpTextBoard.text = CurrentHealth.ToString();
         if (CurrentHealth < CurrentMaxHealth) view.hpTextBoard.color = Color.red;
@@ -960,6 +1016,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         else if (CurrentHealth == CurrentMaxHealth) view.hpTextBoard.color = Color.white;
         if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
 
+        gameManager.NotifyHealed(Owner, differenceHp);
     }
     internal void ModifyStats(int atk, int hp)
     {

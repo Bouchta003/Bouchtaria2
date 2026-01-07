@@ -197,6 +197,12 @@ public class ScanPanelView : MonoBehaviour
                 keyDescription.text =
                     "Reduces damage taken in combat by the Resist value.";
             }
+            else if (keyword.Contains("lifesteal"))
+            {
+                keyName.text = "Lifesteal";
+                keyDescription.text =
+                    "Combat damage heal the unit's core for the damage dealt.";
+            }
             else if (keyword.Contains("monsterpart"))
             {
                 keyName.text = "Monster Parts";

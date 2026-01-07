@@ -81,12 +81,20 @@ public class TraitsDisplay : MonoBehaviour
                          "\nTier 3 : Discover a LEGENDARY Pokemon.";
                 break;
             case CardData.Trait.Neutral:
-                display += $"Play neutral cards currently played : {Progression}/{CurrentCap}" +
+                display += $"Play neutral cards to unlock. Currently played : {Progression}/{CurrentCap}" +
                     "\nTier 1 : The first neutral card you PLAY each turn has +1 HP.";
                 if (tier > 1) display +=
                         "\nTier 2 : The first card you draw that costs 3 mana or more each turn costs 1 less.";
                 if (tier > 2) display +=
-                         "\nTier 3 : NEUTRAL-ize the enemy team.";
+                         "\nTier 3 : .";
+                break;
+            case CardData.Trait.Healer:
+                display += $"Heal ally units or core to unlock : {Progression}/{CurrentCap}" +
+                    "\nTier 1 : Your heals heal 2 more HP for the rest of the game.";
+                if (tier > 1) display +=
+                        "\nTier 2 : .";
+                if (tier > 2) display +=
+                         "\nTier 3 : .";
                 break;
             case CardData.Trait.MonsterHunter:
                 display += $"Colossal Monsters have died : {Progression}/{CurrentCap}" +
