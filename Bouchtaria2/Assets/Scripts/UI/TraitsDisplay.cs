@@ -96,6 +96,14 @@ public class TraitsDisplay : MonoBehaviour
                 if (tier > 2) display +=
                          "\nTier 3 : Your heals deal damage when targetting enemies this game.";
                 break;
+            case CardData.Trait.Faith:
+                display += $"Discover Cards to unlock : {Progression}/{CurrentCap}" +
+                    "\nTier 1 : Add 2 Hijab cards to your hand.";
+                if (tier > 1) display +=
+                        "\nTier 2 : Your discovered cards cost 1 less.";
+                if (tier > 2) display +=
+                         "\nTier 3 : When discovering a card, refresh 2 mana.";
+                break;
             case CardData.Trait.MonsterHunter:
                 display += $"Colossal Monsters have died : {Progression}/{CurrentCap}" +
                     "\nTier 1 : Summon a random tier one monster.";

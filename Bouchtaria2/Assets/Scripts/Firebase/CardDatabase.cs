@@ -2,6 +2,8 @@
 using UnityEngine;
 using Firebase.Firestore;
 using Firebase.Extensions;
+using System;
+using System.Linq;
 
 public class CardDatabase : MonoBehaviour
 {
@@ -155,5 +157,31 @@ public class CardDatabase : MonoBehaviour
 
         return result;
     }
+    public List<CardData> GetCardsByTraitPackable(string trait)
+    {
+        if (Cards == null)
+        {
+            Debug.LogError("CardDatabase: Cards not initialized");
+            return null;
+        }
 
+        List<CardData> result = new List<CardData>();
+
+        foreach (CardData card in Cards.Values)
+        {
+            if (card.traits != null && card.packable &&
+                card.traits.Any(t =>
+                    t.Equals(trait, StringComparison.OrdinalIgnoreCase)))
+            {
+                result.Add(card);
+            }
+        }
+
+        return result;
+    }
+
+    CardData.Trait TryParseTrait(string traitString, out CardData.Trait trait)
+    {
+        Enum.TryParse(traitString, true, out trait); return trait;
+    }
 }

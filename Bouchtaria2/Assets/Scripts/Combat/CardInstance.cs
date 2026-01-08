@@ -502,6 +502,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteDiscover(effect);
             return;
         }
+
         if (effect.StartsWith("addcard"))
         {
             TryExecuteAddCard(effect);
@@ -529,6 +530,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
 
+        if (effect.StartsWith("managain"))
+        {
+            TryExecuteManaGain(effect);
+            return;
+        }
         Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
     }
     private void TriggerBerserk()
@@ -718,6 +724,13 @@ public class CardInstance : MonoBehaviour, IAttackable
         else
             gameManager.TrySummonForOwner(Owner, cardId);
     }
+    private void TryExecuteManaGain(string effect)
+    {
+        if (!TryParseIntEffect(effect, "managain", out int mana))
+            return;
+        else
+            gameManager.GainMana(mana, Owner);
+    }
     private void TryExecuteDiscover(string effect)
     {
         if (!effect.StartsWith("discover"))
@@ -739,16 +752,27 @@ public class CardInstance : MonoBehaviour, IAttackable
         string valueStr = effect.Substring(start + 1, end - start - 1);
         string[] discoversCards = valueStr.Split(',');
 
+        //Discover specific cards
         if (int.TryParse(discoversCards[0], out int id) && int.TryParse(discoversCards[1], out int idd) && int.TryParse(discoversCards[2], out int iddd))
         {
             gameManager.Discover(id, idd, iddd, Owner);
         }
-        else gameManager.DiscoverEffect(valueStr, Owner);
+        else if (effect.StartsWith("discovertrait")) { gameManager.DiscoverTrait(valueStr, Owner); }
+        else
+        { gameManager.DiscoverEffect(valueStr, Owner); }
     }
     private void TryExecuteAddCard(string effect)
     {
         if (!TryParseIntEffect(effect, "addcard", out int cardId))
             return;
+        if (effect.StartsWith("addcardenemy")) { 
+            if(Owner==PlayerOwner.Player)
+                    gameManager.AddCardToHand(PlayerOwner.Enemy, cardId);
+                else
+                    gameManager.AddCardToHand(Owner, cardId);
+
+            return;
+        }
 
         gameManager.AddCardToHand(Owner, cardId);
     }
@@ -896,7 +920,6 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (targetInstance.Owner == PlayerOwner.Player)
             gameManager.CheckGlow();
     }
-    
     private void ApplySingleGearEffect(string subEffect, CardInstance target)
     {
         // KEYWORD (quickstrike, taunt, etc.)
@@ -1114,7 +1137,6 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void TakeDamage(int amount)
     {
         if (amount <= 0) return;
-        RemoveEffect("blessed");
         CurrentHealth -= amount;
 
         if (CurrentHealth <= 0)

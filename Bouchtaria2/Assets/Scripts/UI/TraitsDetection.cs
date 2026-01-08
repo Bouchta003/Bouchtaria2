@@ -65,13 +65,13 @@ public class TraitsDetection : MonoBehaviour
             }
         }
 
-        // 2. Define tier thresholds per trait
+        // 2. Define tier thresholds to UNLOCK the trait in DECK BUILDING
         Dictionary<CardData.Trait, int[]> tierThresholds = new()
         {
             { CardData.Trait.Speedster, new[] { 6, 9, 12 } },
             { CardData.Trait.Workout, new[] { 4, 7 } },
             { CardData.Trait.Gunner, new[] { 6, 9, 12 } },
-            { CardData.Trait.Faith, new[] { 6, 9 } },
+            { CardData.Trait.Faith, new[] { 3,6, 10 } },
             { CardData.Trait.Ritual, new[] { 8, 12 } },
             { CardData.Trait.Hater, new[] { 6, 9 } },
             { CardData.Trait.SpellFocus, new[] { 6, 9, 12 } },

@@ -841,8 +841,7 @@ public class MonsterHunterTier3Effect : IDeckTraitEffect
     }
 }
 #endregion
-#region
-
+#region Healer
 public class HealerProgression : ITraitProgression
 {
     public CardData.Trait Trait => CardData.Trait.Healer;
@@ -1037,5 +1036,69 @@ public class HealerTier3Effect : IDeckTraitEffect
 
     public void OnUnregister() { }
 
+}
+#endregion
+#region Faith
+public class FaithProgression : ITraitProgression
+{
+    public CardData.Trait Trait => CardData.Trait.Faith;
+    public PlayerOwner Owner { get; }
+    public int CurrentTier { get; private set; }
+
+    private readonly int maxTier;
+    private int healAmount;
+
+    public int CurrentProgress => healAmount;
+
+    public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
+
+    private readonly TraitSystem traitSystem;
+    private readonly GameManager gameManager;
+
+    public FaithProgression(
+        PlayerOwner owner,
+        int maxTier,
+        TraitSystem traitSystem,
+        GameManager gameManager)
+    {
+        Owner = owner;
+        this.maxTier = maxTier;
+        this.traitSystem = traitSystem;
+        this.gameManager = gameManager;
+    }
+
+    public void Register()
+    {
+        Debug.Log($"[Faith] Register for {Owner}");
+        //gameManager.OnOwnerHeal += OnAllyHeal;
+        PushInitialState();
+    }
+
+    public void Unregister()
+    {
+        //gameManager.OnOwnerHeal -= OnAllyHeal;
+    }
+
+    public void ResetProgression()
+    {
+        //healAmount = 0;
+    }
+
+    public void PushInitialState()
+    {
+        //OnProgressUpdated?.Invoke(Trait, healAmount, GetCurrentCap(), Owner);
+    }
+
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 3,
+            1 => 6,
+            2 => 10,
+            3 => 9999,
+            _ => 9999,
+        };
+    }
 }
 #endregion
