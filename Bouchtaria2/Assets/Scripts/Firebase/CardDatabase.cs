@@ -146,7 +146,6 @@ public class CardDatabase : MonoBehaviour
 
         foreach (CardData card in Cards.Values)
         {
-            if (card.name.Contains("Xeno")) Debug.Log("THe xeno is real");
             if (!string.IsNullOrEmpty(card.effect) &&
                 card.effect.Contains(effect))
             {

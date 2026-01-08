@@ -1046,9 +1046,9 @@ public class FaithProgression : ITraitProgression
     public int CurrentTier { get; private set; }
 
     private readonly int maxTier;
-    private int healAmount;
+    private int discoverCount;
 
-    public int CurrentProgress => healAmount;
+    public int CurrentProgress => discoverCount;
 
     public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
 
@@ -1070,25 +1070,33 @@ public class FaithProgression : ITraitProgression
     public void Register()
     {
         Debug.Log($"[Faith] Register for {Owner}");
-        //gameManager.OnOwnerHeal += OnAllyHeal;
+        gameManager.OnDiscover += OnAllyDiscover;
         PushInitialState();
     }
 
     public void Unregister()
     {
-        //gameManager.OnOwnerHeal -= OnAllyHeal;
+        gameManager.OnDiscover -= OnAllyDiscover;
     }
 
     public void ResetProgression()
     {
-        //healAmount = 0;
+        discoverCount = 0;
     }
 
     public void PushInitialState()
     {
-        //OnProgressUpdated?.Invoke(Trait, healAmount, GetCurrentCap(), Owner);
+        OnProgressUpdated?.Invoke(Trait, discoverCount, GetCurrentCap(), Owner);
     }
+    public void OnAllyDiscover(PlayerOwner owner)
+    {
+        // 1. Must be ally
+        if (owner != Owner)
+            return;
 
+        discoverCount ++;
+        OnProgressUpdated?.Invoke(Trait, discoverCount, GetCurrentCap(), Owner);
+    }
     private int GetCurrentCap()
     {
         return CurrentTier switch

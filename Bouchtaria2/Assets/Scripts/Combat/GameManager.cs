@@ -89,8 +89,11 @@ public class GameManager : MonoBehaviour
     private bool isResolvingAttack = false;
     public bool isTargettingAttack;
     Card currentAttacker;
+
+    //Trait Actions
     public event System.Action<CardInstance> OnCardKilled;
     public event System.Action<PlayerOwner, int> OnOwnerHeal;
+    public event System.Action<PlayerOwner> OnDiscover;
 
     //Camera shake
     private Vector3 cameraBasePos;
@@ -460,6 +463,9 @@ public class GameManager : MonoBehaviour
         CardInstance dataInst3 = CardFactory.Instance.CreateCardInPosition(data3, PlayerOwner.Player, new Vector3(-5, 0, 0), new Vector3(0.6f,0.6f,0.6f), discoverDisplay.transform);
         dataInst3.IsDisplay = true;
         dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;
+
+        //Call Discover
+        OnDiscover?.Invoke(owner);
     }
     public void DiscoverEffect(string effect, PlayerOwner owner)
     {
@@ -493,6 +499,8 @@ public class GameManager : MonoBehaviour
         dataInst3.IsDisplay = true;
         dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;
         options.Remove(data3);
+        //Call Discover
+        OnDiscover?.Invoke(owner);
     }
     public void DiscoverTrait(string trait, PlayerOwner owner)
     {
@@ -525,6 +533,8 @@ public class GameManager : MonoBehaviour
         dataInst3.IsDisplay = true;
         dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;
         options.Remove(data3);
+        //Call Discover
+        OnDiscover?.Invoke(owner);
     }
     public CardInstance AddCardToHand(PlayerOwner owner, int id)
     {
