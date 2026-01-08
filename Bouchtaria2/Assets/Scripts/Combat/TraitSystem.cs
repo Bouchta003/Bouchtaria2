@@ -1096,6 +1096,21 @@ public class FaithProgression : ITraitProgression
 
         discoverCount ++;
         OnProgressUpdated?.Invoke(Trait, discoverCount, GetCurrentCap(), Owner);
+        if (discoverCount >= 3 && CurrentTier < 1 && maxTier >= 1)
+            UnlockTier1();
+
+        if (discoverCount >= 6 && CurrentTier < 2 && maxTier >= 2)
+            UnlockTier2();
+    }
+    private void UnlockTier1()
+    {
+        CurrentTier = 1;
+        traitSystem.ActivateEffect(new FaithTier1Effect(Owner));
+    }
+    private void UnlockTier2()
+    {
+        CurrentTier = 2;
+        //traitSystem.ActivateEffect(new FaithTier2Effect(Owner));
     }
     private int GetCurrentCap()
     {
@@ -1109,4 +1124,32 @@ public class FaithProgression : ITraitProgression
         };
     }
 }
+
+public class FaithTier1Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Faith;
+    public int Tier => 1;
+
+    private readonly PlayerOwner owner;
+    private bool used;
+
+    public FaithTier1Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        if (used) return;
+
+        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+        gm.AddCardToHand(owner, 64);
+        gm.AddCardToHand(owner, 60);
+        used = true;
+    }
+
+    public void OnUnregister() { }
+
+}
+
 #endregion

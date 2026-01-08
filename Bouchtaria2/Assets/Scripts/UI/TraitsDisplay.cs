@@ -98,7 +98,7 @@ public class TraitsDisplay : MonoBehaviour
                 break;
             case CardData.Trait.Faith:
                 display += $"Discover Cards to unlock : {Progression}/{CurrentCap}" +
-                    "\nTier 1 : Add 2 Hijab cards to your hand.";
+                    "\nTier 1 : Add a Duaa and Hijab card to your hand.";
                 if (tier > 1) display +=
                         "\nTier 2 : Your discovered cards cost 1 less.";
                 if (tier > 2) display +=
