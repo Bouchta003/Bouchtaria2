@@ -1,0 +1,1599 @@
+fileFormatVersion: 2
+guid: 406bdcb2c093fef429db742907e87267
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4509329328275101769
+    second: wishinterior_0
+  - first:
+      213: 3312909641149181423
+    second: wishinterior_1
+  - first:
+      213: -1664319004127929749
+    second: wishinterior_2
+  - first:
+      213: 5655829117803358345
+    second: wishinterior_3
+  - first:
+      213: 4771625299360139247
+    second: wishinterior_4
+  - first:
+      213: -1811524100812751579
+    second: wishinterior_5
+  - first:
+      213: -8822381235744285749
+    second: wishinterior_6
+  - first:
+      213: -8820687984534542404
+    second: wishinterior_7
+  - first:
+      213: -6349197765651570397
+    second: wishinterior_8
+  - first:
+      213: -8476138340856066829
+    second: wishinterior_9
+  - first:
+      213: 7831334441897429165
+    second: wishinterior_10
+  - first:
+      213: 4541782241264771822
+    second: wishinterior_11
+  - first:
+      213: 989830470092674186
+    second: wishinterior_12
+  - first:
+      213: -7919726186349414759
+    second: wishinterior_13
+  - first:
+      213: -3157514521547339590
+    second: wishinterior_14
+  - first:
+      213: 1767164111771415988
+    second: wishinterior_15
+  - first:
+      213: 4735820073390434756
+    second: wishinterior_16
+  - first:
+      213: 4623020093500584102
+    second: wishinterior_17
+  - first:
+      213: -2395887566433870710
+    second: wishinterior_18
+  - first:
+      213: 4358525270084797421
+    second: wishinterior_19
+  - first:
+      213: 2875339923773306603
+    second: wishinterior_20
+  - first:
+      213: -4274282641590940232
+    second: wishinterior_21
+  - first:
+      213: -6691588537747462365
+    second: wishinterior_22
+  - first:
+      213: 3090431412382600536
+    second: wishinterior_23
+  - first:
+      213: 3502124242065372192
+    second: wishinterior_24
+  - first:
+      213: -1782528971807983381
+    second: wishinterior_25
+  - first:
+      213: -4866081943805753364
+    second: wishinterior_26
+  - first:
+      213: 1340873187846055482
+    second: wishinterior_27
+  - first:
+      213: 8973186381081775096
+    second: wishinterior_28
+  - first:
+      213: 2822012570919290385
+    second: wishinterior_29
+  - first:
+      213: -3251789113847267580
+    second: wishinterior_30
+  - first:
+      213: -4140918089165151693
+    second: wishinterior_31
+  - first:
+      213: 6063634937006629551
+    second: wishinterior_32
+  - first:
+      213: -1380506347024206803
+    second: wishinterior_33
+  - first:
+      213: 5348467084331002523
+    second: wishinterior_34
+  - first:
+      213: 7333942663690758907
+    second: wishinterior_35
+  - first:
+      213: 7752712842750000907
+    second: wishinterior_36
+  - first:
+      213: -1715079511703201468
+    second: wishinterior_37
+  - first:
+      213: 4631320507835816266
+    second: wishinterior_38
+  - first:
+      213: 1972401277399597691
+    second: wishinterior_39
+  - first:
+      213: -7714122246556735326
+    second: wishinterior_40
+  - first:
+      213: -3264930032955948552
+    second: wishinterior_41
+  - first:
+      213: 6143480754491408937
+    second: wishinterior_42
+  - first:
+      213: 8633133162314428892
+    second: wishinterior_43
+  - first:
+      213: 7246350731510772001
+    second: wishinterior_44
+  - first:
+      213: -8712815138848392988
+    second: wishinterior_45
+  - first:
+      213: -3586044316038670503
+    second: wishinterior_46
+  - first:
+      213: 4804701585385942909
+    second: wishinterior_47
+  - first:
+      213: -228075334104209045
+    second: wishinterior_48
+  - first:
+      213: -4561845594430311169
+    second: wishinterior_49
+  - first:
+      213: 763522675329340990
+    second: wishinterior_50
+  - first:
+      213: -2299840466290050384
+    second: wishinterior_51
+  - first:
+      213: -1391209206956972835
+    second: wishinterior_52
+  - first:
+      213: 7612486864108039984
+    second: wishinterior_53
+  - first:
+      213: 4728616664398982121
+    second: wishinterior_54
+  - first:
+      213: -8668779641655457679
+    second: wishinterior_55
+  - first:
+      213: 2730701104783982417
+    second: wishinterior_56
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: wishinterior_0
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 0
+        width: 228
+        height: 1024
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9489613f12b549e30800000000000000
+      internalID: 4509329328275101769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_1
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 0
+        width: 1277
+        height: 1024
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fede9ad14c1d9fd20800000000000000
+      internalID: 3312909641149181423
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_2
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 1008
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6ad5060fa627e8e0800000000000000
+      internalID: -1664319004127929749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_3
+      rect:
+        serializedVersion: 2
+        x: 995
+        y: 1016
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 988eaf4ed9a8d7e40800000000000000
+      internalID: 5655829117803358345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_4
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 990
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe7c0a9bde7383240800000000000000
+      internalID: 4771625299360139247
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_5
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 974
+        width: 8
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52d3ffc9d6c2cd6e0800000000000000
+      internalID: -1811524100812751579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_6
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 951
+        width: 8
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bcbd362520b909580800000000000000
+      internalID: -8822381235744285749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_7
+      rect:
+        serializedVersion: 2
+        x: 995
+        y: 961
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb72347130f969580800000000000000
+      internalID: -8820687984534542404
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_8
+      rect:
+        serializedVersion: 2
+        x: 1041
+        y: 959
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32162a9854e13e7a0800000000000000
+      internalID: -6349197765651570397
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_9
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 902
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3fc84366615be5a80800000000000000
+      internalID: -8476138340856066829
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_10
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 862
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da80496ce2d7eac60800000000000000
+      internalID: 7831334441897429165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_11
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 854
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee2a3c192e6a70f30800000000000000
+      internalID: 4541782241264771822
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_12
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 838
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a845bb571959cbd00800000000000000
+      internalID: 989830470092674186
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_13
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 819
+        width: 8
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 996b8487efa771290800000000000000
+      internalID: -7919726186349414759
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_14
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 814
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab8880a95414e24d0800000000000000
+      internalID: -3157514521547339590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_15
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 797
+        width: 8
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b534f5956a368810800000000000000
+      internalID: 1767164111771415988
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_16
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 734
+        width: 8
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c9e99ae34309b140800000000000000
+      internalID: 4735820073390434756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_17
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 748
+        width: 6
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a0789ef744482040800000000000000
+      internalID: 4623020093500584102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_18
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 702
+        width: 8
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8c1fe8c3f810ced0800000000000000
+      internalID: -2395887566433870710
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_19
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 648
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de3c7f304a79c7c30800000000000000
+      internalID: 4358525270084797421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_20
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 638
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be6b10d2d6247e720800000000000000
+      internalID: 2875339923773306603
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_21
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 622
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8bd8a566592bea4c0800000000000000
+      internalID: -4274282641590940232
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_22
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 606
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 327ac70bda3b223a0800000000000000
+      internalID: -6691588537747462365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_23
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 531
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85d06c9eefa63ea20800000000000000
+      internalID: 3090431412382600536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_24
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 542
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 024379f617b0a9030800000000000000
+      internalID: 3502124242065372192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_25
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 526
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be8fa89285f2347e0800000000000000
+      internalID: -1782528971807983381
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_26
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 518
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce70483f044387cb0800000000000000
+      internalID: -4866081943805753364
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_27
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 496
+        width: 8
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a36e8626f0dbb9210800000000000000
+      internalID: 1340873187846055482
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_28
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 486
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8fb80cbb879278c70800000000000000
+      internalID: 8973186381081775096
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_29
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 462
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 116c4594b7dc92720800000000000000
+      internalID: 2822012570919290385
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_30
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 448
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40fb6a897035fd2d0800000000000000
+      internalID: -3251789113847267580
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_31
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 430
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 332625bffe08886c0800000000000000
+      internalID: -4140918089165151693
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_32
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 438
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa2ade349db562450800000000000000
+      internalID: 6063634937006629551
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_33
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 395
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d243377aac477dce0800000000000000
+      internalID: -1380506347024206803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_34
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 406
+        width: 6
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9a2b6ec972993a40800000000000000
+      internalID: 5348467084331002523
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_35
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 390
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bfaae58eef567c560800000000000000
+      internalID: 7333942663690758907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_36
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 350
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0ff8bd314b279b60800000000000000
+      internalID: 7752712842750000907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_37
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 332
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 449516f5540d238e0800000000000000
+      internalID: -1715079511703201468
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_38
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 316
+        width: 8
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a49198ec671c54040800000000000000
+      internalID: 4631320507835816266
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_39
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 310
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b720ee5f2806f5b10800000000000000
+      internalID: 1972401277399597691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_40
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 286
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a82c0c10bee1f490800000000000000
+      internalID: -7714122246556735326
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_41
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 278
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f10821fe63a0b2d0800000000000000
+      internalID: -3264930032955948552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_42
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 238
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 922c8e75237024550800000000000000
+      internalID: 6143480754491408937
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_43
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 246
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd1756eeedc0fc770800000000000000
+      internalID: 8633133162314428892
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_44
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 230
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1217795f895309460800000000000000
+      internalID: 7246350731510772001
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_45
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 166
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e8bb4f2bccd51780800000000000000
+      internalID: -8712815138848392988
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_46
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 142
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 957d4b9b1bfcb3ec0800000000000000
+      internalID: -3586044316038670503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_47
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 111
+        width: 8
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7f6fa0b2aabda240800000000000000
+      internalID: 4804701585385942909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_48
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 75
+        width: 8
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b69a0b821b6b5dcf0800000000000000
+      internalID: -228075334104209045
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_49
+      rect:
+        serializedVersion: 2
+        x: 994
+        y: 104
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff4fccff99111b0c0800000000000000
+      internalID: -4561845594430311169
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_50
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 35
+        width: 8
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3616f0f3d3989a00800000000000000
+      internalID: 763522675329340990
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_51
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 68
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ba76bee7435510e0800000000000000
+      internalID: -2299840466290050384
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_52
+      rect:
+        serializedVersion: 2
+        x: 1041
+        y: 39
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd4a313e89e61bce0800000000000000
+      internalID: -1391209206956972835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_53
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 27
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03fac70687cf4a960800000000000000
+      internalID: 7612486864108039984
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_54
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 22
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9eb6e709dcb6f9140800000000000000
+      internalID: 4728616664398982121
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_55
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 11
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1780df658de42b780800000000000000
+      internalID: -8668779641655457679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: wishinterior_56
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 6
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15f7a6adf2665e520800000000000000
+      internalID: 2730701104783982417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      wishinterior_0: 4509329328275101769
+      wishinterior_1: 3312909641149181423
+      wishinterior_10: 7831334441897429165
+      wishinterior_11: 4541782241264771822
+      wishinterior_12: 989830470092674186
+      wishinterior_13: -7919726186349414759
+      wishinterior_14: -3157514521547339590
+      wishinterior_15: 1767164111771415988
+      wishinterior_16: 4735820073390434756
+      wishinterior_17: 4623020093500584102
+      wishinterior_18: -2395887566433870710
+      wishinterior_19: 4358525270084797421
+      wishinterior_2: -1664319004127929749
+      wishinterior_20: 2875339923773306603
+      wishinterior_21: -4274282641590940232
+      wishinterior_22: -6691588537747462365
+      wishinterior_23: 3090431412382600536
+      wishinterior_24: 3502124242065372192
+      wishinterior_25: -1782528971807983381
+      wishinterior_26: -4866081943805753364
+      wishinterior_27: 1340873187846055482
+      wishinterior_28: 8973186381081775096
+      wishinterior_29: 2822012570919290385
+      wishinterior_3: 5655829117803358345
+      wishinterior_30: -3251789113847267580
+      wishinterior_31: -4140918089165151693
+      wishinterior_32: 6063634937006629551
+      wishinterior_33: -1380506347024206803
+      wishinterior_34: 5348467084331002523
+      wishinterior_35: 7333942663690758907
+      wishinterior_36: 7752712842750000907
+      wishinterior_37: -1715079511703201468
+      wishinterior_38: 4631320507835816266
+      wishinterior_39: 1972401277399597691
+      wishinterior_4: 4771625299360139247
+      wishinterior_40: -7714122246556735326
+      wishinterior_41: -3264930032955948552
+      wishinterior_42: 6143480754491408937
+      wishinterior_43: 8633133162314428892
+      wishinterior_44: 7246350731510772001
+      wishinterior_45: -8712815138848392988
+      wishinterior_46: -3586044316038670503
+      wishinterior_47: 4804701585385942909
+      wishinterior_48: -228075334104209045
+      wishinterior_49: -4561845594430311169
+      wishinterior_5: -1811524100812751579
+      wishinterior_50: 763522675329340990
+      wishinterior_51: -2299840466290050384
+      wishinterior_52: -1391209206956972835
+      wishinterior_53: 7612486864108039984
+      wishinterior_54: 4728616664398982121
+      wishinterior_55: -8668779641655457679
+      wishinterior_56: 2730701104783982417
+      wishinterior_6: -8822381235744285749
+      wishinterior_7: -8820687984534542404
+      wishinterior_8: -6349197765651570397
+      wishinterior_9: -8476138340856066829
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

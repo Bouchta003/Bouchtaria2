@@ -17,7 +17,7 @@ public class ShopManager : MonoBehaviour
     int UserGold;
     int UserDust;
 
-    CardData.Trait wish;
+    string wish;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
     {
@@ -205,7 +205,7 @@ public class ShopManager : MonoBehaviour
     }
     #endregion
     #region Wish Management
-    public void SelectWish(CardData.Trait selectedTrait)
+    public void SelectWish(string selectedTrait)
     {
         wish = selectedTrait;
     }
