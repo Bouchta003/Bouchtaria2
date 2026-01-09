@@ -42,6 +42,15 @@ public class TraitSystem : MonoBehaviour
 
         OnTraitTierActivated?.Invoke(effect.Trait, effect.Tier);
     }
+    public bool HasTraitAtTier(CardData.Trait trait, int minTier)
+    {
+        foreach (var effect in activeEffects)
+        {
+            if (effect.Trait == trait && effect.Tier >= minTier)
+                return true;
+        }
+        return false;
+    }
 
     public void ClearAll()
     {
@@ -1110,7 +1119,7 @@ public class FaithProgression : ITraitProgression
     private void UnlockTier2()
     {
         CurrentTier = 2;
-        //traitSystem.ActivateEffect(new FaithTier2Effect(Owner));
+        traitSystem.ActivateEffect(new FaithTier2Effect(Owner));
     }
     private int GetCurrentCap()
     {
@@ -1146,6 +1155,26 @@ public class FaithTier1Effect : IDeckTraitEffect
         gm.AddCardToHand(owner, 64);
         gm.AddCardToHand(owner, 60);
         used = true;
+    }
+
+    public void OnUnregister() { }
+
+}
+public class FaithTier2Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Faith;
+    public int Tier => 2;
+
+    private readonly PlayerOwner owner;
+
+    public FaithTier2Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        //No visible effect since it discounts discoveries
     }
 
     public void OnUnregister() { }

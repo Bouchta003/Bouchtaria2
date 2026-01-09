@@ -255,6 +255,15 @@ public class GameManager : MonoBehaviour
         display.Progression = progress;
         display.ShowProgress(progress, currentCap);
     }
+    public bool OwnerHasTrait(PlayerOwner owner, CardData.Trait trait, int minTier = 1)
+    {
+        TraitSystem system =
+            owner == PlayerOwner.Player
+                ? allyTraitSystem
+                : enemyTraitSystem;
+
+        return system.HasTraitAtTier(trait, minTier);
+    }
 
     private void OnAllyTraitActivated(CardData.Trait trait, int tier)
     {
@@ -443,6 +452,14 @@ public class GameManager : MonoBehaviour
     {
         if(owner == PlayerOwner.Enemy)
         {
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
+            {
+                int randintDisc = Random.Range(0, 3);
+                if (randintDisc == 0) AddCardToHand(PlayerOwner.Enemy, id1,-1);
+                if (randintDisc == 1) AddCardToHand(PlayerOwner.Enemy, id2,-1);
+                if (randintDisc == 2) AddCardToHand(PlayerOwner.Enemy, id3,-1);
+                return;
+            }
             int randint = Random.Range(0, 3);
             if (randint == 0) AddCardToHand(PlayerOwner.Enemy, id1);
             if (randint == 1) AddCardToHand(PlayerOwner.Enemy, id2);
@@ -479,6 +496,11 @@ public class GameManager : MonoBehaviour
         if (options.Count <= 0) return;
         if (owner == PlayerOwner.Enemy)
         {
+            if(OwnerHasTrait(owner, CardData.Trait.Faith, 2))
+            {
+                AddCardToHand(PlayerOwner.Enemy, options[Random.Range(0, options.Count)].id,-1);
+                return;
+            }
             AddCardToHand(PlayerOwner.Enemy, options[Random.Range(0, options.Count)].id);
             return;
         }
@@ -504,7 +526,9 @@ public class GameManager : MonoBehaviour
     }
     public void DiscoverTrait(string trait, PlayerOwner owner)
     {
-        List<CardData> options = CardDatabase.Instance.GetCardsByTraitPackable(trait);
+        List<CardData> options =
+       new List<CardData>(CardDatabase.Instance.GetCardsByTraitPackable(trait));
+
         string res = "options :";
         foreach (CardData option in options)
         {
@@ -513,6 +537,11 @@ public class GameManager : MonoBehaviour
         if (options.Count <= 0) return;
         if (owner == PlayerOwner.Enemy)
         {
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
+            {
+                AddCardToHand(PlayerOwner.Enemy, options[Random.Range(0, options.Count)].id, -1);
+                return;
+            }
             AddCardToHand(PlayerOwner.Enemy, options[Random.Range(0, options.Count)].id);
             return;
         }
@@ -554,6 +583,30 @@ public class GameManager : MonoBehaviour
             CardFactory.Instance.CreateCard(data, owner);
 
         card.SetZone(CardZone.Hand);
+        hand.AddCard(card.gameObject);
+        hand.UpdateCardPositions();
+
+        return card;
+    }
+    public CardInstance AddCardToHand(PlayerOwner owner, int id, int discount)
+    {
+        HandManager hand = owner == PlayerOwner.Player
+            ? allyHand
+            : enemyHand;
+
+        if (hand.handCards.Count >= hand.maxHandSize)
+        {
+            Debug.Log($"{owner} hand is full.");
+            return null;
+        }
+
+        CardData data = CardDatabase.Instance.GetCardById(id);
+
+        CardInstance card =
+            CardFactory.Instance.CreateCard(data, owner);
+
+        card.SetZone(CardZone.Hand);
+        card.AddTemporaryManaModifier(discount);
         hand.AddCard(card.gameObject);
         hand.UpdateCardPositions();
 

@@ -39,17 +39,23 @@ public class Card : MonoBehaviour
     {
         if(SceneManager.GetActiveScene().name == "Combat")
         {
-            if (gameManager.isDiscovering)
+            if (gameManager.isDiscovering && thisInstance.IsDisplay)
             {
-                if (thisInstance.IsDisplay)
-                {
-                    Debug.Log($"Discovered {thisInstance.Data.name}");
+                gameManager.isDiscovering = false; // lock FIRST
+
+                if (gameManager.OwnerHasTrait(thisInstance.Owner, CardData.Trait.Faith, 2))
+                    gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id, -1);
+                else
                     gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id);
-                    gameManager.isDiscovering = false;
-                    gameManager.discoverDisplay.SetActive(false);
-                }
+
+                // Destroy all discover cards
+                foreach (Transform child in gameManager.discoverDisplay.transform)
+                    Destroy(child.gameObject);
+
+                gameManager.discoverDisplay.SetActive(false);
                 return;
             }
+
             if (thisInstance.CurrentZone == CardZone.Hand)
             {
                 isDragging = true;
