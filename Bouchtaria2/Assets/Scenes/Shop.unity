@@ -736,9 +736,21 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1047320076}
+    - target: {fileID: 3578441072867675055, guid: e9cc1249b968b324a859afa5ba7eef40, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: MonsterHunter
+      objectReference: {fileID: 0}
+    - target: {fileID: 4215961713095795445, guid: e9cc1249b968b324a859afa5ba7eef40, type: 3}
+      propertyPath: m_Color.a
+      value: 0.92156863
+      objectReference: {fileID: 0}
     - target: {fileID: 4215961713095795445, guid: e9cc1249b968b324a859afa5ba7eef40, type: 3}
       propertyPath: m_Color.b
-      value: 0.10498905
+      value: 0.106194496
+      objectReference: {fileID: 0}
+    - target: {fileID: 4215961713095795445, guid: e9cc1249b968b324a859afa5ba7eef40, type: 3}
+      propertyPath: m_Color.g
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4215961713095795445, guid: e9cc1249b968b324a859afa5ba7eef40, type: 3}
       propertyPath: m_Color.r
@@ -839,6 +851,10 @@ PrefabInstance:
     - target: {fileID: 7889084582281837557, guid: e9cc1249b968b324a859afa5ba7eef40, type: 3}
       propertyPath: InitialModule.startLifetime.scalar
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242368060238846569, guid: e9cc1249b968b324a859afa5ba7eef40, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -2360,6 +2376,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5218446283196860985, guid: e9cc1249b968b324a859afa5ba7eef40, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242368060238846569, guid: e9cc1249b968b324a859afa5ba7eef40, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

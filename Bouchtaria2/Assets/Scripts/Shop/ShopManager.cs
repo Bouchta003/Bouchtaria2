@@ -1,4 +1,4 @@
-using Firebase.Auth;
+﻿using Firebase.Auth;
 using Firebase.Extensions;
 using Firebase.Firestore;
 using System;
@@ -57,37 +57,85 @@ public class ShopManager : MonoBehaviour
     {
         List<int> openedCards = new();
 
+        // Make a local mutable pool
+        List<int> availablePool = new(pack.possibleCardIds);
+
         for (int i = 0; i < pack.cardCount; i++)
         {
-            int cardId = GetRandomCard(pack.possibleCardIds);
+            if (availablePool.Count == 0)
+            {
+                Debug.LogWarning("Ran out of unique cards to draw from.");
+                break;
+            }
+
+            int cardId = GetRandomCardWeighted(availablePool);
             openedCards.Add(cardId);
+            availablePool.Remove(cardId); // 👈 prevents duplicates
+
             ResolveCard(cardId);
         }
 
         Debug.Log($"Pack opened: {string.Join(",", openedCards)}, wishing for {wish}");
 
-        // Optional: trigger pack-opening UI animation here
-    }
-    private int GetRandomCard(List<int> pool)
-    {
-        int index = UnityEngine.Random.Range(0, pool.Count);
-        return pool[index];
+        UpdateGoldAndDust();
     }
 
+    private int GetRandomCardWeighted(List<int> pool)
+    {
+        float totalWeight = 0f;
+
+        // Precompute weights
+        Dictionary<int, float> weights = new();
+
+        foreach (int cardId in pool)
+        {
+            var card = CardDatabase.Instance.Cards[cardId];
+
+            float weight = 1f;
+
+            // Apply wish bonus
+            if (!string.IsNullOrEmpty(wish) &&
+                card.traits.Contains(wish))
+            {
+                weight *= 3f;
+            }
+
+            weights[cardId] = weight;
+            totalWeight += weight;
+        }
+
+        // Roll
+        float roll = UnityEngine.Random.Range(0f, totalWeight);
+        float cumulative = 0f;
+
+        foreach (var pair in weights)
+        {
+            cumulative += pair.Value;
+            if (roll <= cumulative)
+            {
+                return pair.Key;
+            }
+        }
+
+        // Fallback (should never happen)
+        return pool[0];
+    }
     private void ResolveCard(int cardId)
     {
+        string cardName = CardDatabase.Instance.GetCardById(cardId).name;
+
         if (UserCollectionManager.Instance.IsOwned(cardId))
         {
             DeckBuilding.Instance.GainUserDust(20);
-            Debug.Log("Gain 20 dust");
+            Debug.Log("Gain 20 dust from owned card: " + cardName);
         }
         else
         {
             UserCollectionManager.Instance.UnlockCard(cardId);
-            Debug.Log("Unlocked new card : "+cardId);
+            Debug.Log("Unlocked new card: " + cardName);
         }
-        UpdateGoldAndDust();
     }
+
     public void BuyRandomPack()
     {
         const int PACK_COST = 100; // example
