@@ -226,8 +226,7 @@ public class GameManager : MonoBehaviour
                 CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
                 CardData.Trait.Combo => throw new System.NotImplementedException(),
                 CardData.Trait.Healer => new HealerProgression(owner, maxTier, traitSystem, this),
-                CardData.Trait.Meme => throw new System.NotImplementedException(),
-                _ => throw new System.NotImplementedException()
+                _ => throw new System.NotImplementedException(),
             };
 
             //CardData.Trait.Gunner => new GunnerProgression( owner, maxTier,traitSystem, allyDropArea, enemyDropArea), _ => null};
@@ -458,12 +457,14 @@ public class GameManager : MonoBehaviour
                 if (randintDisc == 0) AddCardToHand(PlayerOwner.Enemy, id1,-1);
                 if (randintDisc == 1) AddCardToHand(PlayerOwner.Enemy, id2,-1);
                 if (randintDisc == 2) AddCardToHand(PlayerOwner.Enemy, id3,-1);
+                if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
                 return;
             }
             int randint = Random.Range(0, 3);
             if (randint == 0) AddCardToHand(PlayerOwner.Enemy, id1);
             if (randint == 1) AddCardToHand(PlayerOwner.Enemy, id2);
             if (randint == 2) AddCardToHand(PlayerOwner.Enemy, id3);
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
             return;
         }
         isDiscovering = true;
@@ -499,9 +500,11 @@ public class GameManager : MonoBehaviour
             if(OwnerHasTrait(owner, CardData.Trait.Faith, 2))
             {
                 AddCardToHand(PlayerOwner.Enemy, options[Random.Range(0, options.Count)].id,-1);
+                if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
                 return;
             }
             AddCardToHand(PlayerOwner.Enemy, options[Random.Range(0, options.Count)].id);
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
             return;
         }
         isDiscovering = true;
@@ -540,9 +543,11 @@ public class GameManager : MonoBehaviour
             if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
             {
                 AddCardToHand(PlayerOwner.Enemy, options[Random.Range(0, options.Count)].id, -1);
+                if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
                 return;
             }
             AddCardToHand(PlayerOwner.Enemy, options[Random.Range(0, options.Count)].id);
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
             return;
         }
         isDiscovering = true;

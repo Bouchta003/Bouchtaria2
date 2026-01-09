@@ -81,8 +81,7 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Pokemon, new[] { 4,8,12 } },
             { CardData.Trait.MonsterHunter, new[] { 5, 10, 20 } },
             { CardData.Trait.Neutral, new[] { 4,8,15 } },
-            { CardData.Trait.Blizzard, new[] { 5, 10 } },
-            { CardData.Trait.Meme, new[] { 6, 9 } }
+            { CardData.Trait.Blizzard, new[] { 5, 10 } }
         };
 
         // 3. Resolve tiers
@@ -175,9 +174,6 @@ public class TraitsDetection : MonoBehaviour
                         break;
                     case CardData.Trait.Blizzard:
                         traitDisplay.iconSlot.sprite = traitDisplay.blizzardIcon;
-                        break;
-                    case CardData.Trait.Meme:
-                        traitDisplay.iconSlot.sprite = traitDisplay.memeIcon;
                         break;
                     default:
                         Debug.Log("Unkown trait");

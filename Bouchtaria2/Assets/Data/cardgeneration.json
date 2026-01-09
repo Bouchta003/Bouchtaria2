@@ -104,7 +104,7 @@
       "atkValue": 0,
       "hpValue": 0,
       "traits": ["MonsterHunter"],
-      "effect": "buff(3,2), targetunit",
+      "effect": "buff(3,2),targetunit",
       "effectText": "Give a unit +3/+2",
       "artPath": "CardArt/bymyownorder",
       "artCompactPath": "CardArt/bymyownorder_compact",

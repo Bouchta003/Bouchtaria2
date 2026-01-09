@@ -48,9 +48,13 @@ public class Card : MonoBehaviour
                 else
                     gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id);
 
+                //RefreshMana
+                if (gameManager.OwnerHasTrait(thisInstance.Owner, CardData.Trait.Faith, 3))
+                { gameManager.GainMana(1, thisInstance.Owner); }
+
                 // Destroy all discover cards
                 foreach (Transform child in gameManager.discoverDisplay.transform)
-                    Destroy(child.gameObject);
+                Destroy(child.gameObject);
 
                 gameManager.discoverDisplay.SetActive(false);
                 return;

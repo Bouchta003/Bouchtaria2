@@ -1109,7 +1109,10 @@ public class FaithProgression : ITraitProgression
             UnlockTier1();
 
         if (discoverCount >= 6 && CurrentTier < 2 && maxTier >= 2)
-            UnlockTier2();
+            UnlockTier2(); 
+        
+        if (discoverCount >= 10 && CurrentTier < 3 && maxTier >= 3)
+            UnlockTier3();
     }
     private void UnlockTier1()
     {
@@ -1120,6 +1123,11 @@ public class FaithProgression : ITraitProgression
     {
         CurrentTier = 2;
         traitSystem.ActivateEffect(new FaithTier2Effect(Owner));
+    }
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+        traitSystem.ActivateEffect(new FaithTier3Effect(Owner));
     }
     private int GetCurrentCap()
     {
@@ -1168,6 +1176,26 @@ public class FaithTier2Effect : IDeckTraitEffect
     private readonly PlayerOwner owner;
 
     public FaithTier2Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        //No visible effect since it discounts discoveries
+    }
+
+    public void OnUnregister() { }
+
+}
+public class FaithTier3Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Faith;
+    public int Tier => 3;
+
+    private readonly PlayerOwner owner;
+
+    public FaithTier3Effect(PlayerOwner owner)
     {
         this.owner = owner;
     }
