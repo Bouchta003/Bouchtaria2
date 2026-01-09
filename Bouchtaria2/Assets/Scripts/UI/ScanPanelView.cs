@@ -178,6 +178,12 @@ public class ScanPanelView : MonoBehaviour
                 keyDescription.text =
                     "Forces enemies to attack this unit.";
             }
+            else if (keyword.Contains("hunter*"))
+            {
+                keyName.text = "Monster Hunter";
+                keyDescription.text =
+                    "Equipping gear to hunters grant them +1/+1.";
+            }
             else if (keyword.Contains("morphto"))
             {
                 keyName.text = "Morph";

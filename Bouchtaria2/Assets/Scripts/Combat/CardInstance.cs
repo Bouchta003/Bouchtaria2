@@ -224,6 +224,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         // Determine spell type
         if (!CurrentEffect.Contains("target"))
             spellType = CardData.SpellTargetType.None;
+        else if (CurrentEffect.Contains("targetunit")) spellType = CardData.SpellTargetType.Unit;
+        else if (CurrentEffect.Contains("targetcore")) spellType = CardData.SpellTargetType.Core;
         else
             spellType = CardData.SpellTargetType.Any;
 
@@ -318,6 +320,12 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (string.IsNullOrWhiteSpace(CurrentEffect))
             return;
+        // 🔑 GEAR IS A CONTAINER — HANDLE IT FIRST
+        if (CurrentEffect.StartsWith("gear"))
+        {
+            TryExecuteGear(CurrentEffect, CurrentEffectText, target);
+            return;
+        }
 
         // Same idea as minions: split by space
         string[] effects = CurrentEffect
@@ -326,6 +334,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         foreach (string rawEffect in effects)
         {
             string effect = rawEffect.ToLowerInvariant();
+            if (CurrentEffect.StartsWith("gear") && target == null)
+            {
+                Debug.LogError("Gear spell resolved without target");
+                return;
+            }
 
             // Targeted spell effects
             if (effect.StartsWith("damage"))
@@ -411,12 +424,13 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         effect = effect.ToLowerInvariant();
         Debug.Log($"[DEPLOY] Executing effect: {effect}");
-        if (effect.Contains(",target"))
+        if (effect.Contains(",target") && !effect.StartsWith("gear"))
         {
             DeployPending = (CurrentZone == CardZone.Board);
             BeginTargetedEffect(effect);
             return;
         }
+
 
         if (effect.StartsWith("sleepall"))
         {
@@ -686,8 +700,15 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (pendingTargetedEffect.StartsWith("gear"))
         {
-            TryExecuteGear(pendingTargetedEffect, "no", target);
+            if (target is not CardInstance)
+            {
+                Debug.LogError("Gear target is invalid");
+                return;
+            }
+
+            TryExecuteGear(pendingTargetedEffect, CurrentEffectText, target);
         }
+
         else if (pendingTargetedEffect.StartsWith("damage"))
         {
             TryExecuteDamage(pendingTargetedEffect, target);
@@ -886,6 +907,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TryExecuteGear(string effect, string effectText, IAttackable target)
     {
+        
         if (target is not CardInstance targetInstance)
         {
             Debug.LogError($"Gear effect requires a unit target on {Data.name}");
@@ -913,12 +935,14 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         // Final visuals / text
+        targetInstance.ThornsDamage = targetInstance.GetThornDamage();
         targetInstance.CurrentEffectText += "\n" + effectText;
         targetInstance.cardView.UpdateMode();
         targetInstance.ParseEffects();
 
         if (targetInstance.Owner == PlayerOwner.Player)
             gameManager.CheckGlow();
+
     }
     private void ApplySingleGearEffect(string subEffect, CardInstance target)
     {
@@ -1015,7 +1039,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         CardData newData = CardDatabase.Instance.GetCardById(newCardId);
         if (newData == null || newCardId == Data.id)
         {
-            Debug.LogError($"Evolve failed");
+            Debug.LogWarning($"Evolve failed");
             return;
         }
 

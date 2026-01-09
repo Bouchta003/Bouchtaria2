@@ -58,7 +58,7 @@ public class HandManager : MonoBehaviour
         {
             CardInstance cardInst = handCard.GetComponent<CardInstance>();
 
-            if (cardInst.CurrentEffect.Contains("monsterpart*"))
+            if (cardInst.CurrentEffect.Contains("monsterpart*") &&!cardInst.CurrentEffect.StartsWith("gear"))
             {
                 assembledCards.Add(handCard);
 
@@ -71,8 +71,8 @@ public class HandManager : MonoBehaviour
                     foreach (GameObject card in assembledCards)
                     {
                         CardInstance inst = card.GetComponent<CardInstance>();
+                        newEffect += inst.CurrentEffect.Replace("*", "") + " ";
 
-                        newEffect += inst.CurrentEffect + " ";
                         newEffectText += inst.CurrentEffectText + " ";
                         newMana += inst.CurrentManaCost;
 
@@ -88,7 +88,7 @@ public class HandManager : MonoBehaviour
                     UpdateCardPositions();
 
                     CardInstance newGear = FindFirstObjectByType<GameManager>().AddCardToHand(Owner, 39);
-                    newGear.CurrentEffect = "gear("+newEffect+"),targetunit";
+                    newGear.CurrentEffect = $"gear({newEffect},targetunit)";
                     newGear.CurrentEffectText = newEffectText;
                     Debug.Log(newGear.CurrentEffect+ "//" + newEffectText);
                     newGear.BaseManaCost = newMana;

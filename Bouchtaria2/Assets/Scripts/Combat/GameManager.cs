@@ -92,6 +92,7 @@ public class GameManager : MonoBehaviour
 
     //Trait Actions
     public event System.Action<CardInstance> OnCardKilled;
+    public event System.Action<CardInstance> OnCardKiller;
     public event System.Action<PlayerOwner, int> OnOwnerHeal;
     public event System.Action<PlayerOwner> OnDiscover;
 
@@ -797,7 +798,7 @@ public class GameManager : MonoBehaviour
             aliveNonHiddenUnits.Add(ci);
         }
 
-        bool hasProtect = aliveNonHiddenUnits.Exists(ci => ci.HasKeyword("protect"));
+        bool hasProtect = aliveNonHiddenUnits.Exists(ci => ci.HasKeyword("protect") && !ci.HasKeyword("hidden"));
 
         foreach (var ci in aliveNonHiddenUnits)
         {
@@ -929,7 +930,7 @@ public class GameManager : MonoBehaviour
             }
             if (isKill)
             {
-                OnCardKilled?.Invoke(attacker);
+                OnCardKiller?.Invoke(attacker);
             }
             //Only Take damage if not blessed, remove effect if damaged
             if (!attacker.HasKeyword("blessed")) { 
@@ -970,7 +971,7 @@ public class GameManager : MonoBehaviour
             return;
 
         // CASE 1: Not targeting → try to select attacker
-        if (!isTargettingAttack && !isTargetingEffect)
+        if (!isTargettingAttack && !isTargetingEffect && !clickedInst.IsAsleep && !clickedInst.IsSummoningSick)
         {
             BeginAttack(card);
             return;
@@ -993,7 +994,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (GetValidTargets(attackerInst).Contains(clickedInst))
+        if (GetValidTargets(attackerInst).Contains(clickedInst) && !attackerInst.IsAsleep)
         {
             QueueAttack(attackerInst, clickedInst);
         }
@@ -1160,14 +1161,17 @@ public class GameManager : MonoBehaviour
     }
     private bool IsValidEffectTarget(PlayerOwner owner, IAttackable target, EffectTarget effectTargetType)
     {
-        //if (target.Owner == owner) return false;
-        if ((target is CoreTarget || target is CoreInstance) && effectTargetType == EffectTarget.Unit)
+        // Enforce type rules
+        if ((target is CoreInstance) && effectTargetType == EffectTarget.Unit)
             return false;
+
         if ((target is CardInstance) && effectTargetType == EffectTarget.Core)
             return false;
 
+        // 🔑 Allow allies by default (gear, buffs, heals)
         return true;
     }
+
     public IAttackable ChooseEnemyEffectTarget(EffectTarget type, bool targetPlayer, bool canTargetCore)
     {
         List<IAttackable> targets = GetValidTargets(PlayerOwner.Player);
@@ -1186,13 +1190,15 @@ public class GameManager : MonoBehaviour
         // Filter by effect target type
         targets = targets.Where(t =>
         {
-            if (type == EffectTarget.Unit)
+            if (type == EffectTarget.Unit || type == EffectTarget.Any)
                 return t is CardInstance;
-            if (type == EffectTarget.Core)
+            if (type == EffectTarget.Core || type == EffectTarget.Any)
                 return t is CoreInstance;
+            if (effectSource != null && effectSource.CurrentEffect.Contains("sleep") && t is CardInstance ti && ti.IsAsleep)
+                return false;            
             return true; // Any
         }).ToList();
-
+        
         if (targets.Count == 0)
             return null;
 
@@ -1206,14 +1212,10 @@ public class GameManager : MonoBehaviour
         if (!isTargetingEffect || effectSource == null)
             return;
 
-        if (!isTargetingEffect)
-            return;
-
         if (!IsValidEffectTarget(effectSource.Owner, target, targetType))
             return;
 
         isTargetingEffect = false;
-
         attackCursor.gameObject.SetActive(false);
 
         onEffectTargetChosen?.Invoke(target);
@@ -1221,6 +1223,7 @@ public class GameManager : MonoBehaviour
         onEffectTargetChosen = null;
         effectSource = null;
     }
+
     public IEnumerator ShowEnemySpell(CardData data)
     {
         enemySpellReveal.SetActive(true);

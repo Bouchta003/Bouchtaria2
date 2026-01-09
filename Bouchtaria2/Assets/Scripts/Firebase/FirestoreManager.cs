@@ -72,8 +72,8 @@ public class FirestoreManager : MonoBehaviour
                 {
                     { "createdAt", Timestamp.GetCurrentTimestamp() },
                     { "displayName", "Anonymous" },
-                    { "dust quantity",100 },
-                    { "gems",1000 },
+                    { "dust",100 },
+                    { "gold",1000 },
                 })
                 .ContinueWithOnMainThread(setTask =>
                 {
@@ -91,8 +91,37 @@ public class FirestoreManager : MonoBehaviour
             else
             {
                 Debug.Log("✅ User already exists");
-                onReady?.Invoke();
+
+                var snapshot = task.Result;
+                var updates = new System.Collections.Generic.Dictionary<string, object>();
+
+                if (!snapshot.ContainsField("gold"))
+                    updates["gold"] = 1000;
+
+                if (!snapshot.ContainsField("dust"))
+                    updates["dust"] = 100;
+
+                if (updates.Count > 0)
+                {
+                    userDoc.UpdateAsync(updates).ContinueWithOnMainThread(updateTask =>
+                    {
+                        if (updateTask.IsFaulted)
+                        {
+                            Debug.LogError("❌ Failed to add missing fields");
+                            Debug.LogException(updateTask.Exception);
+                            return;
+                        }
+
+                        Debug.Log("🛠 Missing fields added to user document");
+                        onReady?.Invoke();
+                    });
+                }
+                else
+                {
+                    onReady?.Invoke();
+                }
             }
+
         });
     }
 }

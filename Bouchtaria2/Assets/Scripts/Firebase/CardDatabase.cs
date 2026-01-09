@@ -128,7 +128,7 @@ public class CardDatabase : MonoBehaviour
 
         if (!Cards.TryGetValue(id, out CardData data))
         {
-            Debug.LogError($"CardDatabase: Card with id {id} not found");
+            Debug.LogWarning($"CardDatabase: Card with id {id} not found");
             return null;
         }
 

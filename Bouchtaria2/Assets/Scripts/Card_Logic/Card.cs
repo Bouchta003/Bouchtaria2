@@ -39,6 +39,7 @@ public class Card : MonoBehaviour
     {
         if(SceneManager.GetActiveScene().name == "Combat")
         {
+            //Discovery effect
             if (gameManager.isDiscovering && thisInstance.IsDisplay)
             {
                 gameManager.isDiscovering = false; // lock FIRST
@@ -59,7 +60,7 @@ public class Card : MonoBehaviour
                 gameManager.discoverDisplay.SetActive(false);
                 return;
             }
-
+            //Drag to play card
             if (thisInstance.CurrentZone == CardZone.Hand)
             {
                 isDragging = true;
@@ -70,7 +71,7 @@ public class Card : MonoBehaviour
                     handManager.RaiseCard(gameObject, 500);
                 return;
             }
-
+            //Click for card attack or effect target
             if (thisInstance.CurrentZone == CardZone.Board)
             {
                 gameManager.HandleBoardCardClick(this);

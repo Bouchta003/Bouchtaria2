@@ -354,15 +354,14 @@ public class PokemonProgression : ITraitProgression
     {
         Debug.Log($"[PokemonProgression] Register for {Owner}");
 
-        gameManager.OnCardKilled += OnCardKill;
+        gameManager.OnCardKiller += OnCardKill;
 
         OnProgressUpdated?.Invoke(Trait, pokemonKills, GetCurrentCap(), Owner);
     }
     public void Unregister()
     {
-        gameManager.OnCardKilled -= OnCardKill;
+        gameManager.OnCardKiller -= OnCardKill;
     }
-
     private int GetCurrentCap()
     {
         return CurrentTier switch
@@ -373,7 +372,6 @@ public class PokemonProgression : ITraitProgression
             _ => 999
         };
     }
-
     private void OnCardKill(CardInstance card)
     {
         if (card.Owner != Owner)
@@ -401,7 +399,6 @@ public class PokemonProgression : ITraitProgression
         }
 
     }
-
     private void UnlockTier1()
     {
         CurrentTier = 1;
@@ -429,7 +426,6 @@ public class PokemonProgression : ITraitProgression
         );
         Debug.Log($"{Owner} unlocked Pokemon Tier 3");
     }
-
 }
 public class PokemonTier1Effect : IDeckTraitEffect
 {
@@ -514,7 +510,7 @@ public class PokemonTier1Effect : IDeckTraitEffect
 public class PokemonTier2Effect : IDeckTraitEffect
 {
     public CardData.Trait Trait => CardData.Trait.Pokemon;
-    public int Tier => 1;
+    public int Tier => 2;
 
     private readonly PlayerOwner owner;
     private bool used;
@@ -553,7 +549,7 @@ public class PokemonTier2Effect : IDeckTraitEffect
         if (card.Owner != owner)
             return;
 
-        if (card.Data.cardType != "minion")
+        if (card.Data.cardType != "minion" || !card.HasTrait("Pokemon"))
             return;
 
         Debug.Log($"Evolving instant card {card.name}, for {owner}");

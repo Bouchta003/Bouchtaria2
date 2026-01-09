@@ -118,6 +118,17 @@ public class GameFlowController : MonoBehaviour
         UserCollectionManager.Instance.RefreshCollection();
         SceneManager.LoadScene("QuickMatch");
     }
+    public void GoToShop()
+    {
+        if (!isGameReady)
+        {
+            Debug.LogWarning("⚠️ Game data not ready yet");
+            return;
+        }
+        //IsThisLineNecessary ?
+        UserCollectionManager.Instance.RefreshCollection();
+        SceneManager.LoadScene("Shop");
+    }
     public void GoToCollection()
     {
         if (!isGameReady)

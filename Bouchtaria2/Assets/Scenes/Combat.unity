@@ -605,6 +605,10 @@ MonoBehaviour:
   enemyTraitUI: {fileID: 69533397}
   winLoseUI: {fileID: 554539686}
   mainCamera: {fileID: 0}
+  PlayerHealBonus: 0
+  EnemyHealBonus: 0
+  PlayerDarkHeal: 0
+  EnemyDarkHeal: 0
   isTargettingAttack: 0
   discoverDisplay: {fileID: 964561718}
   isDiscovering: 0
@@ -1743,6 +1747,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAIController
   enemyHand: {fileID: 595603584}
   enemyBoard: {fileID: 1449377217}
+  allyBoard: {fileID: 1531594430}
   gameManager: {fileID: 116247819}
 --- !u!1 &752328684
 GameObject:

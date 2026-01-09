@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 22a4dd9adeb65fd4095ef0b2a92008ca
+guid: 68dabc394e920234591e6835253043c2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5701516202034644076
-    second: awrahman_0
+      213: -7156152975980405174
+    second: awrahguy_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: awrahman_0
+      name: awrahguy_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1024
-        height: 1536
+        width: 803
+        height: 1205
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 49b3790e83520e0b0800000000000000
-      internalID: -5701516202034644076
+      spriteID: a4e555488cc30bc90800000000000000
+      internalID: -7156152975980405174
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      awrahman_0: -5701516202034644076
+      awrahguy_0: -7156152975980405174
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

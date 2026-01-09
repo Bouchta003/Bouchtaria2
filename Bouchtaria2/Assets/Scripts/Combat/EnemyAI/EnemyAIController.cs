@@ -6,6 +6,7 @@ public class EnemyAIController : MonoBehaviour
 {
     [SerializeField] private HandManager enemyHand;
     [SerializeField] private EnemyCardDropArea enemyBoard;
+    [SerializeField] private AllyCardDropArea allyBoard;
     [SerializeField] private GameManager gameManager;
     private void OnEnable()
     {
@@ -26,6 +27,13 @@ public class EnemyAIController : MonoBehaviour
     }
     private IEnumerator EnemyTurnRoutine()
     {
+        if (HasLethalThisTurn())
+        {
+            yield return StartCoroutine(TryAttack());
+            EndEnemyTurn();
+            yield break;
+        }
+
         yield return new WaitForSeconds(0.3f);
 
         // Spells
@@ -45,7 +53,27 @@ public class EnemyAIController : MonoBehaviour
 
         EndEnemyTurn();
     }
+    private int EvaluateSpell(CardInstance spell)
+    {
+        int score = 0;
 
+        if (spell.CurrentEffect.Contains("damage"))
+            score += 40;
+
+        if (spell.CurrentEffect.Contains("buff"))
+            score += enemyBoard.enemyPrefabCards.Count * 10;
+
+        if (spell.CurrentEffect.Contains("heal"))
+            score += 20;
+
+        if (spell.CurrentEffect.Contains("gear"))
+            score += 30;
+
+        // Penalize low-impact expensive spells
+        score -= spell.CurrentManaCost * 5;
+
+        return score;
+    }
 
     private IEnumerator TryPlaySpells()
     {
@@ -71,9 +99,8 @@ public class EnemyAIController : MonoBehaviour
 
             playableSpells.Add(inst);
         }
-
         playableSpells.Sort((a, b) =>
-            b.CurrentManaCost.CompareTo(a.CurrentManaCost));
+            EvaluateSpell(b).CompareTo(EvaluateSpell(a)));
 
         foreach (CardInstance spell in playableSpells)
         {
@@ -86,6 +113,10 @@ public class EnemyAIController : MonoBehaviour
             if (spell.CurrentEffect.Contains("gear") || (spell.CurrentEffect.Contains("heal") && !spell.CurrentEffect.Contains("autoheal")) || spell.CurrentEffect.Contains("buff"))
             {
                 if (enemyBoard.enemyPrefabCards.Count <= 0) continue;
+            }
+            else if (spell.CurrentEffect.Contains("targetunit"))
+            {
+                if (allyBoard.allyPrefabCards.Count <= 0) continue;
             }
             yield return StartCoroutine(
                 gameManager.ShowEnemySpell(spell.Data)
@@ -110,6 +141,22 @@ public class EnemyAIController : MonoBehaviour
         enemyHand.handCards.Remove(spell.gameObject);
         Destroy(spell.gameObject);
     }
+    private int EvaluateMinion(CardInstance minion)
+    {
+        int value = 0;
+
+        value += minion.CurrentAttack * 2;
+        value += minion.CurrentHealth;
+
+        if (minion.HasKeyword("protect")) value += 10;
+        if (minion.HasKeyword("haste")) value += 5;
+        if (minion.HasKeyword("quickstrike")) value += 10;
+
+        value -= minion.CurrentManaCost;
+
+        return value;
+    }
+
     private IEnumerator TrySummon()
     {
         while (true)
@@ -149,7 +196,9 @@ public class EnemyAIController : MonoBehaviour
         // Sort by cheapest first (maximize mana usage)
         if(playable.Count>0 && playable != null)
         {
-            playable.Sort((b, a) => b.CurrentManaCost.CompareTo(a.CurrentManaCost));
+            playable.Sort((a, b) =>
+                EvaluateMinion(b).CompareTo(EvaluateMinion(a)));
+
             return playable[0];
         }
         return null;
@@ -197,7 +246,12 @@ public class EnemyAIController : MonoBehaviour
             if (targets.Count == 0)
                 continue;
 
-            gameManager.QueueAttack(attacker, targets[0]);
+            IAttackable bestTarget = ChooseBestAttackTarget(attacker);
+            if (bestTarget != null)
+            {
+                gameManager.QueueAttack(attacker, bestTarget);
+            }
+
 
             // 🔹 Wait until THIS attack finishes
             yield return new WaitUntil(() => !gameManager.IsResolvingAttackQueue());
@@ -206,6 +260,75 @@ public class EnemyAIController : MonoBehaviour
             yield return new WaitForSeconds(0.25f);
         }
     }
+    private IAttackable ChooseBestAttackTarget(CardInstance attacker)
+    {
+        var targets = gameManager.GetValidTargets(attacker);
+
+        IAttackable best = null;
+        int bestScore = int.MinValue;
+
+        foreach (var target in targets)
+        {
+            int score = 0;
+
+            // CORE
+            if (target is CoreInstance core)
+            {
+                score += 50; // default preference
+
+                if (HasLethalThisTurn())
+                    score += 10000; // ALWAYS go face if lethal
+            }
+
+            // UNIT
+            else if (target is CardInstance unit)
+            {
+                // Favor clean kills
+                if (attacker.CurrentAttack >= unit.CurrentHealth)
+                    score += 60;
+
+                // Avoid bad trades
+                if (unit.CurrentAttack > attacker.CurrentHealth)
+                    score -= 10;
+
+                // Remove haste units
+                if (unit.HasKeyword("haste"))
+                    score += 100;
+
+                // Threat evaluation
+                score += unit.CurrentAttack;
+            }
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                best = target;
+            }
+        }
+
+        return best;
+    }
+
+    private bool HasLethalThisTurn()
+    {
+        int totalAttack = 0;
+
+        foreach (GameObject go in enemyBoard.enemyPrefabCards)
+        {
+            if (go == null) continue;
+
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci == null) continue;
+
+            if (!gameManager.CanSelectAttacker(ci))
+                continue;
+
+            totalAttack += ci.CurrentAttack;
+        }
+
+        return totalAttack >= gameManager.PlayerCore.CurrentHealth;
+    }
+
     private void EndEnemyTurn()
     {
         TurnManager.Instance.EndTurn();

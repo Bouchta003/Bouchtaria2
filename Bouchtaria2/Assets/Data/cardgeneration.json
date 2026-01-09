@@ -1077,7 +1077,7 @@
       "traits": [ "Faith" ],
       "effect": "d[draw(1)]",
       "effectText": "Deploy : Draw a card.",
-      "artPath": "CardArt/awrahman",
+      "artPath": "CardArt/awrahguy",
       "artCompactPath": "CardArt/awrahman_compact",
       "packable": true,
       "token": false,

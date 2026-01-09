@@ -102,7 +102,7 @@ public class TraitsDisplay : MonoBehaviour
                 if (tier > 1) display +=
                         "\nTier 2 : Your discovered cards cost 1 less.";
                 if (tier > 2) display +=
-                         "\nTier 3 : When discovering a card, refresh 2 mana.";
+                         "\nTier 3 : When you discover a card, refresh 1 mana.";
                 break;
             case CardData.Trait.MonsterHunter:
                 display += $"Colossal Monsters have died : {Progression}/{CurrentCap}" +
