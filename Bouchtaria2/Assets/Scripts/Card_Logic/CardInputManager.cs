@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class CardInputManager : MonoBehaviour
 {
@@ -59,7 +60,6 @@ public class CardInputManager : MonoBehaviour
             }
         }
     }
-
     Card GetTopmostCardUnderMouse()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -73,21 +73,31 @@ public class CardInputManager : MonoBehaviour
             if (hit.collider == null)
                 continue;
 
-            if (hit.collider.TryGetComponent<Card>(out Card card))
+            if (!hit.collider.TryGetComponent(out Card card))
+                continue;
+
+            int order = 0;
+
+            SortingGroup group = card.GetComponent<SortingGroup>();
+            if (group != null)
+            {
+                order = group.sortingOrder;
+            }
+            else
             {
                 SpriteRenderer sr = card.GetActiveSpriteRenderer();
                 if (sr == null) continue;
+                order = sr.sortingOrder;
+            }
 
-                int order = sr.sortingOrder;
-
-                if (order > bestOrder)
-                {
-                    bestOrder = order;
-                    bestCard = card;
-                }
+            if (order > bestOrder)
+            {
+                bestOrder = order;
+                bestCard = card;
             }
         }
 
         return bestCard;
     }
+
 }
