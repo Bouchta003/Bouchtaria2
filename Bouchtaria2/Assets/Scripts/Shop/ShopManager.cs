@@ -7,6 +7,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.Rendering;
+using System.Collections;
 
 public class ShopManager : MonoBehaviour
 {
@@ -64,37 +65,61 @@ public class ShopManager : MonoBehaviour
     #region Pack Management
     private void OpenPack(CardPack pack)
     {
-        List<int> openedCards = new();
-
-        // Make a local mutable pool
         List<int> availablePool = new(pack.possibleCardIds);
+        int count = pack.cardCount;
 
-        for (int i = 0; i < pack.cardCount; i++)
+        int[] finalCards = new int[count];
+
+        // 1️⃣ Pick guaranteed card for index 0
+        int guaranteed = GetGuaranteedWishCard(availablePool);
+        finalCards[0] = guaranteed;
+        availablePool.Remove(guaranteed);
+
+        ResolveCard(guaranteed);
+
+        // 2️⃣ Pick remaining cards normally
+        for (int i = 1; i < count; i++)
         {
             if (availablePool.Count == 0)
-            {
-                Debug.LogWarning("Ran out of unique cards to draw from.");
                 break;
-            }
 
             int cardId = GetRandomCardWeighted(availablePool);
-            openedCards.Add(cardId);
-            availablePool.Remove(cardId); // 👈 prevents duplicates
+            finalCards[i] = cardId;
+            availablePool.Remove(cardId);
 
             ResolveCard(cardId);
-            SpawnCardInScene(cardId, i);
         }
 
-        Debug.Log($"Pack opened: {string.Join(",", openedCards)}, wishing for {wish}");
+        // 3️⃣ Animate reveal (last → first, index 0 last)
+        StartCoroutine(RevealPackCoroutine(finalCards));
 
         UpdateGoldAndDust();
     }
+    private IEnumerator RevealPackCoroutine(int[] cards)
+    {
+        packSpawnRoot.gameObject.SetActive(true);
+
+        float baseDelay = 0.25f;
+        float finalDelay = 0.7f;
+
+        // Reveal from last index to 1
+        for (int i = cards.Length - 1; i > 0; i--)
+        {
+            SpawnCardInScene(cards[i], i);
+            yield return new WaitForSeconds(baseDelay);
+        }
+
+        // Extra dramatic delay for index 0
+        yield return new WaitForSeconds(finalDelay);
+
+        SpawnCardInScene(cards[0], 0);
+    }
+
     private void SpawnCardInScene(int cardId, int index)
     {
         CardData data = CardDatabase.Instance.GetCardById(cardId);
         if (data == null)
             return;
-
         Vector3 position = Vector3.zero;
 
         CardFactory.Instance.CreateCardInPosition(
@@ -105,10 +130,39 @@ public class ShopManager : MonoBehaviour
             packSpawnRoot.GetChild(index+2)
         ).GetComponent<SortingGroup>().sortingOrder = 20;
     }
+    private int GetGuaranteedWishCard(List<int> pool)
+    {
+        if (string.IsNullOrEmpty(wish))
+            return GetRandomCardWeighted(pool);
+
+        List<int> wishedCards = new();
+
+        foreach (int cardId in pool)
+        {
+            if (CardDatabase.Instance.Cards[cardId].traits.Contains(wish))
+            {
+                wishedCards.Add(cardId);
+            }
+        }
+
+        // Fallback if no card matches the wish
+        if (wishedCards.Count == 0)
+            return GetRandomCardWeighted(pool);
+
+        return wishedCards[UnityEngine.Random.Range(0, wishedCards.Count)];
+    }
+
     public void ValidatePack()
     {
         Debug.Log("Click");
         packSpawnRoot.gameObject.SetActive(false);
+        for (int i = 2; i < 7; i++)
+        {
+            foreach (Transform child in packSpawnRoot.GetChild(i))
+            {
+                child.gameObject.SetActive(false);
+            }
+        }
     }
     private int GetRandomCardWeighted(List<int> pool)
     {
@@ -127,7 +181,7 @@ public class ShopManager : MonoBehaviour
             if (!string.IsNullOrEmpty(wish) &&
                 card.traits.Contains(wish))
             {
-                weight *= 3f;
+                weight *= 2f;
             }
 
             weights[cardId] = weight;
