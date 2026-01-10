@@ -77,6 +77,10 @@ public class DeckSelectionController : MonoBehaviour
             DeckBuilding.Instance.OnDecksLoaded -= PopulateDropdown;
     }
 
+    public void GoToMainMenu()
+    {
+        SceneManager.LoadScene("Main_Menu");
+    }
     private void PopulateDropdown()
     {
         userDecks = DeckBuilding.Instance.GetUserDecks();
