@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Rendering;
 
 public class ShopManager : MonoBehaviour
 {
@@ -14,6 +15,13 @@ public class ShopManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI GoldCounter;
     [SerializeField] TextMeshProUGUI DustCounter;
     [SerializeField] TextMeshProUGUI ProgressionCounter;
+
+    //Card Show : 
+    [SerializeField] private Transform packSpawnRoot;
+    [SerializeField] private Vector3 cardSpawnScale = Vector3.one;
+    [SerializeField] private float cardSpacing = 1.5f;
+
+
     int UserGold;
     int UserDust;
 
@@ -30,6 +38,7 @@ public class ShopManager : MonoBehaviour
         Instance = this;
         
         UpdateGoldAndDust();
+        packSpawnRoot.gameObject.SetActive(false);
     }
 
     public void GoToMainMenu()
@@ -73,13 +82,34 @@ public class ShopManager : MonoBehaviour
             availablePool.Remove(cardId); // 👈 prevents duplicates
 
             ResolveCard(cardId);
+            SpawnCardInScene(cardId, i);
         }
 
         Debug.Log($"Pack opened: {string.Join(",", openedCards)}, wishing for {wish}");
 
         UpdateGoldAndDust();
     }
+    private void SpawnCardInScene(int cardId, int index)
+    {
+        CardData data = CardDatabase.Instance.GetCardById(cardId);
+        if (data == null)
+            return;
 
+        Vector3 position = Vector3.zero;
+
+        CardFactory.Instance.CreateCardInPosition(
+            data,
+            PlayerOwner.Player,   // or Neutral / Shop / None
+            position,
+            cardSpawnScale,
+            packSpawnRoot.GetChild(index+2)
+        ).GetComponent<SortingGroup>().sortingOrder = 20;
+    }
+    public void ValidatePack()
+    {
+        Debug.Log("Click");
+        packSpawnRoot.gameObject.SetActive(false);
+    }
     private int GetRandomCardWeighted(List<int> pool)
     {
         float totalWeight = 0f;
@@ -138,6 +168,7 @@ public class ShopManager : MonoBehaviour
 
     public void BuyRandomPack()
     {
+        if (packSpawnRoot.gameObject.activeSelf) return;
         const int PACK_COST = 100; // example
 
         GetUserGold(gold =>
@@ -155,6 +186,7 @@ public class ShopManager : MonoBehaviour
 
             CardPack generatedPack = GenerateRandomPack();
             OpenPack(generatedPack);
+            packSpawnRoot.gameObject.SetActive(true);
         });
     }
     private CardPack GenerateRandomPack()
@@ -255,6 +287,8 @@ public class ShopManager : MonoBehaviour
     #region Wish Management
     public void SelectWish(string selectedTrait)
     {
+        if (packSpawnRoot.gameObject.activeSelf) return;
+        Debug.Log("Click wish " + selectedTrait);
         wish = selectedTrait;
     }
     #endregion
