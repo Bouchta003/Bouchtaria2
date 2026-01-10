@@ -17,10 +17,20 @@ public class CardInputManager : MonoBehaviour
         HandleHover();
         HandleClickAndDrag();
     }
-
     void HandleHover()
     {
-        hoveredCard = GetTopmostCardUnderMouse();
+        Card newHoveredCard = GetTopmostCardUnderMouse();
+
+        if (newHoveredCard != hoveredCard)
+        {
+            if (hoveredCard != null)
+                hoveredCard.OnHoverExit();
+
+            if (newHoveredCard != null)
+                newHoveredCard.OnHoverEnter();
+
+            hoveredCard = newHoveredCard;
+        }
     }
 
     void HandleClickAndDrag()

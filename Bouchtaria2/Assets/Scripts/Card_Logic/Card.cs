@@ -13,11 +13,22 @@ public class Card : MonoBehaviour
     CardInstance thisInstance;
     public bool isDragging; // 🔑 NEW
     [SerializeField] Rigidbody2D rb;
+    //Hover
+    [Header("Hover Effect")]
+    [SerializeField] private float hoverScale = 1.1f;
+    [SerializeField] private float hoverSpeed = 8f;
+
+    private Vector3 originalScale;
+    private bool isHovered;
+    private bool hoverEnabled = false;
 
 
     [Header("Visuals")]
     [SerializeField] private SpriteRenderer handVisual;
     [SerializeField] private SpriteRenderer boardVisual;
+    [Header("Hover Control")]
+    [SerializeField] public bool delayedHover = false;
+
     void Awake()
     {
         col = GetComponent<Collider2D>();
@@ -26,14 +37,52 @@ public class Card : MonoBehaviour
         gameManager = FindFirstObjectByType<GameManager>();
         thisInstance = gameObject.GetComponent<CardInstance>();
     }
-
     void Start()
     {
         col = GetComponent<Collider2D>();
         enemyCardDropArea = FindFirstObjectByType<EnemyCardDropArea>();
         allyCardDropArea = FindFirstObjectByType<AllyCardDropArea>();
+
+        if (!delayedHover)
+            EnableHover();
     }
+
+    void Update()
+    {
+        if (!hoverEnabled)
+            return;
+
+        Vector3 targetScale = isHovered ? originalScale * hoverScale : originalScale;
+        transform.localScale = Vector3.Lerp(
+            transform.localScale,
+            targetScale,
+            Time.deltaTime * hoverSpeed
+        );
+    }
+
+
     #region Pointer-based input (called by CardInputManager)
+    public void OnHoverEnter()
+    {
+        if (!hoverEnabled) return;
+        if (isDragging) return;
+        if(gameManager!=null)
+        if (gameManager.isDiscovering && !thisInstance.IsDisplay) return;
+
+        isHovered = true;
+    }
+    public void EnableHover()
+    {
+        originalScale = transform.localScale; // ✅ CORRECT scale
+        isHovered = false;
+        hoverEnabled = true;
+    }
+
+
+    public void OnHoverExit()
+    {
+        isHovered = false;
+    }
 
     public void OnPointerDown()
     {
@@ -63,7 +112,7 @@ public class Card : MonoBehaviour
             //Drag to play card
             if (thisInstance.CurrentZone == CardZone.Hand)
             {
-                isDragging = true;
+                isDragging = true;isHovered = false;
                 startDragPosition = transform.position;
                 transform.position = GetMousePositionInWorldSpace();
 
@@ -93,7 +142,7 @@ public class Card : MonoBehaviour
                 return;
             }
 
-            isDragging = true;
+            isDragging = true;isHovered = false;
             startDragPosition = transform.position;
             transform.position = GetMousePositionInWorldSpace();
         }

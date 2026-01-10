@@ -173,6 +173,12 @@ public class ShopManager : MonoBehaviour
         {
             card.cardView.dustIndicator.SetActive(true);
         }
+        Card cardComp = card.GetComponent<Card>();
+        if (cardComp != null)
+        {
+            cardComp.delayedHover = true;
+        }
+
         SortingGroup sorting = card.GetComponent<SortingGroup>();
         if (sorting != null)
             sorting.sortingOrder = 20;
@@ -389,6 +395,13 @@ public class ShopManager : MonoBehaviour
         {
             seq.Append(card.DOPunchScale(Vector3.one * 0.15f, 0.25f, 8, 0.8f));
         }
+        seq.OnComplete(() =>
+        {
+            Card cardComp = card.GetComponent<Card>();
+            if (cardComp != null)
+                cardComp.EnableHover();
+        });
+
     }
 
     #endregion
