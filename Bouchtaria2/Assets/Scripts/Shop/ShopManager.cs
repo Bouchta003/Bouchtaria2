@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.Rendering;
 using System.Collections;
+using DG.Tweening;
 
 public class ShopManager : MonoBehaviour
 {
@@ -114,22 +115,30 @@ public class ShopManager : MonoBehaviour
 
         SpawnCardInScene(cards[0], 0);
     }
-
     private void SpawnCardInScene(int cardId, int index)
     {
         CardData data = CardDatabase.Instance.GetCardById(cardId);
         if (data == null)
             return;
-        Vector3 position = Vector3.zero;
 
-        CardFactory.Instance.CreateCardInPosition(
+        Transform slot = packSpawnRoot.GetChild(index + 2);
+
+        // Spawn
+        CardInstance card = CardFactory.Instance.CreateCardInPosition(
             data,
-            PlayerOwner.Player,   // or Neutral / Shop / None
-            position,
+            PlayerOwner.Player,
+            Vector3.zero,
             cardSpawnScale,
-            packSpawnRoot.GetChild(index+2)
-        ).GetComponent<SortingGroup>().sortingOrder = 20;
+            slot
+        );
+
+        SortingGroup sorting = card.GetComponent<SortingGroup>();
+        if (sorting != null)
+            sorting.sortingOrder = 20;
+
+        AnimateCardSpawn(card.transform, index == 0);
     }
+
     private int GetGuaranteedWishCard(List<int> pool)
     {
         if (string.IsNullOrEmpty(wish))
@@ -269,6 +278,36 @@ public class ShopManager : MonoBehaviour
             possibleCardIds = packableCards
         };
     }
+
+    private void AnimateCardSpawn(Transform card, bool isFinalCard)
+    {
+        float duration = isFinalCard ? 0.6f : 0.4f;
+        Ease ease = isFinalCard ? Ease.OutBack : Ease.OutCubic;
+
+        Vector3 startPos = card.localPosition + Vector3.down * 0.5f;
+        Vector3 endPos = card.localPosition;
+
+        card.localPosition = startPos;
+        card.localScale = Vector3.zero;
+
+        CanvasGroup cg = card.GetComponent<CanvasGroup>();
+        if (cg == null)
+            cg = card.gameObject.AddComponent<CanvasGroup>();
+
+        cg.alpha = 0f;
+
+        Sequence seq = DOTween.Sequence();
+
+        seq.Join(card.DOLocalMove(endPos, duration).SetEase(ease));
+        seq.Join(card.DOScale(cardSpawnScale, duration).SetEase(ease));
+        seq.Join(cg.DOFade(1f, duration * 0.8f));
+
+        if (isFinalCard)
+        {
+            seq.Append(card.DOPunchScale(Vector3.one * 0.15f, 0.25f, 8, 0.8f));
+        }
+    }
+
     #endregion
     #region Gold Management
     public void UseGold(int amount)
