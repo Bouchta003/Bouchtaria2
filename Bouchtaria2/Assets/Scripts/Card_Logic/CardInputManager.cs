@@ -1,10 +1,16 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
 public class CardInputManager : MonoBehaviour
 {
     private Card hoveredCard;
     private Card draggedCard;
+    bool DraggingAllowed()
+    {
+        string scene = SceneManager.GetActiveScene().name;
+        return scene != "Shop";
+    }
 
     void Update()
     {
@@ -36,6 +42,9 @@ public class CardInputManager : MonoBehaviour
 
     void HandleClickAndDrag()
     {
+        if (!DraggingAllowed())
+            return;
+
         if (Input.GetMouseButtonDown(0))
         {
             if (hoveredCard == null)
