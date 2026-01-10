@@ -13,6 +13,7 @@ using DG.Tweening;
 public class ShopManager : MonoBehaviour
 {
     public static ShopManager Instance;
+    private CanvasGroup packCanvasGroup;
 
     [SerializeField] TextMeshProUGUI GoldCounter;
     [SerializeField] TextMeshProUGUI DustCounter;
@@ -23,6 +24,10 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private Vector3 cardSpawnScale = Vector3.one;
     [SerializeField] private float cardSpacing = 1.5f;
 
+    //Animation of pack
+    [SerializeField] private float packShowDuration = 0.35f;
+    [SerializeField] private float packHideDuration = 0.55f;
+    [SerializeField] private float packHideScale = 0.9f;
 
     int UserGold;
     int UserDust;
@@ -40,7 +45,14 @@ public class ShopManager : MonoBehaviour
         Instance = this;
         
         UpdateGoldAndDust();
-        packSpawnRoot.gameObject.SetActive(false);
+
+        packCanvasGroup = packSpawnRoot.GetComponent<CanvasGroup>();
+        if (packCanvasGroup == null)
+            packCanvasGroup = packSpawnRoot.gameObject.AddComponent<CanvasGroup>();
+
+        packCanvasGroup.alpha = 0f;
+        packCanvasGroup.interactable = false;
+        packCanvasGroup.blocksRaycasts = false;
     }
 
     public void GoToMainMenu()
@@ -64,6 +76,32 @@ public class ShopManager : MonoBehaviour
         });
     }
     #region Pack Management
+    private void ShowPackAnimated()
+    {
+        EnsurePackCanvasGroup();
+
+        packSpawnRoot.gameObject.SetActive(true);
+
+        packCanvasGroup.DOKill();
+        packSpawnRoot.DOKill();
+
+        packCanvasGroup.alpha = 0f;
+        packSpawnRoot.localScale = Vector3.one * 0.95f;
+
+        packCanvasGroup.blocksRaycasts = false;
+        packCanvasGroup.interactable = false;
+
+        Sequence seq = DOTween.Sequence();
+        seq.Join(packCanvasGroup.DOFade(1f, 0.35f));
+        seq.Join(packSpawnRoot.DOScale(1f, 0.35f).SetEase(Ease.OutCubic));
+
+        seq.OnComplete(() =>
+        {
+            packCanvasGroup.blocksRaycasts = true;
+            packCanvasGroup.interactable = true;
+        });
+    }
+
     private void OpenPack(CardPack pack)
     {
         List<int> availablePool = new(pack.possibleCardIds);
@@ -160,19 +198,61 @@ public class ShopManager : MonoBehaviour
 
         return wishedCards[UnityEngine.Random.Range(0, wishedCards.Count)];
     }
-
     public void ValidatePack()
     {
-        Debug.Log("Click");
-        packSpawnRoot.gameObject.SetActive(false);
-        for (int i = 2; i < 7; i++)
-        {
-            foreach (Transform child in packSpawnRoot.GetChild(i))
-            {
-                child.gameObject.SetActive(false);
-            }
-        }
+        if (packCanvasGroup == null || packCanvasGroup.alpha == 0f)
+            return;
+
+        HidePackAnimated();
     }
+    private void HidePackAnimated()
+    {
+        EnsurePackCanvasGroup();
+
+        packCanvasGroup.DOKill();
+        packSpawnRoot.DOKill();
+
+        packCanvasGroup.blocksRaycasts = false;
+        packCanvasGroup.interactable = false;
+
+        Sequence seq = DOTween.Sequence();
+
+        seq.Join(packCanvasGroup.DOFade(0f, packHideDuration));
+        seq.Join(
+            packSpawnRoot
+                .DOScale(packHideScale, packHideDuration)
+                .SetEase(Ease.InOutCubic)
+        );
+
+        seq.OnComplete(() =>
+        {
+            // Cleanup spawned cards
+            for (int i = 2; i < packSpawnRoot.childCount; i++)
+            {
+                foreach (Transform child in packSpawnRoot.GetChild(i))
+                    Destroy(child.gameObject);
+            }
+
+            packSpawnRoot.gameObject.SetActive(false);
+        });
+    }
+
+    private void EnsurePackCanvasGroup()
+    {
+        if (packCanvasGroup != null)
+            return;
+
+        if (packSpawnRoot == null)
+        {
+            Debug.LogError("packSpawnRoot is null");
+            return;
+        }
+
+        packCanvasGroup = packSpawnRoot.GetComponent<CanvasGroup>();
+        if (packCanvasGroup == null)
+            packCanvasGroup = packSpawnRoot.gameObject.AddComponent<CanvasGroup>();
+    }
+
     private int GetRandomCardWeighted(List<int> pool)
     {
         float totalWeight = 0f;
@@ -248,8 +328,8 @@ public class ShopManager : MonoBehaviour
             UseGold(PACK_COST);
 
             CardPack generatedPack = GenerateRandomPack();
-            OpenPack(generatedPack);
-            packSpawnRoot.gameObject.SetActive(true);
+            OpenPack(generatedPack); ShowPackAnimated();
+
         });
     }
     private CardPack GenerateRandomPack()

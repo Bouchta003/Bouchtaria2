@@ -508,7 +508,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 20, y: 20, z: 1}
+  m_LocalScale: {x: 30, y: 20, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1406891009}
@@ -1392,6 +1392,9 @@ MonoBehaviour:
   packSpawnRoot: {fileID: 1406891009}
   cardSpawnScale: {x: 1, y: 1, z: 1}
   cardSpacing: 1.5
+  packShowDuration: 0.35
+  packHideDuration: 0.55
+  packHideScale: 0.9
 --- !u!4 &1047320077
 Transform:
   m_ObjectHideFlags: 0
