@@ -52,8 +52,6 @@ public class ShopManager : MonoBehaviour
             packCanvasGroup = packSpawnRoot.gameObject.AddComponent<CanvasGroup>();
 
         packCanvasGroup.alpha = 0f;
-        packCanvasGroup.interactable = false;
-        packCanvasGroup.blocksRaycasts = false;
     }
     public void GoToMainMenu()
     {
@@ -88,17 +86,12 @@ public class ShopManager : MonoBehaviour
         packCanvasGroup.alpha = 0f;
         packSpawnRoot.localScale = Vector3.one * 0.95f;
 
-        packCanvasGroup.blocksRaycasts = false;
-        packCanvasGroup.interactable = false;
-
         Sequence seq = DOTween.Sequence();
         seq.Join(packCanvasGroup.DOFade(1f, 0.35f));
         seq.Join(packSpawnRoot.DOScale(1f, 0.35f).SetEase(Ease.OutCubic));
 
         seq.OnComplete(() =>
         {
-            packCanvasGroup.blocksRaycasts = true;
-            packCanvasGroup.interactable = true;
         });
     }
 
