@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Rendering;
 using System.Collections;
 using DG.Tweening;
+using UnityEngine.UI;
 
 public class ShopManager : MonoBehaviour
 {
@@ -32,7 +33,7 @@ public class ShopManager : MonoBehaviour
     int UserGold;
     int UserDust;
 
-    string wish;
+    public string wish;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
     {
@@ -54,7 +55,6 @@ public class ShopManager : MonoBehaviour
         packCanvasGroup.interactable = false;
         packCanvasGroup.blocksRaycasts = false;
     }
-
     public void GoToMainMenu()
     {
         SceneManager.LoadScene("Main_Menu");
@@ -169,7 +169,10 @@ public class ShopManager : MonoBehaviour
             cardSpawnScale,
             slot
         );
-
+        if (UserCollectionManager.Instance.IsOwned(cardId))
+        {
+            card.cardView.dustIndicator.SetActive(true);
+        }
         SortingGroup sorting = card.GetComponent<SortingGroup>();
         if (sorting != null)
             sorting.sortingOrder = 20;
@@ -461,6 +464,11 @@ public class ShopManager : MonoBehaviour
     public void SelectWish(string selectedTrait)
     {
         if (packSpawnRoot.gameObject.activeSelf) return;
+        if (wish == selectedTrait)
+        {
+            wish = ""; return;
+        }
+
         Debug.Log("Click wish " + selectedTrait);
         wish = selectedTrait;
     }
