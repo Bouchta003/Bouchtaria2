@@ -1123,7 +1123,7 @@
       "atkValue": 0,
       "hpValue": 0,
       "traits": [ "Speedster" ],
-      "effect": "refreshattack",
+      "effect": "refreshattack,targetunit",
       "effectText": "Refreshes a unit's attack",
       "artPath": "CardArt/spindash",
       "artCompactPath": "CardArt/spindash_compact",

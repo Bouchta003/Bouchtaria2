@@ -354,7 +354,10 @@ public class CardInstance : MonoBehaviour, IAttackable
                 TryExecuteDamage(effect, target);
                 continue;
             }
-
+            if (effect.StartsWith("refreshattack") && target is CardInstance refresh)
+            {
+                TryRefreshAttack(refresh);continue;
+            }
             if (effect.StartsWith("silenceall"))
             {
                 SilenceAll();
@@ -721,6 +724,10 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             TryExecuteDamage(pendingTargetedEffect, target);
         }
+        else if (pendingTargetedEffect.StartsWith("refreshattack") && target is CardInstance refresh)
+        {
+            TryRefreshAttack(refresh);
+        }
         else if (pendingTargetedEffect.StartsWith("heal"))
         {
             TryExecuteHeal(pendingTargetedEffect, target);
@@ -888,6 +895,21 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         target.Silence();
     }
+    private void TryRefreshAttack(CardInstance target)
+    {
+        if (target == null)
+        {
+            Debug.LogError($"Refresh effect requires a target on {Data.name}");
+            return;
+        }
+
+        target.HasAttackedThisTurn = false;
+        target.HasAttackedTwiceThisTurn = false;
+
+        if (target.Owner == PlayerOwner.Player)
+            gameManager.CheckGlow();
+    }
+
     private void TryExecuteHeal(string effect, IAttackable target)
     {
         if (!TryParseIntEffect(effect, "heal", out int amount))

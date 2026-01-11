@@ -307,7 +307,7 @@ public class CardView : MonoBehaviour,
             protectSprite.SetActive(true);
         if (inst.CurrentEffect.ToLower().Contains("charge"))
             chargeSprite.SetActive(true);
-        if (inst.CurrentEffect.ToLower().Contains("quickstrike"))
+        else if (inst.CurrentEffect.ToLower().Contains("quickstrike"))
             quickStrikeSprite.SetActive(true);
         if (inst.CurrentEffect.ToLower().Contains("morphto"))
             evolveSprite.SetActive(true);
