@@ -55,9 +55,11 @@ public class GameManager : MonoBehaviour
 
     public int AllyBonusManaCap { get; private set; }
     public int EnemyBonusManaCap { get; private set; }
-
+    [Header("UI")]
     [SerializeField] TextMeshProUGUI manacounterAlly;
     [SerializeField] TextMeshProUGUI manacounterEnmy;
+    [SerializeField] Canvas MainCanvas;
+    [SerializeField] public Canvas PauseCanvas;
 
     [Header("Cursor")]
     [SerializeField] Image attackCursor;
@@ -148,6 +150,15 @@ public class GameManager : MonoBehaviour
             progression.PushInitialState();
         }
     }
+    public void TogglePause()
+    {
+        MainCanvas.gameObject.SetActive(PauseCanvas.gameObject.activeSelf);
+        PauseCanvas.gameObject.SetActive(!PauseCanvas.gameObject.activeSelf);
+    }
+    public void MainMenu()
+    {
+        GameFlowController.Instance.GoToMainMenu();
+    }
     private void OnDestroy()
     {
         if (TurnManager.Instance != null)
@@ -159,6 +170,7 @@ public class GameManager : MonoBehaviour
         manacounterAlly.text = $"{AllyCurrentMana}/{AllyCurrentMaxMana}";
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
+        if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
     }
     #region Turn Logic
     private void HandleTurnStart(PlayerOwner owner)

@@ -28,6 +28,8 @@ public class CardInputManager : MonoBehaviour
     {
         Card newHoveredCard = GetTopmostCardUnderMouse();
 
+        GameManager gm = FindFirstObjectByType<GameManager>();
+        if (gm != null && gm.PauseCanvas.gameObject.activeSelf) return;
         if (newHoveredCard != hoveredCard)
         {
             if (hoveredCard != null)
@@ -42,6 +44,8 @@ public class CardInputManager : MonoBehaviour
 
     void HandleClickAndDrag()
     {
+        GameManager gm = FindFirstObjectByType<GameManager>();
+        if (gm != null && gm.PauseCanvas.gameObject.activeSelf) return;
         if (!DraggingAllowed())
             return;
 
