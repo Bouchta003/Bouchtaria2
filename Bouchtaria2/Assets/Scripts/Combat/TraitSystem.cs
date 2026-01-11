@@ -387,6 +387,10 @@ public class SpeedsterProgression : ITraitProgression
         {
             UnlockTier2();
         }
+        if (speedsterAttacks >= 8 && CurrentTier < 3 && maxTier >= 3)
+        {
+            UnlockTier3();
+        }
     }
 
     private void UnlockTier1()
@@ -408,6 +412,16 @@ public class SpeedsterProgression : ITraitProgression
         );
 
         Debug.Log($"{Owner} unlocked speedster Tier 2");
+    }
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+
+        traitSystem.ActivateEffect(
+            new SpeedsterTier3Effect(Owner)
+        );
+
+        Debug.Log($"{Owner} unlocked speedster Tier 3");
     }
 }
 public class SpeedsterTier1Effect : IDeckTraitEffect
@@ -523,6 +537,67 @@ public class SpeedsterTier2Effect : IDeckTraitEffect
             card.CurrentEffect += " quickstrike";
             card.CurrentEffectText += "\nQuickstrike";
         }
+    }
+}
+public class SpeedsterTier3Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Speedster;
+    public int Tier => 3;
+
+    private readonly PlayerOwner owner;
+
+    public SpeedsterTier3Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+    public void OnRegister()
+    {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed += OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed += OnCardPlayed;
+
+        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
+    }
+    public void OnUnregister()
+    {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
+    }
+
+    private void OnTurnStarted(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+    }
+
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (card.Owner != owner)
+            return;
+
+        if (card.Data.cardType != "minion")
+            return;
+
+        if (!card.HasKeyword("quickstrike"))
+        {
+            card.CurrentEffect += " quickstrike";
+            card.CurrentEffectText += "\nQuickstrike";
+        }
+        card.ModifyStats(1, 0);
     }
 }
 #endregion

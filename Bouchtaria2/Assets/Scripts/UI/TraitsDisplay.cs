@@ -110,7 +110,7 @@ public class TraitsDisplay : MonoBehaviour
                 if (tier > 1) display +=
                         "\nTier 2 : Your speedsters also have quickstrike.";
                 if (tier > 2) display +=
-                         "\nTier 3 : All your units have quickstrike and +1 ATK.";
+                         "\nTier 3 : All your units have quickstrike and +2 ATK.";
                 break;
             case CardData.Trait.MonsterHunter:
                 display += $"Colossal Monsters have died : {Progression}/{CurrentCap}" +
