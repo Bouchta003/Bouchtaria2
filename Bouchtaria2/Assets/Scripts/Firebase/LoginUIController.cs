@@ -34,7 +34,13 @@ public class LoginUIController : MonoBehaviour
             GameFlowController.Instance.GoToMainMenu();
         }
     }
-
+    public static void CloseGame()
+    {
+        Application.Quit();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+    }
 
     public void OnLoginClicked()
     {
