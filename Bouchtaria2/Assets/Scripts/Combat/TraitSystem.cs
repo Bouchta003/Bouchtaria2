@@ -522,7 +522,6 @@ public class SpeedsterTier2Effect : IDeckTraitEffect
         if (!card.HasKeyword("quickstrike")){
             card.CurrentEffect += " quickstrike";
             card.CurrentEffectText += "\nQuickstrike";
-            card.IsSummoningSick = false;
         }
     }
 }

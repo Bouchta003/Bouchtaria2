@@ -54,6 +54,7 @@ public class CardView : MonoBehaviour,
     [Header("EffectDisplay")]
     [SerializeField] GameObject protectSprite;
     [SerializeField] GameObject quickStrikeSprite;
+    [SerializeField] GameObject chargeSprite;
     [SerializeField] GameObject evolveSprite;
     [SerializeField] GameObject blessedSprite;
     [SerializeField] GameObject hiddenSprite;
@@ -291,6 +292,7 @@ public class CardView : MonoBehaviour,
         //Keyword Display
         protectSprite.SetActive(false);
         quickStrikeSprite.SetActive(false);
+        chargeSprite.SetActive(false);
         evolveSprite.SetActive(false);
         blessedSprite.SetActive(false);
         hiddenSprite.SetActive(false);
@@ -303,6 +305,8 @@ public class CardView : MonoBehaviour,
 
         if (inst.CurrentEffect.ToLower().Contains("protect"))
             protectSprite.SetActive(true);
+        if (inst.CurrentEffect.ToLower().Contains("charge"))
+            chargeSprite.SetActive(true);
         if (inst.CurrentEffect.ToLower().Contains("quickstrike"))
             quickStrikeSprite.SetActive(true);
         if (inst.CurrentEffect.ToLower().Contains("morphto"))

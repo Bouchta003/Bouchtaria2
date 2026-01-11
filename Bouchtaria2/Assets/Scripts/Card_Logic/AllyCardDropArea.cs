@@ -71,17 +71,18 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         gm.UseMana(card.gameObject.GetComponent<CardInstance>().CurrentManaCost, PlayerOwner.Player);
 
         //Instantiate card compact instead on board
+        // Card enters board
         cardInst.SetZone(CardZone.Board);
         card.transform.SetParent(CardContainer, false);
         cardInst.Owner = PlayerOwner.Player;
 
-        if (cardInst.HasKeyword("quickstrike") || cardInst.HasKeyword("charge"))
-            cardInst.IsSummoningSick = false;
-        else
-            cardInst.IsSummoningSick = true;
-        // DO NOT trigger deploy yet if it requires targeting
+        // ALWAYS summoning sick on entry
+        cardInst.IsSummoningSick = true;
+
+        // Deploy logic
         cardInst.DeployPending = cardInst.CurrentEffect.Contains("target");
         cardInst.OnEnterBoard();
+
 
         //Call for  update
         OnCardPlayed?.Invoke(cardInst);

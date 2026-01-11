@@ -231,7 +231,13 @@ public class ScanPanelView : MonoBehaviour
             {
                 keyName.text = "QuickStrike";
                 keyDescription.text =
-                    "Can attack the turn it is summoned.";
+                    "Can attack units only during the turn it is summoned.";
+            }
+            else if (keyword.Contains("charge"))
+            {
+                keyName.text = "Charge";
+                keyDescription.text =
+                    "Can attack any enemy during the turn it is summoned.";
             }
             else if (keyword.Contains("haste"))
             {

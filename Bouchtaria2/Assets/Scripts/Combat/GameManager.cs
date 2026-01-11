@@ -745,9 +745,9 @@ public class GameManager : MonoBehaviour
         if (!TurnManager.Instance.IsPlayerTurn(attackerInst.Owner))
             return;
 
-        if ((attackerInst.HasAttackedThisTurn && !attackerInst.HasKeyword("haste"))||
-            (attackerInst.HasAttackedThisTurn && attackerInst.HasKeyword("haste") && attackerInst.HasAttackedTwiceThisTurn) || attackerInst.IsSummoningSick)
+        if (!CanSelectAttacker(attackerInst))
             return;
+
 
         // 🔑 Cancel previous selection safely
         currentAttacker = attacker;
@@ -997,7 +997,7 @@ public class GameManager : MonoBehaviour
             return;
 
         // CASE 1: Not targeting → try to select attacker
-        if (!isTargettingAttack && !isTargetingEffect && !clickedInst.IsAsleep && !clickedInst.IsSummoningSick)
+        if (!isTargettingAttack && !isTargetingEffect && !clickedInst.IsAsleep)
         {
             BeginAttack(card);
             return;
@@ -1082,10 +1082,10 @@ public class GameManager : MonoBehaviour
                 return;
         }
 
-        if ((attacker.HasAttackedThisTurn && !attacker.HasKeyword("haste")) || 
-                (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn) ||
-                    attacker.IsSummoningSick)
+        if ((attacker.HasAttackedThisTurn && !attacker.HasKeyword("haste")) ||
+            (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn))
             return;
+
 
         attackQueue.Enqueue(new AttackRequest(attacker, target));
 
