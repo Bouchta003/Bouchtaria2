@@ -227,8 +227,7 @@ public class NeutralTier1Effect : IDeckTraitEffect
 
         if (card.Data.cardType!="minion")
             return;
-        Debug.Log($"Buffing first card {card.name}, for {owner}");
-        card.ModifyStats(0,1);
+        card.ModifyStats(0,2);
         used = true;
     }
 }
@@ -310,6 +309,147 @@ public class NeutralTier2Effect : IDeckTraitEffect
 
         foreach (var go in hand.handCards)
             yield return go.GetComponent<CardInstance>();
+    }
+}
+#endregion
+#region Speedster Trait
+public class SpeedsterProgression : ITraitProgression
+{
+    public CardData.Trait Trait => CardData.Trait.Speedster;
+    public PlayerOwner Owner { get; }
+    public int CurrentTier { get; private set; }
+
+    private readonly int maxTier;
+    private int speedsterAttacks = 0;
+    public int CurrentProgress => speedsterAttacks;
+
+    public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
+
+    private readonly TraitSystem traitSystem;
+    private readonly GameManager gameManager;
+
+    public SpeedsterProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem, GameManager gameManager)
+    {
+        Owner = owner;
+        this.maxTier = maxTier;
+        this.traitSystem = traitSystem;
+        this.gameManager = gameManager;
+    }
+    public void ResetProgression()
+    {
+        speedsterAttacks = 0;
+    }
+    public void PushInitialState()
+    {
+        int cap = GetCurrentCap();
+        OnProgressUpdated?.Invoke(Trait, speedsterAttacks, cap, Owner);
+    }
+    public void Register()
+    {
+        Debug.Log($"[SpeedsterProgression] Register for {Owner}");
+
+        gameManager.OnCardAttack += OnSpeedsterAttack;
+
+        OnProgressUpdated?.Invoke(Trait, speedsterAttacks, GetCurrentCap(), Owner);
+    }
+    public void Unregister()
+    {
+        Debug.Log($"[SpeedsterProgression] Unregister for {Owner}");
+
+        gameManager.OnCardAttack -= OnSpeedsterAttack;
+    }
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 5,
+            1 => 10,
+            2 => 15,
+            _ => 999
+        };
+    }
+
+    private void OnSpeedsterAttack(CardInstance card)
+    {
+        if (card.Owner != Owner)
+            return;
+
+        if (!card.HasTrait("Speedster"))
+            return;
+        speedsterAttacks++;
+        OnProgressUpdated?.Invoke(Trait, speedsterAttacks, GetCurrentCap(), Owner);
+
+        if (speedsterAttacks >= 5 && CurrentTier < 1 && maxTier >= 1)
+        {
+            UnlockTier1();
+        }
+    }
+
+    private void UnlockTier1()
+    {
+        CurrentTier = 1;
+
+        traitSystem.ActivateEffect(
+            new SpeedsterTier1Effect(Owner)
+        );
+
+        Debug.Log($"{Owner} unlocked speedster Tier 1");
+    }
+}
+public class SpeedsterTier1Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Speedster;
+    public int Tier => 1;
+
+    private readonly PlayerOwner owner;
+
+    public SpeedsterTier1Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+    public void OnRegister()
+    {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed += OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed += OnCardPlayed;
+
+        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
+    }
+    public void OnUnregister()
+    {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
+    }
+
+    private void OnTurnStarted(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+    }
+
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (card.Owner != owner)
+            return;
+
+        if (card.Data.cardType != "minion" || !card.HasTrait("Speedster"))
+            return;
+        Debug.Log($"Buffing first card {card.name}, for {owner}");
+        card.ModifyStats(1, 0);
     }
 }
 #endregion

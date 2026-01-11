@@ -94,6 +94,7 @@ public class GameManager : MonoBehaviour
 
     //Trait Actions
     public event System.Action<CardInstance> OnCardKilled;
+    public event System.Action<CardInstance> OnCardAttack;
     public event System.Action<CardInstance> OnCardKiller;
     public event System.Action<PlayerOwner, int> OnOwnerHeal;
     public event System.Action<PlayerOwner> OnDiscover;
@@ -230,9 +231,9 @@ public class GameManager : MonoBehaviour
                 CardData.Trait.MonsterHunter => new MonsterHunterProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea, this),
                 CardData.Trait.Gunner => throw new System.NotImplementedException(),
                 CardData.Trait.Inazuma => throw new System.NotImplementedException(),
-                CardData.Trait.Speedster => throw new System.NotImplementedException(),
+                CardData.Trait.Speedster => new SpeedsterProgression(owner, maxTier, traitSystem, this),
                 CardData.Trait.Blizzard => throw new System.NotImplementedException(),
-                CardData.Trait.Workout => throw new System.NotImplementedException(),
+                CardData.Trait.Fighter => throw new System.NotImplementedException(),
                 CardData.Trait.Faith => new FaithProgression(owner, maxTier, traitSystem, this),
                 CardData.Trait.Ritual => throw new System.NotImplementedException(),
                 CardData.Trait.Hater => throw new System.NotImplementedException(),
@@ -903,6 +904,7 @@ public class GameManager : MonoBehaviour
         //Handle Haste Scenario
         if (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste"))
             attacker.HasAttackedTwiceThisTurn = true;
+
         attacker.HasAttackedThisTurn = true;
         attacker.RemoveEffect("hidden");
 
@@ -910,6 +912,8 @@ public class GameManager : MonoBehaviour
         {
             CheckGlow();
         }
+
+        OnCardAttack?.Invoke(attacker);
 
         // UNIT vs UNIT
         if (target is CardInstance targetUnit)

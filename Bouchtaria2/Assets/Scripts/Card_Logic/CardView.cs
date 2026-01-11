@@ -34,6 +34,7 @@ public class CardView : MonoBehaviour,
 
     [Header("Board Mode")]
     [SerializeField] private GameObject boardVisual;
+    [SerializeField] private SpriteRenderer cardBackSpriteRenderer;
     [SerializeField] private SpriteRenderer cardSpriteRendererBoard;
     [SerializeField] private SpriteRenderer frameRendererBoard;
     [SerializeField] private SpriteRenderer frameRenderer2Board;
@@ -191,7 +192,9 @@ public class CardView : MonoBehaviour,
         handVisual.SetActive(true); boardVisual.SetActive(false);
         CardInstance thisInstance = gameObject.GetComponent<CardInstance>();
         cardId = card.id;
-
+        
+        //ENemy Card Back active
+        cardBackSpriteRenderer.gameObject.SetActive(thisInstance.Owner == PlayerOwner.Enemy) ;
         cardSpriteRenderer.sprite = card.artSprite;
         nameText.text = card.name;
         manaText.text = thisInstance.CurrentManaCost.ToString();

@@ -12,7 +12,7 @@ public class TraitsDisplay : MonoBehaviour
     [SerializeField] public Sprite healIcon;//
     [SerializeField] public Sprite blizzardIcon;//
     [SerializeField] public Sprite gunnerIcon;
-    [SerializeField] public Sprite workoutIcon;//
+    [SerializeField] public Sprite FighterIcon;//
     [SerializeField] public Sprite faithIcon;//
     [SerializeField] public Sprite ritualIcon;//
     [SerializeField] public Sprite memeIcon;//
@@ -82,11 +82,11 @@ public class TraitsDisplay : MonoBehaviour
                 break;
             case CardData.Trait.Neutral:
                 display += $"Play neutral cards to unlock. Currently played : {Progression}/{CurrentCap}" +
-                    "\nTier 1 : The first neutral card you PLAY each turn has +1 HP.";
+                    "\nTier 1 : The first card you play each turn has +2 HP.";
                 if (tier > 1) display +=
                         "\nTier 2 : The first card you draw that costs 3 mana or more each turn costs 1 less.";
                 if (tier > 2) display +=
-                         "\nTier 3 : .";
+                         "\nTier 3 :NOT IMPLEMENTED .";
                 break;
             case CardData.Trait.Healer:
                 display += $"Heal ally units or core to unlock : {Progression}/{CurrentCap}" +
@@ -103,6 +103,14 @@ public class TraitsDisplay : MonoBehaviour
                         "\nTier 2 : Your discovered cards cost 1 less.";
                 if (tier > 2) display +=
                          "\nTier 3 : When you discover a card, refresh 1 mana.";
+                break;
+            case CardData.Trait.Speedster:
+                display += $"Attack with allies to unlock : {Progression}/{CurrentCap}" +
+                    "\nTier 1 : Your speedsters has +1 ATK.";
+                if (tier > 1) display +=
+                        "\nTier 2 : Your speedsters also have quickstrike.";
+                if (tier > 2) display +=
+                         "\nTier 3 : All your units have quickstrike and +1 ATK.";
                 break;
             case CardData.Trait.MonsterHunter:
                 display += $"Colossal Monsters have died : {Progression}/{CurrentCap}" +

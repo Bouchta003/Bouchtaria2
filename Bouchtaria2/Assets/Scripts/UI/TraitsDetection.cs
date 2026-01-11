@@ -69,7 +69,7 @@ public class TraitsDetection : MonoBehaviour
         Dictionary<CardData.Trait, int[]> tierThresholds = new()
         {
             { CardData.Trait.Speedster, new[] { 6, 9, 12 } },
-            { CardData.Trait.Workout, new[] { 4, 7 } },
+            { CardData.Trait.Fighter, new[] { 4, 7 } },
             { CardData.Trait.Gunner, new[] { 6, 9, 12 } },
             { CardData.Trait.Faith, new[] { 3,6, 10 } },
             { CardData.Trait.Ritual, new[] { 8, 12 } },
@@ -163,8 +163,8 @@ public class TraitsDetection : MonoBehaviour
                     case CardData.Trait.Healer:
                         traitDisplay.iconSlot.sprite = traitDisplay.healIcon;
                         break;
-                    case CardData.Trait.Workout:
-                        traitDisplay.iconSlot.sprite = traitDisplay.workoutIcon;
+                    case CardData.Trait.Fighter:
+                        traitDisplay.iconSlot.sprite = traitDisplay.FighterIcon;
                         break;
                     case CardData.Trait.Inazuma:
                         traitDisplay.iconSlot.sprite = traitDisplay.inazumaIcon;

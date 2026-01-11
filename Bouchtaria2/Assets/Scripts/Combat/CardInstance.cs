@@ -196,6 +196,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (CurrentZone == CardZone.Board)
             IsSummoningSick = false;
 
+        if (HasKeyword("quickstrike"))
+            IsSummoningSick = false;
         TriggerEffects(EffectTrigger.StartOfTurn);
     }
     public void OnTurnEnd()
