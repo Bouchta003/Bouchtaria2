@@ -108,6 +108,16 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         ParseEffects();
     }
+    public bool CanAttackCoreOnSummon()
+    {
+        return HasKeyword("charge");
+    }
+
+    public bool CanAttackUnitOnSummon()
+    {
+        return HasKeyword("quickstrike") || HasKeyword("charge");
+    }
+
     private int GetThornDamage()
     {
         int value = -1;
@@ -193,11 +203,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if(HasKeyword("haste"))
             HasAttackedTwiceThisTurn = false;
 
-        if (CurrentZone == CardZone.Board)
-            IsSummoningSick = false;
-
-        if (HasKeyword("quickstrike"))
-            IsSummoningSick = false;
+        IsSummoningSick = false;
         TriggerEffects(EffectTrigger.StartOfTurn);
     }
     public void OnTurnEnd()

@@ -68,9 +68,6 @@ public class Card : MonoBehaviour
         if (isDragging) return;
         if(gameManager!=null)
         if (gameManager.isDiscovering && !thisInstance.IsDisplay) return;
-
-        isHovered = true; Debug.Log("Hover enter on " + name);
-
     }
     public void EnableHover()
     {

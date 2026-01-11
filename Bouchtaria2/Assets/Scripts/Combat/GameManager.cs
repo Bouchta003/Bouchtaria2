@@ -763,7 +763,14 @@ public class GameManager : MonoBehaviour
             (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn))
             return false;
 
-        if (attacker.IsSummoningSick || attacker.IsAsleep)
+        if (attacker.IsSummoningSick)
+        {
+            // Can only attack units or core if keyword allows it
+            if (!attacker.CanAttackUnitOnSummon() && !attacker.CanAttackCoreOnSummon())
+                return false;
+        }
+
+        if (attacker.IsAsleep)
             return false;
 
         return true;
@@ -823,8 +830,11 @@ public class GameManager : MonoBehaviour
 
         if (!hasProtect)
         {
-            CoreInstance core = GetCoreForOwner(defendingBoard.Owner);
-            targets.Add(core);
+            if (!attacker.IsSummoningSick || attacker.CanAttackCoreOnSummon())
+            {
+                CoreInstance core = GetCoreForOwner(defendingBoard.Owner);
+                targets.Add(core);
+            }
         }
 
         return targets;
@@ -1035,6 +1045,10 @@ public class GameManager : MonoBehaviour
         if (currentAttacker == null)
             return;
         CardInstance cardInst = currentAttacker.GetComponent<CardInstance>();
+
+        if (cardInst.IsSummoningSick && !cardInst.CanAttackCoreOnSummon())
+            return;
+
         if (CurrentGameState != GameState.Playing)
             return;
 
@@ -1058,11 +1072,19 @@ public class GameManager : MonoBehaviour
     {
         // Safety checks
         if (attacker == null || target == null)
-            return;
+            return; 
+        if (attacker.IsSummoningSick)
+        {
+            if (target is CoreInstance && !attacker.CanAttackCoreOnSummon())
+                return;
+
+            if (target is CardInstance && !attacker.CanAttackUnitOnSummon())
+                return;
+        }
 
         if ((attacker.HasAttackedThisTurn && !attacker.HasKeyword("haste")) || 
-            (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn) || 
-            attacker.IsSummoningSick)
+                (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn) ||
+                    attacker.IsSummoningSick)
             return;
 
         attackQueue.Enqueue(new AttackRequest(attacker, target));
