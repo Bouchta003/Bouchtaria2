@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class DeckManager : MonoBehaviour
 {
@@ -105,6 +106,75 @@ public class DeckManager : MonoBehaviour
         hand.AddCard(card.gameObject);
         hand.UpdateCardPositions();
         OnCardDrawn?.Invoke(card);
+    }
+    public void ReplaceCardsInDeck(
+    PlayerOwner owner,
+    Dictionary<int, int> replacements
+)
+    {
+        Queue<CardData> deck = decks[owner];
+        int count = deck.Count;
+
+        for (int i = 0; i < count; i++)
+        {
+            CardData card = deck.Dequeue();
+
+            if (replacements.TryGetValue(card.id, out int newId))
+            {
+                card = CardDatabase.Instance.GetCardById(newId);
+            }
+
+            deck.Enqueue(card);
+        }
+    }
+    public void ReplaceCardsEverywhere(
+    PlayerOwner owner,
+    Dictionary<int, int> replacements
+)
+    {
+        ReplaceCardsInDeck(owner, replacements);
+        ReplaceCardsInHand(owner, replacements);
+    }
+    public void ReplaceCardsInHand(
+    PlayerOwner owner,
+    Dictionary<int, int> replacements
+)
+    {
+        HandManager hand =
+            owner == PlayerOwner.Player
+                ? handManager
+                : handManagerEnemy;
+
+        // Iterate over COPY (hand mutates)
+        foreach (GameObject go in new List<GameObject>(hand.handCards))
+        {
+            CardInstance inst = go.GetComponent<CardInstance>();
+            if (inst == null)
+                continue;
+
+            if (!replacements.TryGetValue(inst.Data.id, out int newId))
+                continue;
+
+            int oldSorting = go.GetComponent<SortingGroup>()?.sortingOrder ?? 0;
+
+            // Remove old card
+            hand.RemoveCardFromHand(go);
+            Destroy(go);
+
+            // Create replacement
+            CardData newData = CardDatabase.Instance.GetCardById(newId);
+            CardInstance newCard =
+                CardFactory.Instance.CreateCard(newData, owner);
+
+            newCard.SetZone(CardZone.Hand);
+            hand.AddCard(newCard.gameObject);
+
+            SortingGroup sg = newCard.GetComponent<SortingGroup>();
+            if (sg != null)
+                sg.sortingOrder = oldSorting;
+        }
+
+        hand.UpdateCardPositions();
     }
 
     private void Shuffle(List<CardData> list)

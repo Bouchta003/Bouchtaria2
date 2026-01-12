@@ -250,7 +250,7 @@ public class CardView : MonoBehaviour,
         cardId = card.id;
 
         cardSpriteRendererBoard.sprite = card.artSpriteCompact;
-        nameTextBoard.text = card.name;
+        nameTextBoard.gameObject.SetActive(false) ;
         if(card.token)
             nameTextBoard.fontStyle = FontStyles.Italic;
         manaTextBoard.text = thisInstance.CurrentManaCost.ToString();

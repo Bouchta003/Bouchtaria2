@@ -1720,7 +1720,16 @@ public class AvatarTier3Effect : IDeckTraitEffect
 
     public void OnRegister()
     {
-        //Replace method for hand and deck for owner.
+        var deckManager = Object.FindFirstObjectByType<DeckManager>();
+
+        deckManager.ReplaceCardsEverywhere(
+            owner,
+            new Dictionary<int, int>
+            {
+            { 74, 75 },
+            { 78, 79 }
+            }
+        );
     }
 
     public void OnUnregister() { }

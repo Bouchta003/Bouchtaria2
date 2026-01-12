@@ -403,6 +403,11 @@ public class CardInstance : MonoBehaviour, IAttackable
                 continue;
             }
 
+            if (effect.StartsWith("praise"))
+            {
+                gameManager.Praise(Owner);
+                continue;
+            }
             // Non-target spell effects (summon, draw, etc.)
             ExecuteEffect(effect);
         }
