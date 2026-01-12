@@ -66,9 +66,13 @@ public class Card : MonoBehaviour
     {
         if (!hoverEnabled) return;
         if (isDragging) return;
-        if(gameManager!=null)
-        if (gameManager.isDiscovering && !thisInstance.IsDisplay) return;
+        if (gameManager != null &&
+            gameManager.isDiscovering && !thisInstance.IsDisplay)
+            return;
+
+        isHovered = true; // ✅ THIS WAS MISSING
     }
+
     public void EnableHover()
     {
         originalScale = transform.localScale; // ✅ CORRECT scale
