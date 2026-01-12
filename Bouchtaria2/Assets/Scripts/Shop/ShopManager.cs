@@ -86,14 +86,15 @@ public class ShopManager : MonoBehaviour
         packCanvasGroup.alpha = 0f;
         packSpawnRoot.localScale = Vector3.one * 0.95f;
 
+        // ✅ RESTORE UI INTERACTION
+        packCanvasGroup.blocksRaycasts = true;
+        packCanvasGroup.interactable = true;
+
         Sequence seq = DOTween.Sequence();
         seq.Join(packCanvasGroup.DOFade(1f, 0.35f));
         seq.Join(packSpawnRoot.DOScale(1f, 0.35f).SetEase(Ease.OutCubic));
-
-        seq.OnComplete(() =>
-        {
-        });
     }
+
 
     private void OpenPack(CardPack pack)
     {
