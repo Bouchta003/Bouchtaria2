@@ -32,6 +32,8 @@ public class ShopManager : MonoBehaviour
 
     int UserGold;
     int UserDust;
+    private int[] currentPackCards;
+    private HashSet<int> ownedBeforePack;
 
     public string wish;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -62,15 +64,13 @@ public class ShopManager : MonoBehaviour
         //Update user gold
         GetUserGold(gold =>
         {
-            Debug.Log("User gold: " + gold);
             UserGold = gold;
-            GoldCounter.text = gold.ToString();
+            GoldCounter.text = "Gold: " + gold.ToString();
         });
         DeckBuilding.Instance.GetUserDust(dust =>
         {
-            Debug.Log("User dust: " + dust);
             UserDust = dust;
-            DustCounter.text = dust.ToString();
+            DustCounter.text = "Dust: "+dust.ToString();
         });
     }
     #region Pack Management
@@ -94,8 +94,6 @@ public class ShopManager : MonoBehaviour
         seq.Join(packCanvasGroup.DOFade(1f, 0.35f));
         seq.Join(packSpawnRoot.DOScale(1f, 0.35f).SetEase(Ease.OutCubic));
     }
-
-
     private void OpenPack(CardPack pack)
     {
         List<int> availablePool = new(pack.possibleCardIds);
@@ -103,14 +101,18 @@ public class ShopManager : MonoBehaviour
 
         int[] finalCards = new int[count];
 
-        // 1️⃣ Pick guaranteed card for index 0
+        // ✅ SNAPSHOT ownership BEFORE resolving
+        ownedBeforePack = new HashSet<int>();
+        foreach (int cardId in pack.possibleCardIds)
+        {
+            if (UserCollectionManager.Instance.IsOwned(cardId))
+                ownedBeforePack.Add(cardId);
+        }
+
         int guaranteed = GetGuaranteedWishCard(availablePool);
         finalCards[0] = guaranteed;
         availablePool.Remove(guaranteed);
 
-        ResolveCard(guaranteed);
-
-        // 2️⃣ Pick remaining cards normally
         for (int i = 1; i < count; i++)
         {
             if (availablePool.Count == 0)
@@ -119,15 +121,23 @@ public class ShopManager : MonoBehaviour
             int cardId = GetRandomCardWeighted(availablePool);
             finalCards[i] = cardId;
             availablePool.Remove(cardId);
+        }
 
+        // ✅ STORE pack result
+        currentPackCards = finalCards;
+
+        // ✅ RESOLVE IMMEDIATELY (security)
+        foreach (int cardId in finalCards)
+        {
             ResolveCard(cardId);
         }
 
-        // 3️⃣ Animate reveal (last → first, index 0 last)
-        StartCoroutine(RevealPackCoroutine(finalCards));
-
         UpdateGoldAndDust();
+
+        // ✅ VISUAL REVEAL (purely visual)
+        StartCoroutine(RevealPackCoroutine(finalCards));
     }
+
     private IEnumerator RevealPackCoroutine(int[] cards)
     {
         packSpawnRoot.gameObject.SetActive(true);
@@ -163,10 +173,11 @@ public class ShopManager : MonoBehaviour
             cardSpawnScale,
             slot
         );
-        if (UserCollectionManager.Instance.IsOwned(cardId))
+        if (ownedBeforePack != null && ownedBeforePack.Contains(cardId))
         {
             card.cardView.dustIndicator.SetActive(true);
         }
+
         Card cardComp = card.GetComponent<Card>();
         if (cardComp != null)
         {
@@ -206,8 +217,10 @@ public class ShopManager : MonoBehaviour
         if (packCanvasGroup == null || packCanvasGroup.alpha == 0f)
             return;
 
+        UpdateGoldAndDust();
         HidePackAnimated();
     }
+
     private void HidePackAnimated()
     {
         EnsurePackCanvasGroup();
