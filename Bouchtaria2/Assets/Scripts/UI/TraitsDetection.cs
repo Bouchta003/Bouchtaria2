@@ -72,7 +72,7 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Fighter, new[] { 4, 7 } },
             { CardData.Trait.Gunner, new[] { 6, 8, 12 } },
             { CardData.Trait.Faith, new[] { 3,6, 10 } },
-            { CardData.Trait.Ritual, new[] { 8, 12 } },
+            { CardData.Trait.Avatar, new[] { 3, 6, 8 } },//Make it later 5, 8, 15
             { CardData.Trait.Hater, new[] { 6, 9 } },
             { CardData.Trait.SpellFocus, new[] { 6, 9, 12 } },
             { CardData.Trait.Combo, new[] { 5, 8 } },

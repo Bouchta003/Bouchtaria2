@@ -14,7 +14,7 @@ public class TraitsDisplay : MonoBehaviour
     [SerializeField] public Sprite gunnerIcon;
     [SerializeField] public Sprite FighterIcon;//
     [SerializeField] public Sprite faithIcon;//
-    [SerializeField] public Sprite ritualIcon;//
+    [SerializeField] public Sprite AvatarIcon;//
     [SerializeField] public Sprite memeIcon;//
     [SerializeField] public Sprite neutralIcon;//
     [SerializeField] public Sprite comboIcon;//
@@ -119,6 +119,14 @@ public class TraitsDisplay : MonoBehaviour
                         "\nTier 2 : Summon a random tier two unique monster";
                 if (tier > 2) display +=
                          "\nTier 3 : Summon a random nuclear monster.";
+                break;
+            case CardData.Trait.Avatar:
+                display += $"Praise to unlock the following: {Progression}/{CurrentCap}" +
+                    "\nTier 1 : Shuffle the two avatars into your deck.";
+                if (tier > 1) display +=
+                        "\nTier 2 : Your avatars unlock their elements (in hand or deck).";
+                if (tier > 2) display +=
+                         "\nTier 3 : Your avatars enter AVATAR STATE (in hand or deck).";
                 break;
             default:
                 display += "Need to define this trait's tier logic";

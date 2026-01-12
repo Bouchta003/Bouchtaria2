@@ -1494,3 +1494,237 @@ public class FaithTier3Effect : IDeckTraitEffect
 }
 
 #endregion
+#region Avatar
+public class AvatarProgression : ITraitProgression
+{
+    public CardData.Trait Trait => CardData.Trait.Avatar;
+    public PlayerOwner Owner { get; }
+    public int CurrentTier { get; private set; }
+
+    private readonly int maxTier;
+    private int praiseCount;
+
+    public int CurrentProgress => praiseCount;
+
+    public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
+
+    private readonly TraitSystem traitSystem;
+    private readonly GameManager gameManager;
+
+    public AvatarProgression(
+        PlayerOwner owner,
+        int maxTier,
+        TraitSystem traitSystem,
+        GameManager gameManager)
+    {
+        Owner = owner;
+        this.maxTier = maxTier;
+        this.traitSystem = traitSystem;
+        this.gameManager = gameManager;
+    }
+
+    public void Register()
+    {
+        Debug.Log($"[Avatar] Register for {Owner}");
+        gameManager.OnPraise += OnAllyPraise;
+        PushInitialState();
+    }
+
+    public void Unregister()
+    {
+        gameManager.OnPraise -= OnAllyPraise;
+    }
+
+    public void ResetProgression()
+    {
+        praiseCount = 0;
+    }
+
+    public void PushInitialState()
+    {
+        OnProgressUpdated?.Invoke(Trait, praiseCount, GetCurrentCap(), Owner);
+    }
+    public void OnAllyPraise(PlayerOwner owner)
+    {
+        // 1. Must be ally
+        if (owner != Owner)
+            return;
+
+        praiseCount++;
+        OnProgressUpdated?.Invoke(Trait, praiseCount, GetCurrentCap(), Owner);
+        if (praiseCount >= 3 && CurrentTier < 1 && maxTier >= 1)
+            UnlockTier1();
+
+        if (praiseCount >= 6 && CurrentTier < 2 && maxTier >= 2)
+            UnlockTier2();
+
+        if (praiseCount >= 10 && CurrentTier < 3 && maxTier >= 3)
+            UnlockTier3();
+    }
+    private void UnlockTier1()
+    {
+        CurrentTier = 1;
+        traitSystem.ActivateEffect(new AvatarTier1Effect(Owner, praiseCount));
+    }
+    private void UnlockTier2()
+    {
+        CurrentTier = 2;
+        traitSystem.ActivateEffect(new AvatarTier2Effect(Owner));
+    }
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+        traitSystem.ActivateEffect(new AvatarTier3Effect(Owner));
+    }
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 3,
+            1 => 6,
+            2 => 10,
+            3 => 9999,
+            _ => 9999,
+        };
+    }
+}
+
+public class AvatarTier1Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Avatar;
+    public int Tier => 1;
+
+    private readonly PlayerOwner owner;
+    private bool used;
+    int praiseCount;
+    public AvatarTier1Effect(PlayerOwner owner, int praiseCount)
+    {
+        this.owner = owner;
+        this.praiseCount = praiseCount;
+    }
+
+    public void OnRegister()
+    {
+        if (used) return;
+
+        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+        gm.ShuffleInDeck(74, owner);
+        gm.ShuffleInDeck(78, owner);
+
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed += OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed += OnCardPlayed;
+
+        used = true;
+    }
+
+    public void OnUnregister() {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed -= OnCardPlayed;
+    }
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (card.Owner != owner)
+            return;
+
+        if (card.HasKeyword("avatar2"))
+            card.ModifyStats(2*praiseCount,2*praiseCount);
+        else if (card.HasKeyword("avatar"))
+            card.ModifyStats(praiseCount, praiseCount);
+    }
+
+}
+public class AvatarTier2Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Avatar;
+    public int Tier => 2;
+
+    private readonly PlayerOwner owner;
+    private bool used;
+    public AvatarTier2Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        if (used) return;
+
+        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+        gm.ShuffleInDeck(74, owner);
+        gm.ShuffleInDeck(78, owner);
+
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed += OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed += OnCardPlayed;
+
+        used = true;
+    }
+
+    public void OnUnregister()
+    {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed -= OnCardPlayed;
+    }
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (card.Owner != owner)
+            return;
+
+        if (card.Data.name == "Aang") {
+            card.CurrentEffect = "avatar d[draw(1)] d[autoheal(5)] d[autodmg(3)] d[summon(76)] d[summon(76)]";
+            card.CurrentEffectText = "Avatar.\nDraw 1, Heal 5 HP to your core, Deal 3 damage to enemy core.\nSummon two 1/1 golemites.";
+            card.ParseEffects(); card.TriggerDeploy();
+        }
+        if (card.Data.name == "Korra")
+        {
+            card.CurrentEffect = "avatar quickstrike lifesteal protect blessed";
+            card.CurrentEffectText = "Avatar.\nQuickstrike Blessed \nProtect Lifesteal.";
+        }
+    }
+
+}
+public class AvatarTier3Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Avatar;
+    public int Tier => 3;
+
+    private readonly PlayerOwner owner;
+
+    public AvatarTier3Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        //Replace method for hand and deck for owner.
+    }
+
+    public void OnUnregister() { }
+
+}
+
+#endregion

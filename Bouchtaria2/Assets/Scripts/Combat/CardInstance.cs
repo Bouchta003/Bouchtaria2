@@ -413,7 +413,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         TriggerDeploy();
     }
-    private void TriggerDeploy()
+    public void TriggerDeploy()
     {
         Debug.Log($"[DEPLOY] TriggerDeploy called on {Data.name} | Effect = {CurrentEffect}");
 
@@ -481,6 +481,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
 
+        if (effect.StartsWith("praise"))
+        {
+            gameManager.Praise(Owner);
+            return;
+        }
+
         if (effect.StartsWith("autodmg"))
         {
             if (!TryParseIntEffect(effect, "autodmg", out int dmg))
@@ -527,6 +533,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteDiscover(effect);
             return;
         }
+        if (effect.StartsWith("ally?"))
+        {
+            TryExecuteAllyConditional(effect);
+            return;
+        }
 
         if (effect.StartsWith("addcard"))
         {
@@ -543,7 +554,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             BeginTargetedEffect(effect);
             return;
         }
-        if (effect.StartsWith("damage"))
+        if (effect.StartsWith("damageaoe"))
+        {
+            TryExecuteDamageAoe(effect);
+            return;
+        }
+        else if (effect.StartsWith("damage"))
         {
             TryExecuteDamage(effect, null);
             return;
@@ -760,6 +776,72 @@ public class CardInstance : MonoBehaviour, IAttackable
         else
             gameManager.TrySummonForOwner(Owner, cardId);
     }
+    private void TryExecuteAllyConditional(string effect)
+    {
+        // Format: ally?(19:buff(2,2);buff(1,1))
+
+        int open = effect.IndexOf('(');
+        int close = effect.LastIndexOf(')');
+
+        if (open < 0 || close <= open)
+        {
+            Debug.LogError($"Malformed ally? effect '{effect}'");
+            return;
+        }
+
+        string inner = effect.Substring(open + 1, close - open - 1);
+        string[] parts = inner.Split(':');
+
+        if (parts.Length != 2)
+        {
+            Debug.LogError($"Malformed ally? condition '{effect}'");
+            return;
+        }
+
+        if (!int.TryParse(parts[0], out int allyId))
+        {
+            Debug.LogError($"Invalid ally id in '{effect}'");
+            return;
+        }
+
+        string[] outcomes = parts[1].Split(';');
+        if (outcomes.Length != 2)
+        {
+            Debug.LogError($"ally? requires two outcomes '{effect}'");
+            return;
+        }
+
+        // 🔑 FIX: resolve correct board
+        ICardDropArea board =
+            Owner == PlayerOwner.Player
+                ? gameManager.allyDropArea
+                : gameManager.enemyDropArea;
+        bool allyExists = false;
+        if (board is AllyCardDropArea acda)
+        {
+            allyExists = acda.allyPrefabCards.Any(go =>
+            {
+                var ci = go.GetComponent<CardInstance>(); Debug.Log($"[ALLY?] checking {ci.Data.name} id={ci.Data.id}");
+
+                return ci != null && ci.Data.id == allyId && !ci.IsDead;
+            });
+        }else if(board is EnemyCardDropArea ecda)
+        {
+            allyExists = ecda.enemyPrefabCards.Any(go =>
+            {
+                var ci = go.GetComponent<CardInstance>();Debug.Log($"[ALLY?] checking {ci.Data.name} id={ci.Data.id}");
+
+                return ci != null && ci.Data.id == allyId && !ci.IsDead;
+            });
+        }
+
+        string chosenEffect = allyExists ? outcomes[0] : outcomes[1];
+
+        Debug.Log($"[ALLY?] id={allyId} exists={allyExists} → {chosenEffect}");
+
+        ExecuteEffect(chosenEffect.Trim());
+    }
+
     private void TryExecuteManaGain(string effect)
     {
         if (!TryParseIntEffect(effect, "managain", out int mana))
@@ -876,6 +958,31 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         target.TakeDamage(amount);
+    }
+    private void TryExecuteDamageAoe(string effect)
+    {
+        if (!TryParseIntEffect(effect, "damageaoe", out int amount))
+            return;
+        if(Owner == PlayerOwner.Player)
+        {
+            foreach(GameObject enemyGO in gameManager.enemyDropArea.enemyPrefabCards)
+            {
+                if (enemyGO.GetComponent<CardInstance>() != null)
+                {
+                    enemyGO.GetComponent<CardInstance>().TakeDamage(amount);
+                }
+            }
+        }
+        else
+        {
+            foreach (GameObject allyGO in gameManager.allyDropArea.allyPrefabCards)
+            {
+                if (allyGO.GetComponent<CardInstance>() != null)
+                {
+                    allyGO.GetComponent<CardInstance>().TakeDamage(amount);
+                }
+            }
+        }
     }
     private void TryExecuteSleep(CardInstance target)
     {

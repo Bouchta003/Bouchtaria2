@@ -98,6 +98,7 @@ public class GameManager : MonoBehaviour
     public event System.Action<CardInstance> OnCardKiller;
     public event System.Action<PlayerOwner, int> OnOwnerHeal;
     public event System.Action<PlayerOwner> OnDiscover;
+    public event System.Action<PlayerOwner> OnPraise;
 
     //Camera shake
     private Vector3 cameraBasePos;
@@ -235,7 +236,7 @@ public class GameManager : MonoBehaviour
                 CardData.Trait.Blizzard => throw new System.NotImplementedException(),
                 CardData.Trait.Fighter => throw new System.NotImplementedException(),
                 CardData.Trait.Faith => new FaithProgression(owner, maxTier, traitSystem, this),
-                CardData.Trait.Ritual => throw new System.NotImplementedException(),
+                CardData.Trait.Avatar => new AvatarProgression(owner, maxTier, traitSystem, this),
                 CardData.Trait.Hater => throw new System.NotImplementedException(),
                 CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
                 CardData.Trait.Combo => throw new System.NotImplementedException(),
@@ -461,6 +462,10 @@ public class GameManager : MonoBehaviour
             allyDropArea.AddSummonedCard(cardInst);
         }
     }
+    public void Praise(PlayerOwner owner)
+    {
+        OnPraise?.Invoke(owner);
+    }
     public void Discover(int id1, int id2, int id3, PlayerOwner owner)
     {
         if(owner == PlayerOwner.Enemy)
@@ -583,6 +588,12 @@ public class GameManager : MonoBehaviour
         options.Remove(data3);
         //Call Discover
         OnDiscover?.Invoke(owner);
+    }
+    public void ShuffleInDeck(int id, PlayerOwner owner)
+    {
+        CardData shuffledCard = CardDatabase.Instance.GetCardById(id);
+        deckManager.decks[owner].Enqueue(shuffledCard);
+        deckManager.Shuffle(deckManager.decks[owner]);
     }
     public CardInstance AddCardToHand(PlayerOwner owner, int id)
     {

@@ -11,7 +11,7 @@ public class DeckManager : MonoBehaviour
 
     [Header("Debug / Test")]
     [SerializeField] private PlayerOwner deckOwner;
-    private Dictionary<PlayerOwner, Queue<CardData>> decks = new Dictionary<PlayerOwner, Queue<CardData>>();
+    public Dictionary<PlayerOwner, Queue<CardData>> decks = new Dictionary<PlayerOwner, Queue<CardData>>();
 
     public Dictionary<CardData.Trait, int> AllyTraitsUnlockable;
     public Dictionary<CardData.Trait, int> EnemyTraitsUnlockable;
@@ -115,6 +115,25 @@ public class DeckManager : MonoBehaviour
             (list[i], list[rnd]) = (list[rnd], list[i]);
         }
     }
+    public void Shuffle(Queue<CardData> deck)
+    {
+        if (deck == null || deck.Count <= 1)
+            return;
+
+        // Convert queue to list
+        List<CardData> list = new List<CardData>(deck);
+
+        // Reuse existing shuffle logic
+        Shuffle(list);
+
+        // Rebuild queue
+        deck.Clear();
+        foreach (var card in list)
+        {
+            deck.Enqueue(card);
+        }
+    }
+
     private List<CardData> GetTestDeckForPlayer()
     {
         List<CardData> deck = new();

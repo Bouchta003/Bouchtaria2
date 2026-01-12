@@ -12,7 +12,7 @@ public static class TraitColorDatabase
 
         { CardData.Trait.SpellFocus,new Color(0.65f, 0.30f, 0.95f) },
         { CardData.Trait.Faith,     new Color(0.95f, 0.95f, 0.80f) },
-        { CardData.Trait.Ritual,    new Color(0.50f, 0.05f, 0.55f) },
+        { CardData.Trait.Avatar,    new Color(0.50f, 0.05f, 0.55f) },
 
         { CardData.Trait.Hater,     new Color(0.22f, 0.22f, 0.22f) },
         { CardData.Trait.Healer,    new Color(0.25f, 0.75f, 0.45f) },
