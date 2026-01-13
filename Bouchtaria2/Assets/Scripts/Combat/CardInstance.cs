@@ -203,7 +203,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         // Cleanup old subscriptions
         CleanupProgressSubscriptions();
-
+        if (CurrentZone != CardZone.Board || gameManager == null) return;
         ProgressionCounter = 0;
         ProgressionCap = 0;
         progressionCompleted = false;

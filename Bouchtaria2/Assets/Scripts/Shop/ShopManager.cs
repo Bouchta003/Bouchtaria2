@@ -36,6 +36,16 @@ public class ShopManager : MonoBehaviour
     private HashSet<int> ownedBeforePack;
 
     public string wish;
+
+    [Header("Glow for Wish")]
+    [SerializeField] Image monsterHunterGlow;
+    [SerializeField] Image pokemonGlow;
+    [SerializeField] Image faithGlow;
+    [SerializeField] Image avatarGlow;
+    [SerializeField] Image speedsterGlow;
+    [SerializeField] Image healerGlow;
+    [SerializeField] Image neutralGlow;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
     {
@@ -483,14 +493,108 @@ public class ShopManager : MonoBehaviour
     #region Wish Management
     public void SelectWish(string selectedTrait)
     {
-        if (packSpawnRoot.gameObject.activeSelf) return;
+        if (packSpawnRoot.gameObject.activeSelf)
+            return;
+
+        // Toggle off if same wish
         if (wish == selectedTrait)
         {
-            wish = ""; return;
+            wish = "";
+            DisableAllGlows();
+            return;
         }
 
-        Debug.Log("Click wish " + selectedTrait);
         wish = selectedTrait;
+        DisableAllGlows();
+
+        Debug.Log("Click wish " + selectedTrait);
+
+        // TEST TRAITS
+        if (selectedTrait == "MonsterHunter")
+        {
+            EnableRainbowGlow(monsterHunterGlow);
+        }
+        else if (selectedTrait == "Pokemon")
+        {
+            EnableRainbowGlow(pokemonGlow);
+        }
+        else if (selectedTrait == "Neutral")
+        {
+            EnableRainbowGlow(neutralGlow);
+        }
+        else if (selectedTrait == "Healer")
+        {
+            EnableRainbowGlow(healerGlow);
+        }
+        else if (selectedTrait == "Faith")
+        {
+            EnableRainbowGlow(faithGlow);
+        }
+        else if (selectedTrait == "Avatar")
+        {
+            EnableRainbowGlow(avatarGlow);
+        }
+        else if (selectedTrait == "Speedster")
+        {
+            EnableRainbowGlow(speedsterGlow);
+        }
     }
+
+    private void DisableAllGlows()
+    {
+        DisableGlow(monsterHunterGlow);
+        DisableGlow(pokemonGlow);
+        DisableGlow(healerGlow);
+        DisableGlow(faithGlow);
+        DisableGlow(avatarGlow);
+        DisableGlow(neutralGlow);
+        DisableGlow(speedsterGlow);
+    }
+
+    private void EnableRainbowGlow(Image img)
+    {
+        if (img == null) return;
+
+        img.gameObject.SetActive(true);
+        img.DOKill();
+
+        // Start visible
+        Color baseColor = Color.red;
+        baseColor.a = 0.7f;
+        img.color = baseColor;
+
+        // Alpha pulse
+        img.DOFade(1f, 0.6f)
+           .SetLoops(-1, LoopType.Yoyo)
+           .SetEase(Ease.InOutSine);
+
+        // Hue cycling (rainbow)
+        DOTween.To(
+            () => 0f,
+            h =>
+            {
+                Color c = Color.HSVToRGB(h, 0.6f, 0.9f);
+
+                c.a = img.color.a; // preserve alpha
+            img.color = c;
+            },
+            1f,
+            2.5f // speed of rainbow
+        ).SetLoops(-1).SetEase(Ease.InOutSine);
+
+    }
+
+
+    private void DisableGlow(Image img)
+    {
+        if (img == null) return;
+
+        img.DOKill();
+        img.DOFade(0f, 0.2f).OnComplete(() =>
+        {
+            img.gameObject.SetActive(false);
+        });
+    }
+
     #endregion
 }
