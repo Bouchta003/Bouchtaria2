@@ -465,9 +465,9 @@ MonoBehaviour:
   healIcon: {fileID: -7885902996687886234, guid: 3f454b34cdc56f04b9f9094479b85660, type: 3}
   blizzardIcon: {fileID: -2087517318503826612, guid: 0ad8e61c2d47da043a0fdb611ce5c250, type: 3}
   gunnerIcon: {fileID: -288840297590651333, guid: 8bbbca989cd7072428e711b069cef2c8, type: 3}
-  workoutIcon: {fileID: 6247287197807811734, guid: c0c47a2ca855b064fbe0b6b783cb2b7b, type: 3}
+  FighterIcon: {fileID: 0}
   faithIcon: {fileID: 1436432417859167358, guid: ed8f50d6c687ee0498b87cd1083b2c78, type: 3}
-  ritualIcon: {fileID: -1669197395575343318, guid: a26be48e99992274f8e488579706822f, type: 3}
+  AvatarIcon: {fileID: 6724518491740252390, guid: d70ff05fca5d07a4c8a47e25912c1d4c, type: 3}
   memeIcon: {fileID: -3507313041585360687, guid: d1539f0ac6487814b91843fda2c10908, type: 3}
   neutralIcon: {fileID: -5911414597727056019, guid: a0e6fe9e9b7b81e439e1ee29a3251bc6, type: 3}
   comboIcon: {fileID: -7451593466511310719, guid: 241383846215bf043b8d601700ec4c8a, type: 3}
