@@ -250,8 +250,10 @@ public class CardView : MonoBehaviour,
         cardId = card.id;
 
         cardSpriteRendererBoard.sprite = card.artSpriteCompact;
-        nameTextBoard.gameObject.SetActive(false) ;
-        if(card.token)
+        nameTextBoard.text = card.name;
+        if(card.cardType == "minion")
+            nameTextBoard.gameObject.SetActive(false);
+        if (card.token)
             nameTextBoard.fontStyle = FontStyles.Italic;
         manaTextBoard.text = thisInstance.CurrentManaCost.ToString();
         manaTextBoard.gameObject.SetActive(false);

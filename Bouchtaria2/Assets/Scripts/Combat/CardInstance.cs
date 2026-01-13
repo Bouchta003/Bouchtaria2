@@ -257,7 +257,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         else
         {
             // Enemy TARGET spell
-            if (CurrentEffect.Contains("gear") || CurrentEffect.Contains("heal") || CurrentEffect.Contains("buff"))
+            if (CurrentEffect.Contains("gear") ||( CurrentEffect.Contains("heal") && !CurrentEffect.Contains("autoheal")) || CurrentEffect.Contains("buff"))
             {
                 IAttackable target =
                     gameManager.ChooseEnemyEffectTarget(
@@ -332,7 +332,6 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (CurrentEffect.StartsWith("gear"))
         {
             TryExecuteGear(CurrentEffect, CurrentEffectText, target);
-            return;
         }
 
         // Same idea as minions: split by space

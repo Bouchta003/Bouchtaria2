@@ -1354,6 +1354,22 @@
       "packable": true,
       "token": false,
       "signature": false
+    },
+    "85": {
+      "id": 85,
+      "name": "Colonel Whatsapp",
+      "cardType": "spell",
+      "manaCost": 4,
+      "atkValue": 0,
+      "hpValue": 6,
+      "traits": [ "Chaos"],
+      "effect": "eot[draw(2)]",
+      "effectText": "End of turn : Draw two cards",
+      "artPath": "CardArt/colonelwhatsapp",
+      "artCompactPath": "CardArt/colonelwhatsapp_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
     }
   }
 }
