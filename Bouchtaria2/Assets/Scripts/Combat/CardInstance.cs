@@ -951,6 +951,29 @@ public class CardInstance : MonoBehaviour, IAttackable
                   gameManager.ChooseEnemyEffectTarget(type, false, false);
                 OnEffectTargetChosen(target);
             }
+            else if (pendingTargetedEffect.StartsWith("morphto"))
+            {
+                ICardDropArea board =
+                    Owner == PlayerOwner.Player
+                        ? gameManager.allyDropArea
+                        : gameManager.enemyDropArea;
+
+                List<CardInstance> allies =
+                    board.GetCards()
+                         .Select(go => go.GetComponent<CardInstance>())
+                         .Where(ci => ci != null && !ci.IsDead && ci != this)
+                         .ToList();
+
+                if (allies.Count == 0)
+                    return;
+
+                // Pick strongest (atk + hp)
+                CardInstance best =
+                    allies.OrderByDescending(ci => ci.CurrentAttack + ci.CurrentHealth)
+                          .First();
+
+                OnEffectTargetChosen(best);
+            }
             else
             {
                 IAttackable target =
@@ -998,6 +1021,13 @@ public class CardInstance : MonoBehaviour, IAttackable
         else if (pendingTargetedEffect.StartsWith("silence") && target is CardInstance silenced)
         {
             TryExecuteSilence(silenced);
+        }
+        else if (pendingTargetedEffect.StartsWith("morphto"))
+        {
+            if (target is CardInstance targetCard)
+            {
+                TryExecuteMorphTo(targetCard);
+            }
         }
 
         pendingTargetedEffect = null;
@@ -1459,6 +1489,52 @@ public class CardInstance : MonoBehaviour, IAttackable
         cardView.UpdateMode(); 
         StartCoroutine(DelayedProgressInit());
     }
+    private void TryExecuteMorphTo(CardInstance target)
+    {
+        // Must be ally
+        if (target.Owner != Owner)
+            return;
+
+        // Cannot morph into self
+        if (target == this)
+            return;
+
+        // Must be a unit
+        if (target.Data.cardType != "minion")
+            return;
+
+        Debug.Log($"[DITTO] {Data.name} morphs into {target.Data.name}");
+
+        // Copy DATA
+        Data = target.Data;
+
+        // Copy effects & traits
+        CurrentEffect = target.CurrentEffect;
+        CurrentEffectText = target.CurrentEffectText;
+
+        // Copy stats
+        CurrentAttack = target.CurrentAttack;
+        CurrentMaxHealth = target.CurrentMaxHealth;
+        CurrentHealth = target.CurrentHealth;
+
+        // Copy keywords / states
+        ThornsDamage = target.ThornsDamage;
+        IsBleeding = target.IsBleeding;
+        BleedingTurns = target.BleedingTurns;
+        IsAsleep = target.IsAsleep;
+
+        HasAttackedThisTurn = false;
+        HasAttackedTwiceThisTurn = false;
+
+        // Re-parse effects
+        ParseEffects();
+        InitializeProgressIfAny();
+
+        // Update visuals
+        cardView.Bind(this);
+        cardView.UpdateMode();
+    }
+
     private IEnumerator DelayedProgressInit()
     {
         yield return null; // wait 1 frame

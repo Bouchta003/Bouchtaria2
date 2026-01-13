@@ -721,7 +721,7 @@ MonoBehaviour:
   PlayerCore: {fileID: 1084353477}
   EnemyCore: {fileID: 933163752}
   corePrefab: {fileID: 1772291971226400965, guid: 428a75668ad440d4f9895a6153354264, type: 3}
-  startingCoreHealth: 20
+  startingCoreHealth: 30
   spawnPlayerCore: {fileID: 1391987188}
   spawnEnemyCore: {fileID: 2137164847}
   deckManager: {fileID: 752328686}

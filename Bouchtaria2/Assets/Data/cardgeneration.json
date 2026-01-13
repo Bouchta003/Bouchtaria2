@@ -1402,6 +1402,22 @@
       "packable": true,
       "token": false,
       "signature": false
+    },
+    "88": {
+      "id": 88,
+      "name": "Rainbow Card",
+      "cardType": "spell",
+      "manaCost": 1,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "Neutral" ],
+      "effect": "discoverallytrait",
+      "effectText": "Discover a card from your first three traits.",
+      "artPath": "CardArt/rainbowcard",
+      "artCompactPath": "CardArt/rainbowcard_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
     }
   }
 }

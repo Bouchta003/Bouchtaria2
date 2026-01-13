@@ -337,6 +337,49 @@ public class CardView : MonoBehaviour,
             bleedSprite.SetActive(true);
         Refresh();
     }
+    public void Bind(CardInstance instance)
+    {
+        inst = instance;
+        CardData = instance.Data;
+        cardId = instance.Data.id;
+
+        // Update visuals depending on zone
+        switch (instance.CurrentZone)
+        {
+            case CardZone.Hand:
+                SetupHandMode(instance.Data);
+                break;
+
+            case CardZone.Board:
+                SetupBoardMode(instance.Data);
+                break;
+        }
+
+        // Force stat refresh
+        if (instance.CurrentZone == CardZone.Hand)
+        {
+            manaText.text = instance.CurrentManaCost.ToString();
+            atkText.text = instance.CurrentAttack.ToString();
+            hpText.text = instance.CurrentHealth.ToString();
+        }
+        else
+        {
+            manaTextBoard.text = instance.CurrentManaCost.ToString();
+            atkTextBoard.text = instance.CurrentAttack.ToString();
+            hpTextBoard.text = instance.CurrentHealth.ToString();
+        }
+
+        // Reset glow safely
+        SetGlow(CardGlowState.None);
+
+        // Update sleep / status icons immediately
+        sleepSprite.SetActive(instance.IsAsleep);
+        bleedSprite.SetActive(instance.IsBleeding);
+
+        // Ensure board position is preserved
+        BoardPosition = transform.position;
+    }
+
     private bool TryGetTraitColor(string traitString, out Color color)
     {
         color = Color.white;
