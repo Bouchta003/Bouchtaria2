@@ -155,9 +155,15 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
 
     public void AddSummonedCard(CardInstance cardInst)
     {
-        enemyPrefabCards.Add(cardInst.gameObject);
+        if (IsFull())
+            return;
+
         cardInst.SetZone(CardZone.Board);
         cardInst.GetComponent<CardView>().UpdateMode();
+        cardInst.Owner = Owner;
+        cardInst.IsSummoningSick = true;
+
+        enemyPrefabCards.Add(cardInst.gameObject);
 
         if (gm != null && gm.IsResolvingAttackQueue())
         {

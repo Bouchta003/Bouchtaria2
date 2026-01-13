@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using UnityEngine.UI;
+using TMPro;
 
 public enum TurnPhase
 {
@@ -17,10 +18,11 @@ public class TurnManager : MonoBehaviour
     public TurnPhase CurrentPhase { get; private set; }
     [SerializeField] DeckManager deckManager;
     [SerializeField] GameManager gameManager;
-    [SerializeField] Image endButton;
+    [SerializeField] public Image endButton;
     public event Action<PlayerOwner> OnTurnStarted;
     public event Action<PlayerOwner> OnTurnEnded;
-
+    public bool PlayerHasExtraTurn;
+    public bool EnemyHasExtraTurn;
     private void Awake()
     {
         if (Instance != null)
@@ -73,9 +75,19 @@ public class TurnManager : MonoBehaviour
         CurrentPhase = TurnPhase.End;
         OnTurnEnded?.Invoke(CurrentPlayer);
         // switch player
-        CurrentPlayer = CurrentPlayer == PlayerOwner.Player
-            ? PlayerOwner.Enemy
-            : PlayerOwner.Player;
+        if ((CurrentPlayer == PlayerOwner.Player && !PlayerHasExtraTurn) || (CurrentPlayer == PlayerOwner.Enemy && !EnemyHasExtraTurn))
+        {
+            CurrentPlayer = CurrentPlayer == PlayerOwner.Player
+              ? PlayerOwner.Enemy
+              : PlayerOwner.Player;
+        }
+        else
+        {
+            //Has ended turn and has extra turn
+            PlayerHasExtraTurn = false;
+            EnemyHasExtraTurn = false;
+            endButton.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = "End";
+        }
         BeginTurn();
     }
 

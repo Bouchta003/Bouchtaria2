@@ -1115,6 +1115,8 @@ MonoBehaviour:
   deckManager: {fileID: 752328686}
   gameManager: {fileID: 116247819}
   endButton: {fileID: 1019756355}
+  PlayerHasExtraTurn: 0
+  EnemyHasExtraTurn: 0
 --- !u!4 &349476111
 Transform:
   m_ObjectHideFlags: 0
@@ -5749,7 +5751,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: END
+  m_text: End
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5f9fc153955699f4eb8e4a9dc09ec3da, type: 2}
   m_sharedMaterial: {fileID: -6690465110090245793, guid: 5f9fc153955699f4eb8e4a9dc09ec3da, type: 2}
@@ -5814,7 +5816,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: -11.032837, y: 0, z: -9.026733, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

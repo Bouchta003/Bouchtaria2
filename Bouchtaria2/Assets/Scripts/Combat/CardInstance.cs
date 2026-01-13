@@ -616,7 +616,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
 
-
+        if (effect.StartsWith("extraturn"))
+        {
+            GainExtraTurn();
+            return;
+        }
         if (effect.StartsWith("sleepall"))
         {
             SleepAll();
@@ -946,6 +950,13 @@ public class CardInstance : MonoBehaviour, IAttackable
 
     #endregion
     #region Effects
+    void GainExtraTurn()
+    {
+        TurnManager tm = FindFirstObjectByType<TurnManager>();
+        tm.endButton.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = "REWIND";
+        if (Owner == PlayerOwner.Player) tm.PlayerHasExtraTurn = true;
+        else tm.EnemyHasExtraTurn = true;
+    }
     private void TryExecuteSummon(string effect)
     {
         if (!TryParseIntEffect(effect, "summon", out int cardId))

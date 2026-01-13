@@ -654,9 +654,9 @@ public class PokemonProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 3,
-            1 => 6,
-            2 => 10,
+            0 => 2,
+            1 => 4,
+            2 => 6,
             _ => 999
         };
     }
@@ -672,16 +672,16 @@ public class PokemonProgression : ITraitProgression
 
         Debug.Log($"Pokemon card kill for :{Owner}, count is now {pokemonKills}");
 
-        if (pokemonKills >= 3 && CurrentTier < 1 && maxTier >= 1)
+        if (pokemonKills >= 2 && CurrentTier < 1 && maxTier >= 1)
         {
             UnlockTier1();
         }
 
-        if (pokemonKills >= 6 && CurrentTier < 2 && maxTier >= 2)
+        if (pokemonKills >= 4 && CurrentTier < 2 && maxTier >= 2)
         {
             UnlockTier2();
         }
-        if (pokemonKills >= 10 && CurrentTier < 3 && maxTier >= 3)
+        if (pokemonKills >= 6 && CurrentTier < 3 && maxTier >= 3)
         {
             UnlockTier3();
         }
@@ -893,13 +893,14 @@ public class PokemonTier3Effect : IDeckTraitEffect
     }
     public void OnRegister()
     {
+        used = false;
         DiscoverLegendary();
     }
     void DiscoverLegendary()
     {
 
         if (used) return;
-        gm.Discover(29,28,27, owner);//FIX IDs
+        gm.DiscoverEffect("legendarypokemon", owner);//FIX IDs
 
         used = true;
     }

@@ -427,12 +427,6 @@ public class GameManager : MonoBehaviour
             //put sorting order to 1 if necessary and limit board size
             enemyDropArea.AddSummonedCard(cardInst);
             enemyDropArea.UpdateEnemyCardPositions();
-            Debug.Log(
-              $"[ENEMY SUMMON] pos={cardInst.transform.position} " +
-              $"localPos={cardInst.transform.localPosition} " +
-              $"zone={cardInst.CurrentZone}"
-            );
-
         }
     }
     public void TrySummonForOther(PlayerOwner owner, int cardId)
