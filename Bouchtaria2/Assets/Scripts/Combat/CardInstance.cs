@@ -621,6 +621,15 @@ public class CardInstance : MonoBehaviour, IAttackable
             GainExtraTurn();
             return;
         }
+        if (effect.StartsWith("limitenemyspace"))
+        {
+            if (TryParseIntEffect(effect, "limitenemyspace", out int limit))
+            {
+                gameManager.LimitEnemySpace(Owner, limit);
+            }
+            return;
+        }
+
         if (effect.StartsWith("sleepall"))
         {
             SleepAll();

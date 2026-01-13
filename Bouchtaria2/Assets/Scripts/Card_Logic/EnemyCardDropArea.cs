@@ -144,10 +144,18 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
             return;
 
         enemyPrefabCards.Remove(cardGO);
-        //cardGO.SetActive(false) ;
+
+        // 🔑 stop animations immediately
+        cardGO.transform.DOKill(true);
+
         Destroy(cardGO);
-        UpdateEnemyCardPositions();
+
+        if (gm != null && gm.IsResolvingAttackQueue())
+            layoutDirty = true;
+        else
+            UpdateEnemyCardPositions();
     }
+
     public void MarkLayoutDirty()
     {
         layoutDirty = true;

@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
     public CoreInstance PlayerCore;
     public CoreInstance EnemyCore;
     [SerializeField] private GameObject corePrefab;
-    [SerializeField] private int startingCoreHealth = 20;
+    [SerializeField] private int startingCoreHealth = 30;
     [SerializeField] private GameObject spawnPlayerCore;
     [SerializeField] private GameObject spawnEnemyCore;
     public GameState CurrentGameState { get; private set; } = GameState.Playing;
@@ -461,6 +461,59 @@ public class GameManager : MonoBehaviour
     {
         OnPraise?.Invoke(owner);
     }
+    public void LimitEnemySpace(PlayerOwner effectOwner, int limit)
+    {
+        ICardDropArea board =
+            effectOwner == PlayerOwner.Player
+                ? enemyDropArea
+                : allyDropArea;
+
+        if (board is EnemyCardDropArea enemyBoard)
+        {
+            ApplyBoardLimit(enemyBoard.enemyPrefabCards, limit, enemyBoard.HandleEnemyDeath, enemyBoard.UpdateEnemyCardPositions);
+            enemyBoard.maxBoardSize = limit;
+        }
+        else if (board is AllyCardDropArea allyBoard)
+        {
+            ApplyBoardLimit(allyBoard.allyPrefabCards, limit, allyBoard.HandleAllyDeath, allyBoard.UpdateAllyCardPositions);
+            allyBoard.maxBoardSize = limit;
+        }
+    }
+    private void ApplyBoardLimit(   List<GameObject> cards,   int limit,
+        System.Action<CardInstance> deathHandler,   System.Action updateLayout)
+    {
+        if (cards == null)
+            return;
+
+        Debug.Log("Applying Board limit");
+
+        // Destroy newest cards first
+        while (cards.Count > limit)
+        {
+            GameObject last = cards[^1];
+
+            if (last == null)
+            {
+                cards.RemoveAt(cards.Count - 1);
+                continue;
+            }
+
+            CardInstance ci = last.GetComponent<CardInstance>();
+            if (ci != null && !ci.IsDead)
+            {
+                // 🔑 death handler will remove + destroy + relayout
+                deathHandler.Invoke(ci);
+            }
+            else
+            {
+                cards.RemoveAt(cards.Count - 1);
+                Destroy(last);
+            }
+        }
+
+        updateLayout?.Invoke();
+    }
+
     public void Discover(int id1, int id2, int id3, PlayerOwner owner)
     {
         if(owner == PlayerOwner.Enemy)
