@@ -35,6 +35,10 @@ public class CoreInstance : MonoBehaviour, IAttackable
 
     public void TakeDamage(int amount)
     {
+        if (amount <= 0) return;
+
+        GameManager gm = FindFirstObjectByType<GameManager>();
+        gm.NotifyDamage(Owner, amount);
         int remaining = amount;
 
         if (Shield > 0)

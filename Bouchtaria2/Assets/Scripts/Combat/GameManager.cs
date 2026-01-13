@@ -97,6 +97,7 @@ public class GameManager : MonoBehaviour
     public event System.Action<CardInstance> OnCardAttack;
     public event System.Action<CardInstance> OnCardKiller;
     public event System.Action<PlayerOwner, int> OnOwnerHeal;
+    public event System.Action<PlayerOwner, int> OnOwnerDamage;
     public event System.Action<PlayerOwner> OnDiscover;
     public event System.Action<PlayerOwner> OnPraise;
 
@@ -652,6 +653,10 @@ public class GameManager : MonoBehaviour
     public void NotifyHealed(PlayerOwner owner, int amount)
     {
         OnOwnerHeal?.Invoke(owner, amount);
+    }
+    public void NotifyDamage(PlayerOwner owner, int amount)
+    {
+        OnOwnerDamage?.Invoke(owner, amount);
     }
     public void CancelCurrentTargeting()
     {

@@ -217,11 +217,23 @@ public class CardInstance : MonoBehaviour, IAttackable
             ProgressionCap = healCap;
             gameManager.OnOwnerHeal += OnHeal;
         }
+        else if (HasKeyword("progressdamage") &&
+            TryParseProgress("progressdamage", out int dmgCap))
+        {
+            ProgressionCap = dmgCap;
+            gameManager.OnOwnerDamage += OnDamage;
+        }
         else if (HasKeyword("progressdraw") &&
             TryParseProgress("progressdraw", out int drawCap))
         {
             ProgressionCap = drawCap;
             deckManager.OnCardDrawn += OnCardDrawn;
+        }
+        else if (HasKeyword("progressattack") &&
+           TryParseProgress("progressattack", out int attackCap))
+        {
+            ProgressionCap = attackCap;
+            gameManager.OnCardAttack += OnAttack;
         }
     }
 
@@ -243,8 +255,14 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (gameManager != null)
             gameManager.OnOwnerHeal -= OnHeal;
 
+        if (gameManager != null)
+            gameManager.OnOwnerDamage -= OnDamage;
+
         if (deckManager != null)
             deckManager.OnCardDrawn -= OnCardDrawn;
+
+        if (deckManager != null)
+            gameManager.OnCardAttack -= OnAttack;
     }
     private bool TryParseProgress(
     string keyword,
@@ -295,6 +313,31 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
 
         ProgressionCounter += healamount;
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+
+        CheckProgressCompletion();
+    }
+    void OnDamage(PlayerOwner owner, int damage)
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+
+        // 1. Must be enemy
+        if (owner == Owner)
+            return;
+
+        ProgressionCounter += damage;
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+
+        CheckProgressCompletion();
+    }
+    void OnAttack(CardInstance inst)
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+        if (inst.Owner != Owner)
+            return;
+        ProgressionCounter ++;
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
 
         CheckProgressCompletion();
@@ -813,6 +856,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             // ✅ Progress triggers (parameterized)
             case "progressdraw":
             case "progressheal":
+            case "progressattack":
+            case "progressdamage":
                 trigger = EffectTrigger.ProgressComplete;
                 return true;
 
@@ -1097,27 +1142,40 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (!TryParseIntEffect(effect, "damageaoe", out int amount))
             return;
-        if(Owner == PlayerOwner.Player)
+
+        // 🔑 Snapshot the targets first
+        List<CardInstance> targets = new();
+
+        if (Owner == PlayerOwner.Player)
         {
-            foreach(GameObject enemyGO in gameManager.enemyDropArea.enemyPrefabCards)
+            foreach (GameObject enemyGO in gameManager.enemyDropArea.enemyPrefabCards)
             {
-                if (enemyGO.GetComponent<CardInstance>() != null)
-                {
-                    enemyGO.GetComponent<CardInstance>().TakeDamage(amount);
-                }
+                if (enemyGO == null) continue;
+
+                CardInstance ci = enemyGO.GetComponent<CardInstance>();
+                if (ci != null && !ci.IsDead)
+                    targets.Add(ci);
             }
         }
         else
         {
             foreach (GameObject allyGO in gameManager.allyDropArea.allyPrefabCards)
             {
-                if (allyGO.GetComponent<CardInstance>() != null)
-                {
-                    allyGO.GetComponent<CardInstance>().TakeDamage(amount);
-                }
+                if (allyGO == null) continue;
+
+                CardInstance ci = allyGO.GetComponent<CardInstance>();
+                if (ci != null && !ci.IsDead)
+                    targets.Add(ci);
             }
         }
+
+        // 🔥 Apply damage AFTER snapshot
+        foreach (CardInstance target in targets)
+        {
+            target.TakeDamage(amount);
+        }
     }
+
     private void TryExecuteSleep(CardInstance target)
     {
         if (target == null)
@@ -1440,7 +1498,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (amount <= 0) return;
         CurrentHealth -= amount;
-
+        gameManager.NotifyDamage(Owner,amount);
         if (CurrentHealth <= 0)
         {
             Die();
@@ -1493,6 +1551,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         IsDead = true;
         if (gameManager != null)
             gameManager.OnOwnerHeal -= OnHeal;
+
+        if (gameManager != null)
+            gameManager.OnOwnerDamage -= OnDamage;
+
+        if (gameManager != null)
+            gameManager.OnCardAttack -= OnAttack;
 
         if (deckManager != null)
             deckManager.OnCardDrawn -= OnCardDrawn;
