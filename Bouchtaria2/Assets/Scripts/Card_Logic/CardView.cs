@@ -311,27 +311,27 @@ public class CardView : MonoBehaviour,
         sleepSprite.SetActive(false);
 
 
-        if (inst.CurrentEffect.ToLower().Contains("protect"))
+        if (inst.HasKeyword("protect"))
             protectSprite.SetActive(true);
-        if (inst.CurrentEffect.ToLower().Contains("charge"))
+        if (inst.HasKeyword("charge"))
             chargeSprite.SetActive(true);
-        else if (inst.CurrentEffect.ToLower().Contains("quickstrike"))
+        else if (inst.HasKeyword("quickstrike"))
             quickStrikeSprite.SetActive(true);
-        if (inst.CurrentEffect.ToLower().Contains("morphto"))
+        if (inst.HasKeyword("morphto"))
             evolveSprite.SetActive(true);
-        if (inst.CurrentEffect.ToLower().Contains("blessed"))
+        if (inst.HasKeyword("blessed"))
             blessedSprite.SetActive(true); 
-        if (inst.CurrentEffect.ToLower().Contains("hidden"))
+        if (inst.HasKeyword("hidden"))
             hiddenSprite.SetActive(true);
-        if (inst.CurrentEffect.ToLower().Contains("haste"))
+        if (inst.HasKeyword("haste"))
             hasteSprite.SetActive(true);
-        if (inst.CurrentEffect.ToLower().Contains("thorns"))
+        if (inst.HasKeyword("thorns"))
             thornSprite.SetActive(true);
         if (inst.IsAsleep)
             sleepSprite.SetActive(true);
         else
             sleepSprite.SetActive(false);
-        if (inst.CurrentEffect.ToLower().Contains("lifesteal"))
+        if (inst.HasKeyword("lifesteal"))
             lifestealSprite.SetActive(true);
         if (inst.IsBleeding)
             bleedSprite.SetActive(true);

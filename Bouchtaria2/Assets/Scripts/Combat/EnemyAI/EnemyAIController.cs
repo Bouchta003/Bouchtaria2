@@ -37,6 +37,7 @@ public class EnemyAIController : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
 
         // Spells
+        if(!gameManager.DistortionWorld)
         yield return StartCoroutine(TryPlaySpells());
 
         // Summons

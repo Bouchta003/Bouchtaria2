@@ -46,17 +46,19 @@ public class GameManager : MonoBehaviour
 
     [Header("Mana")]
     [SerializeField] private int baseManaCap = 10;
-
     public int AllyCurrentMana { get; private set; }
     public int AllyCurrentMaxMana { get; private set; }
-
     public int EnemyCurrentMana { get; private set; }
     public int EnemyCurrentMaxMana { get; private set; }
-
     public int AllyBonusManaCap { get; private set; }
     public int EnemyBonusManaCap { get; private set; }
+
     [Header("UI")]
     [SerializeField] TextMeshProUGUI manacounterAlly;
+    [SerializeField] GameObject boardDesign;
+    [SerializeField] Sprite defaultBoard;
+    [SerializeField] Sprite defaultMagicBoard;
+    [SerializeField] Sprite distortionBoard;
     [SerializeField] TextMeshProUGUI manacounterEnmy;
     [SerializeField] Canvas MainCanvas;
     [SerializeField] public Canvas PauseCanvas;
@@ -73,8 +75,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TraitSystem enemyTraitSystem;
     [SerializeField] private TraitUIManager allyTraitUI;
     [SerializeField] private TraitUIManager enemyTraitUI;
-
     [SerializeField] private WinLoseUI winLoseUI;
+
     [Header("Camera Shake")]
     [SerializeField] private Camera mainCamera;
 
@@ -82,6 +84,7 @@ public class GameManager : MonoBehaviour
     public int EnemyHealBonus = 0;
     public bool PlayerDarkHeal = false;
     public bool EnemyDarkHeal = false;
+    public bool DistortionWorld = false;
     //Animation
     public bool IsCombatAnimating { get; private set; }
     //Trait logic
@@ -132,6 +135,8 @@ public class GameManager : MonoBehaviour
         }
 
         //Setup cores mana and deck before the turn logic
+        Sprite[] defaultBoards = new Sprite[] { defaultBoard, defaultMagicBoard };
+        boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = defaultBoards[Random.Range(0, defaultBoards.Length-1)];
 
         deckManager.InitializeDecks();        // build decks
         deckManager.DetectUnlockableTraits(); // analyze decks
@@ -174,6 +179,14 @@ public class GameManager : MonoBehaviour
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
         if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
+        if (DistortionWorld && boardDesign.GetComponentInChildren<SpriteRenderer>().sprite != distortionBoard)
+        {
+            boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = distortionBoard;
+        }
+        if (!DistortionWorld && boardDesign.GetComponentInChildren<SpriteRenderer>().sprite == distortionBoard)
+        {
+            boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = defaultMagicBoard;
+        }
     }
     #region Turn Logic
     private void HandleTurnStart(PlayerOwner owner)
@@ -696,6 +709,7 @@ public class GameManager : MonoBehaviour
     public void NotifyCardKilled(CardInstance deadCard)
     {
         OnCardKilled?.Invoke(deadCard);
+        if (deadCard.Data.id == 86) DistortionWorld = false;
     }
     public void NotifyHealed(PlayerOwner owner, int amount)
     {

@@ -72,6 +72,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public int ProgressionCounter { get; set; }
     public int ProgressionCap { get; set; }
     private bool progressionCompleted = false;
+    public bool EffectsSuppressed { get; private set; } = false;
 
 
     private Dictionary<EffectTrigger, List<string>> parsedEffects =    new Dictionary<EffectTrigger, List<string>>();
@@ -93,16 +94,18 @@ public class CardInstance : MonoBehaviour, IAttackable
         Owner = owner;
         view = gameObject.GetComponent<CardView>();
         BaseManaCost = data.manaCost;
+
         CurrentAttack = data.atkValue;
         CurrentHealth = data.hpValue;
         CurrentEffect = data.effect;
         CurrentEffectText = data.effectText;
+        ThornsDamage = GetThornDamage();
+        CurrentMaxHealth = data.hpValue;
+        
         CurrentZone = CardZone.Deck;
         Transform = transform;
-        ThornsDamage = GetThornDamage();
         IsBleeding = false;
         IsAsleep = false;
-        CurrentMaxHealth = data.hpValue;
 
         HasAttackedThisTurn = false;
         HasAttackedTwiceThisTurn = false;
@@ -114,8 +117,6 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         WasPlayed = true;
         InitializeProgressIfAny();
-
-
         ParseEffects();
     }
     public bool CanAttackCoreOnSummon()
@@ -127,6 +128,35 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         return HasKeyword("quickstrike") || HasKeyword("charge");
     }
+    public void ScrambleStats()
+    {
+        int atk = CurrentAttack;
+        int hp = CurrentMaxHealth;
+
+        int total = atk + hp;
+
+        // Safety
+        if (total <= 1)
+            return;
+
+        // Pick atk directly (cleaner)
+        int newAtk = UnityEngine.Random.Range(0, total + 1);
+        int newHp = total - newAtk;
+
+        // Enforce minimums
+        if (newHp <= 0)
+        {
+            newHp = 1;
+            newAtk = total - 1;
+        }
+
+        CurrentAttack = newAtk;
+        CurrentMaxHealth = newHp;
+        CurrentHealth = Mathf.Min(CurrentHealth, CurrentMaxHealth);
+
+        cardView.UpdateMode();
+    }
+
 
     private int GetThornDamage()
     {
@@ -188,6 +218,8 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     public bool HasKeyword(string keywordString)
     {
+        if (EffectsSuppressed)
+            return false;
         if (Data == null || CurrentEffect == null)
             return false;
 
@@ -202,8 +234,9 @@ public class CardInstance : MonoBehaviour, IAttackable
     private void InitializeProgressIfAny()
     {
         // Cleanup old subscriptions
+        if (gameManager == null) return;
+
         CleanupProgressSubscriptions();
-        if (CurrentZone != CardZone.Board || gameManager == null) return;
         ProgressionCounter = 0;
         ProgressionCap = 0;
         progressionCompleted = false;
@@ -364,7 +397,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (newZone == CardZone.Board)
         {
-            IsSummoningSick = true;
+            IsSummoningSick = true; InitializeProgressIfAny();
         }
     }
     public void OnTurnStart()
@@ -399,6 +432,8 @@ public class CardInstance : MonoBehaviour, IAttackable
     #region Spells
     public void OnPlaySpell()
     {
+        //Cannot cast spells in distortion world
+        if (gameManager.DistortionWorld) return;
         // Determine spell type
         if (!CurrentEffect.Contains("target"))
             spellType = CardData.SpellTargetType.None;
@@ -585,7 +620,13 @@ public class CardInstance : MonoBehaviour, IAttackable
     #endregion
     public void OnEnterBoard()
     {
-        TriggerDeploy();
+        if(!gameManager.DistortionWorld)
+            TriggerDeploy();
+        else
+        {
+            EffectsSuppressed = true;
+            ScrambleStats();
+        }
     }
     public void TriggerDeploy()
     {
@@ -599,6 +640,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TriggerEffects(EffectTrigger trigger)
     {
+        if (EffectsSuppressed && Data.id!=29 && Data.id!=86) return;
         if (!parsedEffects.TryGetValue(trigger, out var effects))
             return;
 
@@ -619,6 +661,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("extraturn"))
         {
             GainExtraTurn();
+            return;
+        }
+        if (effect.StartsWith("giratina"))
+        {
+            gameManager.DistortionWorld = true;
             return;
         }
         if (effect.StartsWith("limitenemyspace"))

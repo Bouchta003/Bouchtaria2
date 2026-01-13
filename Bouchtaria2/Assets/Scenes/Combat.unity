@@ -731,6 +731,10 @@ MonoBehaviour:
   enemyHand: {fileID: 595603584}
   baseManaCap: 10
   manacounterAlly: {fileID: 1015722741}
+  boardDesign: {fileID: 1591761420}
+  defaultBoard: {fileID: 9119414098855660196, guid: 8bd203919f978434c88fb8fd60a6495e, type: 3}
+  defaultMagicBoard: {fileID: 7457923528475331426, guid: 8a5637cc6dc864241ae964db25f2a4cf, type: 3}
+  distortionBoard: {fileID: 1123560429962625998, guid: 58e39beb08c8fd747bdcf05fef3c5a8b, type: 3}
   manacounterEnmy: {fileID: 589142854}
   MainCanvas: {fileID: 438573345}
   PauseCanvas: {fileID: 598825172}
@@ -742,11 +746,12 @@ MonoBehaviour:
   allyTraitUI: {fileID: 1501906151}
   enemyTraitUI: {fileID: 69533397}
   winLoseUI: {fileID: 554539686}
-  mainCamera: {fileID: 0}
+  mainCamera: {fileID: 1857458787}
   PlayerHealBonus: 0
   EnemyHealBonus: 0
   PlayerDarkHeal: 0
   EnemyDarkHeal: 0
+  DistortionWorld: 0
   isTargettingAttack: 0
   discoverDisplay: {fileID: 964561718}
   isDiscovering: 0

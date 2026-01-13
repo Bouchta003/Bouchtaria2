@@ -53,7 +53,6 @@ public class CardInputManager : MonoBehaviour
         {
             if (hoveredCard == null)
                 return;
-
             draggedCard = hoveredCard;
             draggedCard.OnPointerDown();
         }

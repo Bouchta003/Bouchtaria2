@@ -112,7 +112,7 @@ public class Card : MonoBehaviour
                 return;
             }
             //Drag to play card
-            if (thisInstance.CurrentZone == CardZone.Hand)
+            if (thisInstance.CurrentZone == CardZone.Hand && GetComponent<CardInstance>().Owner==PlayerOwner.Player)
             {
                 isDragging = true;isHovered = false;
                 startDragPosition = transform.position;
