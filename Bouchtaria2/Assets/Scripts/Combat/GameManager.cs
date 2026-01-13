@@ -916,6 +916,15 @@ public class GameManager : MonoBehaviour
     {
         if (attacker == null || target == null)
             return;
+        // 🔒 FINAL SUMMON-TURN VALIDATION (authoritative)
+        if (attacker.IsSummoningSick)
+        {
+            if (target is CoreInstance && !attacker.CanAttackCoreOnSummon())
+                return;
+
+            if (target is CardInstance && !attacker.CanAttackUnitOnSummon())
+                return;
+        }
 
         if (!CanSelectAttacker(attacker))
             return;

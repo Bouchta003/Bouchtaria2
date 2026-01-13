@@ -237,7 +237,7 @@ public class EnemyAIController : MonoBehaviour
 
         foreach (CardInstance attacker in attackers)
         {
-            if (attacker == null || (attacker.HasAttackedThisTurn && !attacker.HasKeyword("haste")) ||
+            if (attacker == null || attacker.IsAsleep || (attacker.HasAttackedThisTurn && !attacker.HasKeyword("haste")) ||
             (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn)
                 || attacker.CurrentAttack<=0)
                 continue;
@@ -269,33 +269,38 @@ public class EnemyAIController : MonoBehaviour
 
         foreach (var target in targets)
         {
+            // 🔒 SUMMON-TURN HARD FILTER
+            if (attacker.IsSummoningSick)
+            {
+                if (target is CoreInstance && !attacker.CanAttackCoreOnSummon())
+                    continue;
+
+                if (target is CardInstance && !attacker.CanAttackUnitOnSummon())
+                    continue;
+            }
+
             int score = 0;
 
             // CORE
-            if (target is CoreInstance core)
+            if (target is CoreInstance)
             {
-                score += 50; // default preference
+                score += 50;
 
                 if (HasLethalThisTurn())
-                    score += 10000; // ALWAYS go face if lethal
+                    score += 10000;
             }
-
             // UNIT
             else if (target is CardInstance unit)
             {
-                // Favor clean kills
                 if (attacker.CurrentAttack >= unit.CurrentHealth)
                     score += 60;
 
-                // Avoid bad trades
                 if (unit.CurrentAttack > attacker.CurrentHealth)
                     score -= 10;
 
-                // Remove haste units
                 if (unit.HasKeyword("haste"))
                     score += 100;
 
-                // Threat evaluation
                 score += unit.CurrentAttack;
             }
 

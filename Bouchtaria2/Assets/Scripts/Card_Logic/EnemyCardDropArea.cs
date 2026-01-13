@@ -51,10 +51,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         card.transform.SetParent(CardContainer, false);
         cardInst.Owner = PlayerOwner.Enemy;
 
-        if (cardInst.HasKeyword("quickstrike") || cardInst.HasKeyword("charge"))
-            cardInst.IsSummoningSick = false;
-        else
-            cardInst.IsSummoningSick = true;
+        cardInst.IsSummoningSick = true;
 
         cardInst.OnEnterBoard();
 
