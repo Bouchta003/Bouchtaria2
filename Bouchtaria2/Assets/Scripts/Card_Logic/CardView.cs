@@ -63,6 +63,12 @@ public class CardView : MonoBehaviour,
     [SerializeField] GameObject bleedSprite;
     [SerializeField] GameObject lifestealSprite;
     [SerializeField] GameObject sleepSprite;
+
+    [Header("Progress")]
+    private Coroutine progressRoutine;
+    [SerializeField] private TMP_Text progressPopup;
+    [SerializeField] private float popupDuration = 0.6f;
+    [SerializeField] private float popupScale = 1.2f;
     public enum CardGlowState
     {
         None,
@@ -432,6 +438,56 @@ public class CardView : MonoBehaviour,
         glowRenderer.gameObject.SetActive(false);
     }
     #endregion
+    public void ShowProgress(int current, int cap)
+    {
+        if (cap >= 900) return;
+        if (progressRoutine != null)
+            StopCoroutine(progressRoutine);
+
+        progressRoutine = StartCoroutine(ProgressPopupRoutine(current, cap));
+    }
+    private IEnumerator ProgressPopupRoutine(int current, int cap)
+    {
+        progressPopup.gameObject.SetActive(true);
+        progressPopup.text = $"{current} / {cap}";
+
+        RectTransform rt = progressPopup.rectTransform;
+        CanvasGroup cg = progressPopup.GetComponent<CanvasGroup>();
+
+        if (cg == null)
+            cg = progressPopup.gameObject.AddComponent<CanvasGroup>();
+
+        rt.localScale = Vector3.one * 0.9f;
+        cg.alpha = 0f;
+
+        // Fade + pop in
+        float t = 0f;
+        while (t < 0.15f)
+        {
+            t += Time.deltaTime;
+            float k = t / 0.15f;
+
+            rt.localScale = Vector3.Lerp(Vector3.one * 0.9f, Vector3.one * popupScale, k);
+            cg.alpha = k;
+            yield return null;
+        }
+
+        rt.localScale = Vector3.one;
+
+        // Hold
+        yield return new WaitForSeconds(popupDuration);
+
+        // Fade out
+        t = 0f;
+        while (t < 0.2f)
+        {
+            t += Time.deltaTime;
+            cg.alpha = 1f - (t / 0.2f);
+            yield return null;
+        }
+
+        progressPopup.gameObject.SetActive(false);
+    }
     public void Refresh()
     {
         if (SceneManager.GetActiveScene().name != "Collection") return;

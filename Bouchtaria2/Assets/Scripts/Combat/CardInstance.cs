@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public enum CardZone
@@ -24,6 +26,7 @@ public enum EffectTrigger
     Strike,    // s
     EndOfTurn,
     StartOfTurn,
+    ProgressComplete,
 }
 public enum EffectTarget
 {
@@ -65,6 +68,11 @@ public class CardInstance : MonoBehaviour, IAttackable
     public bool IsDisplay { get; set; }
     public CardView cardView { get; set; }
     public bool DeployPending { get; set; }
+    //Progression
+    public int ProgressionCounter { get; set; }
+    public int ProgressionCap { get; set; }
+    private bool progressionCompleted = false;
+
 
     private Dictionary<EffectTrigger, List<string>> parsedEffects =    new Dictionary<EffectTrigger, List<string>>();
     public string CurrentCastEffect;
@@ -105,6 +113,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         cardView = GetComponent<CardView>();
 
         WasPlayed = true;
+        InitializeProgressIfAny();
+
 
         ParseEffects();
     }
@@ -188,6 +198,123 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         return false;
     }
+    #region Progress
+    private void InitializeProgressIfAny()
+    {
+        // Cleanup old subscriptions
+        CleanupProgressSubscriptions();
+
+        ProgressionCounter = 0;
+        ProgressionCap = 0;
+        progressionCompleted = false;
+
+        if (Data.cardType != "minion" || !CurrentEffect.Contains("progress"))
+            return;
+
+        if (HasKeyword("progressheal") &&
+            TryParseProgress("progressheal", out int healCap))
+        {
+            ProgressionCap = healCap;
+            gameManager.OnOwnerHeal += OnHeal;
+        }
+        else if (HasKeyword("progressdraw") &&
+            TryParseProgress("progressdraw", out int drawCap))
+        {
+            ProgressionCap = drawCap;
+            deckManager.OnCardDrawn += OnCardDrawn;
+        }
+    }
+
+    private void CheckProgressCompletion()
+    {
+        if (progressionCompleted)
+            return;
+
+        if (ProgressionCounter < ProgressionCap)
+            return;
+
+        progressionCompleted = true;
+
+        TriggerEffects(EffectTrigger.ProgressComplete);
+        CleanupProgressSubscriptions();
+    }
+    private void CleanupProgressSubscriptions()
+    {
+        if (gameManager != null)
+            gameManager.OnOwnerHeal -= OnHeal;
+
+        if (deckManager != null)
+            deckManager.OnCardDrawn -= OnCardDrawn;
+    }
+    private bool TryParseProgress(
+    string keyword,
+    out int cap
+)
+    {
+        cap = 0;
+
+        // Split effect string into tokens
+        string[] tokens = CurrentEffect
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (string token in tokens)
+        {
+            if (!token.StartsWith(keyword))
+                continue;
+
+            int start = token.IndexOf('(');
+            int end = token.IndexOf(')');
+
+            if (start < 0 || end <= start + 1)
+            {
+                Debug.LogError($"Malformed {keyword} effect '{token}' on {Data.name}");
+                return false;
+            }
+
+            string valueStr = token.Substring(start + 1, end - start - 1);
+
+            if (!int.TryParse(valueStr, out cap))
+            {
+                Debug.LogError($"Invalid {keyword} value '{valueStr}' on {Data.name}");
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    void OnHeal(PlayerOwner owner, int healamount)
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+
+        // 1. Must be ally
+        if (owner != Owner)
+            return;
+
+        ProgressionCounter += healamount;
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+
+        CheckProgressCompletion();
+    }
+    private void OnCardDrawn(CardInstance card)
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+
+        if (card.Owner != Owner)
+            return;
+
+        ProgressionCounter++;
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+        Debug.Log($"[PROGRESS] {Data.name} draw {ProgressionCounter}/{ProgressionCap}");
+
+        CheckProgressCompletion();
+    }
+
+    #endregion
     public void SetZone(CardZone newZone)
     {
         CurrentZone = newZone;
@@ -642,8 +769,15 @@ public class CardInstance : MonoBehaviour, IAttackable
             {
                 continue;
             }
-
             string triggerStr = block.Substring(0, open);
+
+            // 🔑 STRIP PARAMETERS: progressdraw(3) → progress
+            int parenIndex = triggerStr.IndexOf('(');
+            if (parenIndex > 0)
+            {
+                triggerStr = triggerStr.Substring(0, parenIndex);
+            }
+
             string content = block.Substring(open + 1, close - open - 1);
 
             if (!TryParseTrigger(triggerStr, out EffectTrigger trigger))
@@ -659,7 +793,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
             foreach (string e in effects)
             { 
-                parsedEffects[trigger].Add(e.Trim()); Debug.Log($"[DEPLOY] Parsing deploy effects: {e}");
+                parsedEffects[trigger].Add(e.Trim()); Debug.Log($"Parsing deploy effects: {e}");
             }
         }
     }
@@ -669,28 +803,24 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         switch (str)
         {
-            case "d":
-                trigger = EffectTrigger.Deploy;
+            case "d": trigger = EffectTrigger.Deploy; return true;
+            case "b": trigger = EffectTrigger.Berserk; return true;
+            case "r": trigger = EffectTrigger.Requiem; return true;
+            case "s": trigger = EffectTrigger.Strike; return true;
+            case "eot": trigger = EffectTrigger.EndOfTurn; return true;
+            case "sot": trigger = EffectTrigger.StartOfTurn; return true;
+
+            // ✅ Progress triggers (parameterized)
+            case "progressdraw":
+            case "progressheal":
+                trigger = EffectTrigger.ProgressComplete;
                 return true;
-            case "b":
-                trigger = EffectTrigger.Berserk;
-                return true;
-            case "r":
-                trigger = EffectTrigger.Requiem;
-                return true;
-            case "s":
-                trigger = EffectTrigger.Strike;
-                return true;
-            case "eot":
-                trigger = EffectTrigger.EndOfTurn;
-                return true;
-            case "sot":
-                trigger = EffectTrigger.StartOfTurn;
-                return true;
+
             default:
                 return false;
         }
     }
+
     private void BeginTargetedEffect(string effect)
     {
         Debug.Log($"[TARGET] BeginTargetedEffect called for {effect}");
@@ -1197,10 +1327,17 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         CurrentEffect = newData.effect;
         CurrentEffectText = newData.effectText;
+
         ParseEffects();
 
         // Notify view
-        cardView.UpdateMode();
+        cardView.UpdateMode(); 
+        StartCoroutine(DelayedProgressInit());
+    }
+    private IEnumerator DelayedProgressInit()
+    {
+        yield return null; // wait 1 frame
+        InitializeProgressIfAny();
     }
     public void AutoHealCore(int heal)
     {
@@ -1354,6 +1491,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
 
         IsDead = true;
+        if (gameManager != null)
+            gameManager.OnOwnerHeal -= OnHeal;
+
+        if (deckManager != null)
+            deckManager.OnCardDrawn -= OnCardDrawn;
+
 
         if (CurrentZone != CardZone.Board)
             return;

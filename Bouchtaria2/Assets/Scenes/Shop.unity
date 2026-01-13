@@ -1114,7 +1114,7 @@ PrefabInstance:
       objectReference: {fileID: 1161511386734866271, guid: 487e185bae9ff834c9400cc40bf2d976, type: 3}
     - target: {fileID: 2691888932042969808, guid: e9cc1249b968b324a859afa5ba7eef40, type: 3}
       propertyPath: m_Name
-      value: WishPokemonMH
+      value: WishMH
       objectReference: {fileID: 0}
     - target: {fileID: 2856274932148853279, guid: e9cc1249b968b324a859afa5ba7eef40, type: 3}
       propertyPath: m_Splines.Array.data[0].m_Knots.Array.data[2].Position.x
