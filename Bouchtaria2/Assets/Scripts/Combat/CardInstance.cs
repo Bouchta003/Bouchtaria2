@@ -636,7 +636,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (WasPlayed)
         {
             TriggerEffects(EffectTrigger.Deploy);
-            WasPlayed = true;
+            WasPlayed = false;
         }
     }
     private void TriggerEffects(EffectTrigger trigger)
@@ -890,7 +890,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 continue;
             }
 
-            string[] effects = content.Split(';', StringSplitOptions.RemoveEmptyEntries);
+            List<string> effects = SplitTopLevelEffects(content);
 
             if (!parsedEffects.ContainsKey(trigger))
                 parsedEffects[trigger] = new List<string>();
@@ -991,6 +991,20 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (string.IsNullOrEmpty(pendingTargetedEffect))
             return false;
 
+        if (pendingTargetedEffect.StartsWith("ally?"))
+        {
+            string resolved = ResolveAllyConditional(pendingTargetedEffect);
+            if (string.IsNullOrEmpty(resolved))
+                return false;
+
+            // 🔑 Replace the pending effect with the resolved one
+            pendingTargetedEffect = resolved;
+
+            // 🔁 Re-run THIS SAME method with the SAME target
+            return OnEffectTargetChosen(target);
+        }
+
+
         bool executed = false;
 
         if (pendingTargetedEffect.StartsWith("gear"))
@@ -1043,6 +1057,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (executed)
         {
             pendingTargetedEffect = null;
+         
             gameManager.EndEffectTargetting();
         }
 
@@ -1067,8 +1082,73 @@ public class CardInstance : MonoBehaviour, IAttackable
         else
             gameManager.TrySummonForOwner(Owner, cardId);
     }
+    private IEnumerable<CardInstance> GetOwnerBoardCards()
+    {
+        ICardDropArea board =
+            Owner == PlayerOwner.Player
+                ? gameManager.allyDropArea
+                : gameManager.enemyDropArea;
+
+        foreach (var go in board.GetCards())
+        {
+            if (go == null) continue;
+
+            var ci = go.GetComponent<CardInstance>();
+            if (ci != null && !ci.IsDead)
+                yield return ci;
+        }
+
+        // 🔑 INCLUDE SELF if deploy is pending (card not yet added)
+        if (CurrentZone == CardZone.Board && !IsDead)
+            yield return this;
+    }
+    private string ResolveAllyConditional(string effect)
+    {
+        // Preserve targeting suffix
+        string targetSuffix = "";
+        int targetIndex = effect.IndexOf(",target");
+        if (targetIndex >= 0)
+        {
+            targetSuffix = effect.Substring(targetIndex);
+            effect = effect.Substring(0, targetIndex);
+        }
+
+        int open = effect.IndexOf('(');
+        int close = effect.LastIndexOf(')');
+
+        if (open < 0 || close <= open)
+            return null;
+
+        string inner = effect.Substring(open + 1, close - open - 1);
+        string[] parts = inner.Split(':');
+        if (parts.Length != 2)
+            return null;
+
+        if (!int.TryParse(parts[0], out int allyId))
+            return null;
+
+        string[] outcomes = parts[1].Split(';');
+        if (outcomes.Length != 2)
+            return null;
+
+        bool allyExists =
+            GetOwnerBoardCards().Any(ci => ci.Data != null && ci.Data.id == allyId);
+
+        string chosen = allyExists ? outcomes[0] : outcomes[1];
+        return chosen.Trim() + targetSuffix;
+    }
+
     private void TryExecuteAllyConditional(string effect)
     {
+        // Preserve targeting suffix (e.g. ,targetunit)
+        string targetSuffix = "";
+        int targetIndex = effect.IndexOf(",target");
+        if (targetIndex >= 0)
+        {
+            targetSuffix = effect.Substring(targetIndex);
+            effect = effect.Substring(0, targetIndex);
+        }
+
         // Format: ally?(19:buff(2,2);buff(1,1))
 
         int open = effect.IndexOf('(');
@@ -1102,35 +1182,49 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
 
-        // 🔑 FIX: resolve correct board
-        ICardDropArea board =
-            Owner == PlayerOwner.Player
-                ? gameManager.allyDropArea
-                : gameManager.enemyDropArea;
-        bool allyExists = false;
-        if (board is AllyCardDropArea acda)
-        {
-            allyExists = acda.allyPrefabCards.Any(go =>
-            {
-                var ci = go.GetComponent<CardInstance>(); Debug.Log($"[ALLY?] checking {ci.Data.name} id={ci.Data.id}");
-
-                return ci != null && ci.Data.id == allyId && !ci.IsDead;
-            });
-        }else if(board is EnemyCardDropArea ecda)
-        {
-            allyExists = ecda.enemyPrefabCards.Any(go =>
-            {
-                var ci = go.GetComponent<CardInstance>();Debug.Log($"[ALLY?] checking {ci.Data.name} id={ci.Data.id}");
-
-                return ci != null && ci.Data.id == allyId && !ci.IsDead;
-            });
-        }
+        bool allyExists =
+            GetOwnerBoardCards()
+                .Any(ci => ci.Data != null && ci.Data.id == allyId);
 
         string chosenEffect = allyExists ? outcomes[0] : outcomes[1];
 
         Debug.Log($"[ALLY?] id={allyId} exists={allyExists} → {chosenEffect}");
 
-        ExecuteEffect(chosenEffect.Trim());
+        string finalEffect = chosenEffect.Trim() + targetSuffix;
+        Debug.Log($"[ALLY?] RAW EFFECT = {effect}");
+        Debug.Log($"[ALLY?] BOARD COUNT = {GetOwnerBoardCards().Count()}");
+        Debug.Log($"[ALLY?] ALLY IDS = {string.Join(",", GetOwnerBoardCards().Select(c => c.Data.id))}");
+        Debug.Log($"[ALLY?] ALLY EXISTS = {allyExists}");
+        Debug.Log($"[ALLY?] FINAL EFFECT = {finalEffect}");
+
+        ExecuteEffect(finalEffect);
+
+        return;
+    }
+    private List<string> SplitTopLevelEffects(string content)
+    {
+        List<string> results = new();
+        int depth = 0;
+        int lastSplit = 0;
+
+        for (int i = 0; i < content.Length; i++)
+        {
+            char c = content[i];
+
+            if (c == '(') depth++;
+            else if (c == ')') depth--;
+            else if (c == ';' && depth == 0)
+            {
+                results.Add(content.Substring(lastSplit, i - lastSplit).Trim());
+                lastSplit = i + 1;
+            }
+        }
+
+        // Add final segment
+        if (lastSplit < content.Length)
+            results.Add(content.Substring(lastSplit).Trim());
+
+        return results;
     }
 
     private void TryExecuteManaGain(string effect)
