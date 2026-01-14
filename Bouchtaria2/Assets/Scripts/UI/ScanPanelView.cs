@@ -140,6 +140,11 @@ public class ScanPanelView : MonoBehaviour
         nameText.text = card.Data.name;
         effectText.text = card.CurrentEffectText;
 
+        if (card.ProgressionCounter > 0 && card.ProgressionCap>0)
+        {
+            effectText.text += $"\nProgression : {card.ProgressionCounter}/{card.ProgressionCap}";
+        }
+
         foreach (Transform child in keywordContainer)
             Destroy(child.gameObject);
         //KeyWordCheck
