@@ -29,7 +29,7 @@ public class TraitSystem : MonoBehaviour
 
     public PlayerOwner Owner { get; private set; }
 
-    private readonly List<IDeckTraitEffect> activeEffects = new();
+    public readonly List<IDeckTraitEffect> activeEffects = new();
 
     public void Initialize(PlayerOwner owner)
     {

@@ -156,8 +156,6 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         cardView.UpdateMode();
     }
-
-
     private int GetThornDamage()
     {
         int value = -1;
@@ -186,7 +184,6 @@ public class CardInstance : MonoBehaviour, IAttackable
             return value;
         }
         else return -1;
-
     }
     public void RemoveEffect(string effect)
     {
@@ -453,11 +450,15 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (Owner == PlayerOwner.Player)
         {
             gameManager.BeginEffectTargeting(
-                source: this,
-                owner: Owner,
-                onTargetChosen: ResolveSpell,
-                effectTargetType: ConvertSpellTargetType(spellType)
-            );
+    source: this,
+    owner: Owner,
+    onTargetChosen: target =>
+    {
+        ResolveSpell(target);
+        return true; // ✅ spell resolved → end targeting
+    },
+    effectTargetType: ConvertSpellTargetType(spellType)
+);
         }
         else
         {
@@ -938,9 +939,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (Owner == PlayerOwner.Player)
         {
             gameManager.BeginEffectTargeting(
-                source: this,
-                owner: Owner,
-                onTargetChosen: OnEffectTargetChosen, type);
+       source: this,
+       owner: Owner,
+       onTargetChosen: target => OnEffectTargetChosen(target),
+       effectTargetType: type
+         );
+
         }
         else
         {
@@ -982,56 +986,67 @@ public class CardInstance : MonoBehaviour, IAttackable
             }
         }
     }
-    private void OnEffectTargetChosen(IAttackable target)
+    public bool OnEffectTargetChosen(IAttackable target)
     {
         if (string.IsNullOrEmpty(pendingTargetedEffect))
-            return;
+            return false;
+
+        bool executed = false;
 
         if (pendingTargetedEffect.StartsWith("gear"))
         {
-            if (target is not CardInstance)
+            if (target is CardInstance ci)
             {
-                Debug.LogError("Gear target is invalid");
-                return;
+                TryExecuteGear(pendingTargetedEffect, CurrentEffectText, ci);
+                executed = true;
             }
-
-            TryExecuteGear(pendingTargetedEffect, CurrentEffectText, target);
         }
-
         else if (pendingTargetedEffect.StartsWith("damage"))
         {
-            TryExecuteDamage(pendingTargetedEffect, target);
+            if (target != null)
+            {
+                TryExecuteDamage(pendingTargetedEffect, target);
+                executed = true;
+            }
         }
         else if (pendingTargetedEffect.StartsWith("refreshattack") && target is CardInstance refresh)
         {
             TryRefreshAttack(refresh);
+            executed = true;
         }
-        else if (pendingTargetedEffect.StartsWith("heal"))
+        else if (pendingTargetedEffect.StartsWith("heal") && target != null)
         {
             TryExecuteHeal(pendingTargetedEffect, target);
+            executed = true;
         }
-        else if (pendingTargetedEffect.StartsWith("buff"))
+        else if (pendingTargetedEffect.StartsWith("buff") && target is CardInstance buffTarget)
         {
-            TryExecuteBuff(pendingTargetedEffect, target);
+            TryExecuteBuff(pendingTargetedEffect, buffTarget);
+            executed = true;
         }
-        else if (pendingTargetedEffect.StartsWith("sleep") && target is CardInstance inst)
+        else if (pendingTargetedEffect.StartsWith("sleep") && target is CardInstance sleepTarget)
         {
-            TryExecuteSleep(inst);
+            TryExecuteSleep(sleepTarget);
+            executed = true;
         }
-        else if (pendingTargetedEffect.StartsWith("silence") && target is CardInstance silenced)
+        else if (pendingTargetedEffect.StartsWith("silence") && target is CardInstance silenceTarget)
         {
-            TryExecuteSilence(silenced);
+            TryExecuteSilence(silenceTarget);
+            executed = true;
         }
-        else if (pendingTargetedEffect.StartsWith("morphto"))
+        else if (pendingTargetedEffect.StartsWith("morphto") && target is CardInstance morphTarget)
         {
-            if (target is CardInstance targetCard)
-            {
-                TryExecuteMorphTo(targetCard);
-            }
+            executed = TryExecuteMorphTo(morphTarget);
         }
 
-        pendingTargetedEffect = null;
+        // 🔑 ONLY clear targeting if something actually happened
+        if (executed)
+        {
+            pendingTargetedEffect = null;
+            gameManager.EndEffectTargetting();
+        }
 
+        return executed;
     }
 
     #endregion
@@ -1136,24 +1151,27 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         int start = effect.IndexOf('(');
         int end = effect.IndexOf(')');
-
-        if (start < 0 || end < 0 || end <= start + 1)
+        if (!effect.StartsWith("discoverownertrait"))
         {
-            Debug.LogError($"Malformed {effect} effect on card {Data.name}");
-            return;
-        }
+            if ((start < 0 || end < 0 || end <= start + 1))
+            {
+                Debug.LogError($"Malformed {effect} effect on card {Data.name}");
+                return;
+            }
 
-        string valueStr = effect.Substring(start + 1, end - start - 1);
-        string[] discoversCards = valueStr.Split(',');
+            string valueStr = effect.Substring(start + 1, end - start - 1);
+            string[] discoversCards = valueStr.Split(',');
 
-        //Discover specific cards
-        if (int.TryParse(discoversCards[0], out int id) && int.TryParse(discoversCards[1], out int idd) && int.TryParse(discoversCards[2], out int iddd))
-        {
-            gameManager.Discover(id, idd, iddd, Owner);
+            //Discover specific cards
+            if (int.TryParse(discoversCards[0], out int id) && int.TryParse(discoversCards[1], out int idd) && int.TryParse(discoversCards[2], out int iddd))
+            {
+                gameManager.Discover(id, idd, iddd, Owner);
+            }
+            else if (effect.StartsWith("discovertrait")) { gameManager.DiscoverTrait(valueStr, Owner); }
+            else
+            { gameManager.DiscoverEffect(valueStr, Owner); }
         }
-        else if (effect.StartsWith("discovertrait")) { gameManager.DiscoverTrait(valueStr, Owner); }
-        else
-        { gameManager.DiscoverEffect(valueStr, Owner); }
+        else{ gameManager.DiscoverOwnerTrait(Owner); }
     }
     private void TryExecuteAddCard(string effect)
     {
@@ -1489,35 +1507,30 @@ public class CardInstance : MonoBehaviour, IAttackable
         cardView.UpdateMode(); 
         StartCoroutine(DelayedProgressInit());
     }
-    private void TryExecuteMorphTo(CardInstance target)
+    private bool TryExecuteMorphTo(CardInstance target)
     {
         // Must be ally
         if (target.Owner != Owner)
-            return;
+            return false;
 
         // Cannot morph into self
         if (target == this)
-            return;
+            return false;
 
         // Must be a unit
         if (target.Data.cardType != "minion")
-            return;
+            return false;
 
         Debug.Log($"[DITTO] {Data.name} morphs into {target.Data.name}");
 
-        // Copy DATA
         Data = target.Data;
-
-        // Copy effects & traits
         CurrentEffect = target.CurrentEffect;
         CurrentEffectText = target.CurrentEffectText;
 
-        // Copy stats
         CurrentAttack = target.CurrentAttack;
         CurrentMaxHealth = target.CurrentMaxHealth;
         CurrentHealth = target.CurrentHealth;
 
-        // Copy keywords / states
         ThornsDamage = target.ThornsDamage;
         IsBleeding = target.IsBleeding;
         BleedingTurns = target.BleedingTurns;
@@ -1526,15 +1539,14 @@ public class CardInstance : MonoBehaviour, IAttackable
         HasAttackedThisTurn = false;
         HasAttackedTwiceThisTurn = false;
 
-        // Re-parse effects
         ParseEffects();
         InitializeProgressIfAny();
 
-        // Update visuals
         cardView.Bind(this);
         cardView.UpdateMode();
-    }
 
+        return true;
+    }
     private IEnumerator DelayedProgressInit()
     {
         yield return null; // wait 1 frame

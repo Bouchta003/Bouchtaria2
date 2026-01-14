@@ -6,6 +6,7 @@ using System.Collections;
 using DG.Tweening;
 using System.Linq;
 using UnityEngine.Rendering;
+using System;
 
 public interface IAttackable
 {
@@ -109,7 +110,7 @@ public class GameManager : MonoBehaviour
     private Tween cameraShakeTween;
     //Target effects
     private bool isTargetingEffect;
-    private System.Action<IAttackable> onEffectTargetChosen;
+    private Func<IAttackable, bool> onEffectTargetChosen;
     private CardInstance effectSource;
     private EffectTarget targetType = EffectTarget.None;
     PlayerOwner effectOwner;
@@ -136,7 +137,7 @@ public class GameManager : MonoBehaviour
 
         //Setup cores mana and deck before the turn logic
         Sprite[] defaultBoards = new Sprite[] { defaultBoard, defaultMagicBoard };
-        boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = defaultBoards[Random.Range(0, defaultBoards.Length-1)];
+        boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = defaultBoards[UnityEngine.Random.Range(0, defaultBoards.Length-1)];
 
         deckManager.InitializeDecks();        // build decks
         deckManager.DetectUnlockableTraits(); // analyze decks
@@ -533,14 +534,14 @@ public class GameManager : MonoBehaviour
         {
             if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
             {
-                int randintDisc = Random.Range(0, 3);
+                int randintDisc = UnityEngine.Random.Range(0, 3);
                 if (randintDisc == 0) AddCardToHand(PlayerOwner.Enemy, id1,-1);
                 if (randintDisc == 1) AddCardToHand(PlayerOwner.Enemy, id2,-1);
                 if (randintDisc == 2) AddCardToHand(PlayerOwner.Enemy, id3,-1);
                 if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
                 return;
             }
-            int randint = Random.Range(0, 3);
+            int randint = UnityEngine.Random.Range(0, 3);
             if (randint == 0) AddCardToHand(PlayerOwner.Enemy, id1);
             if (randint == 1) AddCardToHand(PlayerOwner.Enemy, id2);
             if (randint == 2) AddCardToHand(PlayerOwner.Enemy, id3);
@@ -579,27 +580,27 @@ public class GameManager : MonoBehaviour
         {
             if(OwnerHasTrait(owner, CardData.Trait.Faith, 2))
             {
-                AddCardToHand(PlayerOwner.Enemy, options[Random.Range(0, options.Count)].id,-1);
+                AddCardToHand(PlayerOwner.Enemy, options[UnityEngine.Random.Range(0, options.Count)].id,-1);
                 if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
                 return;
             }
-            AddCardToHand(PlayerOwner.Enemy, options[Random.Range(0, options.Count)].id);
+            AddCardToHand(PlayerOwner.Enemy, options[UnityEngine.Random.Range(0, options.Count)].id);
             if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
             return;
         }
         isDiscovering = true;
         discoverDisplay.SetActive(true);
-        CardData data1 = options[Random.Range(0, options.Count)];
+        CardData data1 = options[UnityEngine.Random.Range(0, options.Count)];
         CardInstance dataInst1 = CardFactory.Instance.CreateCardInPosition(data1, PlayerOwner.Player, Vector3.zero, new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
         dataInst1.IsDisplay = true;
         dataInst1.GetComponent<SortingGroup>().sortingOrder = 201;
         options.Remove(data1);
-        CardData data2 = options[Random.Range(0, options.Count)];
+        CardData data2 = options[UnityEngine.Random.Range(0, options.Count)];
         CardInstance dataInst2 = CardFactory.Instance.CreateCardInPosition(data2, PlayerOwner.Player, new Vector3(5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
         dataInst2.IsDisplay = true;
         dataInst2.GetComponent<SortingGroup>().sortingOrder = 201;
         options.Remove(data2);
-        CardData data3 = options[Random.Range(0, options.Count)];
+        CardData data3 = options[UnityEngine.Random.Range(0, options.Count)];
         CardInstance dataInst3 = CardFactory.Instance.CreateCardInPosition(data3, PlayerOwner.Player, new Vector3(-5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
         dataInst3.IsDisplay = true;
         dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;
@@ -622,27 +623,27 @@ public class GameManager : MonoBehaviour
         {
             if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
             {
-                AddCardToHand(PlayerOwner.Enemy, options[Random.Range(0, options.Count)].id, -1);
+                AddCardToHand(PlayerOwner.Enemy, options[UnityEngine.Random.Range(0, options.Count)].id, -1);
                 if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
                 return;
             }
-            AddCardToHand(PlayerOwner.Enemy, options[Random.Range(0, options.Count)].id);
+            AddCardToHand(PlayerOwner.Enemy, options[UnityEngine.Random.Range(0, options.Count)].id);
             if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
             return;
         }
         isDiscovering = true;
         discoverDisplay.SetActive(true);
-        CardData data1 = options[Random.Range(0, options.Count)];
+        CardData data1 = options[UnityEngine.Random.Range(0, options.Count)];
         CardInstance dataInst1 = CardFactory.Instance.CreateCardInPosition(data1, PlayerOwner.Player, Vector3.zero, new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
         dataInst1.IsDisplay = true;
         dataInst1.GetComponent<SortingGroup>().sortingOrder = 201;
         options.Remove(data1);
-        CardData data2 = options[Random.Range(0, options.Count)];
+        CardData data2 = options[UnityEngine.Random.Range(0, options.Count)];
         CardInstance dataInst2 = CardFactory.Instance.CreateCardInPosition(data2, PlayerOwner.Player, new Vector3(5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
         dataInst2.IsDisplay = true;
         dataInst2.GetComponent<SortingGroup>().sortingOrder = 201;
         options.Remove(data2);
-        CardData data3 = options[Random.Range(0, options.Count)];
+        CardData data3 = options[UnityEngine.Random.Range(0, options.Count)];
         CardInstance dataInst3 = CardFactory.Instance.CreateCardInPosition(data3, PlayerOwner.Player, new Vector3(-5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
         dataInst3.IsDisplay = true;
         dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;
@@ -650,6 +651,83 @@ public class GameManager : MonoBehaviour
         //Call Discover
         OnDiscover?.Invoke(owner);
     }
+    public void DiscoverOwnerTrait(PlayerOwner owner)
+    {
+        // 1️⃣ Get trait pool from DECK (not active effects)
+        Dictionary<CardData.Trait, int> traitPool =
+            owner == PlayerOwner.Player
+                ? deckManager.AllyTraitsUnlockable
+                : deckManager.EnemyTraitsUnlockable;
+
+        if (traitPool == null || traitPool.Count == 0)
+            return;
+
+        // 2️⃣ Pick up to 3 distinct traits
+        List<CardData.Trait> traits =
+            traitPool.Keys
+                     .Where(t => t != CardData.Trait.Neutral)
+                     .OrderBy(_ => UnityEngine.Random.value)
+                     .Take(3)
+                     .ToList();
+
+        if (traits.Count == 0)
+            return;
+
+        // 3️⃣ Pick one card per trait
+        List<CardData> options = new();
+
+        foreach (var trait in traits)
+        {
+            List<CardData> cards =
+                CardDatabase.Instance.GetCardsByTraitPackable(trait.ToString());
+
+            if (cards.Count > 0)
+                options.Add(cards[UnityEngine.Random.Range(0, cards.Count)]);
+        }
+
+        if (options.Count == 0)
+            return;
+
+        // 4️⃣ Enemy: auto-pick
+        if (owner == PlayerOwner.Enemy)
+        {
+            CardData choice = options[UnityEngine.Random.Range(0, options.Count)];
+
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
+                AddCardToHand(owner, choice.id, -1);
+            else
+                AddCardToHand(owner, choice.id);
+
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 3))
+                GainMana(1, owner);
+
+            return;
+        }
+
+        // 5️⃣ Player: Discover UI
+        isDiscovering = true;
+        discoverDisplay.SetActive(true);
+
+        float[] xPos = { 0f, 5f, -5f };
+
+        for (int i = 0; i < options.Count && i < 3; i++)
+        {
+            CardInstance preview =
+                CardFactory.Instance.CreateCardInPosition(
+                    options[i],
+                    PlayerOwner.Player,
+                    new Vector3(xPos[i], 0, 0),
+                    new Vector3(0.6f, 0.6f, 0.6f),
+                    discoverDisplay.transform
+                );
+
+            preview.IsDisplay = true;
+            preview.GetComponent<SortingGroup>().sortingOrder = 201;
+        }
+
+        OnDiscover?.Invoke(owner);
+    }
+
     public void ShuffleInDeck(int id, PlayerOwner owner)
     {
         CardData shuffledCard = CardDatabase.Instance.GetCardById(id);
@@ -749,7 +827,7 @@ public class GameManager : MonoBehaviour
         card.GetComponent<Card>().ResetCard();
         card.DeployPending = false;
         card.CurrentCastEffect = null;
-        GainMana(card.CurrentManaCost, PlayerOwner.Player);
+        //GainMana(card.CurrentManaCost, PlayerOwner.Player);
 
         allyHand.AddCard(card.gameObject);
         allyHand.UpdateCardPositions();
@@ -1273,7 +1351,28 @@ public class GameManager : MonoBehaviour
         enemyDropArea.FlushLayoutIfDirty();
 
     }
-    public void BeginEffectTargeting(    CardInstance source,    PlayerOwner owner,    System.Action<IAttackable> onTargetChosen, EffectTarget effectTargetType)
+    public void EndEffectTargetting()
+    {
+        // Exit effect targeting mode
+        isTargetingEffect = false;
+
+        // Hide cursor
+        attackCursor.gameObject.SetActive(false);
+
+        // Clear callbacks & state
+        onEffectTargetChosen = null;
+        effectSource = null;
+        targetType = EffectTarget.None;
+
+        // Refresh glows (attack / playable cards)
+        CheckGlow();
+    }
+    public void BeginEffectTargeting(
+    CardInstance source,
+    PlayerOwner owner,
+    Func<IAttackable, bool> onTargetChosen,
+    EffectTarget effectTargetType
+)
     {
         isTargetingEffect = true;
         effectSource = source;
@@ -1326,8 +1425,8 @@ public class GameManager : MonoBehaviour
         if (targets.Count == 0)
             return null;
 
-        // Simple AI: random valid target
-        IAttackable choice = targets[Random.Range(0, targets.Count)];
+        // Simple AI: UnityEngine.Random valid target
+        IAttackable choice = targets[UnityEngine.Random.Range(0, targets.Count)];
         Debug.Log("Enemy triggered effect on " + choice.ToString() + " ");
         return choice;
     }
