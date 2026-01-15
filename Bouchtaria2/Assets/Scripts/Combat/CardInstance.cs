@@ -1348,6 +1348,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         target.TakeDamage(amount);
+        gameManager.OnDamageWithCard(Owner);
     }
     private void TryExecuteDamageAoe(string effect)
     {
@@ -1385,6 +1386,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             target.TakeDamage(amount);
         }
+        gameManager.OnDamageWithCard(Owner);
     }
 
     private void TryExecuteSleep(CardInstance target)
@@ -1736,6 +1738,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.TakeDamage(dmg);
         else
             gameManager.EnemyCore.TakeDamage(dmg);
+        gameManager.OnDamageWithCard(Owner);
+
     }
     public void AutoShieldCore(int shield)
     {

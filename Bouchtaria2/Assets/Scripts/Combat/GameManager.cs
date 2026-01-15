@@ -104,6 +104,7 @@ public class GameManager : MonoBehaviour
     public event System.Action<PlayerOwner, int> OnOwnerDamage;
     public event System.Action<PlayerOwner> OnDiscover;
     public event System.Action<PlayerOwner> OnPraise;
+    public event System.Action<PlayerOwner> OnDamageCard;
 
     //Camera shake
     private Vector3 cameraBasePos;
@@ -245,7 +246,7 @@ public class GameManager : MonoBehaviour
                 CardData.Trait.Neutral => new NeutralProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
                 CardData.Trait.Pokemon => new PokemonProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea, this),
                 CardData.Trait.MonsterHunter => new MonsterHunterProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea, this),
-                CardData.Trait.Gunner => throw new System.NotImplementedException(),
+                CardData.Trait.Gunner => new GunnerProgression(owner, maxTier, traitSystem, this),
                 CardData.Trait.Inazuma => throw new System.NotImplementedException(),
                 CardData.Trait.Speedster => new SpeedsterProgression(owner, maxTier, traitSystem, this),
                 CardData.Trait.Blizzard => throw new System.NotImplementedException(),
@@ -402,11 +403,18 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Effects
-    public void ApplyHandManaDiscount()
+    public IEnumerator DamageRandomEnemy(bool andCore, int ticsDmg, PlayerOwner owner)
     {
-        foreach(GameObject card in allyDropArea.allyPrefabCards)
+        for(int i = 0; i < ticsDmg; i++)
         {
-
+            if (andCore) GetCoreForEnemy(owner).TakeDamage(1);
+            if (GetBoardForOther(owner).GetCards().Count > 0)
+            {
+                int rndTarget = UnityEngine.Random.Range(0,GetBoardForOther(owner).GetCards().Count);
+                GetBoardForOther(owner).GetCards()[rndTarget].GetComponent<CardInstance>().TakeDamage(1);
+                Debug.Log("Dealt damage to enemy GUN");
+            }
+            yield return new WaitForSeconds(0.5f);
         }
     }
     public void TrySummonForOwner(PlayerOwner owner, int cardId)
@@ -474,6 +482,10 @@ public class GameManager : MonoBehaviour
     public void Praise(PlayerOwner owner)
     {
         OnPraise?.Invoke(owner);
+    }
+    public void OnDamageWithCard(PlayerOwner owner)
+    {
+        OnDamageCard?.Invoke(owner);
     }
     public void LimitEnemySpace(PlayerOwner effectOwner, int limit)
     {
@@ -947,6 +959,12 @@ public class GameManager : MonoBehaviour
         return owner == PlayerOwner.Player
             ? PlayerCore
             : EnemyCore;
+    }
+    private CoreInstance GetCoreForEnemy(PlayerOwner owner)
+    {
+        return owner == PlayerOwner.Player
+            ? EnemyCore
+            : PlayerCore;
     }
     public List<IAttackable> GetValidTargets(CardInstance attacker)
     {

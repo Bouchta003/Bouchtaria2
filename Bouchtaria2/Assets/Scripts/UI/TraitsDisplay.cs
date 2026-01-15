@@ -128,6 +128,14 @@ public class TraitsDisplay : MonoBehaviour
                 if (tier > 2) display +=
                          "\nTier 3 : Your avatars enter AVATAR STATE (in hand or deck).";
                 break;
+            case CardData.Trait.Gunner:
+                display += $"Deal non-combat damage multiple times with your cards: {Progression}/{CurrentCap}" +
+                    "\nTier 1 : End of turn : Deal 1 damage to a random unit.";
+                if (tier > 1) display +=
+                        "\nTier 2 : Also deal 1 damage to the enemy core.";
+                if (tier > 2) display +=
+                         "\nTier 3 : Gun effect triggers thrice.";
+                break;
             default:
                 display += "Need to define this trait's tier logic";
                 break;

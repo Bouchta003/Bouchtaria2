@@ -70,7 +70,7 @@ public class TraitsDetection : MonoBehaviour
         {
             { CardData.Trait.Speedster, new[] { 4, 6, 8 } },
             { CardData.Trait.Fighter, new[] { 4, 7 } },
-            { CardData.Trait.Gunner, new[] { 6, 8, 12 } },
+            { CardData.Trait.Gunner, new[] { 4,6,8 } },
             { CardData.Trait.Faith, new[] { 3,6, 10 } },
             { CardData.Trait.Avatar, new[] { 3, 6, 8 } },//Make it later 5, 8, 15
             { CardData.Trait.Hater, new[] { 6, 9 } },

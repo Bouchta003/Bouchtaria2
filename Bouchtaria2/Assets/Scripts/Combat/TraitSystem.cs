@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 public interface IDeckTraitEffect
 {
@@ -42,6 +42,20 @@ public class TraitSystem : MonoBehaviour
 
         OnTraitTierActivated?.Invoke(effect.Trait, effect.Tier);
     }
+    public void DeactivateLowerTiers(CardData.Trait trait, int tierToKeep)
+    {
+        for (int i = activeEffects.Count - 1; i >= 0; i--)
+        {
+            var effect = activeEffects[i];
+
+            if (effect.Trait == trait && effect.Tier < tierToKeep)
+            {
+                effect.OnUnregister();
+                activeEffects.RemoveAt(i);
+            }
+        }
+    }
+
     public bool HasTraitAtTier(CardData.Trait trait, int minTier)
     {
         foreach (var effect in activeEffects)
@@ -1774,4 +1788,267 @@ public class AvatarTier3Effect : IDeckTraitEffect
 
 }
 
+#endregion
+#region Gunner
+public class GunnerProgression : ITraitProgression
+{
+    public CardData.Trait Trait => CardData.Trait.Gunner;
+    public PlayerOwner Owner { get; }
+    public int CurrentTier { get; private set; }
+
+    private readonly int maxTier;
+    private int damageCount;
+
+    public int CurrentProgress => damageCount;
+
+    public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
+
+    private readonly TraitSystem traitSystem;
+    private readonly GameManager gameManager;
+
+    public GunnerProgression(
+        PlayerOwner owner,
+        int maxTier,
+        TraitSystem traitSystem,
+        GameManager gameManager)
+    {
+        Owner = owner;
+        this.maxTier = maxTier;
+        this.traitSystem = traitSystem;
+        this.gameManager = gameManager;
+    }
+
+    public void Register()
+    {
+        Debug.Log($"[Gunner] Register for {Owner}");
+        gameManager.OnDamageCard += OnDamageDealt;
+        PushInitialState();
+    }
+
+    public void Unregister()
+    {
+        gameManager.OnDamageCard -= OnDamageDealt;
+    }
+
+    public void ResetProgression()
+    {
+        damageCount = 0;
+    }
+
+    public void PushInitialState()
+    {
+        OnProgressUpdated?.Invoke(Trait, damageCount, GetCurrentCap(), Owner);
+    }
+    public void OnDamageDealt(PlayerOwner owner)
+    {
+        // 1. Must be ally
+        if (owner != Owner)
+            return;
+
+        damageCount++;
+        OnProgressUpdated?.Invoke(Trait, damageCount, GetCurrentCap(), Owner);
+        if (damageCount >= 2 && CurrentTier < 1 && maxTier >= 1)
+            UnlockTier1();
+
+        if (damageCount >= 4 && CurrentTier < 2 && maxTier >= 2)
+            UnlockTier2();
+
+        if (damageCount >= 6 && CurrentTier < 3 && maxTier >= 3)
+            UnlockTier3();
+    }
+    private void UnlockTier1()
+    {
+        CurrentTier = 1;
+        traitSystem.ActivateEffect(new GunnerTier1Effect(Owner, gameManager));
+    }
+    private void UnlockTier2()
+    {
+        CurrentTier = 2;
+
+        traitSystem.DeactivateLowerTiers(CardData.Trait.Gunner, 2);
+
+        traitSystem.ActivateEffect(new GunnerTier2Effect(Owner, gameManager)
+        );
+
+        Debug.Log($"{Owner} unlocked Gunner Tier 2");
+    }
+
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+
+        traitSystem.DeactivateLowerTiers(CardData.Trait.Gunner, 3);
+
+        traitSystem.ActivateEffect(
+            new GunnerTier3Effect(Owner, gameManager)
+        );
+
+        Debug.Log($"{Owner} unlocked Gunner Tier 3");
+    }
+
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 2,
+            1 => 4,
+            2 => 6,
+            3 => 9999,
+            _ => 9999,
+        };
+    }
+}
+public class GunnerTier1Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Gunner;
+    public int Tier => 1;
+
+    private readonly PlayerOwner owner;
+    private readonly GameManager gameManager;
+
+    public GunnerTier1Effect(PlayerOwner owner, GameManager gameManager)
+    {
+        this.owner = owner;
+        this.gameManager = gameManager;
+    }
+
+    public void OnRegister()
+    {
+        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
+
+        // 🔑 CRITICAL FIX:
+        // If we are already in End phase for this owner, trigger immediately
+        if (TurnManager.Instance.CurrentPhase == TurnPhase.End &&
+            TurnManager.Instance.CurrentPlayer == owner)
+        {
+            TriggerGunDamage();
+        }
+    }
+
+    public void OnUnregister()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+    }
+
+    private void OnTurnEnded(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        TriggerGunDamage();
+    }
+
+    private void TriggerGunDamage()
+    {
+        // Example: 1 damage tick
+        gameManager.StartCoroutine(
+            gameManager.DamageRandomEnemy(andCore: false, ticsDmg: 1, owner)
+        );
+
+        Debug.Log($"[GUNNER] Gun fired for {owner}");
+    }
+}
+public class GunnerTier2Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Gunner;
+    public int Tier => 2;
+
+    private readonly PlayerOwner owner;
+    private readonly GameManager gameManager;
+
+    public GunnerTier2Effect(PlayerOwner owner, GameManager gameManager)
+    {
+        this.owner = owner;
+        this.gameManager = gameManager;
+    }
+
+    public void OnRegister()
+    {
+        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
+
+        // 🔑 CRITICAL FIX:
+        // If we are already in End phase for this owner, trigger immediately
+        if (TurnManager.Instance.CurrentPhase == TurnPhase.End &&
+            TurnManager.Instance.CurrentPlayer == owner)
+        {
+            TriggerGunDamage();
+        }
+    }
+
+    public void OnUnregister()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+    }
+
+    private void OnTurnEnded(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        TriggerGunDamage();
+    }
+
+    private void TriggerGunDamage()
+    {
+        // Example: 2 damage tick
+        gameManager.StartCoroutine(
+            gameManager.DamageRandomEnemy(andCore: true, ticsDmg: 1, owner)
+        );
+
+        Debug.Log($"[GUNNER] Gun fired for {owner}");
+    }
+}
+public class GunnerTier3Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Gunner;
+    public int Tier => 3;
+
+    private readonly PlayerOwner owner;
+    private readonly GameManager gameManager;
+
+    public GunnerTier3Effect(PlayerOwner owner, GameManager gameManager)
+    {
+        this.owner = owner;
+        this.gameManager = gameManager;
+    }
+
+    public void OnRegister()
+    {
+        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
+
+        // 🔑 CRITICAL FIX:
+        // If we are already in End phase for this owner, trigger immediately
+        if (TurnManager.Instance.CurrentPhase == TurnPhase.End &&
+            TurnManager.Instance.CurrentPlayer == owner)
+        {
+            TriggerGunDamage();
+        }
+    }
+
+    public void OnUnregister()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+    }
+
+    private void OnTurnEnded(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        TriggerGunDamage();
+    }
+
+    private void TriggerGunDamage()
+    {
+        // Example: 3 damage tick
+        gameManager.StartCoroutine(
+            gameManager.DamageRandomEnemy(andCore: true, ticsDmg: 3, owner)
+        );
+
+        Debug.Log($"[GUNNER] Gun fired for {owner}");
+    }
+}
 #endregion
