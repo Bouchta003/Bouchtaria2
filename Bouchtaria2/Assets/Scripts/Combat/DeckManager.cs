@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -70,13 +71,23 @@ public class DeckManager : MonoBehaviour
     }
     private void HandleTurnStart(PlayerOwner owner)
     {
-        DrawCard(owner);
+        StartCoroutine(Draw(1, owner));
+        GameManager gm = FindFirstObjectByType<GameManager>();
+        if (gm.OwnerHasTrait(owner, CardData.Trait.Neutral, 3))
+        {
+            StartCoroutine(Draw(1, owner));
+        }
     }
 
-    public void Draw(int count, PlayerOwner owner)
+    public IEnumerator Draw(int count, PlayerOwner owner)
     {
-        for (int i = 0; i < count; i++) DrawCard(owner);
+        for (int i = 0; i < count; i++)
+        {
+            DrawCard(owner);
+            yield return new WaitForSeconds(0.2f);
+        }
     }
+
     private void DrawCard(PlayerOwner owner)
     {
         Queue<CardData> deck = decks[owner];

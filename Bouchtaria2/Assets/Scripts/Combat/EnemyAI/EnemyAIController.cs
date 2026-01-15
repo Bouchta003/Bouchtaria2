@@ -8,6 +8,7 @@ public class EnemyAIController : MonoBehaviour
     [SerializeField] private EnemyCardDropArea enemyBoard;
     [SerializeField] private AllyCardDropArea allyBoard;
     [SerializeField] private GameManager gameManager;
+    public event System.Action<CardInstance> OnCardPlayed;
     private void OnEnable()
     {
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
@@ -137,6 +138,7 @@ public class EnemyAIController : MonoBehaviour
 
         // Trigger deploy effects (spells use deploy)
         spell.OnPlaySpell();
+        OnCardPlayed?.Invoke(spell);
 
         // Remove from hand & destroy
         enemyHand.handCards.Remove(spell.gameObject);

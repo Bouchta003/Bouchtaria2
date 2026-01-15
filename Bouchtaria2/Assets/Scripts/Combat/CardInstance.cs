@@ -712,7 +712,9 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (!TryParseIntEffect(effect, "draw", out int cards))
                 return;
 
-            deckManager.Draw(cards, Owner);
+
+            deckManager.StartCoroutine(deckManager.Draw(cards, Owner));
+
             return;
         }
 

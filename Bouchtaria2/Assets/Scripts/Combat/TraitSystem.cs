@@ -116,16 +116,16 @@ public class NeutralProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 5,
-            1 => 10,
-            2 => 15,
+            0 => 2,
+            1 => 3,
+            2 => 5,
             _ => 999
         };
     }
 
     private void OnCardPlayed(CardInstance card)
     {
-            if (card.Owner != Owner)
+        if (card.Owner != Owner)
             return;
 
         if (!card.HasTrait("neutral"))
@@ -133,18 +133,20 @@ public class NeutralProgression : ITraitProgression
         neutralPlayed++;
         OnProgressUpdated?.Invoke(Trait, neutralPlayed, GetCurrentCap(), Owner);
 
-        //Debug.Log($"Neutral card played for :{Owner}, count is now {neutralPlayed}");
-
-        if (neutralPlayed >= 5 && CurrentTier < 1 && maxTier >= 1)
+        if (neutralPlayed >= 2 && CurrentTier < 1 && maxTier >= 1)
         {
             UnlockTier1();
         }
 
-        if (neutralPlayed >= 10 && CurrentTier < 2 && maxTier >= 2)
+        if (neutralPlayed >= 3 && CurrentTier < 2 && maxTier >= 2)
         {
             UnlockTier2();
         }
 
+        if (neutralPlayed >= 5 && CurrentTier < 3 && maxTier >= 3)
+        {
+            UnlockTier3();
+        }
     }
 
     private void UnlockTier1()
@@ -166,6 +168,16 @@ public class NeutralProgression : ITraitProgression
         );
 
         Debug.Log($"{Owner} unlocked Neutral Tier 2");
+    }
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+        DeckManager deckManager = Object.FindFirstObjectByType<DeckManager>();
+        traitSystem.ActivateEffect(
+            new NeutralTier3Effect(Owner, deckManager)
+        );
+
+        Debug.Log($"{Owner} unlocked Neutral Tier 3");
     }
 
 }
@@ -309,6 +321,31 @@ public class NeutralTier2Effect : IDeckTraitEffect
 
         foreach (var go in hand.handCards)
             yield return go.GetComponent<CardInstance>();
+    }
+}
+public class NeutralTier3Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Neutral;
+    public int Tier => 3;
+
+    private readonly PlayerOwner owner;
+
+    private readonly DeckManager deckManager;
+
+    public NeutralTier3Effect(PlayerOwner owner, DeckManager deckManager)
+    {
+        this.owner = owner;
+        this.deckManager = deckManager;
+    }
+
+    public void OnRegister()
+    {
+
+    }
+
+    public void OnUnregister()
+    {
+
     }
 }
 #endregion

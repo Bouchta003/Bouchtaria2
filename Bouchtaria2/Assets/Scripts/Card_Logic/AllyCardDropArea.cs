@@ -55,6 +55,7 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
             cardInst.OnPlaySpell();
 
             Debug.Log($"Played {cardInst.Data.name} with the effect {cardInst.CurrentEffect}");
+            OnCardPlayed?.Invoke(cardInst);
             return;
         }
 

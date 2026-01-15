@@ -82,11 +82,11 @@ public class TraitsDisplay : MonoBehaviour
                 break;
             case CardData.Trait.Neutral:
                 display += $"Play neutral cards to unlock. Currently played : {Progression}/{CurrentCap}" +
-                    "\nTier 1 : The first card you play each turn has +2 HP.";
+                    "\nTier 1 : The first unit you play each turn has +2 HP.";
                 if (tier > 1) display +=
                         "\nTier 2 : The first card you draw that costs 3 mana or more each turn costs 1 less.";
                 if (tier > 2) display +=
-                         "\nTier 3 :NOT IMPLEMENTED .";
+                         "\nTier 3 : You draw one more at the start of your turn.";
                 break;
             case CardData.Trait.Healer:
                 display += $"Heal ally units or core to unlock : {Progression}/{CurrentCap}" +

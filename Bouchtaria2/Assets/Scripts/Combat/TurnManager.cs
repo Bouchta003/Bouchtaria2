@@ -37,8 +37,8 @@ public class TurnManager : MonoBehaviour
     {
         CurrentPlayer = PlayerOwner.Player;
         BeginTurn();
-        deckManager.Draw(3, PlayerOwner.Player);
-        deckManager.Draw(3, PlayerOwner.Enemy);
+        StartCoroutine(deckManager.Draw(3, PlayerOwner.Player));
+        StartCoroutine(deckManager.Draw(4, PlayerOwner.Enemy));
     }
 
     public void EndTurn()

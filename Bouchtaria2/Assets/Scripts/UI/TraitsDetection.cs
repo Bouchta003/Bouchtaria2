@@ -80,7 +80,7 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Inazuma, new[] { 11 } },
             { CardData.Trait.Pokemon, new[] { 4,8,12 } },
             { CardData.Trait.MonsterHunter, new[] { 5, 10, 20 } },
-            { CardData.Trait.Neutral, new[] { 4,8,15 } },
+            { CardData.Trait.Neutral, new[] { 3,5,6 } },
             { CardData.Trait.Blizzard, new[] { 5, 10 } }
         };
 
@@ -174,6 +174,9 @@ public class TraitsDetection : MonoBehaviour
                         break;
                     case CardData.Trait.Blizzard:
                         traitDisplay.iconSlot.sprite = traitDisplay.blizzardIcon;
+                        break;
+                    case CardData.Trait.Avatar:
+                        traitDisplay.iconSlot.sprite = traitDisplay.AvatarIcon;
                         break;
                     default:
                         Debug.Log("Unkown trait");
