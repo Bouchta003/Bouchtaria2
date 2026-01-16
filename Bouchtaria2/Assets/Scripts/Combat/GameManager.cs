@@ -81,6 +81,11 @@ public class GameManager : MonoBehaviour
     [Header("Camera Shake")]
     [SerializeField] private Camera mainCamera;
 
+    //Graveyard 
+    public Graveyard PlayerGraveyard { get; private set; } = new();
+    public Graveyard EnemyGraveyard { get; private set; } = new();
+
+
     public int PlayerHealBonus = 0;
     public int EnemyHealBonus = 0;
     public bool PlayerDarkHeal = false;
@@ -793,14 +798,49 @@ public class GameManager : MonoBehaviour
 
         return card;
     }
+    public void ResurrectLast(PlayerOwner owner, CardData excluded)
+    {
+        Graveyard graveyard =
+            owner == PlayerOwner.Player
+                ? PlayerGraveyard
+                : EnemyGraveyard;
+
+        CardData data = graveyard.PopLastExcluding(excluded);
+        if (data == null)
+            return;
+
+        TrySummonForOwner(owner, data.id);
+    }
+    public void ResurrectRandom(PlayerOwner owner, CardData excluded)
+    {
+        Graveyard graveyard =
+            owner == PlayerOwner.Player
+                ? PlayerGraveyard
+                : EnemyGraveyard;
+
+        CardData data = graveyard.PopRandomExcluding(excluded);
+        if (data == null)
+            return;
+
+        TrySummonForOwner(owner, data.id);
+    }
     #endregion
 
     #region Combat Manager
     public void NotifyCardKilled(CardInstance deadCard)
     {
         OnCardKilled?.Invoke(deadCard);
-        if (deadCard.Data.id == 86) DistortionWorld = false;
+
+        // 🔑 Add to graveyard
+        if (deadCard.Owner == PlayerOwner.Player)
+            PlayerGraveyard.Add(deadCard.Data);
+        else
+            EnemyGraveyard.Add(deadCard.Data);
+
+        if (deadCard.Data.id == 86)
+            DistortionWorld = false;
     }
+
     public void NotifyHealed(PlayerOwner owner, int amount)
     {
         OnOwnerHeal?.Invoke(owner, amount);

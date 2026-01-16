@@ -664,6 +664,16 @@ public class CardInstance : MonoBehaviour, IAttackable
             GainExtraTurn();
             return;
         }
+        if (effect.StartsWith("resurrectlast"))
+        {
+            gameManager.ResurrectLast(Owner, Data);
+            return;
+        }
+        else if (effect.StartsWith("resurrect"))
+        {
+            gameManager.ResurrectRandom(Owner, Data);
+            return;
+        }
         if (effect.StartsWith("giratina"))
         {
             gameManager.DistortionWorld = true;
