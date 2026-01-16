@@ -1033,7 +1033,7 @@ public class MonsterHunterProgression : ITraitProgression
             return;
 
         // 2. Must be colossus
-        if (card.BaseManaCost <= 1)
+        if (card.BaseManaCost <= 1)//Change to 5
             return;
 
         // 3. Must have MonsterHunter trait
@@ -1106,7 +1106,7 @@ public class MonsterHunterTier1Effect : IDeckTraitEffect
         CardData chosen = options[Random.Range(0, options.Count)];
 
         GameManager gm = Object.FindFirstObjectByType<GameManager>();
-        gm.TrySummonForOwner(owner, chosen.id);
+        gm.TrySummonForOwner(owner, chosen.id, true);
     }
 }
 public class MonsterHunterTier2Effect : IDeckTraitEffect
@@ -1143,7 +1143,7 @@ public class MonsterHunterTier2Effect : IDeckTraitEffect
         CardData chosen = options[Random.Range(0, options.Count)];
 
         GameManager gm = Object.FindFirstObjectByType<GameManager>();
-        gm.TrySummonForOwner(owner, chosen.id);
+        gm.TrySummonForOwner(owner, chosen.id, true);
     }
 }
 public class MonsterHunterTier3Effect : IDeckTraitEffect
@@ -1182,7 +1182,7 @@ public class MonsterHunterTier3Effect : IDeckTraitEffect
 
         Debug.Log($"Options count = {options.Count} and chosen card is {chosen.name}");
         GameManager gm = Object.FindFirstObjectByType<GameManager>();
-        gm.TrySummonForOwner(owner, chosen.id);
+        gm.TrySummonForOwner(owner, chosen.id, true);
     }
 }
 #endregion

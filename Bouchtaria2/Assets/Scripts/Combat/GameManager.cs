@@ -422,7 +422,18 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
     }
-    public void TrySummonForOwner(PlayerOwner owner, int cardId)
+    public bool TrySummonForOwnerSafe(PlayerOwner owner, int cardId, bool isTrait = false)
+    {
+        var board = GetBoardForOwner(owner);
+
+        if (board.IsFull())
+            return false;
+
+        TrySummonForOwner(owner, cardId, isTrait);
+        return true;
+    }
+
+    public void TrySummonForOwner(PlayerOwner owner, int cardId, bool isTrait = false)
     {
         var board = GetBoardForOwner(owner);
 
@@ -455,7 +466,19 @@ public class GameManager : MonoBehaviour
             enemyDropArea.AddSummonedCard(cardInst);
             enemyDropArea.UpdateEnemyCardPositions();
         }
+        if (isTrait)
+        {
+            StartCoroutine(DelayedDeploy(cardInst));
+        }
+
     }
+    private IEnumerator DelayedDeploy(CardInstance card)
+    {
+        yield return null; // wait one frame
+        if (card != null)
+            card.TriggerDeploy();
+    }
+
     public void TrySummonForOther(PlayerOwner owner, int cardId)
     {
         var board = GetBoardForOther(owner);
@@ -487,6 +510,56 @@ public class GameManager : MonoBehaviour
     public void Praise(PlayerOwner owner)
     {
         OnPraise?.Invoke(owner);
+    }
+    public void DamageRandomEnemyAmount(int amount, PlayerOwner owner)
+    {
+        List<IAttackable> possibleTargets = new();
+
+        // Add enemy minions
+        var enemyBoard = GetBoardForOther(owner).GetCards();
+        foreach (var go in enemyBoard)
+        {
+            if (go == null) continue;
+
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci == null || ci.IsDead) continue;
+
+            possibleTargets.Add(ci);
+        }
+
+        CoreInstance enemyCore = GetCoreForEnemy(owner);
+
+        // If no minions, core MUST be hit
+        if (possibleTargets.Count == 0)
+        {
+            enemyCore.TakeDamage(amount);
+            Debug.Log("Random damage hit enemy CORE (no units)");
+            return;
+        }
+
+        // If minions exist, core is also a valid random target
+        possibleTargets.Add(enemyCore);
+
+        // Pick random target
+        IAttackable target =
+            possibleTargets[UnityEngine.Random.Range(0, possibleTargets.Count)];
+
+        target.TakeDamage(amount);
+
+        Debug.Log($"Random damage hit: {target.GetType().Name}");
+    }
+    public void EmperorSapphire(PlayerOwner owner)
+    {
+        List<GameObject> allOwnerAllies = GetBoardForOwner(owner).GetCards();
+        foreach(GameObject ownerAlly in allOwnerAllies)
+        {
+            CardInstance cardInst = ownerAlly.GetComponent<CardInstance>();
+            if (cardInst.Data.id == 15)
+            {
+                cardInst.TakeDamage(999);
+                DamageRandomEnemyAmount(7, owner);
+            }
+        }
     }
     public void OnDamageWithCard(PlayerOwner owner)
     {

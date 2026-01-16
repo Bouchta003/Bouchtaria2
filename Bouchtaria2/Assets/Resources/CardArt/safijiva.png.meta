@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 008e5f4628113bc4e98f266e02e789f5
+guid: 461645b610b1fd546a14b976e58e993d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6296903055876209762
-    second: korra_compact_0
+      213: -1701579325202878892
+    second: safijiva_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: korra_compact_0
+      name: safijiva_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 886
-        height: 886
+        width: 271
+        height: 406
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 26cb29687f7136750800000000000000
-      internalID: 6296903055876209762
+      spriteID: 45e222c7e96c268e0800000000000000
+      internalID: -1701579325202878892
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      korra_compact_0: 6296903055876209762
+      safijiva_0: -1701579325202878892
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

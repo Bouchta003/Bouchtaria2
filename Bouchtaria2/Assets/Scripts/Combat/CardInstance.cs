@@ -265,6 +265,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             ProgressionCap = attackCap;
             gameManager.OnCardAttack += OnAttack;
         }
+        else if (HasKeyword("progresseot") &&
+          TryParseProgress("progresseot", out int turnCap))
+        {
+            ProgressionCap = turnCap;
+            TurnManager.Instance.OnTurnEnded += OnEndTurn;
+        }
     }
 
     private void CheckProgressCompletion()
@@ -293,6 +299,9 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (deckManager != null)
             gameManager.OnCardAttack -= OnAttack;
+
+        if (deckManager != null)
+            TurnManager.Instance.OnTurnEnded -= OnEndTurn;
     }
     private bool TryParseProgress(
     string keyword,
@@ -367,7 +376,18 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         if (inst.Owner != Owner)
             return;
-        ProgressionCounter ++;
+        ProgressionCounter++;
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+
+        CheckProgressCompletion();
+    }
+    void OnEndTurn(PlayerOwner owner)
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+        if (owner!= Owner)
+            return;
+        ProgressionCounter++;
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
 
         CheckProgressCompletion();
@@ -414,6 +434,10 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (IsAsleep) IsAsleep = false;
             view.UpdateMode();
             TriggerEffects(EffectTrigger.EndOfTurn);
+            if (HasKeyword("regeneration"))
+            {
+                Heal(999);
+            }
         }
     }
     public void Bleed()
@@ -658,25 +682,10 @@ public class CardInstance : MonoBehaviour, IAttackable
             BeginTargetedEffect(effect);
             return;
         }
-
+        //Unique Effects
         if (effect.StartsWith("extraturn"))
         {
             GainExtraTurn();
-            return;
-        }
-        if (effect.StartsWith("resurrectlast"))
-        {
-            gameManager.ResurrectLast(Owner, Data);
-            return;
-        }
-        else if (effect.StartsWith("resurrect"))
-        {
-            gameManager.ResurrectRandom(Owner, Data);
-            return;
-        }
-        if (effect.StartsWith("giratina"))
-        {
-            gameManager.DistortionWorld = true;
             return;
         }
         if (effect.StartsWith("limitenemyspace"))
@@ -685,6 +694,27 @@ public class CardInstance : MonoBehaviour, IAttackable
             {
                 gameManager.LimitEnemySpace(Owner, limit);
             }
+            return;
+        }
+        if (effect.StartsWith("giratina"))
+        {
+            gameManager.DistortionWorld = true;
+            return;
+        }
+        if (effect.StartsWith("emperorsapphire"))
+        {
+            gameManager.EmperorSapphire(Owner);
+            return;
+        }
+
+        if (effect.StartsWith("resurrectlast"))
+        {
+            gameManager.ResurrectLast(Owner, Data);
+            return;
+        }
+        else if (effect.StartsWith("resurrect"))
+        {
+            gameManager.ResurrectRandom(Owner, Data);
             return;
         }
 
@@ -1822,6 +1852,9 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (gameManager != null)
             gameManager.OnCardAttack -= OnAttack;
+
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnEnded -= OnEndTurn;
 
         if (deckManager != null)
             deckManager.OnCardDrawn -= OnCardDrawn;
