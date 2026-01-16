@@ -445,7 +445,7 @@ public class GameManager : MonoBehaviour
             return;
 
         ICardDropArea parent =
-    owner == PlayerOwner.Player
+            owner == PlayerOwner.Player
         ? allyDropArea
         : enemyDropArea;
 
@@ -472,7 +472,7 @@ public class GameManager : MonoBehaviour
         }
 
     }
-    private IEnumerator DelayedDeploy(CardInstance card)
+    public IEnumerator DelayedDeploy(CardInstance card)
     {
         yield return null; // wait one frame
         if (card != null)
@@ -550,17 +550,34 @@ public class GameManager : MonoBehaviour
     }
     public void EmperorSapphire(PlayerOwner owner)
     {
-        List<GameObject> allOwnerAllies = GetBoardForOwner(owner).GetCards();
-        foreach(GameObject ownerAlly in allOwnerAllies)
+        // 🔑 Snapshot the board to avoid collection modification
+        List<GameObject> allOwnerAllies =
+            new List<GameObject>(GetBoardForOwner(owner).GetCards());
+
+        foreach (GameObject ownerAlly in allOwnerAllies)
         {
+            if (ownerAlly == null) continue;
+
             CardInstance cardInst = ownerAlly.GetComponent<CardInstance>();
+            if (cardInst == null || cardInst.IsDead) continue;
+
             if (cardInst.Data.id == 15)
             {
-                cardInst.TakeDamage(999);
-                DamageRandomEnemyAmount(7, owner);
+                StartCoroutine(KillCrystalWithDelay(cardInst, owner));
             }
         }
     }
+    private IEnumerator KillCrystalWithDelay(CardInstance cardInst, PlayerOwner owner)
+    {
+        yield return new WaitForSeconds(0.1f);
+
+        if (cardInst == null || cardInst.IsDead)
+            yield break;
+
+        cardInst.TakeDamage(999);
+        DamageRandomEnemyAmount(7, owner);
+    }
+
     public void OnDamageWithCard(PlayerOwner owner)
     {
         OnDamageCard?.Invoke(owner);

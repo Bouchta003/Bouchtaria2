@@ -61,7 +61,8 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
 
 
         //Verify board space Legality
-        if (allyPrefabCards.Count >= maxBoardSize) return;
+        if (allyPrefabCards.Count >= maxBoardSize) {  card.ResetCard();
+                return;}
 
         // ----- Card is legal -----
 

@@ -282,7 +282,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
 
         progressionCompleted = true;
-
+        if (CurrentHealth <= 0) return;
         TriggerEffects(EffectTrigger.ProgressComplete);
         CleanupProgressSubscriptions();
     }
@@ -961,6 +961,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "progressheal":
             case "progressattack":
             case "progressdamage":
+            case "progresseot":
                 trigger = EffectTrigger.ProgressComplete;
                 return true;
 
@@ -1619,9 +1620,9 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void MorphTo(int newCardId)
     {
         CardData newData = CardDatabase.Instance.GetCardById(newCardId);
-        if (newData == null || newCardId == Data.id)
+        if (newData == null || newCardId == Data.id ||CurrentHealth<=0)
         {
-            Debug.LogWarning($"Evolve failed");
+            Debug.Log($"Evolve failed");
             return;
         }
 
@@ -1644,7 +1645,23 @@ public class CardInstance : MonoBehaviour, IAttackable
         // Notify view
         cardView.UpdateMode(); 
         StartCoroutine(DelayedProgressInit());
+        // 🔑 Reset deploy eligibility
+        WasPlayed = true;
+        EffectsSuppressed = false;
+
+        // Re-parse effects for new card
+        ParseEffects();
+
+        // Trigger deploy next frame
+        StartCoroutine(DelayedDeployAfterMorph());
+
     }
+    private IEnumerator DelayedDeployAfterMorph()
+    {
+        yield return null; // wait one frame
+        TriggerDeploy();
+    }
+
     private bool TryExecuteMorphTo(CardInstance target)
     {
         // Must be ally
