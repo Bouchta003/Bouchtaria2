@@ -118,10 +118,7 @@ public class DeckManager : MonoBehaviour
         hand.UpdateCardPositions();
         OnCardDrawn?.Invoke(card);
     }
-    public void ReplaceCardsInDeck(
-    PlayerOwner owner,
-    Dictionary<int, int> replacements
-)
+    public void ReplaceCardsInDeck(PlayerOwner owner,Dictionary<int, int> replacements)
     {
         Queue<CardData> deck = decks[owner];
         int count = deck.Count;
@@ -139,9 +136,7 @@ public class DeckManager : MonoBehaviour
         }
     }
     public void ReplaceCardsEverywhere(
-    PlayerOwner owner,
-    Dictionary<int, int> replacements
-)
+    PlayerOwner owner,Dictionary<int, int> replacements)
     {
         ReplaceCardsInDeck(owner, replacements);
         ReplaceCardsInHand(owner, replacements);

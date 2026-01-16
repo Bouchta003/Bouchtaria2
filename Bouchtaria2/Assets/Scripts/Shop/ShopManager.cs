@@ -80,7 +80,7 @@ public class ShopManager : MonoBehaviour
         DeckBuilding.Instance.GetUserDust(dust =>
         {
             UserDust = dust;
-            DustCounter.text = "Dust: "+dust.ToString();
+            DustCounter.text = "Dust: " + dust.ToString();
         });
     }
     #region Pack Management
@@ -147,7 +147,6 @@ public class ShopManager : MonoBehaviour
         // ✅ VISUAL REVEAL (purely visual)
         StartCoroutine(RevealPackCoroutine(finalCards));
     }
-
     private IEnumerator RevealPackCoroutine(int[] cards)
     {
         packSpawnRoot.gameObject.SetActive(true);
@@ -187,6 +186,10 @@ public class ShopManager : MonoBehaviour
         {
             card.cardView.dustIndicator.SetActive(true);
         }
+        if (ownedBeforePack != null && !ownedBeforePack.Contains(cardId))
+        {
+            card.cardView.newCardIndicator.SetActive(true);
+        }
 
         Card cardComp = card.GetComponent<Card>();
         if (cardComp != null)
@@ -200,7 +203,6 @@ public class ShopManager : MonoBehaviour
 
         AnimateCardSpawn(card.transform, index == 0);
     }
-
     private int GetGuaranteedWishCard(List<int> pool)
     {
         if (string.IsNullOrEmpty(wish))
