@@ -30,6 +30,8 @@ public class CollectionScreen : MonoBehaviour
     public int currentPage = 0;
     public enum Filter { None, Ownership, Name, Mana, Attack, Health, Trait, Type }
     public List<Filter> currentFilters = new List<Filter>();
+    private Dictionary<int, int> duplicateCounts = new Dictionary<int, int>();
+
     private IEnumerator Start()
     {
         yield return new WaitUntil(() =>
@@ -86,17 +88,30 @@ public class CollectionScreen : MonoBehaviour
     public void ShowPage(int pageIndex)
     {
         ClearGrid();
-        
+
         // 🔹 Get cards based on current filter (ALL or OWNED)
         List<CardData> filteredCards = GetFilteredCards(currentFilters, filterText, filterValue);
-        
         if (isDeck)
         {
             filteredCards.Clear();
-            foreach(int id in DeckBuilding.Instance.CurrentDeck)
+
+            Dictionary<int, int> cardCounts = new Dictionary<int, int>();
+
+            foreach (int id in DeckBuilding.Instance.CurrentDeck)
             {
-                filteredCards.Add(CardDatabase.Instance.GetCardById(id));
+                Debug.Log($"[DECK DISPLAY] Found card ID {id}");
+
+                if (!cardCounts.ContainsKey(id))
+                {
+                    cardCounts[id] = 0;
+                    filteredCards.Add(CardDatabase.Instance.GetCardById(id));
+                }
+
+                cardCounts[id]++;
             }
+
+            // Store counts for CardView usage
+            duplicateCounts = cardCounts;
         }
 
         currentPage = Mathf.Clamp(
@@ -136,6 +151,12 @@ public class CollectionScreen : MonoBehaviour
                 layoutAnchor.position + pageOffset + localPos;
 
             view.Init(card);
+            if (isDeck && duplicateCounts.TryGetValue(card.id, out int count))
+            {
+                if(count>1)
+                view.dupeDeckIndicator.SetActive(true);
+            }
+
             visibleIndex++;
         }
 

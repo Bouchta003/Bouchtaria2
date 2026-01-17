@@ -20,6 +20,7 @@ public class CardView : MonoBehaviour,
     [SerializeField] private GameObject handVisual;
     [SerializeField] public GameObject dustIndicator;
     [SerializeField] public GameObject newCardIndicator;
+    [SerializeField] public GameObject dupeDeckIndicator;
     [SerializeField] private SpriteRenderer cardSpriteRenderer;
     [SerializeField] private SpriteRenderer frameRenderer;
     [SerializeField] private SpriteRenderer frameRenderer2;
