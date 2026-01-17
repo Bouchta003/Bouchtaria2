@@ -1674,7 +1674,7 @@
       "id": 105,
       "name": "Arkveld",
       "cardType": "minion",
-      "manaCost": 6,
+      "manaCost": 8,
       "atkValue": 5,
       "hpValue": 6,
       "traits": ["MonsterHunter"],
@@ -1682,7 +1682,7 @@
       "effectText": "Deploy : Absorbs the stats of an enemy unit (up to 4/4).",
       "artPath": "CardArt/arkveld",
       "artCompactPath": "CardArt/arkveld_compact",
-      "packable": true,
+      "packable": false,
       "token": false,
       "signature": false
     }

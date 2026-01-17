@@ -203,9 +203,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (Data != null)
         {
-            if (CurrentManaCost < BaseManaCost) cardView.manaText.color = Color.green;
-            if (CurrentManaCost > BaseManaCost) cardView.manaText.color = Color.red;
-            if (CurrentManaCost == BaseManaCost) cardView.manaText.color = Color.white;
+            UpdateStatsColor();
             cardView.manaText.text = CurrentManaCost.ToString();
         }
     }
@@ -656,7 +654,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void TriggerDeploy()
     {
         Debug.Log($"[DEPLOY] TriggerDeploy called on {Data.name} | Effect = {CurrentEffect}");
-
+        gameManager.CheckGlow();
         if (WasPlayed)
         {
             TriggerEffects(EffectTrigger.Deploy);
@@ -1385,10 +1383,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         //Update view
         view.hpTextBoard.text = CurrentHealth.ToString();
-        if (CurrentHealth < CurrentMaxHealth) view.hpTextBoard.color = Color.red;
-        if (CurrentHealth > CurrentMaxHealth) view.hpTextBoard.color = Color.green;
-        if (CurrentHealth == CurrentMaxHealth) view.hpTextBoard.color = Color.white;
-        if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
+        UpdateStatsColor();
     }
     private void TryExecuteDamage(string effect, IAttackable target)
     {
@@ -1859,13 +1854,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         
         TriggerBerserk();
-
-        view.hpTextBoard.text = CurrentHealth.ToString();
-        if (CurrentHealth < CurrentMaxHealth) view.hpTextBoard.color = Color.red;
-        else if (CurrentHealth > CurrentMaxHealth) view.hpTextBoard.color = Color.green;
-        else if (CurrentHealth == CurrentMaxHealth) view.hpTextBoard.color = Color.white;
-        if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
-
+        UpdateStatsColor();
+        gameManager.CheckGlow();
     }
     public void Heal(int amount)
     {
@@ -1880,10 +1870,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         int differenceHp =  CurrentHealth- preHeal;
 
         view.hpTextBoard.text = CurrentHealth.ToString();
-        if (CurrentHealth < CurrentMaxHealth) view.hpTextBoard.color = Color.red;
-        else if (CurrentHealth > CurrentMaxHealth) view.hpTextBoard.color = Color.green;
-        else if (CurrentHealth == CurrentMaxHealth) view.hpTextBoard.color = Color.white;
-        if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
+        UpdateStatsColor();
 
         gameManager.NotifyHealed(Owner, differenceHp);
     }
@@ -1896,10 +1883,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             Die();
         }
-        if (CurrentHealth < CurrentMaxHealth) view.hpTextBoard.color = Color.red;
-        if (CurrentHealth > CurrentMaxHealth) view.hpTextBoard.color = Color.green;
-        if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
         view.UpdateMode();
+        UpdateStatsColor();
     }
     public void Die()
     {
@@ -1942,5 +1927,11 @@ public class CardInstance : MonoBehaviour, IAttackable
                 board.HandleEnemyDeath(this);
         }
     }
-
+    void UpdateStatsColor()
+    {
+        if (CurrentHealth < CurrentMaxHealth) view.hpTextBoard.color = Color.red;
+        if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
+        if (CurrentHealth == Data.hpValue) view.hpTextBoard.color = Color.white;
+        if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
+    }
 }
