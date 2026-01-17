@@ -1078,7 +1078,7 @@ public class GameManager : MonoBehaviour
             ? allyDropArea
             : enemyDropArea;
     }
-    private ICardDropArea GetBoardForOther(PlayerOwner owner)
+    public ICardDropArea GetBoardForOther(PlayerOwner owner)
     {
         return owner == PlayerOwner.Player
             ? enemyDropArea

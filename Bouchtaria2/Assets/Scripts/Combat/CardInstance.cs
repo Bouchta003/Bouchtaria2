@@ -746,6 +746,14 @@ public class CardInstance : MonoBehaviour, IAttackable
             MorphTo(id);
             return;
         }
+        if (effect.StartsWith("absorb"))
+        {
+            if (!TryParseIntEffect(effect, "absorb", out int amount))
+                return;
+
+            TryExecuteAbsorb(effect, null);
+            return;
+        }
 
         if (effect.StartsWith("draw"))
         {
@@ -1071,6 +1079,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryRefreshAttack(refresh);
             executed = true;
         }
+        else if (pendingTargetedEffect.StartsWith("absorb") && target is CardInstance absorbed)
+        {
+            TryExecuteAbsorb(pendingTargetedEffect, target);
+            executed = true;
+        }
         else if (pendingTargetedEffect.StartsWith("heal") && target != null)
         {
             TryExecuteHeal(pendingTargetedEffect, target);
@@ -1390,6 +1403,35 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         target.TakeDamage(amount);
         gameManager.OnDamageWithCard(Owner);
+    }
+    private void TryExecuteAbsorb(string effect, IAttackable target)
+    {
+        if (!TryParseIntEffect(effect, "absorb", out int amount))
+            return;
+        if (target == null)
+        {
+            List<GameObject> enemies = gameManager.GetBoardForOther(Owner).GetCards();
+            CardInstance targetinst = enemies[UnityEngine.Random.Range(0, enemies.Count)].GetComponent<CardInstance>();
+            int hpDiff = Mathf.Min(targetinst.CurrentHealth, amount);
+            int atkDiff = Mathf.Min(targetinst.CurrentAttack, amount);
+            targetinst.ModifyStats(-amount, -amount);
+            ModifyStats(atkDiff, hpDiff);
+            return;
+        }
+        if (target is CoreInstance)
+        {
+            Debug.LogError($"Absorb effect requires a target on {Data.name} or is core");
+            return;
+        }
+        if(target is CardInstance targetInst)
+        {
+            int hpDiff = Mathf.Min(targetInst.CurrentHealth, amount);
+            int atkDiff = Mathf.Min(targetInst.CurrentAttack, amount);
+            targetInst.ModifyStats(-amount, -amount);
+            ModifyStats(atkDiff, hpDiff);
+            return;
+        }
+        //Buff self
     }
     private void TryExecuteDamageAoe(string effect)
     {
@@ -1849,7 +1891,11 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         CurrentAttack += atk;
         CurrentHealth+=hp;
-        CurrentMaxHealth += hp;
+        CurrentMaxHealth += hp; 
+        if (CurrentHealth <= 0)
+        {
+            Die();
+        }
         if (CurrentHealth < CurrentMaxHealth) view.hpTextBoard.color = Color.red;
         if (CurrentHealth > CurrentMaxHealth) view.hpTextBoard.color = Color.green;
         if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
