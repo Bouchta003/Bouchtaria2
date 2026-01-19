@@ -195,6 +195,11 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         if (enemyPrefabCards.Count >= maxBoardSize) return true;
         else return false;
     }
+    public bool IsEmpty()
+    {
+        if (enemyPrefabCards.Count <= 0) return true;
+        else return false;
+    }
     public void UpdateEnemyCardPositions()
     {
         // ❗ Do not reflow during attack animations

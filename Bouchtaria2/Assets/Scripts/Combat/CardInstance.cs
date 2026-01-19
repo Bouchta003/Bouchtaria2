@@ -704,6 +704,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.EmperorSapphire(Owner);
             return;
         }
+        if (effect.StartsWith("tawakkul"))
+        {
+            gameManager.StartCoroutine(gameManager.Tawakkul(5));
+            return;
+        }
 
         if (effect.StartsWith("resurrectlast"))
         {
@@ -1848,6 +1853,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (amount <= 0) return;
         CurrentHealth -= amount;
         gameManager.NotifyDamage(Owner,amount);
+        
         if (CurrentHealth <= 0)
         {
             Die();
@@ -1878,7 +1884,8 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         CurrentAttack += atk;
         CurrentHealth+=hp;
-        CurrentMaxHealth += hp; 
+        CurrentMaxHealth += hp;
+        if (CurrentAttack < 0) CurrentAttack = 0;
         if (CurrentHealth <= 0)
         {
             Die();
@@ -1933,5 +1940,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
         if (CurrentHealth == Data.hpValue) view.hpTextBoard.color = Color.white;
         if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
+
+        view.UpdateMode();
     }
 }

@@ -136,6 +136,11 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         if (allyPrefabCards.Count >= maxBoardSize) return true;
         else return false;
     }
+    public bool IsEmpty()
+    {
+        if (allyPrefabCards.Count <=0) return true;
+        else return false;
+    }
     public List<GameObject> GetCards()
     {
         return allyPrefabCards;

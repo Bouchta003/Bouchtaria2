@@ -1051,6 +1051,55 @@ public class GameManager : MonoBehaviour
         isTargettingAttack = true;
         attackCursor.gameObject.SetActive(true);
     }
+    public IEnumerator Tawakkul(int damage)
+    {
+        while (true)
+        {
+            List<IAttackable> targets = GetAllDamageableTargets();
+
+            // Stop when no minions remain
+            if (!targets.Any(t => t is CardInstance))
+                yield break;
+
+            IAttackable target =
+                targets[UnityEngine.Random.Range(0, targets.Count)];
+
+            target.TakeDamage(damage);
+
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+    private List<IAttackable> GetAllDamageableTargets()
+    {
+        List<IAttackable> targets = new List<IAttackable>();
+
+        // Ally minions
+        foreach (GameObject go in allyDropArea.allyPrefabCards)
+        {
+            if (go == null) continue;
+
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci != null && !ci.IsDead)
+                targets.Add(ci);
+        }
+
+        // Enemy minions
+        foreach (GameObject go in enemyDropArea.enemyPrefabCards)
+        {
+            if (go == null) continue;
+
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci != null && !ci.IsDead)
+                targets.Add(ci);
+        }
+
+        // Always include both cores
+        targets.Add(PlayerCore);
+        targets.Add(EnemyCore);
+
+        return targets;
+    }
+
     public bool CanSelectAttacker(CardInstance attacker)
     {
         if (!TurnManager.Instance.IsPlayerTurn(attacker.Owner))
