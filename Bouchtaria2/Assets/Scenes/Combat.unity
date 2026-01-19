@@ -4751,6 +4751,7 @@ GameObject:
   - component: {fileID: 1391987190}
   - component: {fileID: 1391987193}
   - component: {fileID: 1391987192}
+  - component: {fileID: 1391987194}
   m_Layer: 5
   m_Name: AllyCore
   m_TagString: Untagged
@@ -4877,6 +4878,22 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 200, y: 200}
   m_EdgeRadius: 0
+--- !u!114 &1391987194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1391987188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adb0c6ddf14883d44bf4468a2fd4a17f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DamageFeedback
+  sprite: {fileID: 0}
+  img: {fileID: 1391987190}
+  flashDuration: 0.06
+  flashStrength: 0.35
 --- !u!1 &1416478481
 GameObject:
   m_ObjectHideFlags: 0
@@ -6516,6 +6533,7 @@ GameObject:
   - component: {fileID: 2137164849}
   - component: {fileID: 2137164852}
   - component: {fileID: 2137164851}
+  - component: {fileID: 2137164853}
   m_Layer: 5
   m_Name: EnemyCore
   m_TagString: Untagged
@@ -6642,6 +6660,22 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 200, y: 200}
   m_EdgeRadius: 0
+--- !u!114 &2137164853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2137164847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adb0c6ddf14883d44bf4468a2fd4a17f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DamageFeedback
+  sprite: {fileID: 0}
+  img: {fileID: 2137164849}
+  flashDuration: 0.06
+  flashStrength: 0.35
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

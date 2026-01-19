@@ -995,6 +995,7 @@ GameObject:
   - component: {fileID: 3253690093743192391}
   - component: {fileID: 5642600362137931155}
   - component: {fileID: -2148178145220066233}
+  - component: {fileID: 6589224629926804475}
   m_Layer: 0
   m_Name: CardTemplate
   m_TagString: Untagged
@@ -1194,6 +1195,20 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &6589224629926804475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2138098922408031110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adb0c6ddf14883d44bf4468a2fd4a17f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DamageFeedback
+  sprite: {fileID: 1627327091352741481}
+  flashDuration: 0.06
 --- !u!1 &2211552147123557605
 GameObject:
   m_ObjectHideFlags: 0

@@ -39,7 +39,8 @@ public class CoreInstance : MonoBehaviour, IAttackable
 
         GameManager gm = FindFirstObjectByType<GameManager>();
         gm.NotifyDamage(Owner, amount);
-        int remaining = amount;
+        int remaining = amount; GetComponentInParent<DamageFeedback>()?.Play();
+
 
         if (Shield > 0)
         {

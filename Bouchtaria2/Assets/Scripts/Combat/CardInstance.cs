@@ -1853,7 +1853,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (amount <= 0) return;
         CurrentHealth -= amount;
         gameManager.NotifyDamage(Owner,amount);
-        
+        GetComponent<DamageFeedback>().Play();
+
         if (CurrentHealth <= 0)
         {
             Die();
@@ -1937,8 +1938,8 @@ public class CardInstance : MonoBehaviour, IAttackable
     void UpdateStatsColor()
     {
         if (CurrentHealth < CurrentMaxHealth) view.hpTextBoard.color = Color.red;
-        if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
-        if (CurrentHealth == Data.hpValue) view.hpTextBoard.color = Color.white;
+        else if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
+        else if (CurrentHealth == Data.hpValue) view.hpTextBoard.color = Color.white;
         if (CurrentAttack > Data.atkValue) view.atkTextBoard.color = Color.green;
 
         view.UpdateMode();
