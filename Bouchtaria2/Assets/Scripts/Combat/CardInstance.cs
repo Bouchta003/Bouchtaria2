@@ -1411,6 +1411,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (target == null)
         {
             List<GameObject> enemies = gameManager.GetBoardForOther(Owner).GetCards();
+            if (enemies.Count <= 0) return;
             CardInstance targetinst = enemies[UnityEngine.Random.Range(0, enemies.Count)].GetComponent<CardInstance>();
             int hpDiff = Mathf.Min(targetinst.CurrentHealth, amount);
             int atkDiff = Mathf.Min(targetinst.CurrentAttack, amount);
@@ -1830,6 +1831,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         //Update display
         view.UpdateMode();
         TurnManager tm = FindFirstObjectByType<TurnManager>(); tm.UpdateGlow();
+
+        UpdateStatsColor();
     }
     public void AutoDamageCore(int dmg)
     {

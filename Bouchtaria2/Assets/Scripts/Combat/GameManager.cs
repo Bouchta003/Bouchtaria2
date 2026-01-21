@@ -77,6 +77,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TraitUIManager allyTraitUI;
     [SerializeField] private TraitUIManager enemyTraitUI;
     [SerializeField] private WinLoseUI winLoseUI;
+    private readonly Queue<Action> deferredActions = new();
 
     [Header("Camera Shake")]
     [SerializeField] private Camera mainCamera;
@@ -130,7 +131,6 @@ public class GameManager : MonoBehaviour
 
         cameraBasePos = mainCamera.transform.position;
     }
-
     void Start()
     {
         isTargettingAttack = false;
@@ -409,6 +409,17 @@ public class GameManager : MonoBehaviour
 
     #region Effects
     public int ActiveEffectCount { get; private set; } = 0;
+    public void EnqueueDeferredAction(Action action)
+    {
+        if (IsResolvingEffects)
+        {
+            deferredActions.Enqueue(action);
+        }
+        else
+        {
+            action.Invoke();
+        }
+    }
 
     public bool IsResolvingEffects => ActiveEffectCount > 0;
 
@@ -418,13 +429,23 @@ public class GameManager : MonoBehaviour
     {
         ActiveEffectCount++;
     }
-
     public void EndEffect()
     {
         ActiveEffectCount = Mathf.Max(0, ActiveEffectCount - 1);
 
         if (ActiveEffectCount == 0)
+        {
             OnAllEffectsResolved?.Invoke();
+            ResolveDeferredActions();
+        }
+    }
+
+    private void ResolveDeferredActions()
+    {
+        while (deferredActions.Count > 0)
+        {
+            deferredActions.Dequeue().Invoke();
+        }
     }
 
     public IEnumerator DamageRandomEnemy(bool andCore, int ticsDmg, PlayerOwner owner)

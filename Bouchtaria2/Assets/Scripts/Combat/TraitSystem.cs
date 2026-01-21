@@ -1076,38 +1076,51 @@ public class MonsterHunterTier1Effect : IDeckTraitEffect
 {
     public CardData.Trait Trait => CardData.Trait.MonsterHunter;
     public int Tier => 1;
-
     private readonly PlayerOwner owner;
     private bool used;
-
     public MonsterHunterTier1Effect(PlayerOwner owner)
     {
         this.owner = owner;
     }
-
     public void OnRegister()
     {
         if (used) return;
 
-        SummonTierMonster(1);
+        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+
+        gm.EnqueueDeferredAction(() =>
+        {
+            SummonTierMonster(1);
+        });
+
         used = true;
     }
 
     public void OnUnregister() { }
-
     private void SummonTierMonster(int tier)
     {
-        List<CardData> options =
-            CardDatabase.Instance.GetCardsByEffect($"tier{tier}monster*");
-
-        if (options == null || options.Count == 0)
-            return;
-
-        CardData chosen = options[Random.Range(0, options.Count)];
-
         GameManager gm = Object.FindFirstObjectByType<GameManager>();
-        gm.TrySummonForOwner(owner, chosen.id, true);
+
+        gm.BeginEffect();
+
+        try
+        {
+            List<CardData> options =
+                CardDatabase.Instance.GetCardsByEffect($"tier{tier}monster*");
+
+            if (options == null || options.Count == 0)
+                return;
+
+            CardData chosen = options[Random.Range(0, options.Count)];
+
+            gm.TrySummonForOwner(owner, chosen.id, true);
+        }
+        finally
+        {
+            gm.EndEffect();
+        }
     }
+
 }
 public class MonsterHunterTier2Effect : IDeckTraitEffect
 {
@@ -1121,30 +1134,45 @@ public class MonsterHunterTier2Effect : IDeckTraitEffect
     {
         this.owner = owner;
     }
-
     public void OnRegister()
     {
         if (used) return;
 
-        SummonTierMonster(2);
+        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+
+        gm.EnqueueDeferredAction(() =>
+        {
+            SummonTierMonster(2);
+        });
+
         used = true;
     }
 
     public void OnUnregister() { }
-
     private void SummonTierMonster(int tier)
     {
-        List<CardData> options =
-            CardDatabase.Instance.GetCardsByEffect($"tier{tier}monster*");
-
-        if (options == null || options.Count == 0)
-            return;
-
-        CardData chosen = options[Random.Range(0, options.Count)];
-
         GameManager gm = Object.FindFirstObjectByType<GameManager>();
-        gm.TrySummonForOwner(owner, chosen.id, true);
+
+        gm.BeginEffect();
+
+        try
+        {
+            List<CardData> options =
+                CardDatabase.Instance.GetCardsByEffect($"tier{tier}monster*");
+
+            if (options == null || options.Count == 0)
+                return;
+
+            CardData chosen = options[Random.Range(0, options.Count)];
+
+            gm.TrySummonForOwner(owner, chosen.id, true);
+        }
+        finally
+        {
+            gm.EndEffect();
+        }
     }
+
 }
 public class MonsterHunterTier3Effect : IDeckTraitEffect
 {
@@ -1158,32 +1186,45 @@ public class MonsterHunterTier3Effect : IDeckTraitEffect
     {
         this.owner = owner;
     }
-
     public void OnRegister()
     {
         if (used) return;
 
-        SummonTierMonster(3);
+        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+
+        gm.EnqueueDeferredAction(() =>
+        {
+            SummonTierMonster(3);
+        });
+
         used = true;
     }
 
     public void OnUnregister() { }
-
     private void SummonTierMonster(int tier)
     {
-        Debug.Log("Summon Tier3");
-        List<CardData> options =
-            CardDatabase.Instance.GetCardsByEffect($"tier{tier}monster*");
-
-        if (options == null || options.Count == 0)
-            return;
-
-        CardData chosen = options[Random.Range(0, options.Count)];
-
-        Debug.Log($"Options count = {options.Count} and chosen card is {chosen.name}");
         GameManager gm = Object.FindFirstObjectByType<GameManager>();
-        gm.TrySummonForOwner(owner, chosen.id, true);
+
+        gm.BeginEffect();
+
+        try
+        {
+            List<CardData> options =
+                CardDatabase.Instance.GetCardsByEffect($"tier{tier}monster*");
+
+            if (options == null || options.Count == 0)
+                return;
+
+            CardData chosen = options[Random.Range(0, options.Count)];
+
+            gm.TrySummonForOwner(owner, chosen.id, true);
+        }
+        finally
+        {
+            gm.EndEffect();
+        }
     }
+
 }
 #endregion
 #region Healer
