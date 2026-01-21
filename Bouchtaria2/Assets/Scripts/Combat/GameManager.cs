@@ -408,6 +408,25 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Effects
+    public int ActiveEffectCount { get; private set; } = 0;
+
+    public bool IsResolvingEffects => ActiveEffectCount > 0;
+
+    public event Action OnAllEffectsResolved;
+
+    public void BeginEffect()
+    {
+        ActiveEffectCount++;
+    }
+
+    public void EndEffect()
+    {
+        ActiveEffectCount = Mathf.Max(0, ActiveEffectCount - 1);
+
+        if (ActiveEffectCount == 0)
+            OnAllEffectsResolved?.Invoke();
+    }
+
     public IEnumerator DamageRandomEnemy(bool andCore, int ticsDmg, PlayerOwner owner)
     {
         for(int i = 0; i < ticsDmg; i++)
@@ -421,6 +440,7 @@ public class GameManager : MonoBehaviour
             }
             yield return new WaitForSeconds(0.5f);
         }
+        EndEffect();
     }
     public bool TrySummonForOwnerSafe(PlayerOwner owner, int cardId, bool isTrait = false)
     {

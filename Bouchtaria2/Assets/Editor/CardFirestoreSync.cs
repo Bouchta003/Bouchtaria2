@@ -13,6 +13,8 @@ public class CardFirestoreSync
     public static async void SyncCards()
     {
         string path = "Assets/Data/cardgeneration.json";
+        Dictionary<string, int> traitCounts = new Dictionary<string, int>();
+
 
         if (!File.Exists(path))
         {
@@ -46,32 +48,59 @@ public class CardFirestoreSync
         {
             CardData card = kvp.Value;
 
+            // 🔹 COUNT TRAITS (supports multi-trait cards)
+            if (card.traits != null)
+            {
+                foreach (string rawTrait in card.traits)
+                {
+                    if (string.IsNullOrWhiteSpace(rawTrait))
+                        continue;
+
+                    // Normalize (recommended)
+                    string trait = rawTrait.Trim().ToLowerInvariant();
+
+                    if (!traitCounts.ContainsKey(trait))
+                        traitCounts[trait] = 0;
+
+                    traitCounts[trait]++;
+                }
+            }
+
             DocumentReference doc =
                 db.Collection("cards").Document(card.id.ToString());
 
             batch.Set(doc, new Dictionary<string, object>
-            {
-                { "id", card.id },
-                { "name", card.name },
-                { "cardType", card.cardType },
-                { "manaCost", card.manaCost },
-                { "atkValue", card.atkValue },
-                { "hpValue", card.hpValue },
-                { "traits", card.traits },
-                { "effect", card.effect },
-                { "effectText", card.effectText },
-                { "artPath", card.artPath },
-                { "artCompactPath", card.artCompactPath },
-                { "packable", card.packable },
-                { "token", card.token },
-                { "signature", card.signature }
-            });
+    {
+        { "id", card.id },
+        { "name", card.name },
+        { "cardType", card.cardType },
+        { "manaCost", card.manaCost },
+        { "atkValue", card.atkValue },
+        { "hpValue", card.hpValue },
+        { "traits", card.traits },
+        { "effect", card.effect },
+        { "effectText", card.effectText },
+        { "artPath", card.artPath },
+        { "artCompactPath", card.artCompactPath },
+        { "packable", card.packable },
+        { "token", card.token },
+        { "signature", card.signature }
+    });
         }
+
 
         try
         {
             await batch.CommitAsync();
+
+            // 🔹 TRAIT SUMMARY
+            Debug.Log("🔥 Trait distribution:");
+            foreach (var kvp in traitCounts)
+            {
+                Debug.Log($"• {kvp.Key}: {kvp.Value} cards");
+            }
             Debug.Log($"🔥 Successfully synced {wrapper.cards.Count} cards to Firestore");
+
         }
         catch (System.Exception e)
         {

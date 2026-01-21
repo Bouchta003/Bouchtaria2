@@ -1767,7 +1767,7 @@
       "manaCost": 8,
       "atkValue": 0,
       "hpValue": 0,
-      "traits": ["Chaos"],
+      "traits": ["Faith"],
       "effect": "tawakkul",
       "effectText": "Deal 5 damage to a random target (core included) until the board is empty",
       "artPath": "CardArt/tawakkul",

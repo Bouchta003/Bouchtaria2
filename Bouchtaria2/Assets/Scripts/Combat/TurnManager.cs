@@ -45,7 +45,8 @@ public class TurnManager : MonoBehaviour
     {
         if (CurrentPhase != TurnPhase.Main)
             return;
-
+        if (gameManager.IsResolvingEffects)
+            return;
         if (CurrentPlayer == PlayerOwner.Player)
         {
             AllyCardDropArea allydrop = FindFirstObjectByType<AllyCardDropArea>();
