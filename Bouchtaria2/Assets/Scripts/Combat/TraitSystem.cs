@@ -130,9 +130,9 @@ public class NeutralProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 2,
-            1 => 3,
-            2 => 5,
+            0 => 3,
+            1 => 6,
+            2 => 12,
             _ => 999
         };
     }
@@ -147,17 +147,17 @@ public class NeutralProgression : ITraitProgression
         neutralPlayed++;
         OnProgressUpdated?.Invoke(Trait, neutralPlayed, GetCurrentCap(), Owner);
 
-        if (neutralPlayed >= 2 && CurrentTier < 1 && maxTier >= 1)
+        if (neutralPlayed >= 3 && CurrentTier < 1 && maxTier >= 1)
         {
             UnlockTier1();
         }
 
-        if (neutralPlayed >= 3 && CurrentTier < 2 && maxTier >= 2)
+        if (neutralPlayed >= 6 && CurrentTier < 2 && maxTier >= 2)
         {
             UnlockTier2();
         }
 
-        if (neutralPlayed >= 5 && CurrentTier < 3 && maxTier >= 3)
+        if (neutralPlayed >= 12 && CurrentTier < 3 && maxTier >= 3)
         {
             UnlockTier3();
         }
@@ -413,9 +413,9 @@ public class SpeedsterProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 3,
-            1 => 4,
-            2 => 6,
+            0 => 4,
+            1 => 8,
+            2 => 12,
             _ => 999
         };
     }
@@ -430,15 +430,15 @@ public class SpeedsterProgression : ITraitProgression
         speedsterAttacks++;
         OnProgressUpdated?.Invoke(Trait, speedsterAttacks, GetCurrentCap(), Owner);
 
-        if (speedsterAttacks >= 3 && CurrentTier < 1 && maxTier >= 1)
+        if (speedsterAttacks >= 4 && CurrentTier < 1 && maxTier >= 1)
         {
             UnlockTier1();
         }
-        if (speedsterAttacks >= 5 && CurrentTier < 2 && maxTier >= 2)
+        if (speedsterAttacks >= 8 && CurrentTier < 2 && maxTier >= 2)
         {
             UnlockTier2();
         }
-        if (speedsterAttacks >= 8 && CurrentTier < 3 && maxTier >= 3)
+        if (speedsterAttacks >= 12 && CurrentTier < 3 && maxTier >= 3)
         {
             UnlockTier3();
         }
@@ -705,9 +705,9 @@ public class PokemonProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 2,
-            1 => 4,
-            2 => 6,
+            0 => 3,
+            1 => 6,
+            2 => 12,
             _ => 999
         };
     }
@@ -723,16 +723,16 @@ public class PokemonProgression : ITraitProgression
 
         Debug.Log($"Pokemon card kill for :{Owner}, count is now {pokemonKills}");
 
-        if (pokemonKills >= 2 && CurrentTier < 1 && maxTier >= 1)
+        if (pokemonKills >= 3 && CurrentTier < 1 && maxTier >= 1)
         {
             UnlockTier1();
         }
 
-        if (pokemonKills >= 4 && CurrentTier < 2 && maxTier >= 2)
+        if (pokemonKills >= 6 && CurrentTier < 2 && maxTier >= 2)
         {
             UnlockTier2();
         }
-        if (pokemonKills >= 6 && CurrentTier < 3 && maxTier >= 3)
+        if (pokemonKills >= 12 && CurrentTier < 3 && maxTier >= 3)
         {
             UnlockTier3();
         }
@@ -1018,9 +1018,9 @@ public class MonsterHunterProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 3,
-            1 => 6,
-            2 => 9,
+            0 => 4,
+            1 => 8,
+            2 => 12,
             3 => 999,
             _ => 9999,
         };
@@ -1033,7 +1033,7 @@ public class MonsterHunterProgression : ITraitProgression
             return;
 
         // 2. Must be colossus
-        if (card.BaseManaCost <= 1)//Change to 5
+        if (card.BaseManaCost <= 5)//Change to 5
             return;
 
         // 3. Must have MonsterHunter trait
@@ -1045,13 +1045,13 @@ public class MonsterHunterProgression : ITraitProgression
 
         Debug.Log($"[MH] Colossus death for {Owner}: {colossusDeaths}");
 
-        if (colossusDeaths >= 3 && CurrentTier < 1 && maxTier >= 1)
+        if (colossusDeaths >= 4 && CurrentTier < 1 && maxTier >= 1)
             UnlockTier1();
 
-        if (colossusDeaths >= 6 && CurrentTier < 2 && maxTier >= 2)
+        if (colossusDeaths >= 8 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2(); 
         
-        if (colossusDeaths >= 9 && CurrentTier < 3 && maxTier >= 3)
+        if (colossusDeaths >= 12 && CurrentTier < 3 && maxTier >= 3)
             UnlockTier3();
     }
 
@@ -1282,9 +1282,9 @@ public class HealerProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 10,
-            1 => 20,
-            2 => 30,
+            0 => 8,
+            1 => 16,
+            2 => 24,
             3 => 9999,
             _ => 9999,
         };
@@ -1301,13 +1301,13 @@ public class HealerProgression : ITraitProgression
 
         Debug.Log($"[Healer] Heal Amount for {Owner}: {healAmount}");
 
-        if (healAmount >= 10 && CurrentTier < 1 && maxTier >= 1)
+        if (healAmount >= 8 && CurrentTier < 1 && maxTier >= 1)
             UnlockTier1();
 
-        if (healAmount >= 20 && CurrentTier < 2 && maxTier >= 2)
+        if (healAmount >= 16 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2(); 
         
-        if (healAmount >= 30 && CurrentTier < 3 && maxTier >= 3)
+        if (healAmount >= 24 && CurrentTier < 3 && maxTier >= 3)
             UnlockTier3();
     }
 
@@ -1645,13 +1645,13 @@ public class AvatarProgression : ITraitProgression
 
         praiseCount++;
         OnProgressUpdated?.Invoke(Trait, praiseCount, GetCurrentCap(), Owner);
-        if (praiseCount >= 3 && CurrentTier < 1 && maxTier >= 1)
+        if (praiseCount >= 4 && CurrentTier < 1 && maxTier >= 1)
             UnlockTier1();
 
-        if (praiseCount >= 6 && CurrentTier < 2 && maxTier >= 2)
+        if (praiseCount >= 8 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2();
 
-        if (praiseCount >= 10 && CurrentTier < 3 && maxTier >= 3)
+        if (praiseCount >= 12 && CurrentTier < 3 && maxTier >= 3)
             UnlockTier3();
     }
     private void UnlockTier1()
@@ -1673,9 +1673,9 @@ public class AvatarProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 3,
-            1 => 6,
-            2 => 10,
+            0 => 4,
+            1 => 8,
+            2 => 12,
             3 => 9999,
             _ => 9999,
         };
@@ -1888,13 +1888,13 @@ public class GunnerProgression : ITraitProgression
 
         damageCount++;
         OnProgressUpdated?.Invoke(Trait, damageCount, GetCurrentCap(), Owner);
-        if (damageCount >= 2 && CurrentTier < 1 && maxTier >= 1)
+        if (damageCount >= 3 && CurrentTier < 1 && maxTier >= 1)
             UnlockTier1();
 
-        if (damageCount >= 4 && CurrentTier < 2 && maxTier >= 2)
+        if (damageCount >= 6 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2();
 
-        if (damageCount >= 6 && CurrentTier < 3 && maxTier >= 3)
+        if (damageCount >= 10 && CurrentTier < 3 && maxTier >= 3)
             UnlockTier3();
     }
     private void UnlockTier1()
@@ -1931,9 +1931,9 @@ public class GunnerProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 2,
-            1 => 4,
-            2 => 6,
+            0 => 3,
+            1 => 6,
+            2 => 10,
             3 => 9999,
             _ => 9999,
         };

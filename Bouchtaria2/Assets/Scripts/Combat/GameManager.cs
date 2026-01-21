@@ -7,6 +7,9 @@ using DG.Tweening;
 using System.Linq;
 using UnityEngine.Rendering;
 using System;
+using Firebase.Auth;
+using Firebase.Firestore;
+using Firebase.Extensions;
 
 public interface IAttackable
 {
@@ -328,14 +331,40 @@ public class GameManager : MonoBehaviour
         {
             CurrentGameState = GameState.PlayerLost;
             Debug.Log("PLAYER LOSES");
+            ModifyUserGold(20);
         }
         else
         {
             CurrentGameState = GameState.PlayerWon;
             Debug.Log("PLAYER WINS");
+            ModifyUserGold(100);
         }
 
         EndGame();
+    }
+    private void ModifyUserGold(int delta)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        db.Collection("users")
+          .Document(user.UserId)
+          .UpdateAsync("gold", FieldValue.Increment(delta))
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("Failed to modify gold.");
+                    return;
+                }
+            });
+
     }
     #endregion
 

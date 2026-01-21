@@ -17,12 +17,12 @@ public class WinLoseUI : MonoBehaviour
 
     public void ShowWin()
     {
-        Setup("VICTORY", Color.green, "Enemy Core Destroyed");
+        Setup("VICTORY", Color.green, "Enemy Core Destroyed, you earned 100 Gold");
     }
 
     public void ShowLose()
     {
-        Setup("DEFEAT", Color.red, "Your Core Was Destroyed");
+        Setup("DEFEAT", Color.red, "Your Core Was Destroyed, you earned 20 Gold as compensation");
     }
 
     private void Setup(string title, Color color, string subtitle)

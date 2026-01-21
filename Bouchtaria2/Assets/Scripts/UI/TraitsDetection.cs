@@ -68,19 +68,19 @@ public class TraitsDetection : MonoBehaviour
         // 2. Define tier thresholds to UNLOCK the trait in DECK BUILDING
         Dictionary<CardData.Trait, int[]> tierThresholds = new()
         {
-            { CardData.Trait.Speedster, new[] { 4, 6, 8 } },
+            { CardData.Trait.Speedster, new[] { 4,8,12 } },
             { CardData.Trait.Fighter, new[] { 4, 7 } },
-            { CardData.Trait.Gunner, new[] { 4,6,8 } },
-            { CardData.Trait.Faith, new[] { 3,6, 10 } },
-            { CardData.Trait.Avatar, new[] { 3, 6, 8 } },//Make it later 5, 8, 15
+            { CardData.Trait.Gunner, new[] { 4,8,12 } },
+            { CardData.Trait.Faith, new[] { 4,8,10 } },
+            { CardData.Trait.Avatar, new[] { 5,8,15 } },//Make it later 5, 8, 15
             { CardData.Trait.Hater, new[] { 6, 9 } },
             { CardData.Trait.SpellFocus, new[] { 6, 9, 12 } },
             { CardData.Trait.Combo, new[] { 5, 8 } },
             { CardData.Trait.Healer, new[] { 6, 9, 15 } },
             { CardData.Trait.Inazuma, new[] { 11 } },
             { CardData.Trait.Pokemon, new[] { 4,8,12 } },
-            { CardData.Trait.MonsterHunter, new[] { 5, 10, 20 } },
-            { CardData.Trait.Neutral, new[] { 3,5,6 } },
+            { CardData.Trait.MonsterHunter, new[] { 5, 10, 15 } },
+            { CardData.Trait.Neutral, new[] { 4,8,12 } },
             { CardData.Trait.Blizzard, new[] { 5, 10 } }
         };
 

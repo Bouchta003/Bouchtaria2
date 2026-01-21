@@ -1854,6 +1854,13 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void TakeDamage(int amount)
     {
         if (amount <= 0) return;
+
+        if (HasKeyword("blessed"))
+        {
+            RemoveEffect("blessed");
+            UpdateStatsColor();
+            return;
+        }
         CurrentHealth -= amount;
         gameManager.NotifyDamage(Owner,amount);
         GetComponent<DamageFeedback>().Play();
