@@ -429,7 +429,8 @@ public class GameManager : MonoBehaviour
 
     public IEnumerator DamageRandomEnemy(bool andCore, int ticsDmg, PlayerOwner owner)
     {
-        for(int i = 0; i < ticsDmg; i++)
+        BeginEffect();
+        for (int i = 0; i < ticsDmg; i++)
         {
             if (andCore) GetCoreForEnemy(owner).TakeDamage(1);
             if (GetBoardForOther(owner).GetCards().Count > 0)
@@ -1073,22 +1074,32 @@ public class GameManager : MonoBehaviour
     }
     public IEnumerator Tawakkul(int damage)
     {
-        while (true)
+        BeginEffect(); // 🔒 LOCK TURN SYSTEM
+
+        try
         {
-            List<IAttackable> targets = GetAllDamageableTargets();
+            while (true)
+            {
+                List<IAttackable> targets = GetAllDamageableTargets();
 
-            // Stop when no minions remain
-            if (!targets.Any(t => t is CardInstance))
-                yield break;
+                // Stop when no minions remain
+                if (!targets.Any(t => t is CardInstance))
+                    break;
 
-            IAttackable target =
-                targets[UnityEngine.Random.Range(0, targets.Count)];
+                IAttackable target =
+                    targets[UnityEngine.Random.Range(0, targets.Count)];
 
-            target.TakeDamage(damage);
+                target.TakeDamage(damage);
 
-            yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSeconds(0.2f);
+            }
+        }
+        finally
+        {
+            EndEffect(); // 🔓 ALWAYS UNLOCK
         }
     }
+
     private List<IAttackable> GetAllDamageableTargets()
     {
         List<IAttackable> targets = new List<IAttackable>();
