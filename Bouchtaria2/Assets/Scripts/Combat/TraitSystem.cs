@@ -707,7 +707,7 @@ public class PokemonProgression : ITraitProgression
         {
             0 => 3,
             1 => 6,
-            2 => 12,
+            2 => 10,
             _ => 999
         };
     }
@@ -1282,9 +1282,9 @@ public class HealerProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 8,
-            1 => 16,
-            2 => 24,
+            0 => 2,
+            1 => 10,
+            2 => 20,
             3 => 9999,
             _ => 9999,
         };
@@ -1301,13 +1301,13 @@ public class HealerProgression : ITraitProgression
 
         Debug.Log($"[Healer] Heal Amount for {Owner}: {healAmount}");
 
-        if (healAmount >= 8 && CurrentTier < 1 && maxTier >= 1)
+        if (healAmount >= 5 && CurrentTier < 1 && maxTier >= 1)
             UnlockTier1();
 
-        if (healAmount >= 16 && CurrentTier < 2 && maxTier >= 2)
+        if (healAmount >= 10 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2(); 
         
-        if (healAmount >= 24 && CurrentTier < 3 && maxTier >= 3)
+        if (healAmount >= 20 && CurrentTier < 3 && maxTier >= 3)
             UnlockTier3();
     }
 

@@ -120,16 +120,68 @@ public class EnemyAIController : MonoBehaviour
             {
                 if (allyBoard.allyPrefabCards.Count <= 0) continue;
             }
+            // 🔑 HARD VALIDATION — no ghost spells
+            if (!CanEnemyActuallyCastSpell(spell))
+                continue;
+
+            // Only NOW show the spell
             yield return StartCoroutine(
                 gameManager.ShowEnemySpell(spell.Data)
             );
 
+            // Commit immediately after showing
             PlaySpell(spell);
 
+            // Small delay for readability
+            yield return new WaitForSeconds(0.35f);
 
             // 🔹 WAIT between spells
             yield return new WaitForSeconds(0.35f);
         }
+    }
+    private bool CanEnemyActuallyCastSpell(CardInstance spell)
+    {
+        if (spell == null)
+            return false;
+
+        // Mana check (already mostly done, but keep it strict)
+        if (spell.CurrentManaCost > gameManager.EnemyCurrentMana)
+            return false;
+
+        // Empty / invalid effect
+        if (string.IsNullOrWhiteSpace(spell.CurrentEffect))
+            return false;
+
+        // Distortion World blocks spells entirely
+        if (gameManager.DistortionWorld)
+            return false;
+
+        // Buff / Gear / non-auto Heal → requires enemy board
+        if (
+            spell.CurrentEffect.Contains("gear") ||
+            spell.CurrentEffect.Contains("buff") ||
+            (spell.CurrentEffect.Contains("heal") && !spell.CurrentEffect.Contains("autoheal"))
+        )
+        {
+            if (enemyBoard.enemyPrefabCards.Count == 0)
+                return false;
+        }
+
+        // Targeted unit spell → requires ally board
+        if (spell.CurrentEffect.Contains("targetunit"))
+        {
+            if (allyBoard.allyPrefabCards.Count == 0)
+                return false;
+        }
+
+        // Targeted core spell → requires core (always true, but explicit)
+        if (spell.CurrentEffect.Contains("targetcore"))
+        {
+            if (gameManager.PlayerCore == null)
+                return false;
+        }
+
+        return true;
     }
 
     private void PlaySpell(CardInstance spell)
