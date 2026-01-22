@@ -1652,6 +1652,9 @@ public class GameManager : MonoBehaviour
     EffectTarget effectTargetType
 )
     {
+        if (isTargetingEffect)
+            return;
+
         isTargetingEffect = true;
         effectSource = source;
         effectOwner = owner;

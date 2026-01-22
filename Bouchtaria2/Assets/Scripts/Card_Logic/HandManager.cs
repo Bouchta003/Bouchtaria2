@@ -58,44 +58,54 @@ public class HandManager : MonoBehaviour
         {
             CardInstance cardInst = handCard.GetComponent<CardInstance>();
 
-            if (cardInst.CurrentEffect.Contains("monsterpart*") &&!cardInst.CurrentEffect.StartsWith("gear"))
+            if (cardInst.CurrentEffect.Contains("monsterpart*") &&
+                !cardInst.CurrentEffect.StartsWith("gear"))
             {
                 assembledCards.Add(handCard);
 
                 if (assembledCards.Count >= 2)
                 {
-                    string newEffect = "";
-                    string newEffectText = "Gear : ";
+                    List<string> effectParts = new();
+                    List<string> effectTextParts = new();
                     int newMana = 0;
 
                     foreach (GameObject card in assembledCards)
                     {
                         CardInstance inst = card.GetComponent<CardInstance>();
-                        newEffect += inst.CurrentEffect.Replace("*", "") + " ";
+                        string cleaned = inst.CurrentEffect
+                                    .Replace("*", "")
+                                    .Replace("monsterpart", "")
+                                    .Trim();
 
-                        newEffectText += inst.CurrentEffectText + " ";
+                        effectParts.Add(cleaned);
+
+                        effectTextParts.Add(inst.CurrentEffectText);
                         newMana += inst.CurrentManaCost;
 
                         RemoveCardFromHand(card);
                         Destroy(card);
-
                     }
 
-                    newEffect = CleanString(newEffect);
-                    newEffectText = CleanString(newEffectText);
+                    string combinedEffects = string.Join(",", effectParts);
+                    string combinedEffectText = string.Join(" ", effectTextParts);
 
+                    // 🔑 Create the gear card AFTER consuming parts
+                    CardInstance newGear =
+                        FindFirstObjectByType<GameManager>().AddCardToHand(Owner, 39);
 
-                    UpdateCardPositions();
-
-                    CardInstance newGear = FindFirstObjectByType<GameManager>().AddCardToHand(Owner, 39);
-                    newGear.CurrentEffect = $"gear({newEffect},targetunit)";
-                    newGear.CurrentEffectText = newEffectText;
-                    Debug.Log(newGear.CurrentEffect+ "//" + newEffectText);
+                    newGear.CurrentEffect = $"gear({combinedEffects},targetunit)";
+                    newGear.CurrentEffectText = $"Gear: {combinedEffectText}";
                     newGear.BaseManaCost = newMana;
+                    newGear.ParseEffects(); // safety
+                    newGear.CurrentCastEffect = newGear.CurrentEffect;
+
                     newGear.GetComponent<CardView>().UpdateMode();
-                    // Restart verification cleanly after modification
+
+                    Debug.Log(newGear.CurrentEffect + " // " + newGear.CurrentEffectText);
+
+                    // Restart verification cleanly
                     VerifyMonsterParts();
-                    return; // IMPORTANT: stop current iteration
+                    return;
                 }
             }
         }

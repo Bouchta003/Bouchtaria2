@@ -454,6 +454,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         //Cannot cast spells in distortion world
         if (gameManager.DistortionWorld) return;
         // Determine spell type
+        if (string.IsNullOrWhiteSpace(CurrentEffect))
+        {
+            Debug.LogError($"Spell {Data.name} has no effect and cannot be cast.");
+            return;
+        }
+
         if (!CurrentEffect.Contains("target"))
             spellType = CardData.SpellTargetType.None;
         else if (CurrentEffect.Contains("targetunit")) spellType = CardData.SpellTargetType.Unit;
@@ -556,12 +562,6 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (string.IsNullOrWhiteSpace(CurrentEffect))
             return;
-        // 🔑 GEAR IS A CONTAINER — HANDLE IT FIRST
-        if (CurrentEffect.StartsWith("gear"))
-        {
-            TryExecuteGear(CurrentEffect, CurrentEffectText, target);
-        }
-
         // Same idea as minions: split by space
         string[] effects = CurrentEffect
             .Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -569,11 +569,6 @@ public class CardInstance : MonoBehaviour, IAttackable
         foreach (string rawEffect in effects)
         {
             string effect = rawEffect.ToLowerInvariant();
-            if (CurrentEffect.StartsWith("gear") && target == null)
-            {
-                Debug.LogError("Gear spell resolved without target");
-                return;
-            }
 
             // Targeted spell effects
             if (effect.StartsWith("damage"))
