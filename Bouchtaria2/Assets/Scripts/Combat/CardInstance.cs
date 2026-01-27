@@ -1333,7 +1333,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (Owner == PlayerOwner.Player)
                 gameManager.AddCardToHand(PlayerOwner.Enemy, cardId);
             else
-                gameManager.AddCardToHand(Owner, cardId);
+                gameManager.AddCardToHand(PlayerOwner.Player, cardId);
 
             return;
         }
