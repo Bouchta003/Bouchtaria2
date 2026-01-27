@@ -73,7 +73,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public int ProgressionCounter { get; set; }
     public int ProgressionCap { get; set; }
     private bool progressionCompleted = false;
-    public bool EffectsSuppressed { get; private set; } = false;
+    public bool EffectsSuppressed { get; set; } = false;
 
 
     private Dictionary<EffectTrigger, List<string>> parsedEffects = new Dictionary<EffectTrigger, List<string>>();
@@ -227,7 +227,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         return false;
     }
     #region Progress
-    private void InitializeProgressIfAny()
+    public void InitializeProgressIfAny()
     {
         // Cleanup old subscriptions
         if (gameManager == null) return;

@@ -1040,7 +1040,16 @@ public class GameManager : MonoBehaviour
         card.GetComponent<Card>().ResetCard();
         card.DeployPending = false;
         card.CurrentCastEffect = null;
-        //GainMana(card.CurrentManaCost, PlayerOwner.Player);
+        if(card.Data.cardType=="minion")GainMana(card.CurrentManaCost, PlayerOwner.Player);
+        // Restore card so it behaves like a fresh hand card
+        card.WasPlayed = true;
+        card.EffectsSuppressed = false;
+        card.DeployPending = false;
+        card.IsSummoningSick = false;
+
+        // Rebuild effect parsing & progress hooks
+        card.InitializeProgressIfAny();
+        card.ParseEffects();
 
         allyHand.AddCard(card.gameObject);
         allyHand.UpdateCardPositions();
