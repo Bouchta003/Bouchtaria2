@@ -45,8 +45,22 @@ public class TurnManager : MonoBehaviour
     {
         if (CurrentPhase != TurnPhase.Main)
             return;
+        // inside TurnManager.EndTurn()
         if (gameManager.IsResolvingEffects)
+        {
+            // Defer the end-turn request until all effects have finished.
+            // GameManager will run this action when ActiveEffectCount reaches 0.
+            Debug.Log("[TURN] EndTurn deferred because effects are resolving.");
+            gameManager.EnqueueDeferredAction(() =>
+            {
+                // re-run EndTurn on the main Unity thread when effects are done
+                // (defensive: check phase again so we don't double-run incorrectly)
+                if (CurrentPhase == TurnPhase.Main)
+                    EndTurn();
+            });
             return;
+        }
+
         if (CurrentPlayer == PlayerOwner.Player)
         {
             AllyCardDropArea allydrop = FindFirstObjectByType<AllyCardDropArea>();
