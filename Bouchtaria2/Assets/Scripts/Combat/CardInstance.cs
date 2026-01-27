@@ -32,7 +32,7 @@ public enum EffectTarget
 {
     None,
     Any,
-    Unit, 
+    Unit,
     Core,
 }
 public class CardInstance : MonoBehaviour, IAttackable
@@ -66,6 +66,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public bool WasPlayed { get; set; }
     public bool IsAsleep { get; set; }
     public bool IsDisplay { get; set; }
+    public bool IsDying { get; private set; } = false;
     public CardView cardView { get; set; }
     public bool DeployPending { get; set; }
     //Progression
@@ -75,7 +76,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public bool EffectsSuppressed { get; private set; } = false;
 
 
-    private Dictionary<EffectTrigger, List<string>> parsedEffects =    new Dictionary<EffectTrigger, List<string>>();
+    private Dictionary<EffectTrigger, List<string>> parsedEffects = new Dictionary<EffectTrigger, List<string>>();
     public string CurrentCastEffect;
     public void AddTemporaryManaModifier(int amount)
     {
@@ -101,7 +102,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         CurrentEffectText = data.effectText;
         ThornsDamage = GetThornDamage();
         CurrentMaxHealth = data.hpValue;
-        
+
         CurrentZone = CardZone.Deck;
         Transform = transform;
         IsBleeding = false;
@@ -279,8 +280,10 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (ProgressionCounter < ProgressionCap)
             return;
 
-        progressionCompleted = true;
-        if (CurrentHealth <= 0) return;
+        if (IsDead || IsDying || CurrentZone != CardZone.Board)
+            return;
+        progressionCompleted = true; 
+
         TriggerEffects(EffectTrigger.ProgressComplete);
         CleanupProgressSubscriptions();
     }
@@ -383,7 +386,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (CurrentZone != CardZone.Board)
             return;
-        if (owner!= Owner)
+        if (owner != Owner)
             return;
         ProgressionCounter++;
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
@@ -418,7 +421,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void OnTurnStart()
     {
         HasAttackedThisTurn = false;
-        if(HasKeyword("haste"))
+        if (HasKeyword("haste"))
             HasAttackedTwiceThisTurn = false;
 
         IsSummoningSick = false;
@@ -491,7 +494,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         else
         {
             // Enemy TARGET spell
-            if (CurrentEffect.Contains("gear") ||( CurrentEffect.Contains("heal") && !CurrentEffect.Contains("autoheal")) || CurrentEffect.Contains("buff"))
+            if (CurrentEffect.Contains("gear") || (CurrentEffect.Contains("heal") && !CurrentEffect.Contains("autoheal")) || CurrentEffect.Contains("buff"))
             {
                 IAttackable target =
                     gameManager.ChooseEnemyEffectTarget(
@@ -578,7 +581,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             }
             if (effect.StartsWith("refreshattack") && target is CardInstance refresh)
             {
-                TryRefreshAttack(refresh);continue;
+                TryRefreshAttack(refresh); continue;
             }
             if (effect.StartsWith("silenceall"))
             {
@@ -598,7 +601,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             }
             else if (effect.StartsWith("sleep"))
             {
-                if(target is CardInstance inst) TryExecuteSleep(inst);
+                if (target is CardInstance inst) TryExecuteSleep(inst);
                 continue;
             }
 
@@ -607,7 +610,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 TryExecuteHealAll(effect);
                 continue;
             }
-            else   if (effect.StartsWith("heal"))
+            else if (effect.StartsWith("heal"))
             {
                 TryExecuteHeal(effect, target);
                 continue;
@@ -638,7 +641,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     #endregion
     public void OnEnterBoard()
     {
-        if(!gameManager.DistortionWorld)
+        if (!gameManager.DistortionWorld)
             TriggerDeploy();
         else
         {
@@ -658,7 +661,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TriggerEffects(EffectTrigger trigger)
     {
-        if (EffectsSuppressed && Data.id!=29 && Data.id!=86) return;
+        if (EffectsSuppressed && Data.id != 29 && Data.id != 86) return;
         if (!parsedEffects.TryGetValue(trigger, out var effects))
             return;
 
@@ -873,7 +876,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         TriggerEffects(EffectTrigger.Strike);
     }
-    private bool TryParseIntEffect(    string effect,    string effectName,    out int value)
+    private bool TryParseIntEffect(string effect, string effectName, out int value)
     {
         value = default;
 
@@ -944,7 +947,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 parsedEffects[trigger] = new List<string>();
 
             foreach (string e in effects)
-            { 
+            {
                 parsedEffects[trigger].Add(e.Trim()); Debug.Log($"Parsing deploy effects: {e}");
             }
         }
@@ -1104,14 +1107,14 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else if (pendingTargetedEffect.StartsWith("morphto") && target is CardInstance morphTarget)
         {
-            executed = TryExecuteMorphTo(morphTarget);
+            executed = TryExecuteDitto(morphTarget);
         }
 
         // 🔑 ONLY clear targeting if something actually happened
         if (executed)
         {
             pendingTargetedEffect = null;
-         
+
             gameManager.EndEffectTargetting();
         }
 
@@ -1131,7 +1134,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (!TryParseIntEffect(effect, "summon", out int cardId))
             return;
-        if(effect.StartsWith("summonforother"))
+        if (effect.StartsWith("summonforother"))
             gameManager.TrySummonForOther(Owner, cardId);
         else
             gameManager.TrySummonForOwner(Owner, cardId);
@@ -1319,17 +1322,18 @@ public class CardInstance : MonoBehaviour, IAttackable
             else
             { gameManager.DiscoverEffect(valueStr, Owner); }
         }
-        else{ gameManager.DiscoverOwnerTrait(Owner); }
+        else { gameManager.DiscoverOwnerTrait(Owner); }
     }
     private void TryExecuteAddCard(string effect)
     {
         if (!TryParseIntEffect(effect, "addcard", out int cardId))
             return;
-        if (effect.StartsWith("addcardenemy")) { 
-            if(Owner==PlayerOwner.Player)
-                    gameManager.AddCardToHand(PlayerOwner.Enemy, cardId);
-                else
-                    gameManager.AddCardToHand(Owner, cardId);
+        if (effect.StartsWith("addcardenemy"))
+        {
+            if (Owner == PlayerOwner.Player)
+                gameManager.AddCardToHand(PlayerOwner.Enemy, cardId);
+            else
+                gameManager.AddCardToHand(Owner, cardId);
 
             return;
         }
@@ -1419,7 +1423,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             Debug.LogError($"Absorb effect requires a target on {Data.name} or is core");
             return;
         }
-        if(target is CardInstance targetInst)
+        if (target is CardInstance targetInst)
         {
             int hpDiff = Mathf.Min(targetInst.CurrentHealth, amount);
             int atkDiff = Mathf.Min(targetInst.CurrentAttack, amount);
@@ -1475,7 +1479,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             Debug.LogError($"Sleep effect requires a target on {Data.name}");
             return;
         }
-        target.IsAsleep = true;target.view.UpdateMode();
+        target.IsAsleep = true; target.view.UpdateMode();
     }
     private void TryExecuteSilence(CardInstance target)
     {
@@ -1515,7 +1519,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             if (Owner == PlayerOwner.Player && gameManager.PlayerDarkHeal) { target.TakeDamage(amount); return; }
             if (Owner != PlayerOwner.Player && gameManager.EnemyDarkHeal) { target.TakeDamage(amount); return; }
-            
+
         }
         target.Heal(amount);
     }
@@ -1528,7 +1532,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TryExecuteGear(string effect, string effectText, IAttackable target)
     {
-        
+
         if (target is not CardInstance targetInstance)
         {
             Debug.LogError($"Gear effect requires a unit target on {Data.name}");
@@ -1658,7 +1662,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void MorphTo(int newCardId)
     {
         CardData newData = CardDatabase.Instance.GetCardById(newCardId);
-        if (newData == null || newCardId == Data.id ||CurrentHealth<=0)
+        if (newData == null || newCardId == Data.id || CurrentHealth <= 0)
         {
             Debug.Log($"Evolve failed");
             return;
@@ -1681,7 +1685,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         ParseEffects();
 
         // Notify view
-        cardView.UpdateMode(); 
+        cardView.UpdateMode();
         StartCoroutine(DelayedProgressInit());
         // 🔑 Reset deploy eligibility
         WasPlayed = true;
@@ -1700,7 +1704,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         TriggerDeploy();
     }
 
-    private bool TryExecuteMorphTo(CardInstance target)
+    private bool TryExecuteDitto(CardInstance target)
     {
         // Must be ally
         if (target.Owner != Owner)
@@ -1755,9 +1759,9 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void HealAll(int heal)
     {
         if (Owner == PlayerOwner.Player)
-        {  
-            gameManager.PlayerCore.Heal(heal);            
-            foreach(GameObject ally in gameManager.allyDropArea.allyPrefabCards)
+        {
+            gameManager.PlayerCore.Heal(heal);
+            foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
             {
                 CardInstance inst = ally.GetComponent<CardInstance>();
                 inst.Heal(heal);
@@ -1780,7 +1784,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
             {
                 CardInstance inst = ally.GetComponent<CardInstance>();
-                inst.IsAsleep = true;inst.view.UpdateMode();
+                inst.IsAsleep = true; inst.view.UpdateMode();
             }
         }
         else
@@ -1820,7 +1824,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         CurrentEffect = ""; CurrentEffectText = ""; parsedEffects.Clear();
 
         //Reset Stats
-        CurrentAttack = Data.atkValue;CurrentHealth = Mathf.Min(CurrentHealth, Data.hpValue);
+        CurrentAttack = Data.atkValue; CurrentHealth = Mathf.Min(CurrentHealth, Data.hpValue);
         ThornsDamage = 0;
 
         //Update display
@@ -1857,14 +1861,16 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
         CurrentHealth -= amount;
-        gameManager.NotifyDamage(Owner,amount);
+        gameManager.NotifyDamage(Owner, amount);
         GetComponent<DamageFeedback>().Play();
 
-        if (CurrentHealth <= 0)
+        if (CurrentHealth <= 0 && !IsDead)
         {
+            IsDying = true;
             Die();
+            return;
         }
-        
+
         TriggerBerserk();
         UpdateStatsColor();
         gameManager.CheckGlow();
@@ -1872,14 +1878,14 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void Heal(int amount)
     {
         if (amount <= 0) return;
-        int bonus = 0;int preHeal = CurrentHealth;
+        int bonus = 0; int preHeal = CurrentHealth;
 
         GameManager gm = FindFirstObjectByType<GameManager>();
         //ApplyBonus
         if (Owner == PlayerOwner.Player) bonus = gm.PlayerHealBonus;
         else bonus = gm.EnemyHealBonus;
         CurrentHealth = Mathf.Min(CurrentHealth += amount + bonus, CurrentMaxHealth);
-        int differenceHp =  CurrentHealth- preHeal;
+        int differenceHp = CurrentHealth - preHeal;
 
         view.hpTextBoard.text = CurrentHealth.ToString();
         UpdateStatsColor();
@@ -1889,7 +1895,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     internal void ModifyStats(int atk, int hp)
     {
         CurrentAttack += atk;
-        CurrentHealth+=hp;
+        CurrentHealth += hp;
         CurrentMaxHealth += hp;
         if (CurrentAttack < 0) CurrentAttack = 0;
         if (CurrentHealth <= 0)
@@ -1939,6 +1945,9 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (board != null)
                 board.HandleEnemyDeath(this);
         }
+        IsDead = true;
+        IsDying = false;
+        SetZone(CardZone.Graveyard);
     }
     void UpdateStatsColor()
     {
