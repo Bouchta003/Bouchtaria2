@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class SecondaryCursorController : MonoBehaviour
 {
@@ -10,7 +12,7 @@ public class SecondaryCursorController : MonoBehaviour
     [SerializeField] private Texture2D scanCursor;
 
     [Header("Optional")]
-    [SerializeField] private string[] disabledScenes;
+    [SerializeField] public string[] disabledScenes;
 
     private bool cursorIsScan;
 
@@ -27,19 +29,19 @@ public class SecondaryCursorController : MonoBehaviour
 
         SetDefaultCursor();
     }
-
     void Update()
     {
-        bool shouldScan =
-            Input.GetKey(KeyCode.Space) &&
-            !IsSceneDisabled();
+        if (UIInputFocusTracker.IsAnyTMPFocused)
+        {
+            SetDefaultCursor();
+            return;
+        }
 
-        if (shouldScan)
+        if (ScanInput.Instance != null && ScanInput.Instance.IsScanActive)
             SetScanCursor();
         else
             SetDefaultCursor();
     }
-
     private void SetScanCursor()
     {
         if (cursorIsScan) return;
@@ -56,14 +58,4 @@ public class SecondaryCursorController : MonoBehaviour
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
 
-    private bool IsSceneDisabled()
-    {
-        string scene = SceneManager.GetActiveScene().name;
-        foreach (var s in disabledScenes)
-        {
-            if (scene == s)
-                return true;
-        }
-        return false;
-    }
 }

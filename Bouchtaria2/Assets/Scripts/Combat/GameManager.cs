@@ -493,6 +493,25 @@ public class GameManager : MonoBehaviour
         }
         EndEffect();
     }
+    // reservation counters to avoid concurrent over-summon
+    private int allyPendingSummons = 0;
+    private int enemyPendingSummons = 0;
+
+    private int GetPendingSummons(PlayerOwner owner) =>
+        owner == PlayerOwner.Player ? allyPendingSummons : enemyPendingSummons;
+
+    private void IncPendingSummons(PlayerOwner owner)
+    {
+        if (owner == PlayerOwner.Player) allyPendingSummons++;
+        else enemyPendingSummons++;
+    }
+
+    private void DecPendingSummons(PlayerOwner owner)
+    {
+        if (owner == PlayerOwner.Player) allyPendingSummons = Mathf.Max(0, allyPendingSummons - 1);
+        else enemyPendingSummons = Mathf.Max(0, enemyPendingSummons - 1);
+    }
+
     public bool TrySummonForOwnerSafe(PlayerOwner owner, int cardId, bool isTrait = false)
     {
         var board = GetBoardForOwner(owner);
@@ -503,27 +522,40 @@ public class GameManager : MonoBehaviour
         TrySummonForOwner(owner, cardId, isTrait);
         return true;
     }
-
     public void TrySummonForOwner(PlayerOwner owner, int cardId, bool isTrait = false)
     {
         var board = GetBoardForOwner(owner);
+        if (board == null) return;
 
-        if (board.IsFull())
+        // compute effective occupied slots including pending reservations
+        int effectiveCount = board.GetCards().Count + GetPendingSummons(owner);
+        if (effectiveCount >= (owner == PlayerOwner.Player ? allyDropArea.maxBoardSize : enemyDropArea.maxBoardSize))
             return;
+
+        // Reserve a slot immediately to prevent other concurrent summons from oversubscribing.
+        IncPendingSummons(owner);
 
         CardData data = CardDatabase.Instance.GetCardById(cardId);
         if (data == null)
+        {
+            DecPendingSummons(owner);
             return;
+        }
 
-        ICardDropArea parent =
-            owner == PlayerOwner.Player
-        ? allyDropArea
-        : enemyDropArea;
+        ICardDropArea parent = owner == PlayerOwner.Player ? allyDropArea : enemyDropArea;
 
-        CardInstance cardInst =
-            CardFactory.Instance.CreateCard(data, owner, parent.CardContainer);
+        // create the card (this instantiates a GameObject)
+        CardInstance cardInst = CardFactory.Instance.CreateCard(data, owner, parent.CardContainer);
 
-        if (owner == PlayerOwner.Player) {
+        if (cardInst == null)
+        {
+            DecPendingSummons(owner);
+            return;
+        }
+
+        // attempt to add to board
+        if (owner == PlayerOwner.Player)
+        {
             cardInst.GetComponent<SortingGroup>().sortingOrder = 1;
             cardInst.SetZone(CardZone.Board);
             allyDropArea.AddSummonedCard(cardInst);
@@ -533,51 +565,114 @@ public class GameManager : MonoBehaviour
         {
             cardInst.GetComponent<SortingGroup>().sortingOrder = 3;
             cardInst.SetZone(CardZone.Board);
-            //put sorting order to 1 if necessary and limit board size
             enemyDropArea.AddSummonedCard(cardInst);
             enemyDropArea.UpdateEnemyCardPositions();
         }
+
+        // Verify the card was actually added to board list (AddSummonedCard may early-return when full)
+        bool actuallyAdded = parent.GetCards().Contains(cardInst.gameObject);
+
+        if (!actuallyAdded)
+        {
+            // board might have filled up in-between, destroy created GameObject and free reservation
+            Destroy(cardInst.gameObject);
+            DecPendingSummons(owner);
+            return;
+        }
+
+        // successful add -> release reservation
+        DecPendingSummons(owner);
+
         if (isTrait)
         {
             StartCoroutine(DelayedDeploy(cardInst));
         }
-
     }
+
     public IEnumerator DelayedDeploy(CardInstance card)
     {
         yield return null; // wait one frame
         if (card != null)
             card.TriggerDeploy();
     }
-
     public void TrySummonForOther(PlayerOwner owner, int cardId)
     {
+        // This means: summon on the opponent's board
         var board = GetBoardForOther(owner);
-
-        if (board.IsFull())
+        if (board == null)
             return;
+
+        PlayerOwner targetOwner =
+            owner == PlayerOwner.Player
+                ? PlayerOwner.Enemy
+                : PlayerOwner.Player;
+
+        int effectiveCount =
+            board.GetCards().Count + GetPendingSummons(targetOwner);
+
+        int maxSize =
+    targetOwner == PlayerOwner.Player
+        ? allyDropArea.maxBoardSize
+        : enemyDropArea.maxBoardSize;
+
+        if (effectiveCount >= maxSize)
+            return;
+
+        // 🔒 Reserve slot
+        IncPendingSummons(targetOwner);
 
         CardData data = CardDatabase.Instance.GetCardById(cardId);
         if (data == null)
-            return;
-
-        CardInstance cardInst = CardFactory.Instance.CreateCard(data, owner);
-
-        if (owner == PlayerOwner.Player)
         {
-            cardInst.transform.parent = enemyHand.transform;
-            cardInst.Owner = PlayerOwner.Enemy;
-            cardInst.GetComponent<SortingGroup>().sortingOrder =2;
-            enemyDropArea.AddSummonedCard(cardInst);
+            DecPendingSummons(targetOwner);
+            return;
+        }
+
+        ICardDropArea parent =
+            targetOwner == PlayerOwner.Player
+                ? allyDropArea
+                : enemyDropArea;
+
+        CardInstance cardInst =
+            CardFactory.Instance.CreateCard(data, targetOwner, parent.CardContainer);
+
+        if (cardInst == null)
+        {
+            DecPendingSummons(targetOwner);
+            return;
+        }
+
+        // Add to board
+        if (targetOwner == PlayerOwner.Player)
+        {
+            cardInst.GetComponent<SortingGroup>().sortingOrder = 1;
+            cardInst.SetZone(CardZone.Board);
+            allyDropArea.AddSummonedCard(cardInst);
+            allyDropArea.UpdateAllyCardPositions();
         }
         else
         {
-            cardInst.transform.parent = allyHand.transform;
-            cardInst.GetComponent<SortingGroup>().sortingOrder =2;
-            cardInst.Owner = PlayerOwner.Player;
-            allyDropArea.AddSummonedCard(cardInst);
+            cardInst.GetComponent<SortingGroup>().sortingOrder = 3;
+            cardInst.SetZone(CardZone.Board);
+            enemyDropArea.AddSummonedCard(cardInst);
+            enemyDropArea.UpdateEnemyCardPositions();
         }
+
+        // Verify success
+        bool actuallyAdded =
+            parent.GetCards().Contains(cardInst.gameObject);
+
+        if (!actuallyAdded)
+        {
+            Destroy(cardInst.gameObject);
+            DecPendingSummons(targetOwner);
+            return;
+        }
+
+        // ✅ Success
+        DecPendingSummons(targetOwner);
     }
+
     public void Praise(PlayerOwner owner)
     {
         OnPraise?.Invoke(owner);

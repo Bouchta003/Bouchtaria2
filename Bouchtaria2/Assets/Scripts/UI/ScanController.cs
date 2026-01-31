@@ -37,6 +37,7 @@ public class ScanController : MonoBehaviour
             panelInstance.Hide();
         }
     }
+
     private CardView GetCardUnderMouse()
     {
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
