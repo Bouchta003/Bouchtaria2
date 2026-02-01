@@ -1871,6 +1871,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
 
+        DamageVFXManager.Instance.PlayRandomHit(cardView.transform.position);
+
         TriggerBerserk();
         UpdateStatsColor();
         gameManager.CheckGlow();
