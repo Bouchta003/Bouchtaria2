@@ -1332,8 +1332,23 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TryExecuteAddCard(string effect)
     {
+        // handle non-parameterized variants first
+        if (effect.StartsWith("addcardrandomspell"))
+        {
+            gameManager.AddRandomCardToHandType(Owner, "spell");
+            return;
+        }
+
+        if (effect.StartsWith("addcardrandomunit"))
+        {
+            gameManager.AddRandomCardToHandType(Owner, "minion");
+            return;
+        }
+
+        // now try to parse addcard(<id>)
         if (!TryParseIntEffect(effect, "addcard", out int cardId))
             return;
+
         if (effect.StartsWith("addcardenemy"))
         {
             if (Owner == PlayerOwner.Player)
@@ -1346,6 +1361,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         gameManager.AddCardToHand(Owner, cardId);
     }
+
     private void TryExecuteBuff(string effect, IAttackable target)
     {
         if (!effect.StartsWith("buff"))

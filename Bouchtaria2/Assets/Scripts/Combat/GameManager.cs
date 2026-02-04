@@ -1030,6 +1030,32 @@ public class GameManager : MonoBehaviour
 
         return card;
     }
+    public CardInstance AddRandomCardToHandType(PlayerOwner owner, string type)
+    {
+        HandManager hand = owner == PlayerOwner.Player
+            ? allyHand
+            : enemyHand;
+
+        if (hand.handCards.Count >= hand.maxHandSize)
+        {
+            Debug.Log($"{owner} hand is full.");
+            return null;
+        }
+
+        List<CardData> options = CardDatabase.Instance.GetCardsByTypePackable(type);
+
+        if (options.Count == 0)
+            return null;
+        CardData data = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance card =
+            CardFactory.Instance.CreateCard(data, owner);
+
+        card.SetZone(CardZone.Hand);
+        hand.AddCard(card.gameObject);
+        hand.UpdateCardPositions();
+
+        return card;
+    }
     public CardInstance AddCardToHand(PlayerOwner owner, int id, int discount)
     {
         HandManager hand = owner == PlayerOwner.Player
