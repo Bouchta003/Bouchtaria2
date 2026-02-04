@@ -200,6 +200,22 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         if (enemyPrefabCards.Count <= 0) return true;
         else return false;
     }
+    public CardInstance BoardHasID(int id)
+    {
+        foreach (GameObject cardGO in enemyPrefabCards)
+        {
+            if (cardGO.GetComponent<CardInstance>().Data.id == id) return cardGO.GetComponent<CardInstance>();
+        }
+        return null;
+    }
+    public CardInstance BoardHasEffect(string effect)
+    {
+        foreach (GameObject cardGO in enemyPrefabCards)
+        {
+            if (cardGO.GetComponent<CardInstance>().CurrentEffect.Contains(effect)) return cardGO.GetComponent<CardInstance>();
+        }
+        return null;
+    }
     public void UpdateEnemyCardPositions()
     {
         // ❗ Do not reflow during attack animations

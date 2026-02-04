@@ -141,6 +141,22 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         if (allyPrefabCards.Count <=0) return true;
         else return false;
     }
+    public CardInstance BoardHasID(int id)
+    {
+        foreach (GameObject cardGO in allyPrefabCards)
+        {
+            if (cardGO.GetComponent<CardInstance>().Data.id == id) return cardGO.GetComponent<CardInstance>();
+        }
+        return null;
+    }
+    public CardInstance BoardHasEffect(string effect)
+    {
+        foreach (GameObject cardGO in allyPrefabCards)
+        {
+            if (cardGO.GetComponent<CardInstance>().CurrentEffect.Contains(effect)) return cardGO.GetComponent<CardInstance>();
+        }
+        return null;
+    }
     public List<GameObject> GetCards()
     {
         return allyPrefabCards;

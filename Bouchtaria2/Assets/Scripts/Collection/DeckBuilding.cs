@@ -24,6 +24,7 @@ public class DeckBuilding : MonoBehaviour
 
     [Header("Cursor")]
     [SerializeField] Image craftCursor;
+    [SerializeField] Image craftFilter;
 
     public static DeckBuilding Instance;
 
@@ -57,6 +58,7 @@ public class DeckBuilding : MonoBehaviour
 
         Instance = this;
 
+        craftFilter.gameObject.SetActive(false);
         collection = CollectionLayout.GetComponentInChildren<CollectionScreen>();
 
         GetUserDust(dust =>
@@ -66,6 +68,10 @@ public class DeckBuilding : MonoBehaviour
             DustCounter.text = dust.ToString();
         });
 
+    }
+    private void Update()
+    {
+        craftFilter.gameObject.SetActive(isCrafting);
     }
     public void ShowIndex()
     {

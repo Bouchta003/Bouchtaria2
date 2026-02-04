@@ -7,5 +7,7 @@ public interface ICardDropArea {
     bool IsFull();
     Transform CardContainer { get; set; }
     List<GameObject> GetCards();
+    CardInstance BoardHasEffect(string effect);
+    CardInstance BoardHasID(int id);
     PlayerOwner Owner { get; }
 }

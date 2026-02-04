@@ -1306,7 +1306,7 @@ public class GameManager : MonoBehaviour
 
         return true;
     }
-    private ICardDropArea GetBoardForOwner(PlayerOwner owner)
+    public ICardDropArea GetBoardForOwner(PlayerOwner owner)
     {
         return owner == PlayerOwner.Player
             ? allyDropArea

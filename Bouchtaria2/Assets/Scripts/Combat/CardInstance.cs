@@ -1862,6 +1862,14 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         CurrentHealth -= amount;
         gameManager.NotifyDamage(Owner, amount);
+
+        //Trigore Logic :
+        CardInstance trigore = gameManager.GetBoardForOwner(Owner).BoardHasEffect("trigore");
+        if (trigore!=null)
+        {
+            //Boost trigore
+            trigore.ModifyStats(0, 2);
+        }
         GetComponent<DamageFeedback>().Play();
 
         if (CurrentHealth <= 0 && !IsDead)

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DamageVFXManager : MonoBehaviour
 {
@@ -6,6 +6,13 @@ public class DamageVFXManager : MonoBehaviour
 
     [Header("Particle impact prefabs")]
     public GameObject[] hitEffects;
+    [Header("UI Root (for core & UI hits)")]
+    public RectTransform uiVfxRootAlly;
+    public RectTransform uiVfxRootEnemy;
+    [Header("UI VFX Scale")]
+    public float uiScaleMultiplier = 60f;
+    public string uiSortingLayer = "UI";
+    public int uiSortingOrder = 500;
 
     void Awake()
     {
@@ -31,6 +38,41 @@ public class DamageVFXManager : MonoBehaviour
         ForceFrontLayer(go);
         AutoDestroy(go);
     }
+    public void PlayRandomHitOnCore(RectTransform parent)
+    {
+        if (parent == null || hitEffects.Length == 0)
+            return;
+
+        GameObject go =
+            Instantiate(hitEffects[Random.Range(0, hitEffects.Length)]);
+
+        // 🔒 PARENT FIRST
+        go.transform.SetParent(parent, false);
+
+        // 🔒 FORCE POSITION
+        go.transform.localPosition = Vector3.zero;
+
+        // 🔒 FORCE ROTATION
+        go.transform.localRotation = Quaternion.identity;
+
+        // 🔒 FORCE SCALE
+        go.transform.localScale = Vector3.one * uiScaleMultiplier;
+
+        ForceUISorting(go);
+        AutoDestroy(go);
+    }
+    void ForceUISorting(GameObject vfx)
+    {
+        var renderers = vfx.GetComponentsInChildren<ParticleSystemRenderer>();
+
+        foreach (var r in renderers)
+        {
+            r.sortingLayerName = uiSortingLayer;
+            r.sortingOrder = uiSortingOrder;
+            r.renderMode = ParticleSystemRenderMode.Billboard;
+        }
+    }
+
     void ForceFrontLayer(GameObject vfx)
     {
         var renderers = vfx.GetComponentsInChildren<ParticleSystemRenderer>();

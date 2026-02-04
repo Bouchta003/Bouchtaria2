@@ -40,6 +40,11 @@ public class CoreInstance : MonoBehaviour, IAttackable
         GameManager gm = FindFirstObjectByType<GameManager>();
         gm.NotifyDamage(Owner, amount);
         int remaining = amount; GetComponentInParent<DamageFeedback>()?.Play();
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position);
+        if(Owner==PlayerOwner.Player)
+            DamageVFXManager.Instance.PlayRandomHitOnCore(DamageVFXManager.Instance.uiVfxRootAlly);
+        else
+            DamageVFXManager.Instance.PlayRandomHitOnCore(DamageVFXManager.Instance.uiVfxRootEnemy);
 
 
         if (Shield > 0)
