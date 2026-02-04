@@ -1829,7 +1829,7 @@
       "atkValue": 0,
       "hpValue": 3,
       "traits": ["Pokemon"],
-      "effect": "progresseot(5)[addcard(116)]",
+      "effect": "progresseot(5)[addcard(116);selfdestroy]",
       "effectText": "If this survives for 5 turns, add Reshiram to your hand.",
       "artPath": "CardArt/lightstone",
       "artCompactPath": "CardArt/lightstone_compact",
@@ -1848,7 +1848,7 @@
       "effectText": "",
       "artPath": "CardArt/reshiram",
       "artCompactPath": "CardArt/reshiram_compact",
-      "packable": true,
+      "packable": false,
       "token": false,
       "signature": false
     },"117": {
@@ -1859,11 +1859,26 @@
       "atkValue": 0,
       "hpValue": 3,
       "traits": ["Pokemon"],
-      "effect": "progresseot(5)[addcard(118)]",
+      "effect": "progresseot(5)[addcard(118);selfdestroy]",
       "effectText": "If this survives for 5 turns, add Zekrom to your hand.",
       "artPath": "CardArt/darkstone",
       "artCompactPath": "CardArt/darkstone_compact",
       "packable": true,
+      "token": false,
+      "signature": false
+    },"118": {
+      "id": 118,
+      "name": "Zekrom",
+      "cardType": "minion",
+      "manaCost": 10,
+      "atkValue": 10,
+      "hpValue": 10,
+      "traits": ["Pokemon"],
+      "effect": "",
+      "effectText": "",
+      "artPath": "CardArt/zekrom",
+      "artCompactPath": "CardArt/zekrom_compact",
+      "packable": false,
       "token": false,
       "signature": false
     }

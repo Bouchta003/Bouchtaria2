@@ -719,6 +719,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
 
+        if (effect.StartsWith("selfdestroy"))
+        {
+            SelfDestroy();
+            return;
+        }
+
         if (effect.StartsWith("sleepall"))
         {
             SleepAll();
@@ -1848,6 +1854,10 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.AddShield(shield);
         else
             gameManager.EnemyCore.AddShield(shield);
+    }
+    public void SelfDestroy()
+    {
+        TakeDamage(999);
     }
     #endregion
     public void TakeDamage(int amount)
