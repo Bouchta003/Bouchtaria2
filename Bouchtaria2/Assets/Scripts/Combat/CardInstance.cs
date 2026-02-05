@@ -723,6 +723,32 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.DistortionWorld = true;
             return;
         }
+        if (effect.StartsWith("ideal"))
+        {
+            if (Owner == PlayerOwner.Player) {
+                if (deckManager.IdealEffect != 1)deckManager.IdealEffect = 0;
+                else deckManager.IdealEffect = 3;
+            }
+            else {
+                if (deckManager.IdealEffect != 0) deckManager.IdealEffect = 1;
+                else deckManager.IdealEffect = 3;
+            }
+            return;
+        }
+        if (effect.StartsWith("truth"))
+        {
+            if (Owner == PlayerOwner.Player)
+            {
+                if (deckManager.TruthEffect != 1) deckManager.TruthEffect = 0;
+                else deckManager.TruthEffect = 3;
+            }
+            else
+            {
+                if (deckManager.TruthEffect != 0) deckManager.TruthEffect = 1;
+                else deckManager.TruthEffect = 3;
+            }
+            return;
+        }
         if (effect.StartsWith("emperorsapphire"))
         {
             gameManager.EmperorSapphire(Owner);

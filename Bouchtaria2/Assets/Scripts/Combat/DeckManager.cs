@@ -20,6 +20,8 @@ public class DeckManager : MonoBehaviour
 
     public event System.Action<CardInstance> OnCardDrawn;
 
+    public int TruthEffect = -1;
+    public int IdealEffect = -1;
     public void DetectUnlockableTraits()
     {
         AllyTraitsUnlockable =
@@ -112,6 +114,37 @@ public class DeckManager : MonoBehaviour
 
         CardInstance card =
             CardFactory.Instance.CreateCard(data, owner);
+
+        switch (IdealEffect)
+        {
+            case -1: break;
+            case 0://Only Player has Truth
+                if (owner == PlayerOwner.Player)
+                    card.AddTemporaryManaModifier(-2);
+                break;
+            case 1://Only Enemy has Truth
+                if (owner == PlayerOwner.Enemy)
+                    card.AddTemporaryManaModifier(-2);
+                break;
+            case 2:
+                card.AddTemporaryManaModifier(-2);
+                break;
+        }
+        switch (TruthEffect)
+        {
+            case -1: break;
+            case 0://Only Player has Truth
+                if (owner == PlayerOwner.Enemy)
+                    card.AddTemporaryManaModifier(2);
+                break;
+            case 1://Only Enemy has Truth
+                if (owner == PlayerOwner.Player)
+                    card.AddTemporaryManaModifier(2);
+                break;
+            case 2:
+                card.AddTemporaryManaModifier(2);
+                break;
+        }
 
         card.SetZone(CardZone.Hand);
         hand.AddCard(card.gameObject);
