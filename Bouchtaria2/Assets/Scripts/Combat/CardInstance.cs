@@ -452,6 +452,32 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     #region EffectTriggers :
     #region Spells
+    private IEnumerable<string> SplitEffectsBySpace(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+            yield break;
+
+        int depth = 0;
+        int lastSplit = 0;
+
+        for (int i = 0; i < content.Length; i++)
+        {
+            char c = content[i];
+
+            if (c == '(') depth++;
+            else if (c == ')') depth--;
+            else if (char.IsWhiteSpace(c) && depth == 0)
+            {
+                if (i > lastSplit)
+                    yield return content.Substring(lastSplit, i - lastSplit).Trim();
+                lastSplit = i + 1;
+            }
+        }
+
+        if (lastSplit < content.Length)
+            yield return content.Substring(lastSplit).Trim();
+    }
+
     public void OnPlaySpell()
     {
         //Cannot cast spells in distortion world
@@ -566,8 +592,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (string.IsNullOrWhiteSpace(CurrentEffect))
             return;
         // Same idea as minions: split by space
-        string[] effects = CurrentEffect
-            .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        IEnumerable<string> effects = SplitEffectsBySpace(CurrentEffect);
+
 
         foreach (string rawEffect in effects)
         {
@@ -1818,6 +1844,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 inst.IsAsleep = true; inst.view.UpdateMode();
             }
         }
+        gameManager.CheckGlow();
     }
     public void SilenceAll()
     {

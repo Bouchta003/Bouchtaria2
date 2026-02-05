@@ -72,10 +72,12 @@ public class HandManager : MonoBehaviour
                     foreach (GameObject card in assembledCards)
                     {
                         CardInstance inst = card.GetComponent<CardInstance>();
-                        string cleaned = inst.CurrentEffect
-                                    .Replace("*", "")
-                                    .Replace("monsterpart", "")
-                                    .Trim();
+                        string cleaned = CleanString(
+                            inst.CurrentEffect
+                                .Replace("*", "")
+                                .Replace("monsterpart", "")
+                                .Trim()
+                        );
 
                         effectParts.Add(cleaned);
 
@@ -85,15 +87,14 @@ public class HandManager : MonoBehaviour
                         RemoveCardFromHand(card);
                         Destroy(card);
                     }
-
-                    string combinedEffects = string.Join(",", effectParts);
+                    string combinedEffects = string.Join(" ", effectParts);
                     string combinedEffectText = string.Join(" ", effectTextParts);
 
                     // 🔑 Create the gear card AFTER consuming parts
                     CardInstance newGear =
                         FindFirstObjectByType<GameManager>().AddCardToHand(Owner, 39);
 
-                    newGear.CurrentEffect = $"gear({combinedEffects},targetunit)";
+                    newGear.CurrentEffect = $"gear({combinedEffects}),targetunit";
                     newGear.CurrentEffectText = $"Gear: {combinedEffectText}";
                     newGear.BaseManaCost = newMana;
                     newGear.ParseEffects(); // safety
