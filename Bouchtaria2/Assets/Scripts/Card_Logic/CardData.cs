@@ -36,7 +36,7 @@ public class CardData
     public enum Trait
     {
         Neutral, Speedster, Gunner, Inazuma, Pokemon, Blizzard, Fighter, Faith, Avatar, Hater, SpellFocus, Combo, Healer,
-        MonsterHunter
+        MonsterHunter, Chaos
     }
     public enum KeyWords
     {

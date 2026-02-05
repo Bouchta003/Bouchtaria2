@@ -18,6 +18,7 @@ public class TraitsDisplay : MonoBehaviour
     [SerializeField] public Sprite memeIcon;//
     [SerializeField] public Sprite neutralIcon;//
     [SerializeField] public Sprite comboIcon;//
+    [SerializeField] public Sprite chaosIcon;//
     [SerializeField] public Sprite haterIcon;//
     [SerializeField] public Sprite spellFocusIcon;//
     [SerializeField] public Sprite speedsterIcon;

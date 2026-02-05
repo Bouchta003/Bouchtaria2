@@ -1645,6 +1645,13 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void ApplySingleGearEffect(string subEffect, CardInstance target)
     {
+        // TRIGGER BLOCKS (eot[...], s[...], r[...], etc.)
+        int bracketIndex = subEffect.IndexOf('[');
+        if (bracketIndex > 0 && subEffect.EndsWith("]"))
+        {
+            target.CurrentEffect += " " + subEffect;
+            return;
+        }
         // KEYWORD (quickstrike, taunt, etc.)
         if (!subEffect.Contains("("))
         {

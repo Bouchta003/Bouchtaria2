@@ -18,6 +18,7 @@ public static class TraitColorDatabase
         { CardData.Trait.Healer,    new Color(0.25f, 0.75f, 0.45f) },
 
         { CardData.Trait.Fighter,   new Color(0.72f, 0.72f, 0.72f) },
+        { CardData.Trait.Chaos,   new Color(0.62f, 0.12f, 0.94f) },
         { CardData.Trait.Neutral,   new Color(0.58f, 0.58f, 0.58f) },
 
         { CardData.Trait.Inazuma,   new Color(0.70f, 1.00f, 0.20f) },
