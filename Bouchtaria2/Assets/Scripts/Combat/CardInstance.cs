@@ -2047,6 +2047,8 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     void UpdateStatsColor()
     {
+        if(CurrentManaCost>BaseManaCost) view.manaText.color = Color.red;
+        if(CurrentManaCost<BaseManaCost) view.manaText.color = Color.green;
         if (CurrentHealth < CurrentMaxHealth) view.hpTextBoard.color = Color.red;
         else if (CurrentHealth > Data.hpValue) view.hpTextBoard.color = Color.green;
         else if (CurrentHealth == Data.hpValue) view.hpTextBoard.color = Color.white;
