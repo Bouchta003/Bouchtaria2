@@ -50,7 +50,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public int BaseManaCost { get; set; }
     public int CurrentHealth { get; private set; }
     public int CurrentMaxHealth { get; private set; }
-    public int CurrentManaCost => Mathf.Max(0, BaseManaCost + temporaryManaModifier);
+    public int CurrentManaCost => Mathf.Min(10,Mathf.Max(0, BaseManaCost + temporaryManaModifier));
     public bool IsDead = false;
     public PlayerOwner Owner { get; set; }
     private string pendingTargetedEffect;
@@ -221,6 +221,20 @@ public class CardInstance : MonoBehaviour, IAttackable
             return false;
 
         if (CurrentEffect.Contains(keywordString))
+        {
+            return true;
+        }
+
+        return false;
+    }
+    public bool HasText(string keywordString)
+    {
+        if (EffectsSuppressed)
+            return false;
+        if (Data == null || CurrentEffectText == null)
+            return false;
+
+        if (CurrentEffectText.Contains(keywordString))
         {
             return true;
         }
@@ -1424,6 +1438,23 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("addcardrandomunit"))
         {
             gameManager.AddRandomCardToHandType(Owner, "minion");
+            return;
+        }
+
+        if (effect.StartsWith("addcardrandomtext"))
+        {
+            int start = effect.IndexOf('(');
+            int end = effect.IndexOf(')');
+
+            if ((start < 0 || end < 0 || end <= start + 1))
+            {
+                Debug.LogError($"Malformed {effect} addcardrandomtext on card {Data.name}");
+                return;
+            }
+
+            string valueStr = effect.Substring(start + 1, end - start - 1);
+            Debug.Log("Added random card with the following text : " + valueStr);
+            gameManager.AddRandomCardToHandText(Owner, valueStr);
             return;
         }
 

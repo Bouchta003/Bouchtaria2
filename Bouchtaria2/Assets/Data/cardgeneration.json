@@ -1991,6 +1991,22 @@
       "packable": false,
       "token": false,
       "signature": false
+    },
+    "126": {
+      "id": 126,
+      "name": "Feed the chaos",
+      "cardType": "spell",
+      "manaCost": 1,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": ["Chaos"],
+      "effect": "addcardrandomtext(random)",
+      "effectText": "Add a random card with the RANDOM keyword to your hand.",
+      "artPath": "CardArt/feedthechaos",
+      "artCompactPath": "CardArt/feedthechaos_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
     }
   }
 }
