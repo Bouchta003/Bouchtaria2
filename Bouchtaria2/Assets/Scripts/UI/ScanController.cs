@@ -27,7 +27,7 @@ public class ScanController : MonoBehaviour
 
         CardView cardUnderMouse = GetCardUnderMouse();
 
-        if (cardUnderMouse != null)
+        if (cardUnderMouse != null && UserCollectionManager.Instance.IsOwned(cardUnderMouse.CardData.id))
         {
             panelInstance.owner = cardUnderMouse.GetComponent<CardInstance>().Owner;
             if(panelInstance.owner==PlayerOwner.Player)
