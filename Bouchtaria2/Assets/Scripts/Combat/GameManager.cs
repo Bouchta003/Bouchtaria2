@@ -1375,7 +1375,8 @@ public class GameManager : MonoBehaviour
             return false;
         if (isTargetingEffect) return false;
         if ((attacker.HasAttackedThisTurn && !attacker.HasKeyword("haste")) ||
-            (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn))
+            (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn)||
+            attacker.CurrentAttack<=0 || attacker.IsAsleep)
             return false;
 
         if (attacker.IsSummoningSick)
@@ -1713,7 +1714,8 @@ public class GameManager : MonoBehaviour
         }
 
         if ((attacker.HasAttackedThisTurn && !attacker.HasKeyword("haste")) ||
-            (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn))
+                (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn) || 
+                    attacker.CurrentAttack<=0 ||attacker.IsAsleep)
             return;
 
 

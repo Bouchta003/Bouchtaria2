@@ -723,13 +723,13 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             DeployPending = (CurrentZone == CardZone.Board);
             BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
-            return;
+            gameManager.CheckGlow();return;
         }
         //Unique Effects
         if (effect.StartsWith("extraturn"))
         {
             GainExtraTurn();
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("limitenemyspace"))
         {
@@ -737,12 +737,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             {
                 gameManager.LimitEnemySpace(Owner, limit);
             }
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("giratina"))
         {
             gameManager.DistortionWorld = true;
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("ideal"))
         {
@@ -754,7 +754,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 if (deckManager.IdealEffect != 0) deckManager.IdealEffect = 1;
                 else deckManager.IdealEffect = 3;
             }
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("truth"))
         {
@@ -768,178 +768,178 @@ public class CardInstance : MonoBehaviour, IAttackable
                 if (deckManager.TruthEffect != 0) deckManager.TruthEffect = 1;
                 else deckManager.TruthEffect = 3;
             }
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("emperorsapphire"))
         {
             gameManager.EmperorSapphire(Owner);
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("tawakkul"))
         {
             gameManager.StartCoroutine(gameManager.Tawakkul(5));
-            return;
+            gameManager.CheckGlow();return;
         }
 
         if (effect.StartsWith("resurrectlast"))
         {
             gameManager.ResurrectLast(Owner, Data);
-            return;
+            gameManager.CheckGlow();return;
         }
         else if (effect.StartsWith("resurrect"))
         {
             gameManager.ResurrectRandom(Owner, Data);
-            return;
+            gameManager.CheckGlow();return;
         }
 
         if (effect.StartsWith("selfdestroy"))
         {
             SelfDestroy();
-            return;
+            gameManager.CheckGlow();return;
         }
 
         if (effect.StartsWith("sleepall"))
         {
             SleepAll();
-            return;
+            gameManager.CheckGlow();return;
         }
         else if (effect.StartsWith("sleep"))
         {
             BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("silenceall"))
         {
             SilenceAll();
-            return;
+            gameManager.CheckGlow();return;
         }
         else if (effect.StartsWith("silence"))
         {
             BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("morphto"))
         {
             if (!TryParseIntEffect(effect, "morphto", out int id))
-                return;
+            { gameManager.CheckGlow(); return; }
 
             MorphTo(id);
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("absorb"))
         {
             if (!TryParseIntEffect(effect, "absorb", out int amount))
-                return;
+            { gameManager.CheckGlow(); return; }
 
             TryExecuteAbsorb(effect, null);
-            return;
+            gameManager.CheckGlow();return;
         }
 
         if (effect.StartsWith("draw"))
         {
             if (!TryParseIntEffect(effect, "draw", out int cards))
-                return;
+            { gameManager.CheckGlow(); return; }
 
 
             deckManager.StartCoroutine(deckManager.Draw(cards, Owner));
 
-            return;
+            gameManager.CheckGlow();return;
         }
 
         if (effect.StartsWith("praise"))
         {
             gameManager.Praise(Owner);
-            return;
+            gameManager.CheckGlow();return;
         }
 
         if (effect.StartsWith("autodmg"))
         {
             if (!TryParseIntEffect(effect, "autodmg", out int dmg))
-                return;
+            { gameManager.CheckGlow(); return; }
 
             AutoDamageCore(dmg);
-            return;
+            gameManager.CheckGlow();return;
         }
 
         if (effect.StartsWith("autoheal"))
         {
             if (!TryParseIntEffect(effect, "autoheal", out int heal))
-                return;
+            { gameManager.CheckGlow(); return; }
 
             AutoHealCore(heal);
-            return;
+            gameManager.CheckGlow();return;
         }
 
         if (effect.StartsWith("healall"))
         {
             if (!TryParseIntEffect(effect, "healall", out int heal))
-                return;
+            { gameManager.CheckGlow(); return; }
 
             HealAll(heal);
-            return;
+            gameManager.CheckGlow();return;
         }
 
         if (effect.StartsWith("autoshield"))
         {
             if (!TryParseIntEffect(effect, "autoshield", out int shield))
-                return;
+            { gameManager.CheckGlow(); return; }
 
             AutoShieldCore(shield);
-            return;
+            gameManager.CheckGlow();return;
         }
 
         if (effect.StartsWith("summon"))
         {
             TryExecuteSummon(effect);
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("discover"))
         {
             TryExecuteDiscover(effect);
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("ally?"))
         {
             TryExecuteAllyConditional(effect);
-            return;
+            gameManager.CheckGlow();return;
         }
 
         if (effect.StartsWith("addcard"))
         {
             TryExecuteAddCard(effect);
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("buff"))
         {
             TryExecuteBuff(effect, null);
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("buff") && effect.Contains(",target"))
         {
             BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
-            return;
+            gameManager.CheckGlow();return;
         }
         if (effect.StartsWith("damageaoe"))
         {
             TryExecuteDamageAoe(effect);
-            return;
+            gameManager.CheckGlow();return;
         }
         else if (effect.StartsWith("damage"))
         {
             TryExecuteDamage(effect, null);
-            return;
+            gameManager.CheckGlow();return;
         }
 
         if (effect.StartsWith("gear"))
         {
             TryExecuteGear(effect, CurrentEffectText, null);
-            return;
+            gameManager.CheckGlow();return;
         }
 
         if (effect.StartsWith("managain"))
         {
             TryExecuteManaGain(effect);
-            return;
+            gameManager.CheckGlow();return;
         }
         Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
     }
