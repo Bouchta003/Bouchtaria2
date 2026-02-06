@@ -496,6 +496,7 @@ public class GameManager : MonoBehaviour
     // reservation counters to avoid concurrent over-summon
     private int allyPendingSummons = 0;
     private int enemyPendingSummons = 0;
+    private readonly Dictionary<CardInstance, int> deploySummonCaps = new();
 
     private int GetPendingSummons(PlayerOwner owner) =>
         owner == PlayerOwner.Player ? allyPendingSummons : enemyPendingSummons;
@@ -510,6 +511,37 @@ public class GameManager : MonoBehaviour
     {
         if (owner == PlayerOwner.Player) allyPendingSummons = Mathf.Max(0, allyPendingSummons - 1);
         else enemyPendingSummons = Mathf.Max(0, enemyPendingSummons - 1);
+    }
+
+    public void SetDeploySummonCap(CardInstance source, int allowedSummons)
+    {
+        if (source == null)
+            return;
+
+        deploySummonCaps[source] = Mathf.Max(0, allowedSummons);
+    }
+
+    public bool ConsumeDeploySummonSlot(CardInstance source)
+    {
+        if (source == null)
+            return true;
+
+        if (!deploySummonCaps.TryGetValue(source, out int remaining))
+            return true;
+
+        if (remaining <= 0)
+            return false;
+
+        deploySummonCaps[source] = remaining - 1;
+        return true;
+    }
+
+    public void ClearDeploySummonCap(CardInstance source)
+    {
+        if (source == null)
+            return;
+
+        deploySummonCaps.Remove(source);
     }
 
     public bool TrySummonForOwnerSafe(PlayerOwner owner, int cardId, bool isTrait = false)
@@ -1922,4 +1954,3 @@ public class AttackRequest
         TargetTransform = target != null ? target.Transform : null;
     }
 }
-

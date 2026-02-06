@@ -40,6 +40,16 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         if (enemyPrefabCards.Count >= maxBoardSize)
             return;
 
+        int boardCount = enemyPrefabCards.Count;
+        int freeSlotsBeforePlay = maxBoardSize - boardCount;
+        int deployOwnerSummons = cardInst.GetDeployOwnerSummonCount();
+        if (deployOwnerSummons > 0)
+        {
+            int summonSlotsAfterPlayedCard = Mathf.Max(0, freeSlotsBeforePlay - 1);
+            int allowedSummons = Mathf.Min(deployOwnerSummons, summonSlotsAfterPlayedCard);
+            gm.SetDeploySummonCap(cardInst, allowedSummons);
+        }
+
         // Remove from hand
         handManager.RemoveCardFromHand(card.gameObject);
 
@@ -138,17 +148,22 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     }
     public void HandleEnemyDeath(CardInstance instance)
     {
+        RemoveEnemyCardFromBoard(instance);
+
+        // 🔑 stop animations immediately
+        instance.gameObject.transform.DOKill(true);
+
+        Destroy(instance.gameObject);
+    }
+
+    public void RemoveEnemyCardFromBoard(CardInstance instance)
+    {
         GameObject cardGO = instance.gameObject;
 
         if (!enemyPrefabCards.Contains(cardGO))
             return;
 
         enemyPrefabCards.Remove(cardGO);
-
-        // 🔑 stop animations immediately
-        cardGO.transform.DOKill(true);
-
-        Destroy(cardGO);
 
         if (gm != null && gm.IsResolvingAttackQueue())
             layoutDirty = true;

@@ -55,6 +55,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public PlayerOwner Owner { get; set; }
     private string pendingTargetedEffect;
     private bool forceRandomTargetingForCurrentDeploy;
+    private EffectTrigger? currentResolvingTrigger;
     public CardData.SpellTargetType spellType { get; set; }
     public CardZone CurrentZone { get; private set; }
     private int temporaryManaModifier = 0;
@@ -686,6 +687,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             TriggerEffects(EffectTrigger.Deploy);
             forceRandomTargetingForCurrentDeploy = false;
             WasPlayed = false;
+            gameManager.ClearDeploySummonCap(this);
         }
     }
     private void TriggerEffects(EffectTrigger trigger)
@@ -694,8 +696,10 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (!parsedEffects.TryGetValue(trigger, out var effects))
             return;
 
+        currentResolvingTrigger = trigger;
         foreach (string effect in effects)
             ExecuteEffect(effect);
+        currentResolvingTrigger = null;
     }
     private void ExecuteEffect(string effect)
     {
@@ -932,6 +936,29 @@ public class CardInstance : MonoBehaviour, IAttackable
     private void TriggerRequiem()
     {
         TriggerEffects(EffectTrigger.Requiem);
+    }
+
+    /// <summary>
+    /// Returns how many same-side board summons this card can create from its DEPLOY trigger.
+    /// Used by board-drop legality checks to account for the played card + deploy summons.
+    /// </summary>
+    public int GetDeployOwnerSummonCount()
+    {
+        if (!parsedEffects.TryGetValue(EffectTrigger.Deploy, out var effects) || effects == null)
+            return 0;
+
+        int count = 0;
+        foreach (string effect in effects)
+        {
+            if (string.IsNullOrWhiteSpace(effect))
+                continue;
+
+            // Count only summons that go to this card's owner board.
+            if (effect.StartsWith("summon(") && !effect.StartsWith("summonforother("))
+                count++;
+        }
+
+        return count;
     }
     public void TriggerStrike()
     {
@@ -1222,6 +1249,14 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (!TryParseIntEffect(effect, "summon", out int cardId))
             return;
+
+        // DEPLOY is pre-validated at play time. If there are fewer slots than declared
+        // summons, consume only the allowed summon budget and skip the rest.
+        if (currentResolvingTrigger == EffectTrigger.Deploy
+            && effect.StartsWith("summon(")
+            && !gameManager.ConsumeDeploySummonSlot(this))
+            return;
+
         if (effect.StartsWith("summonforother"))
             gameManager.TrySummonForOther(Owner, cardId);
         else
@@ -2057,20 +2092,25 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         gameManager.NotifyCardKilled(this);
 
-        TriggerRequiem();
-
         if (Owner == PlayerOwner.Player)
         {
             AllyCardDropArea board = FindFirstObjectByType<AllyCardDropArea>();
             if (board != null)
-                board.HandleAllyDeath(this);
+                board.RemoveAllyCardFromBoard(this);
         }
         else
         {
             EnemyCardDropArea board = FindFirstObjectByType<EnemyCardDropArea>();
             if (board != null)
-                board.HandleEnemyDeath(this);
+                board.RemoveEnemyCardFromBoard(this);
         }
+
+        // Requiem (ON DEATH) resolves only after the slot is freed,
+        // so death summons can immediately use that newly opened slot.
+        TriggerRequiem();
+
+        Destroy(gameObject);
+
         IsDead = true;
         IsDying = false;
         SetZone(CardZone.Graveyard);
