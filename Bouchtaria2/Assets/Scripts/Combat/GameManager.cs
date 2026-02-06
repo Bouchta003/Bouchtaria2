@@ -968,15 +968,58 @@ public class GameManager : MonoBehaviour
             return;
 
         // 2️⃣ Pick up to 3 distinct traits
-        List<CardData.Trait> traits =
+        // 2️⃣ Build exactly 3 traits based on owner's pool
+        List<CardData.Trait> availableTraits =
             traitPool.Keys
                      .Where(t => t != CardData.Trait.Neutral)
-                     .OrderBy(_ => UnityEngine.Random.value)
-                     .Take(3)
                      .ToList();
 
-        if (traits.Count == 0)
-            return;
+        List<CardData.Trait> traits = new();
+
+        if (availableTraits.Count == 0)
+        {
+            // No traits → all Neutral
+            traits.Add(CardData.Trait.Neutral);
+            traits.Add(CardData.Trait.Neutral);
+            traits.Add(CardData.Trait.Neutral);
+        }
+        else if (availableTraits.Count == 1)
+        {
+            // One trait → all same
+            traits.Add(availableTraits[0]);
+            traits.Add(availableTraits[0]);
+            traits.Add(availableTraits[0]);
+        }
+        else if (availableTraits.Count == 2)
+        {
+            // Two traits → one duplicated, one single
+            bool firstIsDouble = UnityEngine.Random.value < 0.5f;
+
+            CardData.Trait a = availableTraits[0];
+            CardData.Trait b = availableTraits[1];
+
+            if (firstIsDouble)
+            {
+                traits.Add(a);
+                traits.Add(a);
+                traits.Add(b);
+            }
+            else
+            {
+                traits.Add(b);
+                traits.Add(b);
+                traits.Add(a);
+            }
+        }
+        else
+        {
+            // 3+ traits → pick 3 distinct
+            traits = availableTraits
+                .OrderBy(_ => UnityEngine.Random.value)
+                .Take(3)
+                .ToList();
+        }
+
 
         // 3️⃣ Pick one card per trait
         List<CardData> options = new();

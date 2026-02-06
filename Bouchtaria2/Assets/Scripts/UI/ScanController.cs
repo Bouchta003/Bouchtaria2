@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+
 public class ScanController : MonoBehaviour
 {
     public static ScanController Instance;
@@ -27,10 +29,10 @@ public class ScanController : MonoBehaviour
 
         CardView cardUnderMouse = GetCardUnderMouse();
 
-        if (cardUnderMouse != null && UserCollectionManager.Instance.IsOwned(cardUnderMouse.CardData.id))
+        if (cardUnderMouse != null && (UserCollectionManager.Instance.IsOwned(cardUnderMouse.CardData.id) || SceneManager.GetActiveScene().name != "Collection"))
         {
             panelInstance.owner = cardUnderMouse.GetComponent<CardInstance>().Owner;
-            if(panelInstance.owner==PlayerOwner.Player)
+            if(panelInstance.owner==PlayerOwner.Player || cardUnderMouse.GetComponent<CardInstance>().CurrentZone != CardZone.Hand)
                 panelInstance.Show(cardUnderMouse);
         }
         else
