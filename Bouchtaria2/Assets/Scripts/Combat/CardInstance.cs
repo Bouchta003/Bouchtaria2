@@ -54,6 +54,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public bool IsDead = false;
     public PlayerOwner Owner { get; set; }
     private string pendingTargetedEffect;
+    private bool forceRandomTargetingForCurrentDeploy;
     public CardData.SpellTargetType spellType { get; set; }
     public CardZone CurrentZone { get; private set; }
     private int temporaryManaModifier = 0;
@@ -675,13 +676,15 @@ public class CardInstance : MonoBehaviour, IAttackable
             ScrambleStats();
         }
     }
-    public void TriggerDeploy()
+    public void TriggerDeploy(bool forceRandomTarget = false)
     {
         Debug.Log($"[DEPLOY] TriggerDeploy called on {Data.name} | Effect = {CurrentEffect}");
         gameManager.CheckGlow();
         if (WasPlayed)
         {
+            forceRandomTargetingForCurrentDeploy = forceRandomTarget;
             TriggerEffects(EffectTrigger.Deploy);
+            forceRandomTargetingForCurrentDeploy = false;
             WasPlayed = false;
         }
     }
@@ -701,7 +704,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.Contains(",target") && !effect.StartsWith("gear"))
         {
             DeployPending = (CurrentZone == CardZone.Board);
-            BeginTargetedEffect(effect);
+            BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
             return;
         }
         //Unique Effects
@@ -784,7 +787,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else if (effect.StartsWith("sleep"))
         {
-            BeginTargetedEffect(effect);
+            BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
             return;
         }
         if (effect.StartsWith("silenceall"))
@@ -794,7 +797,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else if (effect.StartsWith("silence"))
         {
-            BeginTargetedEffect(effect);
+            BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
             return;
         }
         if (effect.StartsWith("morphto"))
@@ -895,7 +898,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         if (effect.StartsWith("buff") && effect.Contains(",target"))
         {
-            BeginTargetedEffect(effect);
+            BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
             return;
         }
         if (effect.StartsWith("damageaoe"))
@@ -1037,15 +1040,42 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
     }
 
-    private void BeginTargetedEffect(string effect)
+    private void BeginTargetedEffect(string effect, bool forceRandomTarget = false)
     {
-        Debug.Log($"[TARGET] BeginTargetedEffect called for {effect}");
+        Debug.Log($"[TARGET] BeginTargetedEffect called for {effect} | ForceRandom = {forceRandomTarget}");
 
         EffectTarget type = EffectTarget.None;
         if (effect.ToLower().Contains("targetany")) type = EffectTarget.Any;
         if (effect.ToLower().Contains("targetunit")) type = EffectTarget.Unit;
         if (effect.ToLower().Contains("targetcore")) type = EffectTarget.Core;
         pendingTargetedEffect = effect;
+
+        bool isFriendlyTarget =
+            pendingTargetedEffect.StartsWith("gear")
+            || pendingTargetedEffect.StartsWith("heal")
+            || pendingTargetedEffect.StartsWith("buff")
+            || pendingTargetedEffect.StartsWith("refreshattack")
+            || pendingTargetedEffect.StartsWith("morphto");
+
+        if (forceRandomTarget)
+        {
+            PlayerOwner targetOwner = isFriendlyTarget
+                ? Owner
+                : (Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player);
+
+            bool excludeSleepingUnits = pendingTargetedEffect.StartsWith("sleep");
+
+            IAttackable target = gameManager.ChooseRandomEffectTarget(
+                targetOwner,
+                type,
+                canTargetCore: true,
+                excludeSleepingUnits: excludeSleepingUnits
+            );
+
+            OnEffectTargetChosen(target);
+            return;
+        }
+
         if (Owner == PlayerOwner.Player)
         {
             gameManager.BeginEffectTargeting(

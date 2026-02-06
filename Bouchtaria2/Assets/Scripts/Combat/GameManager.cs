@@ -585,15 +585,15 @@ public class GameManager : MonoBehaviour
 
         if (isTrait)
         {
-            StartCoroutine(DelayedDeploy(cardInst));
+            StartCoroutine(DelayedDeploy(cardInst, forceRandomTarget: true));
         }
     }
 
-    public IEnumerator DelayedDeploy(CardInstance card)
+    public IEnumerator DelayedDeploy(CardInstance card, bool forceRandomTarget = false)
     {
         yield return null; // wait one frame
         if (card != null)
-            card.TriggerDeploy();
+            card.TriggerDeploy(forceRandomTarget);
     }
     public void TrySummonForOther(PlayerOwner owner, int cardId)
     {
@@ -1841,6 +1841,33 @@ public class GameManager : MonoBehaviour
         Debug.Log("Enemy triggered effect on " + choice.ToString() + " ");
         return choice;
     }
+
+    public IAttackable ChooseRandomEffectTarget(PlayerOwner targetOwner, EffectTarget type, bool canTargetCore = true, bool excludeSleepingUnits = false)
+    {
+        List<IAttackable> targets = GetValidTargets(targetOwner);
+
+        targets = targets.Where(t =>
+        {
+            if (!canTargetCore && t is CoreInstance)
+                return false;
+
+            if (excludeSleepingUnits && t is CardInstance ci && ci.IsAsleep)
+                return false;
+
+            if (type == EffectTarget.Unit)
+                return t is CardInstance;
+
+            if (type == EffectTarget.Core)
+                return t is CoreInstance;
+
+            return true;
+        }).ToList();
+
+        if (targets.Count == 0)
+            return null;
+
+        return targets[UnityEngine.Random.Range(0, targets.Count)];
+    }
     public void HandleTargetClick(IAttackable target)
     {
         if (!isTargetingEffect || effectSource == null)
@@ -1895,5 +1922,4 @@ public class AttackRequest
         TargetTransform = target != null ? target.Transform : null;
     }
 }
-
 
