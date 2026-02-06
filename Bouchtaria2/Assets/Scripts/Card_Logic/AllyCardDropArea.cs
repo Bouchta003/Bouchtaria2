@@ -60,9 +60,24 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         }
 
 
-        //Verify board space Legality
-        if (allyPrefabCards.Count >= maxBoardSize) {  card.ResetCard();
-                return;}
+        // Verify board space legality.
+        // We must account for the played unit itself + any owner-side DEPLOY summons,
+        // then cap only the summoned cards to fit the remaining free slots.
+        int boardCount = allyPrefabCards.Count;
+        if (boardCount >= maxBoardSize)
+        {
+            card.ResetCard();
+            return;
+        }
+
+        int freeSlotsBeforePlay = maxBoardSize - boardCount;
+        int deployOwnerSummons = cardInst.GetDeployOwnerSummonCount();
+        if (deployOwnerSummons > 0)
+        {
+            int summonSlotsAfterPlayedCard = Mathf.Max(0, freeSlotsBeforePlay - 1);
+            int allowedSummons = Mathf.Min(deployOwnerSummons, summonSlotsAfterPlayedCard);
+            gm.SetDeploySummonCap(cardInst, allowedSummons);
+        }
 
         // ----- Card is legal -----
 
@@ -163,15 +178,18 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
     }
     public void HandleAllyDeath(CardInstance instance)
     {
+        RemoveAllyCardFromBoard(instance);
+        Destroy(instance.gameObject);
+    }
+
+    public void RemoveAllyCardFromBoard(CardInstance instance)
+    {
         GameObject cardGO = instance.gameObject;
 
         if (!allyPrefabCards.Contains(cardGO))
             return;
 
         allyPrefabCards.Remove(cardGO);
-
-        //cardGO.SetActive(false);
-        Destroy(cardGO);
         UpdateAllyCardPositions();
     }
     public void UpdateAllyCardPositions()
