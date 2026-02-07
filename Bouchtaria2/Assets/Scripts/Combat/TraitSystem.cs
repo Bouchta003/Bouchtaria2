@@ -474,7 +474,7 @@ public class ChaosProgression : ITraitProgression
     {
         CurrentTier = 3;
         DeckManager deckManager = Object.FindFirstObjectByType<DeckManager>();
-        //traitSystem.ActivateEffect(            new ChaosTier3Effect(Owner, deckManager)        );
+        traitSystem.ActivateEffect(new ChaosTier3Effect(Owner));
 
         Debug.Log($"{Owner} unlocked chaos Tier 3");
     }
@@ -488,6 +488,35 @@ public class ChaosTier1Effect : IDeckTraitEffect
     private readonly PlayerOwner owner;
 
     public ChaosTier1Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+    public void OnRegister()
+    {
+        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
+    }
+    public void OnUnregister()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
+    }
+
+    private void OnTurnStarted(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        GameManager.Instance.TrySummonForOwnerManaCost(owner,2);
+    }
+}
+public class ChaosTier3Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Chaos;
+    public int Tier => 3;
+
+    private readonly PlayerOwner owner;
+
+    public ChaosTier3Effect(PlayerOwner owner)
     {
         this.owner = owner;
     }
