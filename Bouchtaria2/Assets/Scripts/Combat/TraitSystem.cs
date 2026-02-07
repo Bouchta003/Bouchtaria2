@@ -363,6 +363,153 @@ public class NeutralTier3Effect : IDeckTraitEffect
     }
 }
 #endregion
+#region Chaos Trait
+public class ChaosProgression : ITraitProgression
+{
+    public CardData.Trait Trait => CardData.Trait.Chaos;
+    public PlayerOwner Owner { get; }
+    public int CurrentTier { get; private set; }
+
+    private readonly int maxTier;
+    private int randomPlayed = 0;
+
+    public int CurrentProgress => randomPlayed;
+
+    public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
+
+    private readonly TraitSystem traitSystem;
+    private readonly AllyCardDropArea allyBoard;
+    private readonly EnemyCardDropArea enemyBoard;
+
+    public ChaosProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem, AllyCardDropArea allyBoard, EnemyCardDropArea enemyBoard)
+    {
+        Owner = owner;
+        this.maxTier = maxTier;
+        this.traitSystem = traitSystem;
+        this.allyBoard = allyBoard;
+        this.enemyBoard = enemyBoard;
+    }
+    public void ResetProgression()
+    {
+        randomPlayed = 0;
+    }
+    public void PushInitialState()
+    {
+        int cap = GetCurrentCap();
+        OnProgressUpdated?.Invoke(Trait, randomPlayed, cap, Owner);
+    }
+
+    public void Register()
+    {
+        Debug.Log($"[chaosProgression] Register for {Owner}");
+
+        allyBoard.OnCardPlayed += OnCardPlayed;
+        enemyBoard.OnCardPlayed += OnCardPlayed;
+
+        OnProgressUpdated?.Invoke(Trait, randomPlayed, GetCurrentCap(), Owner);
+    }
+    public void Unregister()
+    {
+        Debug.Log($"[chaosProgression] Unregister for {Owner}");
+
+        allyBoard.OnCardPlayed -= OnCardPlayed;
+        enemyBoard.OnCardPlayed -= OnCardPlayed;
+    }
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 3,
+            1 => 6,
+            2 => 12,
+            _ => 999
+        };
+    }
+
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (card.Owner != Owner)
+            return;
+
+        if (!card.HasText("random"))
+            return;
+        randomPlayed++;
+        OnProgressUpdated?.Invoke(Trait, randomPlayed, GetCurrentCap(), Owner);
+
+        if (randomPlayed >= 3 && CurrentTier < 1 && maxTier >= 1)
+        {
+            UnlockTier1();
+        }
+
+        if (randomPlayed >= 6 && CurrentTier < 2 && maxTier >= 2)
+        {
+            UnlockTier2();
+        }
+
+        if (randomPlayed >= 12 && CurrentTier < 3 && maxTier >= 3)
+        {
+            UnlockTier3();
+        }
+    }
+
+    private void UnlockTier1()
+    {
+        CurrentTier = 1;
+
+        traitSystem.ActivateEffect(
+            new ChaosTier1Effect(Owner)
+        );
+
+        Debug.Log($"{Owner} unlocked chaos Tier 1");
+    }
+    private void UnlockTier2()
+    {
+        CurrentTier = 2;
+        DeckManager deckManager = Object.FindFirstObjectByType<DeckManager>();
+        //traitSystem.ActivateEffect(            new ChaosTier2Effect(Owner, deckManager)        );
+
+        Debug.Log($"{Owner} unlocked chaos Tier 2");
+    }
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+        DeckManager deckManager = Object.FindFirstObjectByType<DeckManager>();
+        //traitSystem.ActivateEffect(            new ChaosTier3Effect(Owner, deckManager)        );
+
+        Debug.Log($"{Owner} unlocked chaos Tier 3");
+    }
+
+}
+public class ChaosTier1Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Chaos;
+    public int Tier => 1;
+
+    private readonly PlayerOwner owner;
+
+    public ChaosTier1Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+    public void OnRegister()
+    {
+        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
+    }
+    public void OnUnregister()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+    }
+
+    private void OnTurnEnded(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        GameManager.Instance.AddCardToHand(owner, 127);
+    }
+}
+#endregion
 #region Speedster Trait
 public class SpeedsterProgression : ITraitProgression
 {
@@ -377,14 +524,12 @@ public class SpeedsterProgression : ITraitProgression
     public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
 
     private readonly TraitSystem traitSystem;
-    private readonly GameManager gameManager;
 
-    public SpeedsterProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem, GameManager gameManager)
+    public SpeedsterProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem)
     {
         Owner = owner;
         this.maxTier = maxTier;
         this.traitSystem = traitSystem;
-        this.gameManager = gameManager;
     }
     public void ResetProgression()
     {
@@ -399,7 +544,7 @@ public class SpeedsterProgression : ITraitProgression
     {
         Debug.Log($"[SpeedsterProgression] Register for {Owner}");
 
-        gameManager.OnCardAttack += OnSpeedsterAttack;
+        GameManager.Instance.OnCardAttack += OnSpeedsterAttack;
 
         OnProgressUpdated?.Invoke(Trait, speedsterAttacks, GetCurrentCap(), Owner);
     }
@@ -407,7 +552,7 @@ public class SpeedsterProgression : ITraitProgression
     {
         Debug.Log($"[SpeedsterProgression] Unregister for {Owner}");
 
-        gameManager.OnCardAttack -= OnSpeedsterAttack;
+        GameManager.Instance.OnCardAttack -= OnSpeedsterAttack;
     }
     private int GetCurrentCap()
     {
@@ -669,16 +814,14 @@ public class PokemonProgression : ITraitProgression
     private readonly TraitSystem traitSystem;
     private readonly AllyCardDropArea allyBoard;
     private readonly EnemyCardDropArea enemyBoard;
-    private readonly GameManager gameManager;
 
-    public PokemonProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem, AllyCardDropArea allyBoard, EnemyCardDropArea enemyBoard, GameManager gameManager)
+    public PokemonProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem, AllyCardDropArea allyBoard, EnemyCardDropArea enemyBoard)
     {
         Owner = owner;
         this.maxTier = maxTier;
         this.traitSystem = traitSystem;
         this.allyBoard = allyBoard;
         this.enemyBoard = enemyBoard;
-        this.gameManager = gameManager;
     }
     public void ResetProgression()
     {
@@ -693,13 +836,13 @@ public class PokemonProgression : ITraitProgression
     {
         Debug.Log($"[PokemonProgression] Register for {Owner}");
 
-        gameManager.OnCardKiller += OnCardKill;
+        GameManager.Instance.OnCardKiller += OnCardKill;
 
         OnProgressUpdated?.Invoke(Trait, pokemonKills, GetCurrentCap(), Owner);
     }
     public void Unregister()
     {
-        gameManager.OnCardKiller -= OnCardKill;
+        GameManager.Instance.OnCardKiller -= OnCardKill;
     }
     private int GetCurrentCap()
     {
@@ -761,7 +904,7 @@ public class PokemonProgression : ITraitProgression
     {
         CurrentTier = 3;
         traitSystem.ActivateEffect(
-            new PokemonTier3Effect(Owner, gameManager)
+            new PokemonTier3Effect(Owner)
         );
         Debug.Log($"{Owner} unlocked Pokemon Tier 3");
     }
@@ -934,13 +1077,11 @@ public class PokemonTier3Effect : IDeckTraitEffect
 
     private readonly PlayerOwner owner;
     private bool used;
-    GameManager gm;
 
 
-    public PokemonTier3Effect(PlayerOwner owner, GameManager gm)
+    public PokemonTier3Effect(PlayerOwner owner)
     {
         this.owner = owner;
-        this.gm = gm;
     }
     public void OnRegister()
     {
@@ -951,7 +1092,7 @@ public class PokemonTier3Effect : IDeckTraitEffect
     {
 
         if (used) return;
-        gm.DiscoverEffect("legendarypokemon", owner);//FIX IDs
+        GameManager.Instance.DiscoverEffect("legendarypokemon", owner);//FIX IDs
 
         used = true;
     }
@@ -976,32 +1117,29 @@ public class MonsterHunterProgression : ITraitProgression
     public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
 
     private readonly TraitSystem traitSystem;
-    private readonly GameManager gameManager;
 
     public MonsterHunterProgression(
         PlayerOwner owner,
         int maxTier,
         TraitSystem traitSystem,
         AllyCardDropArea allyBoard,
-        EnemyCardDropArea enemyBoard,
-        GameManager gameManager)
+        EnemyCardDropArea enemyBoard)
     {
         Owner = owner;
         this.maxTier = maxTier;
         this.traitSystem = traitSystem;
-        this.gameManager = gameManager;
     }
 
     public void Register()
     {
         Debug.Log($"[MonsterHunterProgression] Register for {Owner}");
-        gameManager.OnCardKilled += OnCardKilled;
+        GameManager.Instance.OnCardKilled += OnCardKilled;
         PushInitialState();
     }
 
     public void Unregister()
     {
-        gameManager.OnCardKilled -= OnCardKilled;
+        GameManager.Instance.OnCardKilled -= OnCardKilled;
     }
 
     public void ResetProgression()
@@ -1086,9 +1224,9 @@ public class MonsterHunterTier1Effect : IDeckTraitEffect
     {
         if (used) return;
 
-        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+         
 
-        gm.EnqueueDeferredAction(() =>
+        GameManager.Instance.EnqueueDeferredAction(() =>
         {
             SummonTierMonster(1);
         });
@@ -1099,9 +1237,9 @@ public class MonsterHunterTier1Effect : IDeckTraitEffect
     public void OnUnregister() { }
     private void SummonTierMonster(int tier)
     {
-        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+         
 
-        gm.BeginEffect();
+        GameManager.Instance.BeginEffect();
 
         try
         {
@@ -1113,11 +1251,11 @@ public class MonsterHunterTier1Effect : IDeckTraitEffect
 
             CardData chosen = options[Random.Range(0, options.Count)];
 
-            gm.TrySummonForOwner(owner, chosen.id, true);
+            GameManager.Instance.TrySummonForOwner(owner, chosen.id, true);
         }
         finally
         {
-            gm.EndEffect();
+            GameManager.Instance.EndEffect();
         }
     }
 
@@ -1138,9 +1276,9 @@ public class MonsterHunterTier2Effect : IDeckTraitEffect
     {
         if (used) return;
 
-        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+         
 
-        gm.EnqueueDeferredAction(() =>
+        GameManager.Instance.EnqueueDeferredAction(() =>
         {
             SummonTierMonster(2);
         });
@@ -1151,9 +1289,9 @@ public class MonsterHunterTier2Effect : IDeckTraitEffect
     public void OnUnregister() { }
     private void SummonTierMonster(int tier)
     {
-        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+         
 
-        gm.BeginEffect();
+        GameManager.Instance.BeginEffect();
 
         try
         {
@@ -1165,11 +1303,11 @@ public class MonsterHunterTier2Effect : IDeckTraitEffect
 
             CardData chosen = options[Random.Range(0, options.Count)];
 
-            gm.TrySummonForOwner(owner, chosen.id, true);
+            GameManager.Instance.TrySummonForOwner(owner, chosen.id, true);
         }
         finally
         {
-            gm.EndEffect();
+            GameManager.Instance.EndEffect();
         }
     }
 
@@ -1190,9 +1328,9 @@ public class MonsterHunterTier3Effect : IDeckTraitEffect
     {
         if (used) return;
 
-        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+         
 
-        gm.EnqueueDeferredAction(() =>
+        GameManager.Instance.EnqueueDeferredAction(() =>
         {
             SummonTierMonster(3);
         });
@@ -1203,9 +1341,9 @@ public class MonsterHunterTier3Effect : IDeckTraitEffect
     public void OnUnregister() { }
     private void SummonTierMonster(int tier)
     {
-        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+         
 
-        gm.BeginEffect();
+        GameManager.Instance.BeginEffect();
 
         try
         {
@@ -1217,11 +1355,11 @@ public class MonsterHunterTier3Effect : IDeckTraitEffect
 
             CardData chosen = options[Random.Range(0, options.Count)];
 
-            gm.TrySummonForOwner(owner, chosen.id, true);
+            GameManager.Instance.TrySummonForOwner(owner, chosen.id, true);
         }
         finally
         {
-            gm.EndEffect();
+            GameManager.Instance.EndEffect();
         }
     }
 
@@ -1242,30 +1380,27 @@ public class HealerProgression : ITraitProgression
     public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
 
     private readonly TraitSystem traitSystem;
-    private readonly GameManager gameManager;
 
     public HealerProgression(
         PlayerOwner owner,
         int maxTier,
-        TraitSystem traitSystem,
-        GameManager gameManager)
+        TraitSystem traitSystem)
     {
         Owner = owner;
         this.maxTier = maxTier;
         this.traitSystem = traitSystem;
-        this.gameManager = gameManager;
     }
 
     public void Register()
     {
         Debug.Log($"[Healer] Register for {Owner}");
-        gameManager.OnOwnerHeal += OnAllyHeal;
+        GameManager.Instance.OnOwnerHeal += OnAllyHeal;
         PushInitialState();
     }
 
     public void Unregister()
     {
-        gameManager.OnOwnerHeal -= OnAllyHeal;
+        GameManager.Instance.OnOwnerHeal -= OnAllyHeal;
     }
 
     public void ResetProgression()
@@ -1282,9 +1417,9 @@ public class HealerProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 2,
-            1 => 10,
-            2 => 20,
+            0 => 8,
+            1 => 16,
+            2 => 25,
             3 => 9999,
             _ => 9999,
         };
@@ -1301,13 +1436,13 @@ public class HealerProgression : ITraitProgression
 
         Debug.Log($"[Healer] Heal Amount for {Owner}: {healAmount}");
 
-        if (healAmount >= 5 && CurrentTier < 1 && maxTier >= 1)
+        if (healAmount >= 8 && CurrentTier < 1 && maxTier >= 1)
             UnlockTier1();
 
-        if (healAmount >= 10 && CurrentTier < 2 && maxTier >= 2)
+        if (healAmount >= 16 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2(); 
         
-        if (healAmount >= 20 && CurrentTier < 3 && maxTier >= 3)
+        if (healAmount >= 25 && CurrentTier < 3 && maxTier >= 3)
             UnlockTier3();
     }
 
@@ -1344,14 +1479,14 @@ public class HealerTier1Effect : IDeckTraitEffect
     {
         if (used) return;
 
-        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+         
         if(owner==PlayerOwner.Player)
         {
-            gm.PlayerHealBonus += 2;
+            GameManager.Instance.PlayerHealBonus += 2;
         }
         else
         {
-            gm.EnemyHealBonus += 2;
+            GameManager.Instance.EnemyHealBonus += 2;
         }
         used = true;
     }
@@ -1376,14 +1511,14 @@ public class HealerTier2Effect : IDeckTraitEffect
     {
         if (used) return;
 
-        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+         
         if (owner == PlayerOwner.Player)
         {
-            gm.PlayerHealBonus += 3;
+            GameManager.Instance.PlayerHealBonus += 3;
         }
         else
         {
-            gm.EnemyHealBonus += 3;
+            GameManager.Instance.EnemyHealBonus += 3;
         }
         used = true;
     }
@@ -1408,14 +1543,14 @@ public class HealerTier3Effect : IDeckTraitEffect
     {
         if (used) return;
 
-        GameManager gm = Object.FindFirstObjectByType<GameManager>();
+         
         if (owner == PlayerOwner.Player)
         {
-            gm.PlayerDarkHeal=true;
+            GameManager.Instance.PlayerDarkHeal=true;
         }
         else
         {
-            gm.EnemyDarkHeal = true; ;
+            GameManager.Instance.EnemyDarkHeal = true; ;
         }
         used = true;
     }
@@ -1439,30 +1574,27 @@ public class FaithProgression : ITraitProgression
     public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
 
     private readonly TraitSystem traitSystem;
-    private readonly GameManager gameManager;
 
     public FaithProgression(
         PlayerOwner owner,
         int maxTier,
-        TraitSystem traitSystem,
-        GameManager gameManager)
+        TraitSystem traitSystem)
     {
         Owner = owner;
         this.maxTier = maxTier;
         this.traitSystem = traitSystem;
-        this.gameManager = gameManager;
     }
 
     public void Register()
     {
         Debug.Log($"[Faith] Register for {Owner}");
-        gameManager.OnDiscover += OnAllyDiscover;
+        GameManager.Instance.OnDiscover += OnAllyDiscover;
         PushInitialState();
     }
 
     public void Unregister()
     {
-        gameManager.OnDiscover -= OnAllyDiscover;
+        GameManager.Instance.OnDiscover -= OnAllyDiscover;
     }
 
     public void ResetProgression()
@@ -1536,9 +1668,9 @@ public class FaithTier1Effect : IDeckTraitEffect
     {
         if (used) return;
 
-        GameManager gm = Object.FindFirstObjectByType<GameManager>();
-        gm.AddCardToHand(owner, 64);
-        gm.AddCardToHand(owner, 60);
+         
+        GameManager.Instance.AddCardToHand(owner, 64);
+        GameManager.Instance.AddCardToHand(owner, 60);
         used = true;
     }
 
@@ -1602,30 +1734,27 @@ public class AvatarProgression : ITraitProgression
     public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
 
     private readonly TraitSystem traitSystem;
-    private readonly GameManager gameManager;
 
     public AvatarProgression(
         PlayerOwner owner,
         int maxTier,
-        TraitSystem traitSystem,
-        GameManager gameManager)
+        TraitSystem traitSystem)
     {
         Owner = owner;
         this.maxTier = maxTier;
         this.traitSystem = traitSystem;
-        this.gameManager = gameManager;
     }
 
     public void Register()
     {
         Debug.Log($"[Avatar] Register for {Owner}");
-        gameManager.OnPraise += OnAllyPraise;
+        GameManager.Instance.OnPraise += OnAllyPraise;
         PushInitialState();
     }
 
     public void Unregister()
     {
-        gameManager.OnPraise -= OnAllyPraise;
+        GameManager.Instance.OnPraise -= OnAllyPraise;
     }
 
     public void ResetProgression()
@@ -1700,9 +1829,9 @@ public class AvatarTier1Effect : IDeckTraitEffect
     {
         if (used) return;
 
-        GameManager gm = Object.FindFirstObjectByType<GameManager>();
-        gm.ShuffleInDeck(74, owner);
-        gm.ShuffleInDeck(78, owner);
+         
+        GameManager.Instance.ShuffleInDeck(74, owner);
+        GameManager.Instance.ShuffleInDeck(78, owner);
 
         var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
         var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
@@ -1754,9 +1883,9 @@ public class AvatarTier2Effect : IDeckTraitEffect
     {
         if (used) return;
 
-        GameManager gm = Object.FindFirstObjectByType<GameManager>();
-        gm.ShuffleInDeck(74, owner);
-        gm.ShuffleInDeck(78, owner);
+         
+        GameManager.Instance.ShuffleInDeck(74, owner);
+        GameManager.Instance.ShuffleInDeck(78, owner);
 
         var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
         var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
@@ -1845,30 +1974,27 @@ public class GunnerProgression : ITraitProgression
     public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
 
     private readonly TraitSystem traitSystem;
-    private readonly GameManager gameManager;
 
     public GunnerProgression(
         PlayerOwner owner,
         int maxTier,
-        TraitSystem traitSystem,
-        GameManager gameManager)
+        TraitSystem traitSystem)
     {
         Owner = owner;
         this.maxTier = maxTier;
         this.traitSystem = traitSystem;
-        this.gameManager = gameManager;
     }
 
     public void Register()
     {
         Debug.Log($"[Gunner] Register for {Owner}");
-        gameManager.OnDamageCard += OnDamageDealt;
+        GameManager.Instance.OnDamageCard += OnDamageDealt;
         PushInitialState();
     }
 
     public void Unregister()
     {
-        gameManager.OnDamageCard -= OnDamageDealt;
+        GameManager.Instance.OnDamageCard -= OnDamageDealt;
     }
 
     public void ResetProgression()
@@ -1900,7 +2026,7 @@ public class GunnerProgression : ITraitProgression
     private void UnlockTier1()
     {
         CurrentTier = 1;
-        traitSystem.ActivateEffect(new GunnerTier1Effect(Owner, gameManager));
+        traitSystem.ActivateEffect(new GunnerTier1Effect(Owner));
     }
     private void UnlockTier2()
     {
@@ -1908,7 +2034,7 @@ public class GunnerProgression : ITraitProgression
 
         traitSystem.DeactivateLowerTiers(CardData.Trait.Gunner, 2);
 
-        traitSystem.ActivateEffect(new GunnerTier2Effect(Owner, gameManager)
+        traitSystem.ActivateEffect(new GunnerTier2Effect(Owner)
         );
 
         Debug.Log($"{Owner} unlocked Gunner Tier 2");
@@ -1921,7 +2047,7 @@ public class GunnerProgression : ITraitProgression
         traitSystem.DeactivateLowerTiers(CardData.Trait.Gunner, 3);
 
         traitSystem.ActivateEffect(
-            new GunnerTier3Effect(Owner, gameManager)
+            new GunnerTier3Effect(Owner)
         );
 
         Debug.Log($"{Owner} unlocked Gunner Tier 3");
@@ -1945,12 +2071,10 @@ public class GunnerTier1Effect : IDeckTraitEffect
     public int Tier => 1;
 
     private readonly PlayerOwner owner;
-    private readonly GameManager gameManager;
 
-    public GunnerTier1Effect(PlayerOwner owner, GameManager gameManager)
+    public GunnerTier1Effect(PlayerOwner owner)
     {
         this.owner = owner;
-        this.gameManager = gameManager;
     }
 
     public void OnRegister()
@@ -1983,8 +2107,8 @@ public class GunnerTier1Effect : IDeckTraitEffect
     private void TriggerGunDamage()
     {
         // Example: 1 damage tick
-        gameManager.StartCoroutine(
-            gameManager.DamageRandomEnemy(andCore: false, ticsDmg: 1, owner)
+        GameManager.Instance.StartCoroutine(
+            GameManager.Instance.DamageRandomEnemy(andCore: false, ticsDmg: 1, owner)
         );
 
         Debug.Log($"[GUNNER] Gun fired for {owner}");
@@ -1996,12 +2120,10 @@ public class GunnerTier2Effect : IDeckTraitEffect
     public int Tier => 2;
 
     private readonly PlayerOwner owner;
-    private readonly GameManager gameManager;
 
-    public GunnerTier2Effect(PlayerOwner owner, GameManager gameManager)
+    public GunnerTier2Effect(PlayerOwner owner)
     {
         this.owner = owner;
-        this.gameManager = gameManager;
     }
 
     public void OnRegister()
@@ -2034,8 +2156,8 @@ public class GunnerTier2Effect : IDeckTraitEffect
     private void TriggerGunDamage()
     {
         // Example: 2 damage tick
-        gameManager.StartCoroutine(
-            gameManager.DamageRandomEnemy(andCore: true, ticsDmg: 1, owner)
+        GameManager.Instance.StartCoroutine(
+            GameManager.Instance.DamageRandomEnemy(andCore: true, ticsDmg: 1, owner)
         );
 
         Debug.Log($"[GUNNER] Gun fired for {owner}");
@@ -2047,12 +2169,10 @@ public class GunnerTier3Effect : IDeckTraitEffect
     public int Tier => 3;
 
     private readonly PlayerOwner owner;
-    private readonly GameManager gameManager;
 
-    public GunnerTier3Effect(PlayerOwner owner, GameManager gameManager)
+    public GunnerTier3Effect(PlayerOwner owner)
     {
         this.owner = owner;
-        this.gameManager = gameManager;
     }
 
     public void OnRegister()
@@ -2085,8 +2205,8 @@ public class GunnerTier3Effect : IDeckTraitEffect
     private void TriggerGunDamage()
     {
         // Example: 3 damage tick
-        gameManager.StartCoroutine(
-            gameManager.DamageRandomEnemy(andCore: true, ticsDmg: 3, owner)
+        GameManager.Instance.StartCoroutine(
+            GameManager.Instance.DamageRandomEnemy(andCore: true, ticsDmg: 3, owner)
         );
 
         Debug.Log($"[GUNNER] Gun fired for {owner}");

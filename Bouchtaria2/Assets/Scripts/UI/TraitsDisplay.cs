@@ -81,6 +81,14 @@ public class TraitsDisplay : MonoBehaviour
                 if (tier > 2) display +=
                          "\nTier 3 : Discover a LEGENDARY Pokemon.";
                 break;
+            case CardData.Trait.Chaos:
+                display += $"Play cards with the 'random' Keyword to activate : {Progression}/{CurrentCap}" +
+                    "\nTier 1 : ???.";
+                if (tier > 1) display +=
+                        "\nTier 2 : Trigger a chaotic event at the start of your turns";
+                if (tier > 2) display +=
+                         "\nTier 3 : At the end of each of your turns, get a Cheater's will.";
+                break;
             case CardData.Trait.Neutral:
                 display += $"Play neutral cards to unlock. Currently played : {Progression}/{CurrentCap}" +
                     "\nTier 1 : The first unit you play each turn has +2 HP.";

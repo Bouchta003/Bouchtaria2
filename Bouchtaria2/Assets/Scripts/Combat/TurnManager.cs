@@ -23,6 +23,8 @@ public class TurnManager : MonoBehaviour
     public event Action<PlayerOwner> OnTurnEnded;
     public bool PlayerHasExtraTurn;
     public bool EnemyHasExtraTurn;
+    public bool PlayerSkipsNextDraw;
+    public bool EnemySkipsNextDraw;
     private void Awake()
     {
         if (Instance != null)

@@ -471,6 +471,7 @@ MonoBehaviour:
   memeIcon: {fileID: -3507313041585360687, guid: d1539f0ac6487814b91843fda2c10908, type: 3}
   neutralIcon: {fileID: -5911414597727056019, guid: a0e6fe9e9b7b81e439e1ee29a3251bc6, type: 3}
   comboIcon: {fileID: -7451593466511310719, guid: 241383846215bf043b8d601700ec4c8a, type: 3}
+  chaosIcon: {fileID: -3682310717264755673, guid: afd846b2620fad04d84ecba8135dd09b, type: 3}
   haterIcon: {fileID: -2998404944717718655, guid: 557aa08c90efcd24bbad04873c262291, type: 3}
   spellFocusIcon: {fileID: 2353896673767084397, guid: 9e75d9614a3236441a43570f2ae6a004, type: 3}
   speedsterIcon: {fileID: -3300177487904253893, guid: 1923a5453900f4046a727c70b5452275, type: 3}

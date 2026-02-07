@@ -73,11 +73,22 @@ public class DeckManager : MonoBehaviour
     }
     private void HandleTurnStart(PlayerOwner owner)
     {
-        StartCoroutine(Draw(1, owner));
-        GameManager gm = FindFirstObjectByType<GameManager>();
-        if (gm.OwnerHasTrait(owner, CardData.Trait.Neutral, 3))
+        //Normal start of turn card draw
+        if ((owner == PlayerOwner.Player && !TurnManager.Instance.PlayerSkipsNextDraw) || (owner != PlayerOwner.Player && !TurnManager.Instance.EnemySkipsNextDraw))
         {
             StartCoroutine(Draw(1, owner));
+            if (GameManager.Instance.OwnerHasTrait(owner, CardData.Trait.Neutral, 3))
+            {
+                StartCoroutine(Draw(1, owner));
+            }
+        }
+        else
+        {
+            switch (owner)
+            {
+                case PlayerOwner.Player: TurnManager.Instance.PlayerSkipsNextDraw = false;break;
+                case PlayerOwner.Enemy: TurnManager.Instance.EnemySkipsNextDraw = false;break;
+            }
         }
     }
 

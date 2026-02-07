@@ -29,6 +29,8 @@ public enum GameState
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
+
     [Header("Core")]
     public CoreInstance PlayerCore;
     public CoreInstance EnemyCore;
@@ -129,6 +131,14 @@ public class GameManager : MonoBehaviour
     public bool isDiscovering;
     private void Awake()
     {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
         if (mainCamera == null)
             mainCamera = Camera.main;
 
@@ -252,19 +262,20 @@ public class GameManager : MonoBehaviour
             ITraitProgression progression = trait switch
             {
                 CardData.Trait.Neutral => new NeutralProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
-                CardData.Trait.Pokemon => new PokemonProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea, this),
-                CardData.Trait.MonsterHunter => new MonsterHunterProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea, this),
-                CardData.Trait.Gunner => new GunnerProgression(owner, maxTier, traitSystem, this),
+                CardData.Trait.Pokemon => new PokemonProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
+                CardData.Trait.MonsterHunter => new MonsterHunterProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
+                CardData.Trait.Gunner => new GunnerProgression(owner, maxTier, traitSystem),
+                CardData.Trait.Speedster => new SpeedsterProgression(owner, maxTier, traitSystem),
+                CardData.Trait.Faith => new FaithProgression(owner, maxTier, traitSystem),
+                CardData.Trait.Avatar => new AvatarProgression(owner, maxTier, traitSystem),
+                CardData.Trait.Healer => new HealerProgression(owner, maxTier, traitSystem),
+                CardData.Trait.Chaos => new ChaosProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
                 CardData.Trait.Inazuma => throw new System.NotImplementedException(),
-                CardData.Trait.Speedster => new SpeedsterProgression(owner, maxTier, traitSystem, this),
                 CardData.Trait.Blizzard => throw new System.NotImplementedException(),
                 CardData.Trait.Fighter => throw new System.NotImplementedException(),
-                CardData.Trait.Faith => new FaithProgression(owner, maxTier, traitSystem, this),
-                CardData.Trait.Avatar => new AvatarProgression(owner, maxTier, traitSystem, this),
                 CardData.Trait.Hater => throw new System.NotImplementedException(),
                 CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
                 CardData.Trait.Combo => throw new System.NotImplementedException(),
-                CardData.Trait.Healer => new HealerProgression(owner, maxTier, traitSystem, this),
                 _ => throw new System.NotImplementedException(),
             };
 
@@ -1105,7 +1116,7 @@ public class GameManager : MonoBehaviour
 
         return card;
     }
-    public CardInstance AddRandomCardToHandType(PlayerOwner owner, string type)
+    public CardInstance AddRandomCardToHandType(PlayerOwner owner, string type, int prohibitedId)
     {
         HandManager hand = owner == PlayerOwner.Player
             ? allyHand
@@ -1118,6 +1129,33 @@ public class GameManager : MonoBehaviour
         }
 
         List<CardData> options = CardDatabase.Instance.GetCardsByTypePackable(type);
+        options = options.FindAll(card => card.id != prohibitedId);
+        if (options.Count == 0)
+            return null;
+        CardData data = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance card =
+            CardFactory.Instance.CreateCard(data, owner);
+
+        card.SetZone(CardZone.Hand);
+        hand.AddCard(card.gameObject);
+        hand.UpdateCardPositions();
+
+        return card;
+    }
+    public CardInstance AddRandomCardNonPackable(PlayerOwner owner, int prohibitedId)
+    {
+        HandManager hand = owner == PlayerOwner.Player
+            ? allyHand
+            : enemyHand;
+
+        if (hand.handCards.Count >= hand.maxHandSize)
+        {
+            Debug.Log($"{owner} hand is full.");
+            return null;
+        }
+
+        List<CardData> options = CardDatabase.Instance.GetNonPackableCards();
+        options = options.FindAll(card => card.id != prohibitedId);
 
         if (options.Count == 0)
             return null;
@@ -1131,7 +1169,7 @@ public class GameManager : MonoBehaviour
 
         return card;
     }
-    public CardInstance AddRandomCardToHandText(PlayerOwner owner, string text)
+    public CardInstance AddRandomCardToHandText(PlayerOwner owner, string text, int prohibitedId)
     {
         HandManager hand = owner == PlayerOwner.Player
             ? allyHand
@@ -1144,6 +1182,7 @@ public class GameManager : MonoBehaviour
         }
 
         List<CardData> options = CardDatabase.Instance.GetCardsByTextPackable(text);
+        options = options.FindAll(card => card.id != prohibitedId);
 
         if (options.Count == 0)
             return null;

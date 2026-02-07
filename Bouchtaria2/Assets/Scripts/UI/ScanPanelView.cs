@@ -189,6 +189,12 @@ public class ScanPanelView : MonoBehaviour
                 keyDescription.text =
                     "Equipping gear to hunters grant them +1/+1.";
             }
+            else if (keyword.Contains("gear"))
+            {
+                keyName.text = "Gear";
+                keyDescription.text =
+                    "Equip this spell to a unit to grand them various buffs.";
+            }
             else if (keyword.Contains("morphto"))
             {
                 keyName.text = "Morph";

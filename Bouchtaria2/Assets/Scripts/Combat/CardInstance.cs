@@ -114,7 +114,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         HasAttackedTwiceThisTurn = false;
         IsSummoningSick = true;
         IsDisplay = false;
-        gameManager = FindFirstObjectByType<GameManager>();
+        gameManager = GameManager.Instance;
         deckManager = FindFirstObjectByType<DeckManager>();
         cardView = GetComponent<CardView>();
 
@@ -235,7 +235,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (Data == null || CurrentEffectText == null)
             return false;
 
-        if (CurrentEffectText.Contains(keywordString))
+        if (CurrentEffectText.ToLower().Contains(keywordString.ToLower()))
         {
             return true;
         }
@@ -726,10 +726,16 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.CheckGlow();return;
         }
         //Unique Effects
+        //Turn tempering
         if (effect.StartsWith("extraturn"))
         {
             GainExtraTurn();
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow(); return;
+        }
+        if (effect.StartsWith("skipenemydraw"))
+        {
+            SkipNextEnemyDraw();
+            gameManager.CheckGlow(); return;
         }
         if (effect.StartsWith("limitenemyspace"))
         {
@@ -902,6 +908,13 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             TryExecuteAllyConditional(effect);
             gameManager.CheckGlow();return;
+        }
+        // near other effect.StartsWith checks in ExecuteEffect:
+        if (effect.StartsWith("selfbuff"))
+        {
+            TryExecuteSelfBuff(effect);
+            gameManager.CheckGlow(); // keep UI in sync
+            return;
         }
 
         if (effect.StartsWith("addcard"))
@@ -1254,11 +1267,59 @@ public class CardInstance : MonoBehaviour, IAttackable
     #region Effects
     void GainExtraTurn()
     {
-        TurnManager tm = FindFirstObjectByType<TurnManager>();
-        tm.endButton.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = "REWIND";
-        if (Owner == PlayerOwner.Player) tm.PlayerHasExtraTurn = true;
-        else tm.EnemyHasExtraTurn = true;
+        TurnManager.Instance.endButton.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = "REWIND";
+        if (Owner == PlayerOwner.Player) TurnManager.Instance.PlayerHasExtraTurn = true;
+        else TurnManager.Instance.EnemyHasExtraTurn = true;
     }
+    void SkipNextEnemyDraw()
+    {
+        if (Owner == PlayerOwner.Player) TurnManager.Instance.EnemySkipsNextDraw = true;
+        else TurnManager.Instance.PlayerSkipsNextDraw = true;
+    }
+    // Add this helper near other TryExecuteXxx methods
+    private void TryExecuteSelfBuff(string effect)
+    {
+        // effect expected like: selfbuff(5) or selfbuff(2,2)
+        int open = effect.IndexOf('(');
+        int close = effect.IndexOf(')');
+        if (open < 0 || close <= open)
+        {
+            Debug.LogWarning($"Malformed selfbuff effect '{effect}' on {Data.name}");
+            return;
+        }
+
+        string inner = effect.Substring(open + 1, close - open - 1).Trim();
+        if (string.IsNullOrEmpty(inner))
+        {
+            Debug.LogWarning($"Empty selfbuff parameters '{effect}' on {Data.name}");
+            return;
+        }
+
+        string[] parts = inner.Split(',');
+        // SELFBUFF(total) => random split total into atk/hp
+        if (parts.Length == 1 && int.TryParse(parts[0].Trim(), out int totalStats))
+        {
+            int newAtk = UnityEngine.Random.Range(0, totalStats + 1);
+            int newHp = totalStats - newAtk;
+
+            ModifyStats(newAtk, newHp);
+            Debug.Log($"[EOT] selfbuff({totalStats}) applied to {Data.name}: +{newAtk}/+{newHp}");
+            return;
+        }
+
+        // SELFBUFF(atk,hp)
+        if (parts.Length == 2
+            && int.TryParse(parts[0].Trim(), out int atk)
+            && int.TryParse(parts[1].Trim(), out int hp))
+        {
+            ModifyStats(atk, hp);
+            Debug.Log($"[EOT] selfbuff({atk},{hp}) applied to {Data.name}: +{atk}/+{hp}");
+            return;
+        }
+
+        Debug.LogWarning($"Invalid selfbuff parameters '{effect}' on {Data.name}");
+    }
+
     private void TryExecuteSummon(string effect)
     {
         if (!TryParseIntEffect(effect, "summon", out int cardId))
@@ -1466,13 +1527,19 @@ public class CardInstance : MonoBehaviour, IAttackable
         // handle non-parameterized variants first
         if (effect.StartsWith("addcardrandomspell"))
         {
-            gameManager.AddRandomCardToHandType(Owner, "spell");
+            gameManager.AddRandomCardToHandType(Owner, "spell", Data.id);
+            return;
+        }
+
+        if (effect.StartsWith("addcardrandomnonpackable"))
+        {
+            gameManager.AddRandomCardNonPackable(Owner, Data.id);
             return;
         }
 
         if (effect.StartsWith("addcardrandomunit"))
         {
-            gameManager.AddRandomCardToHandType(Owner, "minion");
+            gameManager.AddRandomCardToHandType(Owner, "minion", Data.id);
             return;
         }
 
@@ -1489,7 +1556,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
             string valueStr = effect.Substring(start + 1, end - start - 1);
             Debug.Log("Added random card with the following text : " + valueStr);
-            gameManager.AddRandomCardToHandText(Owner, valueStr);
+            gameManager.AddRandomCardToHandText(Owner, valueStr, Data.id);
             return;
         }
 
@@ -1783,14 +1850,50 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
 
-        // SELFBUFF(a,b)
         if (subEffect.StartsWith("selfbuff"))
         {
-            (int atk, int hp) = GetTwoIntsFromEffect(subEffect);
-            target.ModifyStats(atk, hp);
-            target.CurrentEffect += " " + subEffect;
+            // Extract everything inside parentheses
+            int open = subEffect.IndexOf('(');
+            int close = subEffect.IndexOf(')');
+
+            if (open == -1 || close == -1 || close <= open + 1)
+            {
+                Debug.LogWarning($"Invalid selfbuff format '{subEffect}' on {Data.name}");
+                return;
+            }
+
+            string[] parts = subEffect
+                .Substring(open + 1, close - open - 1)
+                .Split(',');
+
+            // SELFBUFF(x)
+            if (parts.Length == 1 && int.TryParse(parts[0], out int totalStats))
+            {
+                int newAtk = UnityEngine.Random.Range(0, totalStats + 1);
+                int newHp = totalStats - newAtk;
+
+                target.ModifyStats(newAtk, newHp);
+                target.CurrentEffect += " " + subEffect;
+                return;
+            }
+
+            // SELFBUFF(a,b)
+            if (parts.Length == 2 &&
+                int.TryParse(parts[0], out int atk) &&
+                int.TryParse(parts[1], out int hp))
+            {
+                target.ModifyStats(atk, hp);
+                target.CurrentEffect += " " + subEffect;
+                return;
+            }
+
+            // Anything else
+            Debug.LogWarning($"Invalid selfbuff parameters '{subEffect}' on {Data.name}");
             return;
         }
+
+        Debug.LogWarning($"Unknown gear sub-effect '{subEffect}' on {Data.name}");
+
 
         Debug.LogWarning($"Unknown gear sub-effect '{subEffect}' on {Data.name}");
     }
@@ -2072,10 +2175,9 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (amount <= 0) return;
         int bonus = 0; int preHeal = CurrentHealth;
 
-        GameManager gm = FindFirstObjectByType<GameManager>();
         //ApplyBonus
-        if (Owner == PlayerOwner.Player) bonus = gm.PlayerHealBonus;
-        else bonus = gm.EnemyHealBonus;
+        if (Owner == PlayerOwner.Player) bonus =gameManager.PlayerHealBonus;
+        else bonus = gameManager.EnemyHealBonus;
         CurrentHealth = Mathf.Min(CurrentHealth += amount + bonus, CurrentMaxHealth);
         int differenceHp = CurrentHealth - preHeal;
 

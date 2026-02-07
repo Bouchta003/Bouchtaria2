@@ -218,6 +218,26 @@ public class CardDatabase : MonoBehaviour
 
         return result;
     }
+    public List<CardData> GetNonPackableCards()
+    {
+        if (Cards == null)
+        {
+            Debug.LogError("CardDatabase: Cards not initialized");
+            return null;
+        }
+
+        List<CardData> result = new List<CardData>();
+
+        foreach (CardData card in Cards.Values)
+        {
+            if (card.cardType != null && !card.packable)
+            {
+                result.Add(card);
+            }
+        }
+
+        return result;
+    }
 
     CardData.Trait TryParseTrait(string traitString, out CardData.Trait trait)
     {
