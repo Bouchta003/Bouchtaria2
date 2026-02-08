@@ -92,6 +92,8 @@ public class GameManager : MonoBehaviour
     public Graveyard EnemyGraveyard { get; private set; } = new();
 
 
+    public int PlayerRandomCount = 0;
+    public int EnemyRandomCount = 0;
     public int PlayerHealBonus = 0;
     public int EnemyHealBonus = 0;
     public bool PlayerDarkHeal = false;

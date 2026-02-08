@@ -64,7 +64,10 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         cardInst.IsSummoningSick = true;
 
         cardInst.OnEnterBoard();
-
+        if (cardInst.HasText("random"))
+        {
+            gm.EnemyRandomCount++;
+        }
         OnCardPlayed?.Invoke(cardInst);
 
         // Switch to compact board view

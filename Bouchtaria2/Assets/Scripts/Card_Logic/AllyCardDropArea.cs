@@ -50,6 +50,10 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
             card.ResetCard();
 
             cardInst.WasPlayed = true;
+            if (cardInst.HasText("random"))
+            {
+                gm.PlayerRandomCount++;
+            }
 
             // 🔑 THIS is what you were missing
             cardInst.OnPlaySpell();
@@ -58,7 +62,6 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
             OnCardPlayed?.Invoke(cardInst);
             return;
         }
-
 
         // Verify board space legality.
         // We must account for the played unit itself + any owner-side DEPLOY summons,
@@ -92,7 +95,10 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         cardInst.SetZone(CardZone.Board);
         card.transform.SetParent(CardContainer, false);
         cardInst.Owner = PlayerOwner.Player;
-
+        if (cardInst.HasText("random"))
+        {
+            gm.PlayerRandomCount++;
+        }
         // ALWAYS summoning sick on entry
         cardInst.IsSummoningSick = true;
 

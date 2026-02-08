@@ -15,6 +15,7 @@ public class ChaosEffectDisplay : MonoBehaviour
     [SerializeField] private float fadeInTime = 0.4f;
     [SerializeField] private float holdTime = 1.6f;
     [SerializeField] private float fadeOutTime = 0.4f;
+    public bool IsPlaying { get; private set; }
 
     Coroutine currentRoutine;
     void Awake()
@@ -24,16 +25,35 @@ public class ChaosEffectDisplay : MonoBehaviour
         canvasGroup.blocksRaycasts = false;
         gameObject.SetActive(false);
     }
+    public IEnumerator PlayAndWait(Sprite rune, string description)
+    {
+        // Hard gate
+        while (IsPlaying)
+            yield return null;
 
+        IsPlaying = true;
+
+        runeImage.sprite = rune;
+        effectText.text = description;
+
+        gameObject.SetActive(true);
+        canvasGroup.alpha = 0f;
+        canvasGroup.blocksRaycasts = false;
+        canvasGroup.interactable = false;
+
+        yield return Fade(0f, 1f, fadeInTime);
+        yield return new WaitForSeconds(holdTime);
+        yield return Fade(1f, 0f, fadeOutTime);
+
+        gameObject.SetActive(false);
+        IsPlaying = false;
+    }
     /// <summary>
     /// Shows the chaos effect UI, then hides it.
     /// Total duration ≤ 3 seconds.
     /// </summary>
     public void ShowChaosEffect(Sprite rune, string description, Action onComplete = null)
     {
-        if (currentRoutine != null)
-            StopCoroutine(currentRoutine);
-
         // Clamp total duration to 3 seconds
         float total = fadeInTime + holdTime + fadeOutTime;
         if (total > 3f && total > 0f)
@@ -53,24 +73,23 @@ public class ChaosEffectDisplay : MonoBehaviour
 
     IEnumerator Animate(Action onComplete)
     {
+        IsPlaying = true;
+
         gameObject.SetActive(true);
         canvasGroup.blocksRaycasts = false;
         canvasGroup.interactable = false;
 
-        // Fade in
         yield return Fade(0f, 1f, fadeInTime);
-
-        // Hold
         yield return new WaitForSeconds(holdTime);
-
-        // Fade out
         yield return Fade(1f, 0f, fadeOutTime);
 
         gameObject.SetActive(false);
         currentRoutine = null;
+        IsPlaying = false;
 
         onComplete?.Invoke();
     }
+
 
     IEnumerator Fade(float from, float to, float duration)
     {

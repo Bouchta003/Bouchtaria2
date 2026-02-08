@@ -22,7 +22,7 @@ public class TurnManager : MonoBehaviour
     [SerializeField] DeckManager deckManager;
     [SerializeField] GameManager gameManager;
     [SerializeField] public Image endButton;
-    [SerializeField] private ChaosEffectDisplay chaosEffectDisplay;
+    [SerializeField] public ChaosEffectDisplay chaosEffectDisplay;
     [SerializeField] List<Sprite> ChaosSprites;
 
     public event Action<PlayerOwner> OnTurnStarted;
@@ -139,7 +139,9 @@ public class TurnManager : MonoBehaviour
             // Wait until the animation finishes
             while (!chaosFinished)
                 yield return null;
-
+            yield return (0.5f);
+            TriggerChaosEffect(randomChaosIndex, CurrentPlayer);
+            yield return (0.5f);
             if (CurrentPlayer == PlayerOwner.Player) PlayerChaosEventCount++;
             else EnemyChaosEventCount++;
         }
@@ -157,7 +159,7 @@ public class TurnManager : MonoBehaviour
 
         UpdateGlow();
     }
-    public IEnumerator TriggerChaosEvent()
+    public IEnumerator TriggerSingleChaosEvent()
     {
         bool chaosFinished = false;
         int randomChaosIndex = UnityEngine.Random.Range(0, ChaosSprites.Count);
@@ -172,12 +174,12 @@ public class TurnManager : MonoBehaviour
         while (!chaosFinished)
             yield return null;
         yield return (0.5f);
-        TriggerChaosEffect(randomChaosIndex,CurrentPlayer);
+        TriggerChaosEffect(randomChaosIndex, CurrentPlayer);
         yield return (0.5f);
-
         if (CurrentPlayer == PlayerOwner.Player) PlayerChaosEventCount++;
         else EnemyChaosEventCount++;
     }
+
     string GetChaosDescription(int index, PlayerOwner owner)
     {
         switch (index)
@@ -211,7 +213,7 @@ public class TurnManager : MonoBehaviour
             case 2:
                 gameManager.DamageRandomEnemy(true, 5, owner); break;
             case 3:
-                gameManager.AddCardToHand(owner, 62); break;
+                gameManager.AddCardToHand(owner, 62); gameManager.AddCardToHand(owner, 62); break;
             case 4:
                 gameManager.PlayerCore.Heal(5); break;
             case 5:

@@ -183,6 +183,12 @@ public class ScanPanelView : MonoBehaviour
                 keyDescription.text =
                     "Forces enemies to attack this unit.";
             }
+            if (keyword.Contains("chaotic event"))
+            {
+                keyName.text = "Chaotic Event";
+                keyDescription.text =
+                    "A random effect effect chosen at random in a fixed pool.\nExample : Draw, Gain mana, Summon units ...";
+            }
             else if (keyword.Contains("hunter*"))
             {
                 keyName.text = "Monster Hunter";

@@ -574,6 +574,10 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     public void ResolveSpell(IAttackable target)
     {
+        if (HasText("random") && Owner == PlayerOwner.Enemy)
+        {
+            gameManager.EnemyRandomCount++;
+        }
         gameManager.UseMana(CurrentManaCost, Owner);
 
         ExecuteSpellEffects(target);
@@ -731,6 +735,10 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             GainExtraTurn();
             gameManager.CheckGlow(); return;
+        }
+        if (effect.StartsWith("lebens"))
+        {
+            StartCoroutine(TriggerBensEffect()); return;
         }
         if (effect.StartsWith("skipenemydraw"))
         {
@@ -1938,6 +1946,28 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         return string.Join(" ", kept).Trim();
+    }
+    public IEnumerator TriggerBensEffect()
+    {
+        int randCount = 0;
+        if (Owner == PlayerOwner.Player)
+        {
+            randCount = GameManager.Instance.PlayerRandomCount;
+        }
+        else
+        {
+            randCount = GameManager.Instance.EnemyRandomCount;
+        }
+        if (randCount >= 1)
+        {
+            for (int i = 0; i < randCount; i++)
+            {
+                yield return StartCoroutine(
+                    TurnManager.Instance.TriggerSingleChaosEvent()
+                );
+            }
+
+        }
     }
     public void MorphTo(int newCardId)
     {
