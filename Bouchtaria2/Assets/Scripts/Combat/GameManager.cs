@@ -411,6 +411,12 @@ public class GameManager : MonoBehaviour
         else
             EnemyCurrentMana += mana;
     }
+    public void GainMaxMana(int mana, PlayerOwner owner)
+    {
+        if (owner == PlayerOwner.Player) { AllyCurrentMaxMana += mana;AllyCurrentMana += mana; }
+
+        else { EnemyCurrentMaxMana += mana; EnemyCurrentMana += mana; }
+    }
     private int GetEffectiveManaCap(PlayerOwner owner)
     {
         return baseManaCap + GetBonusManaCap(owner);
@@ -601,6 +607,10 @@ public class GameManager : MonoBehaviour
         {
             cardInst.GetComponent<SortingGroup>().sortingOrder = 1;
             cardInst.SetZone(CardZone.Board);
+            cardInst.IsSummoningSick = true;
+            Card card = cardInst.GetComponent<Card>();
+            card.gameObject.GetComponent<CardView>().UpdateMode();
+            cardInst.Owner = PlayerOwner.Player;
             allyDropArea.AddSummonedCard(cardInst);
             allyDropArea.UpdateAllyCardPositions();
         }
@@ -608,6 +618,10 @@ public class GameManager : MonoBehaviour
         {
             cardInst.GetComponent<SortingGroup>().sortingOrder = 3;
             cardInst.SetZone(CardZone.Board);
+            cardInst.IsSummoningSick = true;
+            cardInst.Owner = PlayerOwner.Enemy;
+            Card card = cardInst.GetComponent<Card>();
+            card.gameObject.GetComponent<CardView>().UpdateMode();
             enemyDropArea.AddSummonedCard(cardInst);
             enemyDropArea.UpdateEnemyCardPositions();
         }
