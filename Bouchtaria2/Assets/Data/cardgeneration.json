@@ -73,7 +73,7 @@
       "hpValue": 2,
       "traits": [ "MonsterHunter" ],
       "effect": "d[discover(monsterpart)]",
-      "effectText": "Discover a random Monster Part",
+      "effectText": "Discover a Monster Part",
       "artPath": "CardArt/gemma",
       "artCompactPath": "CardArt/gemma_compact",
       "packable": true,

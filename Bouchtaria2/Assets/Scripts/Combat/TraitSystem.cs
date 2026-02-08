@@ -1200,7 +1200,7 @@ public class MonsterHunterProgression : ITraitProgression
             return;
 
         // 2. Must be colossus
-        if (card.BaseManaCost <= 5)//Change to 5
+        if (card.BaseManaCost < 5)//Change to 5
             return;
 
         // 3. Must have MonsterHunter trait
