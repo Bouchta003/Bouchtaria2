@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Firebase;
 using Firebase.Auth;
 using Firebase.Extensions;
 using TMPro;
@@ -34,13 +35,13 @@ public class AuthManager : MonoBehaviour
     {
         if (auth.CurrentUser == null)
         {
-            Debug.LogError("❌ No user to link");
+            ErrorPopup.Show("No user to link");
             return;
         }
 
         if (!auth.CurrentUser.IsAnonymous)
         {
-            Debug.LogWarning("⚠️ User already has an account");
+            ErrorPopup.Show("User already has an account");
             return;
         }
 
@@ -48,12 +49,11 @@ public class AuthManager : MonoBehaviour
             EmailAuthProvider.GetCredential(email, password);
 
         auth.CurrentUser.LinkWithCredentialAsync(credential)
-            .ContinueWith(task =>
+            .ContinueWithOnMainThread(task =>
             {
                 if (task.IsFaulted)
                 {
-                    Debug.LogError("❌ Account linking failed");
-                    LogAuthError(task.Exception);
+                    ShowAuthError(task.Exception);
                     return;
                 }
 
@@ -65,11 +65,11 @@ public class AuthManager : MonoBehaviour
     {
         if (e is Firebase.FirebaseException firebaseEx)
         {
-            Debug.LogError($"Firebase Auth Error Code: {firebaseEx.ErrorCode}");
+            ErrorPopup.Show($"Firebase Auth Error Code: {firebaseEx.ErrorCode}");
         }
         else
         {
-            Debug.LogError(e);
+            ErrorPopup.Show(e.ToString());
         }
     }
 
@@ -99,7 +99,7 @@ public class AuthManager : MonoBehaviour
     {
         if (auth.CurrentUser == null)
         {
-            Debug.LogError("❌ AuthReady called but CurrentUser is null");
+            ErrorPopup.Show("❌ AuthReady called but CurrentUser is null");
             return;
         }
 
@@ -128,7 +128,109 @@ public class AuthManager : MonoBehaviour
 
         OnAuthReady();
     }
+    private void ShowAuthError(System.AggregateException ex, string fallback = "Authentication failed")
+    {
+        Debug.LogError(ex);
 
+        string message = GetFirebaseAuthErrorMessage(ex);
+        if (string.IsNullOrEmpty(message))
+            message = fallback;
+
+        ErrorPopup.Show(message);
+    }
+
+    private string GetFirebaseAuthErrorMessage(System.AggregateException aggEx)
+    {
+        if (aggEx == null)
+            return "Authentication failed";
+
+        var flat = aggEx.Flatten();
+
+        // 1) Try Firebase error codes
+        foreach (var inner in flat.InnerExceptions)
+        {
+            if (inner is FirebaseException firebaseEx)
+            {
+                try
+                {
+                    var authError = (AuthError)firebaseEx.ErrorCode;
+                    string mapped = MapAuthError(authError);
+
+                    // Only return mapped value if it is meaningful
+                    if (!string.IsNullOrEmpty(mapped) &&
+                        mapped != "Authentication failed")
+                    {
+                        return mapped;
+                    }
+                }
+                catch
+                {
+                    // Do NOT return here – fall back to message
+                }
+            }
+        }
+
+        // 2) Fallback: use the clean inner exception message
+        foreach (var inner in flat.InnerExceptions)
+        {
+            if (!string.IsNullOrEmpty(inner.Message))
+                return CleanFirebaseMessage(inner.Message);
+        }
+
+        return "Authentication failed";
+    }
+    private string CleanFirebaseMessage(string raw)
+    {
+        if (string.IsNullOrEmpty(raw))
+            return "Authentication failed";
+
+        string msg = raw.Trim();
+
+        // Remove parentheses
+        if (msg.StartsWith("(") && msg.EndsWith(")"))
+            msg = msg.Substring(1, msg.Length - 2);
+
+        // Normalize known Firebase messages
+        if (msg.Contains("email address is badly formatted"))
+            return "Invalid email address";
+
+        if (msg.Contains("password is invalid"))
+            return "Incorrect password";
+
+        if (msg.Contains("no user record"))
+            return "Account not found";
+
+        return msg;
+    }
+
+    private string MapAuthError(AuthError error)
+    {
+        switch (error)
+        {
+            case AuthError.EmailAlreadyInUse:
+                return "Email already in use";
+            case AuthError.InvalidEmail:
+                return "Invalid email address";
+            case AuthError.WeakPassword:
+                return "Password is too weak";
+            case AuthError.WrongPassword:
+                return "Incorrect password";
+            case AuthError.UserNotFound:
+                return "Account not found";
+            case AuthError.UserDisabled:
+                return "Account disabled";
+            case AuthError.OperationNotAllowed:
+                return "Operation not allowed";
+            case AuthError.RequiresRecentLogin:
+                return "Please log in again";
+            case AuthError.CredentialAlreadyInUse:
+                return "Account already linked";
+            case AuthError.NetworkRequestFailed:
+                return "Network error";
+            default:
+                return "Authentication failed";
+        }
+    }
     // 🔹 TEST 1 — Anonymous login
     public void SignInAnonymously()
     {
@@ -136,7 +238,7 @@ public class AuthManager : MonoBehaviour
         {
             if (task.IsFaulted)
             {
-                Debug.LogError("❌ Anonymous sign-in failed");
+                ShowAuthError(task.Exception);
                 return;
             }
 
@@ -146,7 +248,7 @@ public class AuthManager : MonoBehaviour
             {
                 if (task.IsFaulted)
                 {
-                    Debug.LogError("❌ Anonymous login failed");
+                    ShowAuthError(task.Exception);
                     return;
                 }
 
@@ -172,12 +274,11 @@ public class AuthManager : MonoBehaviour
     public void CreateEmailAccount(string email, string password)
     {
         auth.CreateUserWithEmailAndPasswordAsync(email, password)
-            .ContinueWith(task =>
+            .ContinueWithOnMainThread(task =>
             {
                 if (task.IsFaulted)
                 {
-                    Debug.LogError("❌ Account creation failed");
-                    Debug.LogError(task.Exception);
+                    ShowAuthError(task.Exception);
                     return;
                 }
 
@@ -195,7 +296,7 @@ public class AuthManager : MonoBehaviour
     {
         if (task.IsFaulted)
         {
-            Debug.LogError("❌ Email login failed");
+            ShowAuthError(task.Exception);
             return;
         }
 

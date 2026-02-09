@@ -83,11 +83,11 @@ public class TraitsDisplay : MonoBehaviour
                 break;
             case CardData.Trait.Chaos:
                 display += $"Play cards with the 'random' Keyword to activate : {Progression}/{CurrentCap}" +
-                    "\nTier 1 : At the start of each of your turns, summon a random 2 cost unit to your board. Summon a 5 cost unit if you have max mana crystals";
+                    "\nTier 1 : Turn start: summon a random 2 cost unit (5 cost if you have at least 10 mana.";
                 if (tier > 1) display +=
-                        "\nTier 2 : Trigger a random chaotic event at the start of your turns";
+                        "\nTier 2 : Turn Start : Trigger a random chaotic event.";
                 if (tier > 2) display +=
-                         "\nTier 3 : At the end of each of your turns, get a Cheater's will.";
+                         "\nTier 3 : End of turn : Get a Cheater's will.";
                 break;
             case CardData.Trait.Neutral:
                 display += $"Play neutral cards to unlock. Currently played : {Progression}/{CurrentCap}" +

@@ -2895,10 +2895,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "Chaos Trait :\nUnlockable with 6 9 or 14 cards in deck\nPlay cards with
-    the 'random' Keyword to activate : \nTier 1 : At the start of each of your turns,
-    summon a random 2 cost unit.\nTier 2 : Trigger a random chaotic event at the
-    start of your turns.\nTier 3 : At the end of each of your turns, get a Cheater's
-    will."
+    the 'random' Keyword to activate : \nTier 1 : Turn start: summon a random 2 cost
+    unit (5 cost if you have at least 10 mana\nTier 2 : Turn Start : Trigger a random
+    chaotic event.\nTier 3 : End of turn : Get a Cheater's will."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
   m_sharedMaterial: {fileID: -1779797437514033207, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
@@ -7938,7 +7937,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1175173212
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7971,14 +7970,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.409, g: 0.449, b: 1, a: 0.101960786}
+  m_Color: {r: 0.7339368, g: 0, b: 1, a: 0.43529412}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -8049738596340491021, guid: 8ea9700b4c05ee0449801e7485d5ae89, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
