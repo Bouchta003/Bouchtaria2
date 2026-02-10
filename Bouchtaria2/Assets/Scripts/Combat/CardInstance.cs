@@ -807,6 +807,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.CheckGlow();return;
         }
 
+
+        if (effect.StartsWith("wipeboard"))
+        {
+            gameManager.WipeBoard();
+            gameManager.CheckGlow(); return;
+        }
         if (effect.StartsWith("resurrectlast"))
         {
             gameManager.ResurrectLast(Owner, Data);

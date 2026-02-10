@@ -1313,6 +1313,31 @@ public class GameManager : MonoBehaviour
 
         return card;
     }
+    public void WipeBoard()
+    {
+        // Copy lists first to avoid modification during iteration
+        var allyCards = new List<GameObject>(allyDropArea.allyPrefabCards);
+        var enemyCards = new List<GameObject>(enemyDropArea.enemyPrefabCards);
+
+        foreach (GameObject ally in allyCards)
+        {
+            if (ally == null) continue;
+
+            var card = ally.GetComponentInChildren<CardInstance>();
+            if (card != null)
+                card.TakeDamage(999);
+        }
+
+        foreach (GameObject enemy in enemyCards)
+        {
+            if (enemy == null) continue;
+
+            var card = enemy.GetComponentInChildren<CardInstance>();
+            if (card != null)
+                card.TakeDamage(999);
+        }
+    }
+
     public void ResurrectLast(PlayerOwner owner, CardData excluded)
     {
         Graveyard graveyard =
