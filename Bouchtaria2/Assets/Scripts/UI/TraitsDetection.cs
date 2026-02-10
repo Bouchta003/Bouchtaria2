@@ -77,7 +77,7 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.SpellFocus, new[] { 6, 9, 12 } },
             { CardData.Trait.Combo, new[] { 5, 8 } },
             { CardData.Trait.Healer, new[] { 6, 9, 14 } },
-            { CardData.Trait.Chaos, new[] { 6, 9, 14 } },
+            { CardData.Trait.Chaos, new[] { 4, 8, 12 } },
             { CardData.Trait.Inazuma, new[] { 11 } },
             { CardData.Trait.Pokemon, new[] { 4,8,12 } },
             { CardData.Trait.MonsterHunter, new[] { 5, 10, 15 } },

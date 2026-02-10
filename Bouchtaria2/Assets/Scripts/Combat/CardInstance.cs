@@ -50,7 +50,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public int BaseManaCost { get; set; }
     public int CurrentHealth { get; private set; }
     public int CurrentMaxHealth { get; private set; }
-    public int CurrentManaCost => Mathf.Min(10,Mathf.Max(0, BaseManaCost + temporaryManaModifier));
+    public int CurrentManaCost => Mathf.Min(10,Mathf.Max(1, BaseManaCost + temporaryManaModifier));
     public bool IsDead = false;
     public PlayerOwner Owner { get; set; }
     private string pendingTargetedEffect;

@@ -419,9 +419,9 @@ public class ChaosProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 3,
-            1 => 6,
-            2 => 12,
+            0 => 4,
+            1 => 8,
+            2 => 14,
             _ => 999
         };
     }
@@ -436,17 +436,17 @@ public class ChaosProgression : ITraitProgression
         randomPlayed++;
         OnProgressUpdated?.Invoke(Trait, randomPlayed, GetCurrentCap(), Owner);
 
-        if (randomPlayed >= 3 && CurrentTier < 1 && maxTier >= 1)
+        if (randomPlayed >= 4 && CurrentTier < 1 && maxTier >= 1)
         {
             UnlockTier1();
         }
 
-        if (randomPlayed >= 6 && CurrentTier < 2 && maxTier >= 2)
+        if (randomPlayed >= 8 && CurrentTier < 2 && maxTier >= 2)
         {
             UnlockTier2();
         }
 
-        if (randomPlayed >= 12 && CurrentTier < 3 && maxTier >= 3)
+        if (randomPlayed >= 14 && CurrentTier < 3 && maxTier >= 3)
         {
             UnlockTier3();
         }

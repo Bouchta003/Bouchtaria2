@@ -716,6 +716,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 624605564681563106, guid: 869b2421ddbe61d41b6c7da0ebc3494b, type: 3}
   m_PrefabInstance: {fileID: 438488557}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &438488559 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2319418189692837322, guid: 869b2421ddbe61d41b6c7da0ebc3494b, type: 3}
+  m_PrefabInstance: {fileID: 438488557}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1 &480356663
 GameObject:
   m_ObjectHideFlags: 0
@@ -1867,6 +1878,7 @@ MonoBehaviour:
   speedsterGlow: {fileID: 2008526737}
   healerGlow: {fileID: 534107122}
   neutralGlow: {fileID: 837666808}
+  chaosGlow: {fileID: 438488559}
 --- !u!4 &1047320077
 Transform:
   m_ObjectHideFlags: 0

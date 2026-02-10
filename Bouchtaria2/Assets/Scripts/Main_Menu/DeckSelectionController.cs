@@ -14,12 +14,12 @@ public class DeckSelectionController : MonoBehaviour
     List<int> enemyDeck0 = new List<int>
 {
     0,0,        // Starter Choice
-    16,16,      // Mudkip
+    46,46,      // Faust flower
     19,19,      // Chimchar
-    22,22,      // Snivy
+    58,58,      // NoMusic
 
-    25,25,      // Easy Encounter
-    26,26,      // Metapod
+    49,49,      // IO
+    120,120,    // Metronome
     40,40,      // Beldum
 
     54,54,      // Dormis
@@ -27,10 +27,10 @@ public class DeckSelectionController : MonoBehaviour
     56,56,      // Wigglytuff
     57,57,      // Snorlax
 
-    87,87,      // Ditto
+    116,118,    // Reshiram et Zekrom
     88,88,      // Rainbow Card
     89,89,      // Frog
-    42,42       // Pizza Franprix
+    133,133     // Hoopa portal
 };
     List<int> enemyDeck1 = new List<int>
 {
@@ -38,48 +38,53 @@ public class DeckSelectionController : MonoBehaviour
     4,4,        // Gemma
     5,5,        // Alma
 
-    6,6,        // By My Own Order
+    34,34,      // Balahara (packable)
+    9,9,        // Odogaron (packable)
+    30,30,      // Rathalos (packable)
+    32,32,      // Rathian (packable)
 
-    34,34,      // Balahara
-    9,9,        // Odogaron
+    36,36,      // Greatsword Hunter (packable)
+    37,37,      // Insectglaive Hunter (packable)
+    38,38,      // Sword'n'Shield Hunter (packable)
+    103,103,    // Stygian Zinogre (packable)
 
-    30,30,      // Rathalos
-    32,32,      // Rathian
+    104,104,    // Rey Dau (packable)
+    129,129,    // Thief's gloves (packable, value/gear)
+    101,101,    // Alatreon (non-packable, heavy finisher)
+    105,105     // Arkveld (non-packable, strong MonsterPart synergy)
 
-    36,36,      // Greatsword Hunter
-    37,37,      // Insectglaive Hunter
-    38,38,      // Sword'n'Shield Hunter
-
-    103,103,    // Stygian Zinogre
-    104,104,    // Rey Dau
-
-    88,88,      // Rainbow Card
-    89,89       // Frog
 };
     List<int> enemyDeck2 = new List<int>
 {
-    60,60,      // Duaa
-    61,61,      // Sadaqa
+    // ===== CHAOS CORE (all available Chaos cards) =====
+    126,126,      // Colonel Whatsapp (Chaos – draw engine)
+    127,127,      // Giratina Origin (Chaos – UNPACKABLE finisher)
 
-    63,63,      // Hijabi
-    64,64,      // Hijab
+    // ===== FAITH DRAW & VALUE =====
+    129,129,      // Duaa (Faith – discover Faith)
+    130,130,      // Sadaqa (Faith – draw + heal)
 
-    65,65,      // Armor Clad Faith
-    66,66,      // Potemslim
+    109,109,    // Seeker of Ilm (Faith – repeat draw)
+    67,67,      // Awrah Man (Faith – tempo draw)
 
-    67,67,      // Awrah Man
-    68,68,      // Dans l'din
+    // ===== FAITH BOARD CONTROL =====
+    58,58,      // No More Music ! (Faith – silence all enemies)
+    68,68,      // Dans l'din (Faith – burn + discover)
 
-    106,106,    // Bearer of Sabr
-    107,107,    // Protector of the Ummah
-    108,108,    // Guardian of Niyyah
+    // ===== FAITH DEFENSIVE CORE =====
+    63,63,      // Hijabi (Faith – Blessed body)
+    64,64,      // Hijab (Faith – Blessed gear)
 
-    109,109,    // Seeker of Ilm
-    110,110,    // Voice Of Dhikr
-    111,111,    // Tawakkul
+    65,65,      // Armor Clad Faith (Faith – armor + summon)
+    66,66,      // Potemslim (Faith – Protect + Blessed)
 
-    88,88       // Rainbow Card
+    // ===== FAITH LATE GAME =====
+    108,108,    // Guardian of Niyyah (Faith – sustain engine)
+    106,106,    // Bearer of Sabr (Faith – resilient absorber)
+
+    110,110     // Voice Of Dhikr (Faith – scaling finisher)
 };
+
     private void Start()
     {
         DeckBuilding.Instance.OnDecksLoaded += PopulateDropdown;
