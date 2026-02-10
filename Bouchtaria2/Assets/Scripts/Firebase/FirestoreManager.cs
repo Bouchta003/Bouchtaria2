@@ -101,6 +101,12 @@ public class FirestoreManager : MonoBehaviour
                 if (!snapshot.ContainsField("dust"))
                     updates["dust"] = 100;
 
+                if (!snapshot.ContainsField("streak"))
+                    updates["streak"] = 0; 
+                
+                if (!snapshot.ContainsField("beststreak"))
+                    updates["beststreak"] = 0;
+
                 if (updates.Count > 0)
                 {
                     userDoc.UpdateAsync(updates).ContinueWithOnMainThread(updateTask =>

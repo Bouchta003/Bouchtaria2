@@ -24,7 +24,10 @@ public class WinLoseUI : MonoBehaviour
     {
         Setup("DEFEAT", Color.red, "Your Core Was Destroyed, you earned 20 Gold as compensation");
     }
-
+    public void LeaveToMenu()
+    {
+        SceneManager.LoadScene("Main_Menu");
+    }
     private void Setup(string title, Color color, string subtitle)
     {
         gameObject.SetActive(true);

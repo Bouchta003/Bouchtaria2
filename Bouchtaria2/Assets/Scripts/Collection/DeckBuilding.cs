@@ -358,7 +358,7 @@ public class DeckBuilding : MonoBehaviour
   {
       if (task.IsFaulted)
       {
-          Debug.LogError("Failed to fetch decks: " + task.Exception);
+          ErrorPopup.Show("Failed to fetch decks: " + task.Exception);
           return;
       }
 
