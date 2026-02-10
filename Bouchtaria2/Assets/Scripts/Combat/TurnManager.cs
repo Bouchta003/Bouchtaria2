@@ -207,7 +207,7 @@ public class TurnManager : MonoBehaviour
         {
             case 0:
                 //Trigger effect here
-                deckManager.Draw(1, owner);break;
+                deckManager.StartCoroutine(deckManager.Draw(1, CurrentPlayer));break;
             case 1:
                 gameManager.TrySummonForOwnerManaCost(owner, 2); break;
             case 2:

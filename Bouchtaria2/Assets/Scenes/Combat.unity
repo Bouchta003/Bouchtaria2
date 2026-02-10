@@ -765,7 +765,7 @@ MonoBehaviour:
   PlayerCore: {fileID: 1084353477}
   EnemyCore: {fileID: 933163752}
   corePrefab: {fileID: 1772291971226400965, guid: 428a75668ad440d4f9895a6153354264, type: 3}
-  startingCoreHealth: 30
+  startingCoreHealth: 50
   spawnPlayerCore: {fileID: 1391987188}
   spawnEnemyCore: {fileID: 2137164847}
   deckManager: {fileID: 752328686}
@@ -791,6 +791,8 @@ MonoBehaviour:
   enemyTraitUI: {fileID: 69533397}
   winLoseUI: {fileID: 554539686}
   mainCamera: {fileID: 1857458787}
+  PlayerRandomCount: 0
+  EnemyRandomCount: 0
   PlayerHealBonus: 0
   EnemyHealBonus: 0
   PlayerDarkHeal: 0
