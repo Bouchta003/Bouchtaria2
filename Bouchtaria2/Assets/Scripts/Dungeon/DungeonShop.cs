@@ -25,6 +25,8 @@ public class DungeonShop : MonoBehaviour
             return;
         }
 
+        Instance = this;
+
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -73,21 +75,51 @@ public class DungeonShop : MonoBehaviour
     }
     public void ClickAugment(int aug)
     {
-        Debug.Log(aug+ "clicked") ;
+        Debug.Log(aug + "clicked");
+
+        if (DungeonManager.Instance == null || DungeonManager.Instance.CurrentRun == null)
+        {
+            ErrorPopup.Show("No active dungeon run found.");
+            return;
+        }
+
         switch (aug)
         {
             case 0:
+                if (DungeonManager.Instance.CurrentRun.coins < 100)
+                {
+                    ErrorPopup.Show("Not enough dungeon coins.");
+                    break;
+                }
+
                 ModifyUserCoin(-100);
+                DungeonManager.Instance.CurrentRun.coins -= 100;
                 int rand = UnityEngine.Random.Range(1, 3);
                 ClickAugment(rand);
                 break;
             case 1:
+                if (DungeonManager.Instance.CurrentRun.coins < 10)
+                {
+                    ErrorPopup.Show("Not enough dungeon coins.");
+                    break;
+                }
+
                 ModifyUserCoin(-10);
+                DungeonManager.Instance.CurrentRun.coins -= 10;
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.MaxHP);
+                DungeonManager.Instance.SaveRunData();
                 break;
             case 2:
+                if (DungeonManager.Instance.CurrentRun.coins < 50)
+                {
+                    ErrorPopup.Show("Not enough dungeon coins.");
+                    break;
+                }
+
                 ModifyUserCoin(-50);
+                DungeonManager.Instance.CurrentRun.coins -= 50;
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.StartMana);
+                DungeonManager.Instance.SaveRunData();
                 break;
             default:
                 ErrorPopup.Show("Unkown augment ID " + aug);break;
