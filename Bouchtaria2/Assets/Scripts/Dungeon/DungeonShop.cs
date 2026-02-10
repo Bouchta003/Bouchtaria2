@@ -41,9 +41,57 @@ public class DungeonShop : MonoBehaviour
     {
         
     }
+    private void ModifyUserCoin(int delta)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        db.Collection("users")
+          .Document(user.UserId)
+          .UpdateAsync("coin", FieldValue.Increment(delta))
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("Failed to modify coin.");
+                    return;
+                }
+
+                GetUserCurrentCoin(coin =>
+                {
+                    Debug.Log("User coin: " + coin); CoinText.text = coin.ToString();
+                    if (coin >= 100) CoinImage.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+                });
+            });
+
+    }
     public void ClickAugment(int aug)
     {
         Debug.Log(aug+ "clicked") ;
+        switch (aug)
+        {
+            case 0:
+                ModifyUserCoin(-100);
+                int rand = UnityEngine.Random.Range(1, 3);
+                ClickAugment(rand);
+                break;
+            case 1:
+                ModifyUserCoin(-10);
+                DungeonManager.Instance.CurrentRun.augments.Add(Augment.MaxHP);
+                break;
+            case 2:
+                ModifyUserCoin(-50);
+                DungeonManager.Instance.CurrentRun.augments.Add(Augment.StartMana);
+                break;
+            default:
+                ErrorPopup.Show("Unkown augment ID " + aug);break;
+        }
     }
     public void LeaveToDungeonMenu()
     {

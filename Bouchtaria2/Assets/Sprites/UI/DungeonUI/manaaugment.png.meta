@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9da4ee34239f96b42964d2d0b8b19062
+guid: 48adbfddf546d2147bf5c5cd7aaebad8
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -499086634085557923
-    second: randomaugment_0
+      213: 746806502869983477
+    second: manaaugment_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: randomaugment_0
+      name: manaaugment_0
       rect:
         serializedVersion: 2
-        x: 125
-        y: 414
-        width: 791
-        height: 861
+        x: 2
+        y: 8
+        width: 1022
+        height: 1469
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d595f2fb953e219f0800000000000000
-      internalID: -499086634085557923
+      spriteID: 5f0648fbe803d5a00800000000000000
+      internalID: 746806502869983477
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 237ba55ca58edd04190dea3387baae23
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      randomaugment_0: -499086634085557923
+      manaaugment_0: 746806502869983477
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

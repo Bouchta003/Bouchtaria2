@@ -6,6 +6,28 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
+
+[System.Serializable]
+public class DungeonRunData
+{
+    public int floor;
+    //public int difficulty;
+    public int coins;
+    //public bool isBossFight;
+    public List<DungeonShop.Augment> augments;
+
+    public void Reset()
+    {
+        floor = 0;
+        augments.Clear();
+    }
+}
+public static class GameRunContext
+{
+    public static DungeonRunData DungeonData;
+    public static bool IsDungeonRun;
+}
 
 public class DungeonManager : MonoBehaviour
 {
@@ -14,6 +36,8 @@ public class DungeonManager : MonoBehaviour
     [Header("UI Elements")]
     [SerializeField] TextMeshProUGUI StreakText;
     [SerializeField] Image StreakFire;
+
+    public DungeonRunData CurrentRun;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
     {
@@ -35,15 +59,36 @@ public class DungeonManager : MonoBehaviour
             else if(streak < 5) StreakFire.gameObject.SetActive(true);
             if (streak >= 5) StreakFire.transform.localScale = new Vector3(1.2f,1.2f,1.2f);
 
+            if (streak <= 0) StartNewRun();
+            else FetchRunData();
         });
     }
+    public void FetchRunData()
+    {
+        CurrentRun = new DungeonRunData
+        {
+            floor = 0,
+            coins = 0,
+            augments = new List<DungeonShop.Augment>()
+        };
 
+        DungeonShop.Instance.GetUserCurrentCoin(coin => CurrentRun.coins = coin);
+    }
+    public void StartNewRun()
+    {
+        CurrentRun = new DungeonRunData
+        {
+            floor = 1,
+            coins = 0,
+            augments = new List<DungeonShop.Augment>()
+        };
+    }
     // Update is called once per frame
     void Update()
     {
         
     }
-    private void IncrementStreak()
+    public void IncrementStreak()
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
         if (user == null)
@@ -107,6 +152,7 @@ public class DungeonManager : MonoBehaviour
                 });
             });
 
+        GameRunContext.DungeonData.Reset();
     }
     public void GetUserCurrentStreak(Action<int> onResult)
     {
@@ -146,5 +192,9 @@ public class DungeonManager : MonoBehaviour
     public void GoToShop()
     {
         SceneManager.LoadScene("DungeonShop");
+    }
+    public void FloorCombat()
+    {
+        GameFlowController.Instance.GoToDungeonCombat(CurrentRun);
     }
 }

@@ -17,11 +17,13 @@ public class WinLoseUI : MonoBehaviour
 
     public void ShowWin()
     {
+        if (GameRunContext.IsDungeonRun) DungeonManager.Instance.IncrementStreak();
         Setup("VICTORY", Color.green, "Enemy Core Destroyed, you earned 100 Gold");
     }
 
     public void ShowLose()
     {
+        if (GameRunContext.IsDungeonRun) DungeonManager.Instance.ResetStreak();
         Setup("DEFEAT", Color.red, "Your Core Was Destroyed, you earned 20 Gold as compensation");
     }
     public void LeaveToMenu()

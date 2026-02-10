@@ -39,6 +39,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject spawnPlayerCore;
     [SerializeField] private GameObject spawnEnemyCore;
     public GameState CurrentGameState { get; private set; } = GameState.Playing;
+    private int startingPlayerCoreHealth = 50;
+    private int startingEnemyCoreHealth = 50;
 
     [Header("Deck and Board")]
     [SerializeField] private DeckManager deckManager;
@@ -148,6 +150,17 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
+        //Combat setup that might be changed bu Dungeon mode
+        startingPlayerCoreHealth = startingCoreHealth;
+        startingEnemyCoreHealth = startingCoreHealth;
+        InitializeMana();
+        
+        //Logic for dungeon runs
+        if (GameRunContext.IsDungeonRun)
+        {
+            SetupDungeonFight(GameRunContext.DungeonData);
+        }
+
         isTargettingAttack = false;
 
         if (TurnManager.Instance == null)
@@ -158,12 +171,11 @@ public class GameManager : MonoBehaviour
 
         //Setup cores mana and deck before the turn logic
         Sprite[] defaultBoards = new Sprite[] { defaultBoard, defaultMagicBoard };
-        boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = defaultBoards[UnityEngine.Random.Range(0, defaultBoards.Length-1)];
+        boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = defaultBoards[UnityEngine.Random.Range(0, defaultBoards.Length)];
 
         deckManager.InitializeDecks();        // build decks
         deckManager.DetectUnlockableTraits(); // analyze decks
         SetupTraits();                        // create progressions
-        InitializeMana();
 
         SetupCores();
         PlayerCore.GetComponent<CoreView>().Bind(PlayerCore);
@@ -178,6 +190,32 @@ public class GameManager : MonoBehaviour
         {
             progression.ResetProgression();
             progression.PushInitialState();
+        }
+
+
+        
+    }
+    void SetupDungeonFight(DungeonRunData runData)
+    {
+        startingEnemyCoreHealth = 5 * (runData.floor+5);
+        startingPlayerCoreHealth = 5 * (runData.floor+5);
+
+        if (startingEnemyCoreHealth > 100) startingEnemyCoreHealth = 100;
+
+        foreach(DungeonShop.Augment augment in runData.augments)
+        {
+            //Max HP Augment
+            if(augment == DungeonShop.Augment.MaxHP)
+            {
+                startingPlayerCoreHealth += 5;
+            }
+
+            //Starting MANA Augment
+            if (augment == DungeonShop.Augment.StartMana)
+            {
+                AllyCurrentMaxMana++;
+                AllyCurrentMana++;
+            }
         }
     }
     public void TogglePause()
@@ -330,10 +368,10 @@ public class GameManager : MonoBehaviour
     private void SetupCores()
     {
         //PlayerCore = Instantiate(corePrefab, spawnPlayerCore.transform).GetComponent<CoreInstance>();
-        PlayerCore.Initialize(PlayerOwner.Player, startingCoreHealth);
+        PlayerCore.Initialize(PlayerOwner.Player, startingPlayerCoreHealth);
 
         //EnemyCore = Instantiate(corePrefab, spawnEnemyCore.transform).GetComponent<CoreInstance>();
-        EnemyCore.Initialize(PlayerOwner.Enemy, startingCoreHealth);
+        EnemyCore.Initialize(PlayerOwner.Enemy, startingEnemyCoreHealth);
     }
     public void OnCoreDestroyed(PlayerOwner owner)
     {

@@ -116,8 +116,19 @@ public class GameFlowController : MonoBehaviour
         }
         //IsThisLineNecessary ?
         UserCollectionManager.Instance.RefreshCollection();
+        GameRunContext.IsDungeonRun = false;
         SceneManager.LoadScene("QuickMatch");
     }
+    public void GoToDungeonCombat(DungeonRunData data)
+    {
+        if (!isGameReady) return;
+
+        GameRunContext.IsDungeonRun = true;
+        GameRunContext.DungeonData = data;
+
+        SceneManager.LoadScene("QuickMatch");
+    }
+
     public void GoToShop()
     {
         if (!isGameReady)
