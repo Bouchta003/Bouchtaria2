@@ -1537,29 +1537,48 @@ public class GameManager : MonoBehaviour
 
         return targets;
     }
-
     public bool CanSelectAttacker(CardInstance attacker)
     {
         if (!TurnManager.Instance.IsPlayerTurn(attacker.Owner))
             return false;
         if (isTargetingEffect) return false;
         if ((attacker.HasAttackedThisTurn && !attacker.HasKeyword("haste")) ||
-            (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn)||
-            attacker.CurrentAttack<=0 || attacker.IsAsleep)
+            (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn) ||
+            attacker.CurrentAttack <= 0 || attacker.IsAsleep)
             return false;
 
-        if (attacker.IsSummoningSick)
+        // If not summoning sick, all other checks above are sufficient.
+        if (!attacker.IsSummoningSick)
+            return true;
+
+        // Summoning sick: can only attack if keywords allow it.
+        // If neither keyword allows attacking on summon, disallow.
+        bool canAttackUnitOnSummon = attacker.CanAttackUnitOnSummon();
+        bool canAttackCoreOnSummon = attacker.CanAttackCoreOnSummon();
+        if (!canAttackUnitOnSummon && !canAttackCoreOnSummon)
+            return false;
+
+        // --- NEW: ensure there is at least one *allowed* target available ---
+        // If a unit-only-on-summon attacker (e.g. quickstrike) exists but there are
+        // no enemy units to target, it should NOT be selectable (no green glow).
+        var validTargets = GetValidTargets(attacker); // uses existing board logic
+
+        if (canAttackUnitOnSummon && !canAttackCoreOnSummon)
         {
-            // Can only attack units or core if keyword allows it
-            if (!attacker.CanAttackUnitOnSummon() && !attacker.CanAttackCoreOnSummon())
-                return false;
+            // needs at least one unit target
+            return validTargets.Any(t => t is CardInstance);
         }
 
-        if (attacker.IsAsleep)
-            return false;
+        if (canAttackCoreOnSummon && !canAttackUnitOnSummon)
+        {
+            // needs at least one core target (usually always true unless core unavailable)
+            return validTargets.Any(t => t is CoreInstance);
+        }
 
-        return true;
+        // If both are allowed, any valid target is fine
+        return validTargets.Count > 0;
     }
+
     public ICardDropArea GetBoardForOwner(PlayerOwner owner)
     {
         return owner == PlayerOwner.Player

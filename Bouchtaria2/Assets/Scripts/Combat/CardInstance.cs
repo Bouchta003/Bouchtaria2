@@ -901,7 +901,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             AutoShieldCore(shield);
             gameManager.CheckGlow();return;
         }
-
+        if (effect.StartsWith("summonrandomcost"))
+        {
+            gameManager.TrySummonForOwnerManaCost(Owner, GetSingleIntFromEffect(effect));
+            gameManager.CheckGlow(); return;
+        }
         if (effect.StartsWith("summon"))
         {
             TryExecuteSummon(effect);
@@ -930,11 +934,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteAddCard(effect);
             gameManager.CheckGlow();return;
         }
-        if (effect.StartsWith("summonrandomcost"))
-        {
-            gameManager.TrySummonForOwnerManaCost(Owner, GetSingleIntFromEffect(effect));
-            gameManager.CheckGlow(); return;
-        }
+        
         if (effect.StartsWith("buff"))
         {
             TryExecuteBuff(effect, null);
