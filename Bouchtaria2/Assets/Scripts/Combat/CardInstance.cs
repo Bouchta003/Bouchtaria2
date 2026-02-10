@@ -1968,25 +1968,31 @@ public class CardInstance : MonoBehaviour, IAttackable
     public IEnumerator TriggerBensEffect()
     {
         int randCount = 0;
-        if (Owner == PlayerOwner.Player)
-        {
-            randCount = GameManager.Instance.PlayerRandomCount;
-        }
-        else
-        {
-            randCount = GameManager.Instance.EnemyRandomCount;
-        }
-        if (randCount >= 1)
-        {
-            for (int i = 0; i < randCount; i++)
-            {
-                yield return StartCoroutine(
-                    TurnManager.Instance.TriggerSingleChaosEvent()
-                );
-            }
 
+        if (Owner == PlayerOwner.Player)
+            randCount = GameManager.Instance.PlayerRandomCount;
+        else
+            randCount = GameManager.Instance.EnemyRandomCount;
+
+        if (randCount < 1)
+            yield break;
+
+        for (int i = 0; i < randCount; i++)
+        {
+            // ⛔ Stop if a player is already dead
+            if (GameManager.Instance.CurrentGameState != GameState.Playing)
+                yield break;
+
+            yield return StartCoroutine(
+                TurnManager.Instance.TriggerSingleChaosEvent()
+            );
+
+            // ⛔ Stop immediately if this chaos event killed someone
+            if (GameManager.Instance.CurrentGameState != GameState.Playing)
+                yield break;
         }
     }
+
     public void MorphTo(int newCardId)
     {
         CardData newData = CardDatabase.Instance.GetCardById(newCardId);
