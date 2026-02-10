@@ -77,6 +77,10 @@ public class DeckBuilding : MonoBehaviour
     {
         IndexUI.SetActive(!IndexUI.activeSelf);
     }
+    public void CloseIndex()
+    {
+        IndexUI.SetActive(false);
+    }
     public Dictionary<string, List<int>> GetUserDecks()
     {
         return new Dictionary<string, List<int>>(userDecks);

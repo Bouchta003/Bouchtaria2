@@ -206,7 +206,8 @@ public class ScanPanelView : MonoBehaviour
                 keyName.text = "Morph";
                 keyDescription.text =
                     "Transforms into another unit and keeps damage.";
-                relatedCardsId.Add(GetEffectID(keyword));
+                if (!keyword.Contains("morphto,"))
+                    relatedCardsId.Add(GetEffectID(keyword));
             }
             else if (keyword.Contains("thorns"))
             {

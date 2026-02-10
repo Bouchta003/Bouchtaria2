@@ -396,6 +396,7 @@ public class CollectionScreen : MonoBehaviour
         NormalizeFilters();
         currentPage = 0;
         ShowPage(0);
+        DeckBuilding.Instance.CloseIndex();
     }
     public void GoToMainMenu()
     {

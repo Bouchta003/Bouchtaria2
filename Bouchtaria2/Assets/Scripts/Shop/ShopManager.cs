@@ -60,6 +60,7 @@ public class ShopManager : MonoBehaviour
         Instance = this;
         
         UpdateGoldAndDust();
+        UpdateProgressionCounter();
 
         packCanvasGroup = packSpawnRoot.GetComponent<CanvasGroup>();
         if (packCanvasGroup == null)
@@ -67,6 +68,22 @@ public class ShopManager : MonoBehaviour
 
         packCanvasGroup.alpha = 0f;
     }
+    private void Start()
+    {
+        UpdateProgressionCounter();
+    }
+    private void OnEnable()
+    {
+        if (UserCollectionManager.Instance != null)
+            UserCollectionManager.Instance.OnCollectionUpdated += UpdateProgressionCounter;
+    }
+
+    private void OnDisable()
+    {
+        if (UserCollectionManager.Instance != null)
+            UserCollectionManager.Instance.OnCollectionUpdated -= UpdateProgressionCounter;
+    }
+
     public void GoToMainMenu()
     {
         SceneManager.LoadScene("Main_Menu");
@@ -83,8 +100,220 @@ public class ShopManager : MonoBehaviour
         {
             UserDust = dust;
             DustCounter.text = "Dust: " + dust.ToString();
-        });
+        }); 
+        // Update progression counter as well (pulls authoritative counts)
+        UpdateProgressionCounter();
     }
+    // -------------------- Progression counter helpers --------------------
+    // Call: UpdateProgressionCounter() to update the ProgressionCounter UI text.
+    // Tries Firestore first; falls back to client-side CardDatabase and UserCollectionManager.
+
+    public void UpdateProgressionCounter()
+    {
+        int ownedPackable = 0;
+        int totalPackable = 0;
+
+        var cardDb = CardDatabase.Instance;
+        var collection = UserCollectionManager.Instance;
+
+        if (cardDb == null || collection == null)
+        {
+            ProgressionCounter.text = "Progression 0/0";
+            return;
+        }
+
+        foreach (var card in cardDb.Cards.Values)
+        {
+            if (!card.packable)
+                continue;
+
+            totalPackable++;
+
+            // IMPORTANT: this MUST match CollectionScreen logic
+            if (collection.IsOwned(card.id))
+                ownedPackable++;
+        }
+
+        ProgressionCounter.text = $"Progression {ownedPackable}/{totalPackable}";
+    }
+
+
+    public void GetOwnedPackableCount(Action<int> onResult)
+    {
+        // Try to get authoritative owned list from Firestore user doc or subcollection.
+        try
+        {
+            FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+            if (user == null)
+            {
+                onResult?.Invoke(CountOwnedPackableFromLocal());
+                return;
+            }
+
+            FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+            // First try a user doc field "ownedCards" (array)
+            db.Collection("users")
+              .Document(user.UserId)
+              .GetSnapshotAsync()
+              .ContinueWithOnMainThread(userTask =>
+              {
+                  try
+                  {
+                      if (userTask.IsFaulted || !userTask.Result.Exists)
+                      {
+                      // fallback to local
+                      onResult?.Invoke(CountOwnedPackableFromLocal());
+                          return;
+                      }
+
+                      var snap = userTask.Result;
+                      if (snap.ContainsField("ownedCards"))
+                      {
+                      // ownedCards is expected as array of ints or strings
+                      var raw = snap.GetValue<List<object>>("ownedCards");
+                          int count = 0;
+                          if (raw != null)
+                          {
+                              foreach (var o in raw)
+                              {
+                                  if (o == null) continue;
+                              // Parse id
+                              if (int.TryParse(o.ToString(), out int id))
+                                  {
+                                      var cd = CardDatabase.Instance.GetCardById(id);
+                                      if (cd != null && cd.packable) count++;
+                                  }
+                              }
+                          }
+                          onResult?.Invoke(count);
+                          return;
+                      }
+
+                  // If no ownedCards array, try subcollection users/{userId}/cards
+                  db.Collection("users")
+                        .Document(user.UserId)
+                        .Collection("cards")
+                        .GetSnapshotAsync()
+                        .ContinueWithOnMainThread(collTask =>
+                        {
+                            try
+                            {
+                                if (collTask.IsFaulted)
+                                {
+                                    onResult?.Invoke(CountOwnedPackableFromLocal());
+                                    return;
+                                }
+
+                                int subCount = 0;
+                                foreach (var doc in collTask.Result.Documents)
+                                {
+                                    int cardId = -1;
+                                    if (doc.ContainsField("cardId"))
+                                    {
+                                    // Firestore integer fields often come back as long - be safe
+                                    try
+                                        {
+                                            var v = doc.GetValue<object>("cardId");
+                                            if (v != null && int.TryParse(v.ToString(), out int tmp)) cardId = tmp;
+                                        }
+                                        catch { }
+                                    }
+                                    else
+                                    {
+                                    // Attempt to parse doc id as int
+                                    int.TryParse(doc.Id, out cardId);
+                                    }
+
+                                    if (cardId <= 0) continue;
+                                    var cd = CardDatabase.Instance.GetCardById(cardId);
+                                    if (cd != null && cd.packable) subCount++;
+                                }
+                                onResult?.Invoke(subCount);
+                            }
+                            catch
+                            {
+                                onResult?.Invoke(CountOwnedPackableFromLocal());
+                            }
+                        });
+
+                  }
+                  catch
+                  {
+                  // any unexpected error => fallback local
+                  onResult?.Invoke(CountOwnedPackableFromLocal());
+                  }
+              });
+        }
+        catch
+        {
+            onResult?.Invoke(CountOwnedPackableFromLocal());
+        }
+    }
+
+    public void GetTotalPackableCount(Action<int> onResult)
+    {
+        // Try to ask Firestore for authoritative count of packable cards, otherwise count locally.
+        try
+        {
+            FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+            db.Collection("cards")
+              .WhereEqualTo("packable", true)
+              .GetSnapshotAsync()
+              .ContinueWithOnMainThread(task =>
+              {
+                  if (task.IsFaulted)
+                  {
+                      onResult?.Invoke(CountTotalPackableFromLocal());
+                      return;
+                  }
+              // If Firestore supports, snapshot.Count is authoritative
+              onResult?.Invoke(task.Result.Count);
+              });
+        }
+        catch
+        {
+            onResult?.Invoke(CountTotalPackableFromLocal());
+        }
+    }
+
+    // Local fallback: count owned packable by checking UserCollectionManager.IsOwned + CardDatabase.packable
+    private int CountOwnedPackableFromLocal()
+    {
+        int count = 0;
+        if (CardDatabase.Instance == null) return 0;
+
+        if (UserCollectionManager.Instance != null)
+        {
+            // fast path: iterate all cards and check IsOwned + packable
+            foreach (var cd in CardDatabase.Instance.Cards.Values)
+            {
+                try
+                {
+                    if (cd.packable && UserCollectionManager.Instance.IsOwned(cd.id))
+                        count++;
+                }
+                catch { /* ignore instance errors */ }
+            }
+            return count;
+        }
+
+        return 0;
+    }
+
+    // Local fallback: count total packable from CardDatabase
+    private int CountTotalPackableFromLocal()
+    {
+        int count = 0;
+        if (CardDatabase.Instance == null) return 0;
+        foreach (var cd in CardDatabase.Instance.Cards.Values)
+        {
+            if (cd.packable) count++;
+        }
+        return count;
+    }
+
     #region Pack Management
     private void ShowPackAnimated()
     {
@@ -596,8 +825,6 @@ public class ShopManager : MonoBehaviour
         ).SetLoops(-1).SetEase(Ease.InOutSine);
 
     }
-
-
     private void DisableGlow(Image img)
     {
         if (img == null) return;

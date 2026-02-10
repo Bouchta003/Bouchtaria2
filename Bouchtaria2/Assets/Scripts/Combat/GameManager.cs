@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
     public CoreInstance PlayerCore;
     public CoreInstance EnemyCore;
     [SerializeField] private GameObject corePrefab;
-    [SerializeField] private int startingCoreHealth = 30;
+    [SerializeField] private int startingCoreHealth = 50;
     [SerializeField] private GameObject spawnPlayerCore;
     [SerializeField] private GameObject spawnEnemyCore;
     public GameState CurrentGameState { get; private set; } = GameState.Playing;
