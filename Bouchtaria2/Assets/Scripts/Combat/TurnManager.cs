@@ -173,11 +173,21 @@ public class TurnManager : MonoBehaviour
         // Wait until the animation finishes
         while (!chaosFinished)
             yield return null;
+
         yield return (0.5f);
+
+        // Trigger the chaos effect (this may start its own coroutines)
         TriggerChaosEffect(randomChaosIndex, CurrentPlayer);
+
+        // WAIT here until any effects started by TriggerChaosEffect finish.
+        while (GameManager.Instance != null && GameManager.Instance.IsResolvingEffects)
+            yield return null;
+
         yield return (0.5f);
+
         if (CurrentPlayer == PlayerOwner.Player) PlayerChaosEventCount++;
         else EnemyChaosEventCount++;
+
     }
 
     string GetChaosDescription(int index, PlayerOwner owner)

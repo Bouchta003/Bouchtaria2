@@ -12,8 +12,8 @@ public class DeckSelectionController : MonoBehaviour
     private Dictionary<string, List<int>> userDecks;
 
     List<int> enemyDeck0 = new List<int>
-{
-    0,0,        // Starter Choice
+{126,128,12,126,126,126,128,128,128,128,126
+    /*0,0,        // Starter Choice
     46,46,      // Faust flower
     19,19,      // Chimchar
     58,58,      // NoMusic
@@ -30,7 +30,7 @@ public class DeckSelectionController : MonoBehaviour
     116,118,    // Reshiram et Zekrom
     88,88,      // Rainbow Card
     89,89,      // Frog
-    133,133     // Hoopa portal
+    133,133     // Hoopa portal*/
 };
     List<int> enemyDeck1 = new List<int>
 {

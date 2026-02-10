@@ -587,10 +587,6 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     public void ResolveSpell(IAttackable target)
     {
-        if (HasText("random") && Owner == PlayerOwner.Enemy)
-        {
-            gameManager.EnemyRandomCount++;
-        }
         gameManager.UseMana(CurrentManaCost, Owner);
 
         ExecuteSpellEffects(target);
@@ -626,7 +622,10 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         // Same idea as minions: split by space
         IEnumerable<string> effects = SplitEffectsBySpace(CurrentEffect);
-
+        if (Owner == PlayerOwner.Enemy)
+        {
+            gameManager.enemyDropArea.CardPlayed(this);
+        }
 
         foreach (string rawEffect in effects)
         {

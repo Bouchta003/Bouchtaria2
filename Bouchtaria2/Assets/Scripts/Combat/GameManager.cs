@@ -495,23 +495,29 @@ public class GameManager : MonoBehaviour
             deferredActions.Dequeue().Invoke();
         }
     }
-
     public IEnumerator DamageRandomEnemy(bool andCore, int ticsDmg, PlayerOwner owner)
     {
         BeginEffect();
-        for (int i = 0; i < ticsDmg; i++)
+        try
         {
-            if (andCore) GetCoreForEnemy(owner).TakeDamage(1);
-            if (GetBoardForOther(owner).GetCards().Count > 0)
+            for (int i = 0; i < ticsDmg; i++)
             {
-                int rndTarget = UnityEngine.Random.Range(0,GetBoardForOther(owner).GetCards().Count);
-                GetBoardForOther(owner).GetCards()[rndTarget].GetComponent<CardInstance>().TakeDamage(1);
-                Debug.Log("Dealt damage to enemy GUN");
+                if (andCore) GetCoreForEnemy(owner).TakeDamage(1);
+                if (GetBoardForOther(owner).GetCards().Count > 0)
+                {
+                    int rndTarget = UnityEngine.Random.Range(0, GetBoardForOther(owner).GetCards().Count);
+                    GetBoardForOther(owner).GetCards()[rndTarget].GetComponent<CardInstance>().TakeDamage(1);
+                    Debug.Log("Dealt damage to enemy GUN");
+                }
+                yield return new WaitForSeconds(0.5f);
             }
-            yield return new WaitForSeconds(0.5f);
         }
-        EndEffect();
+        finally
+        {
+            EndEffect();
+        }
     }
+
     // reservation counters to avoid concurrent over-summon
     private int allyPendingSummons = 0;
     private int enemyPendingSummons = 0;

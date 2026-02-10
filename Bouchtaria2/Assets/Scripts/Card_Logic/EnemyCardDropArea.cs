@@ -76,7 +76,10 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         enemyPrefabCards.Add(card.gameObject);
         UpdateEnemyCardPositions();
     }
-
+    public void CardPlayed(CardInstance cardInst)
+    {
+        OnCardPlayed?.Invoke(cardInst);
+    }
     public List<GameObject> GetCards()
     {
         return enemyPrefabCards;
