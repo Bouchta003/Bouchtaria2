@@ -9,10 +9,22 @@ using UnityEngine.SceneManagement;
 
 public class DungeonManager : MonoBehaviour
 {
+    public static DungeonManager Instance;
+
     [Header("UI Elements")]
     [SerializeField] TextMeshProUGUI StreakText;
     [SerializeField] Image StreakFire;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+    }
     void Start()
     {
         GetUserCurrentStreak(streak =>
@@ -30,6 +42,71 @@ public class DungeonManager : MonoBehaviour
     void Update()
     {
         
+    }
+    private void IncrementStreak()
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        db.Collection("users")
+          .Document(user.UserId)
+          .UpdateAsync("streak", FieldValue.Increment(1))
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("Failed to modify streak.");
+                    return;
+                }
+                GetUserCurrentStreak(streak =>
+                {
+                    Debug.Log("User streak: " + streak);
+                    StreakText.text = streak.ToString();
+                    if (streak <= 1) StreakFire.gameObject.SetActive(false);
+                    else if (streak < 5) StreakFire.gameObject.SetActive(true);
+                    if (streak >= 5) StreakFire.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+                });
+            });
+
+    }
+    public void ResetStreak()
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        db.Collection("users")
+          .Document(user.UserId)
+          .UpdateAsync("streak", 0)
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("Failed to modify dust.");
+                    return;
+                }
+
+                GetUserCurrentStreak(streak =>
+                {
+                    Debug.Log("User streak: " + streak);
+                    StreakText.text = streak.ToString();
+                    if (streak <= 1) StreakFire.gameObject.SetActive(false);
+                    else if (streak < 5) StreakFire.gameObject.SetActive(true);
+                    if (streak >= 5) StreakFire.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+                });
+            });
+
     }
     public void GetUserCurrentStreak(Action<int> onResult)
     {
@@ -55,15 +132,19 @@ public class DungeonManager : MonoBehaviour
                   return;
               }
 
-              int dust = task.Result.ContainsField("streak")
+              int streak = task.Result.ContainsField("streak")
                   ? task.Result.GetValue<int>("streak")
                   : 0;
 
-              onResult?.Invoke(dust);
+              onResult?.Invoke(streak);
           });
     }
     public void LeaveToMenu()
     {
         SceneManager.LoadScene("Main_Menu");
+    }
+    public void GoToShop()
+    {
+        SceneManager.LoadScene("DungeonShop");
     }
 }

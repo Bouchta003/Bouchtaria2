@@ -215,6 +215,18 @@ public class ScanPanelView : MonoBehaviour
                 keyDescription.text =
                     "When defending, deal damage to the attacker eaqual to the thorn value.";
             }
+            else if (keyword.Contains("avatar"))
+            {
+                keyName.text = "Avatar";
+                keyDescription.text =
+                    "The avatar's stats increase for each praise this game.";
+            }
+            else if (keyword.Contains("praise"))
+            {
+                keyName.text = "Praise";
+                keyDescription.text =
+                    "The avatar gets stronger when played.";
+            }
             else if (keyword.Contains("lifesteal"))
             {
                 keyName.text = "Lifesteal";
