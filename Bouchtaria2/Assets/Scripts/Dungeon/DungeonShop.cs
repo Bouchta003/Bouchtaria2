@@ -31,13 +31,26 @@ public class DungeonShop : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if (DungeonManager.Instance != null && DungeonManager.Instance.CurrentRun != null)
+        {
+            RefreshCoinUI(DungeonManager.Instance.CurrentRun.coins);
+            return;
+        }
+
         GetUserCurrentCoin(coin =>
         {
-            Debug.Log("User coin: " + coin); CoinText.text = coin.ToString();
-            if (coin >= 100) CoinImage.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+            RefreshCoinUI(coin);
         });
     }
 
+    private void RefreshCoinUI(int coin)
+    {
+        Debug.Log("User coin: " + coin);
+        CoinText.text = coin.ToString();
+        CoinImage.transform.localScale = coin >= 100
+            ? new Vector3(1.2f, 1.2f, 1.2f)
+            : Vector3.one;
+    }
     private void ModifyUserCoin(int delta)
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
@@ -62,8 +75,7 @@ public class DungeonShop : MonoBehaviour
 
                 GetUserCurrentCoin(coin =>
                 {
-                    Debug.Log("User coin: " + coin); CoinText.text = coin.ToString();
-                    if (coin >= 100) CoinImage.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+                    RefreshCoinUI(coin);
                 });
             });
 

@@ -50,6 +50,7 @@ public class DungeonManager : MonoBehaviour
     private const string CoinField = "coin";
     private const string DeckField = "dungeondeck";
     private const string AugmentsField = "dungeonaugments";
+    private const int WinCoinReward = 20;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
     {
@@ -71,24 +72,18 @@ public class DungeonManager : MonoBehaviour
             dungeonDeck = new List<int>()
         };
 
-        GetUserCurrentDeck(deck =>{CurrentRun.dungeonDeck = deck;});
-        GetUserCurrentStreak(streak =>
-        {
-            Debug.Log("User streak: " + streak);
-            StreakText.text = streak.ToString();
-            CurrentRun.floor = streak;
-            if (streak <= 1) StreakFire.gameObject.SetActive(false);
-            else if(streak < 5) StreakFire.gameObject.SetActive(true);
-            if (streak >= 5) StreakFire.transform.localScale = new Vector3(1.2f,1.2f,1.2f);
-
-            if (streak <= 0 && CurrentRun.dungeonDeck.Count<=0 && CurrentRun.augments.Count<=0) StartNewRun();
-            else FetchRunData();
-        });
-
-        RefreshAugmentCount();
+        FetchRunData();
     }
     public void RefreshAugmentCount()
     {
+        HPAugment.SetActive(false);
+        ManaAugment.SetActive(false);
+        HPAugmentCount.text = "0";
+        ManaAugmentCount.text = "0";
+
+        if (CurrentRun == null || CurrentRun.augments == null)
+            return;
+
         Dictionary<DungeonShop.Augment, int> augmentCounts =
             CurrentRun.augments
                 .GroupBy(a => a)
@@ -139,8 +134,24 @@ public class DungeonManager : MonoBehaviour
                     dungeonDeck = ParseDeck(snapshot, DeckField)
                 };
 
+                bool hasNoRunData = CurrentRun.floor <= 0
+                    && CurrentRun.dungeonDeck.Count <= 0
+                    && CurrentRun.augments.Count <= 0;
+
                 if (CurrentRun.floor <= 0)
                     CurrentRun.floor = 1;
+
+                Debug.Log("User streak: " + CurrentRun.floor);
+                UpdateStreakUI(CurrentRun.floor);
+
+                if (hasNoRunData)
+                {
+                    StartNewRun();
+                    return;
+                }
+
+                GameRunContext.DungeonData = CurrentRun;
+                RefreshAugmentCount();
             });
     }
     public void StartNewRun()
@@ -152,11 +163,82 @@ public class DungeonManager : MonoBehaviour
             augments = new List<DungeonShop.Augment>(),
             dungeonDeck = new List<int>()
         };
+        GameRunContext.DungeonData = CurrentRun;
         SaveRunData(resetStreak: true);
         RefreshAugmentCount();
     }
 
     public void SaveRunData(bool resetStreak = false)
+    {
+        if (CurrentRun == null)
+            return;
+
+        SaveRunData(CurrentRun, resetStreak);
+        RefreshAugmentCount();
+    }
+    public void IncrementStreak()
+    {
+        ApplyCombatResult(playerWon: true);
+    }
+
+    public void ResetStreak()
+    {
+        ApplyCombatResult(playerWon: false);
+    }
+
+    public static void ApplyCombatResult(bool playerWon)
+    {
+        DungeonRunData runData = GameRunContext.DungeonData
+            ?? Instance?.CurrentRun
+            ?? new DungeonRunData
+            {
+                floor = 1,
+                coins = 0,
+                augments = new List<DungeonShop.Augment>(),
+                dungeonDeck = new List<int>()
+            };
+
+        runData.augments ??= new List<DungeonShop.Augment>();
+        runData.dungeonDeck ??= new List<int>();
+
+        if (playerWon)
+        {
+            runData.floor = Mathf.Max(1, runData.floor + 1);
+            runData.coins += WinCoinReward;
+        }
+        else
+        {
+            runData.floor = 1;
+            runData.coins = 0;
+            runData.augments.Clear();
+            runData.dungeonDeck.Clear();
+        }
+
+        GameRunContext.DungeonData = runData;
+
+        if (Instance != null)
+        {
+            Instance.CurrentRun = runData;
+            Instance.UpdateStreakUI(runData.floor);
+            Instance.RefreshAugmentCount();
+        }
+
+        SaveRunData(runData, resetStreak: !playerWon);
+    }
+    private void UpdateStreakUI(int streak)
+    {
+        if (StreakText != null)
+            StreakText.text = streak.ToString();
+
+        if (StreakFire == null)
+            return;
+
+        if (streak <= 1) StreakFire.gameObject.SetActive(false);
+        else if (streak < 5) StreakFire.gameObject.SetActive(true);
+        if (streak >= 5) StreakFire.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+    }
+
+    private static void SaveRunData(DungeonRunData runData, bool resetStreak)
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
         if (user == null)
@@ -168,15 +250,17 @@ public class DungeonManager : MonoBehaviour
         FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
         var updates = new Dictionary<string, object>
         {
-            { StreakField, CurrentRun.floor},
-            { CoinField, CurrentRun.coins },
-            { AugmentsField, SerializeAugments(CurrentRun.augments) },
-            { DeckField,  CurrentRun.dungeonDeck}
+            { StreakField, runData.floor},
+            { CoinField, runData.coins },
+            { AugmentsField, SerializeAugments(runData.augments) },
+            { DeckField,  runData.dungeonDeck }
         };
 
         if (resetStreak)
-        { 
+        {
             updates[StreakField] = 0;
+            updates[CoinField] = 0;
+            updates[AugmentsField] = string.Empty;
             updates[DeckField] = new List<int>();
         }
 
@@ -187,85 +271,9 @@ public class DungeonManager : MonoBehaviour
             {
                 if (task.IsFaulted)
                     ErrorPopup.Show("Failed to save dungeon run data.");
-            }); RefreshAugmentCount();
-    }
-    public void IncrementStreak()
-    {
-        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
-        if (user == null)
-        {
-            Debug.LogError("No authenticated user.");
-            return;
-        }
-
-        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
-
-        db.Collection("users")
-          .Document(user.UserId)
-          .UpdateAsync(StreakField, FieldValue.Increment(1))
-            .ContinueWithOnMainThread(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    Debug.LogError("Failed to modify streak.");
-                    return;
-                }
-                GetUserCurrentStreak(streak =>
-                {
-                    CurrentRun.floor = Mathf.Max(1, streak);
-                    Debug.Log("User streak: " + streak);
-                    StreakText.text = streak.ToString();
-                    if (streak <= 1) StreakFire.gameObject.SetActive(false);
-                    else if (streak < 5) StreakFire.gameObject.SetActive(true);
-                    if (streak >= 5) StreakFire.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
-                    SaveRunData();
-                });
             });
-        RefreshAugmentCount();
     }
-    public void ResetStreak()
-    {
-        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
-        if (user == null)
-        {
-            Debug.LogError("No authenticated user.");
-            return;
-        }
 
-        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
-
-        db.Collection("users")
-          .Document(user.UserId)
-          .UpdateAsync(StreakField, 1)
-            .ContinueWithOnMainThread(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    Debug.LogError("Failed to modify dust.");
-                    return;
-                }
-
-                GetUserCurrentStreak(streak =>
-                {
-                    Debug.Log("User streak: " + streak);
-                    StreakText.text = streak.ToString();
-                    if (streak <= 1) StreakFire.gameObject.SetActive(false);
-                    else if (streak < 5) StreakFire.gameObject.SetActive(true);
-                    if (streak >= 5) StreakFire.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
-                });
-            });
-
-        CurrentRun.Reset();
-        CurrentRun.coins = 0;
-        SaveRunData(resetStreak: true);
-
-        if (GameRunContext.DungeonData != null)
-        {
-            GameRunContext.DungeonData.Reset();
-            GameRunContext.DungeonData.coins = 0;
-        }
-        RefreshAugmentCount();
-    }
     public void GetUserCurrentStreak(Action<int> onResult)
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
