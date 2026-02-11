@@ -58,6 +58,14 @@ public class DungeonManager : MonoBehaviour
     }
     void Start()
     {
+        CurrentRun ??= new DungeonRunData
+        {
+            floor = 1,
+            coins = 0,
+            augments = new List<DungeonShop.Augment>(),
+            dungeonDeck = new List<int>()
+        };
+
         GetUserCurrentDeck(deck =>{CurrentRun.dungeonDeck = deck;});
         GetUserCurrentStreak(streak =>
         {
@@ -100,7 +108,8 @@ public class DungeonManager : MonoBehaviour
                 {
                     floor = snapshot.ContainsField(StreakField) ? task.Result.GetValue<int>(StreakField) : 1,
                     coins = snapshot.ContainsField(CoinField) ? task.Result.GetValue<int>(CoinField) : 0,
-                    augments = ParseAugments(snapshot.ContainsField(AugmentsField) ? task.Result.GetValue<string>(AugmentsField) : string.Empty)
+                    augments = ParseAugments(snapshot.ContainsField(AugmentsField) ? task.Result.GetValue<string>(AugmentsField) : string.Empty),
+                    dungeonDeck = ParseDeck(snapshot, DeckField)
                 };
 
                 if (CurrentRun.floor <= 0)
@@ -113,7 +122,8 @@ public class DungeonManager : MonoBehaviour
         {
             floor = 1,
             coins = 0,
-            augments = new List<DungeonShop.Augment>()
+            augments = new List<DungeonShop.Augment>(),
+            dungeonDeck = new List<int>()
         };
         SaveRunData(resetStreak: true);
     }
@@ -282,21 +292,24 @@ public class DungeonManager : MonoBehaviour
                   return;
               }
 
-              if (!task.Result.ContainsField(DeckField))
-              {
-                  onResult?.Invoke(new List<int>());
-                  return;
-              }
-
-          // Firestore returns List<object>
-          List<object> rawDeck = task.Result.GetValue<List<object>>(DeckField);
-
-              List<int> deck = rawDeck
-                  .Select(x => Convert.ToInt32(x))
-                  .ToList();
-
-              onResult?.Invoke(deck);
+              onResult?.Invoke(ParseDeck(task.Result, DeckField));
           });
+    }
+
+    private static List<int> ParseDeck(DocumentSnapshot snapshot, string field)
+    {
+        if (!snapshot.ContainsField(field))
+            return new List<int>();
+
+        object raw = snapshot.GetValue<object>(field);
+
+        if (raw is IEnumerable<object> enumerable)
+            return enumerable.Select(x => Convert.ToInt32(x)).ToList();
+
+        if (raw is IEnumerable<int> ints)
+            return ints.ToList();
+
+        return new List<int>();
     }
 
     public void LeaveToMenu()
@@ -336,7 +349,8 @@ public class DungeonManager : MonoBehaviour
                     133,133     // Hoopa portal
                     };
                 DeckSelectionCache.SelectedEnemyDeck = enemyDeck0;
-                DeckSelectionCache.SelectedPlayerDeck = CurrentRun.dungeonDeck;
+                DeckSelectionCache.SelectedPlayerDeck = new List<int>(deck);
+                CurrentRun.dungeonDeck = new List<int>(deck);
                 GameFlowController.Instance.GoToDungeonCombat(CurrentRun); 
             }
         });
