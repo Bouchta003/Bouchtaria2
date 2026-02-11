@@ -12039,7 +12039,7 @@ GameObject:
   - component: {fileID: 1794057593}
   - component: {fileID: 1794057592}
   m_Layer: 5
-  m_Name: PreviousPageBTN
+  m_Name: DeleteDeckBTN
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12901,8 +12901,12 @@ MonoBehaviour:
   CollectionLayout: {fileID: 1428864691}
   DeckUI: {fileID: 1243680189}
   IndexUI: {fileID: 915524116}
+  ChangeDecksButton: {fileID: 1095598189}
+  DeleteDeckButton: {fileID: 1794057590}
   DeckNameInput: {fileID: 399042234}
   DustCounter: {fileID: 1192419448}
+  ChestSpriteTop: {fileID: 2016817956}
+  ChestSpriteBot: {fileID: 1484331792}
   craftCursor: {fileID: 795417742}
   craftFilter: {fileID: 1175173213}
   CurrentDeck: 

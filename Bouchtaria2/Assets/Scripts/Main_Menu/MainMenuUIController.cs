@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class MainMenuUIController : MonoBehaviour
 {
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab)) OnDungeonlicked();
+    }
     public void OnPlayCollectionClicked()
     {
         GameFlowController.Instance.GoToCollection();

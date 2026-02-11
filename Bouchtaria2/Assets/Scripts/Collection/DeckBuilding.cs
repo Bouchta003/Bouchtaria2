@@ -19,8 +19,12 @@ public class DeckBuilding : MonoBehaviour
     [SerializeField] public GameObject CollectionLayout;
     [SerializeField] public GameObject DeckUI;
     [SerializeField] public GameObject IndexUI;
+    [SerializeField] public GameObject ChangeDecksButton;
+    [SerializeField] public GameObject DeleteDeckButton;
     [SerializeField] public TMP_InputField DeckNameInput;
     [SerializeField] public TextMeshProUGUI DustCounter;
+    [SerializeField] public SpriteRenderer ChestSpriteTop;
+    [SerializeField] public SpriteRenderer ChestSpriteBot;
 
     [Header("Cursor")]
     [SerializeField] Image craftCursor;
@@ -48,6 +52,7 @@ public class DeckBuilding : MonoBehaviour
 
     public event System.Action OnDecksLoaded;
 
+    int maxDeckSize = 30;
     private void Awake()
     {
         if (Instance != null)
@@ -59,6 +64,7 @@ public class DeckBuilding : MonoBehaviour
         Instance = this;
 
         craftFilter.gameObject.SetActive(false);
+        DeckUI.SetActive(false);
         collection = CollectionLayout.GetComponentInChildren<CollectionScreen>();
 
         GetUserDust(dust =>
@@ -68,6 +74,24 @@ public class DeckBuilding : MonoBehaviour
             DustCounter.text = dust.ToString();
         });
 
+    }
+    private void Start()
+    {
+        //In case of dungeon runs
+        if (GameRunContext.IsDungeonRun)
+        {
+            maxDeckSize = 15;
+            //Add augment logic to increase deck size based on augment.
+
+            DeckNameInput.text = "DungeonDeck";
+            DeckNameInput.DeactivateInputField();// To test
+
+            ChangeDecksButton.SetActive(false);
+            DeleteDeckButton.SetActive(false);
+            
+            ChestSpriteBot.color = new Color(1, 0.8f, 0.3f);
+            ChestSpriteTop.color = new Color(1, 0.8f, 0.3f);
+        }
     }
     private void Update()
     {
@@ -98,9 +122,8 @@ public class DeckBuilding : MonoBehaviour
         }
 
         CurrentDeck.Add(cardId);
-        ShowProgress(CurrentDeck.Count, 30);
+        ShowProgress(CurrentDeck.Count, maxDeckSize);
         DetectUnlockableTraits();
-        Debug.Log(DisplayDeckCardIDs(CurrentDeck));
     }
     public void RemoveCardFromChest(Card card)
     {
@@ -108,12 +131,10 @@ public class DeckBuilding : MonoBehaviour
         {
             CurrentDeck.Remove(card.GetComponent<CardView>().CardData.id);
             collection.ShowPage(collection.currentPage);
-            ShowProgress(CurrentDeck.Count, 30);
+            ShowProgress(CurrentDeck.Count, maxDeckSize);
         }
-        else Debug.LogWarning("Couldn't remove card of id " + card.GetComponent<CardView>().CardData.id);
+        else ErrorPopup.Show("Couldn't remove card of id " + card.GetComponent<CardView>().CardData.id);
         DetectUnlockableTraits();
-
-        Debug.Log(DisplayDeckCardIDs(CurrentDeck));
     }
     private bool IsCardOwned(int cardId)
     {
@@ -135,11 +156,9 @@ public class DeckBuilding : MonoBehaviour
             ShowWarning("A deck can only have 2 copies of each card.");
             return false;
         }
-
-        // Deck size safety
-        if (CurrentDeck.Count >= 30)
+        if (CurrentDeck.Count >= maxDeckSize)
         {
-            ShowWarning("Your deck already has 30 cards.");
+            ShowWarning($"Your deck already has {maxDeckSize} cards.");
             return false;
         }
 
@@ -171,6 +190,11 @@ public class DeckBuilding : MonoBehaviour
     }
     public void RegisterDeck()
     {
+        if (GameRunContext.IsDungeonRun)
+        {
+            RegisterDungeonDeck();
+            return;
+        }
         // 🔒 Validation
         if (string.IsNullOrWhiteSpace(DeckNameInput.text))
         {
@@ -178,9 +202,9 @@ public class DeckBuilding : MonoBehaviour
             return;
         }
 
-        if (CurrentDeck == null || CurrentDeck.Count != 30)
+        if (CurrentDeck == null || CurrentDeck.Count != maxDeckSize)
         {
-            ShowWarning($"Deck must contain exactly 30 cards (currently {CurrentDeck.Count}).");
+            ShowWarning($"Deck must contain exactly {maxDeckSize} cards (currently {CurrentDeck.Count}).");
             return;
         }
         // Final validation pass
@@ -261,6 +285,61 @@ public class DeckBuilding : MonoBehaviour
                     }
                 });
             });
+    }
+    private void RegisterDungeonDeck()
+    {
+        if (string.IsNullOrWhiteSpace(DeckNameInput.text))
+        {
+            ShowWarning("Deck name is empty.");
+            return;
+        }
+
+        if (CurrentDeck == null || CurrentDeck.Count != maxDeckSize)
+        {
+            ShowWarning($"Deck must contain exactly {maxDeckSize} cards (currently {CurrentDeck.Count}).");
+            return;
+        }
+        // Final validation pass
+        foreach (int id in CurrentDeck)
+        {
+            if (!IsCardOwned(id))
+            {
+                ShowWarning("Deck contains unowned cards. Aborting save.");
+                return;
+            }
+
+            if (CurrentDeck.Count(x => x == id) > 2)
+            {
+                ShowWarning("Deck violates copy limit. Aborting save.");
+                return;
+            }
+        }
+
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        db.Collection("users")
+          .Document(user.UserId)
+          .UpdateAsync("dungeondeck", CurrentDeck)
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    ErrorPopup.Show("Failed to save dungeon deck.");
+                    return;
+                }
+
+                DungeonManager.Instance.CurrentRun.dungeonDeck = CurrentDeck;
+                DungeonManager.Instance.SaveRunData();
+                ErrorPopup.Show("Deck successfully saved.");
+            });
+
     }
     public void DeleteDeck()
     {

@@ -400,6 +400,9 @@ public class CollectionScreen : MonoBehaviour
     }
     public void GoToMainMenu()
     {
-        SceneManager.LoadScene("Main_Menu");
+        if (GameRunContext.IsDungeonRun)
+            GameFlowController.Instance.GoToDungeon();
+        else
+            SceneManager.LoadScene("Main_Menu");
     }
 }

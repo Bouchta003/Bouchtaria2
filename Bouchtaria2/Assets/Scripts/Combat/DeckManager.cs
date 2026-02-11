@@ -264,11 +264,11 @@ public class DeckManager : MonoBehaviour
             {
                 deck.Add(CardDatabase.Instance.GetCardById(id));
             }
-            Debug.Log($"Selected player's deck from db");
             return deck;
         }
 
         // Fallback (editor / debug)
+        ErrorPopup.Show("Couldn't load deck");
         foreach (CardData card in CardDatabase.Instance.Cards.Values)
         {
             if (card.traits.Contains("MonsterHunter") && card.packable)

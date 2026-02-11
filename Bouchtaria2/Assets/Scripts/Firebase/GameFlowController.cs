@@ -111,7 +111,7 @@ public class GameFlowController : MonoBehaviour
     {
         if (!isGameReady)
         {
-            Debug.LogWarning("⚠️ Game data not ready yet");
+            ErrorPopup.Show("⚠️ Game data not ready yet");
             return;
         }
         //IsThisLineNecessary ?
@@ -122,18 +122,30 @@ public class GameFlowController : MonoBehaviour
     public void GoToDungeonCombat(DungeonRunData data)
     {
         if (!isGameReady) return;
-
+        GameRunContext.IsDungeonRun = true;
+        GameRunContext.DungeonData = DungeonManager.Instance.CurrentRun;
+        SceneManager.LoadScene("Combat");
+    }
+    public void GoToDungeonDeck(DungeonRunData data)
+    {
         GameRunContext.IsDungeonRun = true;
         GameRunContext.DungeonData = data;
 
-        SceneManager.LoadScene("QuickMatch");
+        if (!isGameReady)
+        {
+            ErrorPopup.Show("⚠️ Game data not ready yet");
+            return;
+        }
+
+        UserCollectionManager.Instance.RefreshCollection();
+        SceneManager.LoadScene("Collection");
     }
 
     public void GoToShop()
     {
         if (!isGameReady)
         {
-            Debug.LogWarning("⚠️ Game data not ready yet");
+            ErrorPopup.Show("⚠️ Game data not ready yet");
             return;
         }
         //IsThisLineNecessary ?
@@ -144,7 +156,7 @@ public class GameFlowController : MonoBehaviour
     {
         if (!isGameReady)
         {
-            Debug.LogWarning("⚠️ Game data not ready yet");
+            ErrorPopup.Show("⚠️ Game data not ready yet");
             return;
         }
 

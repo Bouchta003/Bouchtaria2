@@ -13,15 +13,16 @@ using System.Linq;
 public class DungeonRunData
 {
     public int floor;
-    //public int difficulty;
     public int coins;
-    //public bool isBossFight;
     public List<DungeonShop.Augment> augments;
+    public List<int> dungeonDeck;
 
     public void Reset()
     {
         floor = 0;
+        coins = 0;
         augments.Clear();
+        dungeonDeck.Clear();
     }
 }
 public static class GameRunContext
@@ -42,6 +43,7 @@ public class DungeonManager : MonoBehaviour
 
     private const string StreakField = "streak";
     private const string CoinField = "coin";
+    private const string DeckField = "dungeondeck";
     private const string AugmentsField = "dungeonaugments";
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
@@ -56,15 +58,17 @@ public class DungeonManager : MonoBehaviour
     }
     void Start()
     {
+        GetUserCurrentDeck(deck =>{CurrentRun.dungeonDeck = deck;});
         GetUserCurrentStreak(streak =>
         {
             Debug.Log("User streak: " + streak);
             StreakText.text = streak.ToString();
+            CurrentRun.floor = streak;
             if (streak <= 1) StreakFire.gameObject.SetActive(false);
             else if(streak < 5) StreakFire.gameObject.SetActive(true);
             if (streak >= 5) StreakFire.transform.localScale = new Vector3(1.2f,1.2f,1.2f);
 
-            if (streak <= 0) StartNewRun();
+            if (streak <= 0 && CurrentRun.dungeonDeck.Count<=0 && CurrentRun.augments.Count<=0) StartNewRun();
             else FetchRunData();
         });
     }
@@ -111,7 +115,6 @@ public class DungeonManager : MonoBehaviour
             coins = 0,
             augments = new List<DungeonShop.Augment>()
         };
-
         SaveRunData(resetStreak: true);
     }
 
@@ -127,12 +130,17 @@ public class DungeonManager : MonoBehaviour
         FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
         var updates = new Dictionary<string, object>
         {
+            { StreakField, CurrentRun.floor},
             { CoinField, CurrentRun.coins },
-            { AugmentsField, SerializeAugments(CurrentRun.augments) }
+            { AugmentsField, SerializeAugments(CurrentRun.augments) },
+            { DeckField,  CurrentRun.dungeonDeck}
         };
 
         if (resetStreak)
+        { 
             updates[StreakField] = 0;
+            updates[DeckField] = new List<int>();
+        }
 
         db.Collection("users")
             .Document(user.UserId)
@@ -140,13 +148,8 @@ public class DungeonManager : MonoBehaviour
             .ContinueWithOnMainThread(task =>
             {
                 if (task.IsFaulted)
-                    Debug.LogError("Failed to save dungeon run data.");
+                    ErrorPopup.Show("Failed to save dungeon run data.");
             });
-    }
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
     public void IncrementStreak()
     {
@@ -255,6 +258,47 @@ public class DungeonManager : MonoBehaviour
               onResult?.Invoke(streak);
           });
     }
+    public void GetUserCurrentDeck(Action<List<int>> onResult)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            onResult?.Invoke(new List<int>());
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        db.Collection("users")
+          .Document(user.UserId)
+          .GetSnapshotAsync()
+          .ContinueWithOnMainThread(task =>
+          {
+              if (task.IsFaulted || !task.Result.Exists)
+              {
+                  ErrorPopup.Show("Failed to fetch user deck.");
+                  onResult?.Invoke(new List<int>());
+                  return;
+              }
+
+              if (!task.Result.ContainsField(DeckField))
+              {
+                  onResult?.Invoke(new List<int>());
+                  return;
+              }
+
+          // Firestore returns List<object>
+          List<object> rawDeck = task.Result.GetValue<List<object>>(DeckField);
+
+              List<int> deck = rawDeck
+                  .Select(x => Convert.ToInt32(x))
+                  .ToList();
+
+              onResult?.Invoke(deck);
+          });
+    }
+
     public void LeaveToMenu()
     {
         SceneManager.LoadScene("Main_Menu");
@@ -265,9 +309,38 @@ public class DungeonManager : MonoBehaviour
     }
     public void FloorCombat()
     {
-        GameFlowController.Instance.GoToDungeonCombat(CurrentRun);
-    }
+        GetUserCurrentDeck(deck =>
+        {
+            if (deck.Count <= 0) GameFlowController.Instance.GoToDungeonDeck(CurrentRun);
+            else 
+            {
+                //Start Combat :
+                List<int> enemyDeck0 = new List<int>
+                    {0,0,        // Starter Choice
+                    46,46,      // Faust flower
+                    19,19,      // Chimchar
+                    58,58,      // NoMusic
 
+                    49,49,      // IO
+                    120,120,    // Metronome
+                    40,40,      // Beldum
+
+                    54,54,      // Dormis
+                    55,55,      // Darkrai
+                    56,56,      // Wigglytuff
+                    57,57,      // Snorlax
+
+                    116,118,    // Reshiram et Zekrom
+                    88,88,      // Rainbow Card
+                    89,89,      // Frog
+                    133,133     // Hoopa portal
+                    };
+                DeckSelectionCache.SelectedEnemyDeck = enemyDeck0;
+                DeckSelectionCache.SelectedPlayerDeck = CurrentRun.dungeonDeck;
+                GameFlowController.Instance.GoToDungeonCombat(CurrentRun); 
+            }
+        });
+    }
     private static string SerializeAugments(List<DungeonShop.Augment> augments)
     {
         if (augments == null || augments.Count == 0)

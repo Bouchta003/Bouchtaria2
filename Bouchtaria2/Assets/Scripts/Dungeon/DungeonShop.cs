@@ -15,7 +15,7 @@ public class DungeonShop : MonoBehaviour
     [SerializeField] Image CoinImage;
     public enum Augment
     {
-        MaxHP, StartMana, RandomAugment
+        MaxHP, StartMana
     }
     private void Awake()
     {
@@ -85,7 +85,7 @@ public class DungeonShop : MonoBehaviour
 
         switch (aug)
         {
-            case 0:
+            case -1:
                 if (DungeonManager.Instance.CurrentRun.coins < 100)
                 {
                     ErrorPopup.Show("Not enough dungeon coins.");
@@ -97,7 +97,7 @@ public class DungeonShop : MonoBehaviour
                 int rand = UnityEngine.Random.Range(1, 3);
                 ClickAugment(rand);
                 break;
-            case 1:
+            case 0:
                 if (DungeonManager.Instance.CurrentRun.coins < 10)
                 {
                     ErrorPopup.Show("Not enough dungeon coins.");
@@ -109,7 +109,7 @@ public class DungeonShop : MonoBehaviour
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.MaxHP);
                 DungeonManager.Instance.SaveRunData();
                 break;
-            case 2:
+            case 1:
                 if (DungeonManager.Instance.CurrentRun.coins < 50)
                 {
                     ErrorPopup.Show("Not enough dungeon coins.");
