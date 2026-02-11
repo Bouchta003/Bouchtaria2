@@ -19,7 +19,7 @@ public class DungeonRunData
 
     public void Reset()
     {
-        floor = 0;
+        floor = 1;
         coins = 0;
         augments.Clear();
         dungeonDeck.Clear();
@@ -40,8 +40,6 @@ public class DungeonManager : MonoBehaviour
     [SerializeField] Image StreakFire;
 
     [Header("Current Augments")]
-    [SerializeField] GameObject HPAugment;
-    [SerializeField] GameObject ManaAugment;
     [SerializeField] TextMeshProUGUI HPAugmentCount;
     [SerializeField] TextMeshProUGUI ManaAugmentCount;
     public DungeonRunData CurrentRun;
@@ -75,8 +73,6 @@ public class DungeonManager : MonoBehaviour
     }
     public void RefreshAugmentCount()
     {
-        HPAugment.SetActive(false);
-        ManaAugment.SetActive(false);
         HPAugmentCount.text = "0";
         ManaAugmentCount.text = "0";
 
@@ -91,12 +87,12 @@ public class DungeonManager : MonoBehaviour
         {
             if (pair.Key == DungeonShop.Augment.MaxHP && pair.Value>0)
             {
-                HPAugment.SetActive(true);HPAugmentCount.text = pair.Value.ToString();
+                HPAugmentCount.text = pair.Value.ToString();
             }
 
             if (pair.Key == DungeonShop.Augment.StartMana && pair.Value > 0)
             {
-                ManaAugment.SetActive(true); ManaAugmentCount.text = pair.Value.ToString();
+                ManaAugmentCount.text = pair.Value.ToString();
             }
         }
 

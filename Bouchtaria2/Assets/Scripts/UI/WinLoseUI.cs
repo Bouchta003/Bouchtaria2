@@ -19,6 +19,7 @@ public class WinLoseUI : MonoBehaviour
     {
         if (GameRunContext.IsDungeonRun) DungeonManager.Instance.IncrementStreak();
         Setup("VICTORY", Color.green, "Enemy Core Destroyed, you earned 100 Gold");
+        DungeonShop.Instance.ModifyUserCoin(20);
     }
 
     public void ShowLose()
@@ -28,7 +29,8 @@ public class WinLoseUI : MonoBehaviour
     }
     public void LeaveToMenu()
     {
-        SceneManager.LoadScene("Main_Menu");
+        if (GameRunContext.IsDungeonRun) SceneManager.LoadScene("DungeonMenu");
+        else SceneManager.LoadScene("Main_Menu");
     }
     private void Setup(string title, Color color, string subtitle)
     {

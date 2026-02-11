@@ -38,7 +38,7 @@ public class DungeonShop : MonoBehaviour
         });
     }
 
-    private void ModifyUserCoin(int delta)
+    public void ModifyUserCoin(int delta)
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
         if (user == null)
@@ -81,38 +81,38 @@ public class DungeonShop : MonoBehaviour
         switch (aug)
         {
             case -1:
-                if (DungeonManager.Instance.CurrentRun.coins < 100)
+                if (DungeonManager.Instance.CurrentRun.coins < 75)
                 {
                     ErrorPopup.Show("Not enough dungeon coins.");
                     break;
                 }
 
                 ModifyUserCoin(-100);
-                DungeonManager.Instance.CurrentRun.coins -= 100;
+                DungeonManager.Instance.CurrentRun.coins -= 75;
                 int rand = UnityEngine.Random.Range(0, 2);
                 ClickAugment(rand);
                 break;
             case 0:
-                if (DungeonManager.Instance.CurrentRun.coins < 10)
-                {
-                    ErrorPopup.Show("Not enough dungeon coins.");
-                    break;
-                }
-
-                ModifyUserCoin(-10);
-                DungeonManager.Instance.CurrentRun.coins -= 10;
-                DungeonManager.Instance.CurrentRun.augments.Add(Augment.MaxHP);
-                DungeonManager.Instance.SaveRunData();
-                break;
-            case 1:
                 if (DungeonManager.Instance.CurrentRun.coins < 50)
                 {
                     ErrorPopup.Show("Not enough dungeon coins.");
                     break;
                 }
 
-                ModifyUserCoin(-50);
+                ModifyUserCoin(-10);
                 DungeonManager.Instance.CurrentRun.coins -= 50;
+                DungeonManager.Instance.CurrentRun.augments.Add(Augment.MaxHP);
+                DungeonManager.Instance.SaveRunData();
+                break;
+            case 1:
+                if (DungeonManager.Instance.CurrentRun.coins < 100)
+                {
+                    ErrorPopup.Show("Not enough dungeon coins.");
+                    break;
+                }
+
+                ModifyUserCoin(-50);
+                DungeonManager.Instance.CurrentRun.coins -= 100;
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.StartMana);
                 DungeonManager.Instance.SaveRunData();
                 break;
