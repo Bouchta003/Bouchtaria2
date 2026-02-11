@@ -71,24 +71,18 @@ public class DungeonManager : MonoBehaviour
             dungeonDeck = new List<int>()
         };
 
-        GetUserCurrentDeck(deck =>{CurrentRun.dungeonDeck = deck;});
-        GetUserCurrentStreak(streak =>
-        {
-            Debug.Log("User streak: " + streak);
-            StreakText.text = streak.ToString();
-            CurrentRun.floor = streak;
-            if (streak <= 1) StreakFire.gameObject.SetActive(false);
-            else if(streak < 5) StreakFire.gameObject.SetActive(true);
-            if (streak >= 5) StreakFire.transform.localScale = new Vector3(1.2f,1.2f,1.2f);
-
-            if (streak <= 0 && CurrentRun.dungeonDeck.Count<=0 && CurrentRun.augments.Count<=0) StartNewRun();
-            else FetchRunData();
-        });
-
-        RefreshAugmentCount();
+        FetchRunData();
     }
     public void RefreshAugmentCount()
     {
+        HPAugment.SetActive(false);
+        ManaAugment.SetActive(false);
+        HPAugmentCount.text = "0";
+        ManaAugmentCount.text = "0";
+
+        if (CurrentRun == null || CurrentRun.augments == null)
+            return;
+
         Dictionary<DungeonShop.Augment, int> augmentCounts =
             CurrentRun.augments
                 .GroupBy(a => a)
@@ -139,8 +133,26 @@ public class DungeonManager : MonoBehaviour
                     dungeonDeck = ParseDeck(snapshot, DeckField)
                 };
 
+                bool hasNoRunData = CurrentRun.floor <= 0
+                    && CurrentRun.dungeonDeck.Count <= 0
+                    && CurrentRun.augments.Count <= 0;
+
                 if (CurrentRun.floor <= 0)
                     CurrentRun.floor = 1;
+
+                Debug.Log("User streak: " + CurrentRun.floor);
+                StreakText.text = CurrentRun.floor.ToString();
+                if (CurrentRun.floor <= 1) StreakFire.gameObject.SetActive(false);
+                else if (CurrentRun.floor < 5) StreakFire.gameObject.SetActive(true);
+                if (CurrentRun.floor >= 5) StreakFire.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+
+                if (hasNoRunData)
+                {
+                    StartNewRun();
+                    return;
+                }
+
+                RefreshAugmentCount();
             });
     }
     public void StartNewRun()
