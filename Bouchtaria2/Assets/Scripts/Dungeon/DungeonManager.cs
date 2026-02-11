@@ -69,6 +69,7 @@ public class DungeonManager : MonoBehaviour
             dungeonDeck = new List<int>()
         };
 
+        ApplyRunToUI();
         FetchRunData();
     }
     public void RefreshAugmentCount()
@@ -125,7 +126,7 @@ public class DungeonManager : MonoBehaviour
                 {
                     floor = snapshot.ContainsField(StreakField) ? task.Result.GetValue<int>(StreakField) : 1,
                     coins = snapshot.ContainsField(CoinField) ? task.Result.GetValue<int>(CoinField) : 0,
-                    augments = ParseAugments(snapshot.ContainsField(AugmentsField) ? task.Result.GetValue<string>(AugmentsField) : string.Empty),
+                    augments = ParseAugments(snapshot, AugmentsField),
                     dungeonDeck = ParseDeck(snapshot, DeckField)
                 };
 
@@ -137,18 +138,13 @@ public class DungeonManager : MonoBehaviour
                     CurrentRun.floor = 1;
 
                 Debug.Log("User streak: " + CurrentRun.floor);
-                StreakText.text = CurrentRun.floor.ToString();
-                if (CurrentRun.floor <= 1) StreakFire.gameObject.SetActive(false);
-                else if (CurrentRun.floor < 5) StreakFire.gameObject.SetActive(true);
-                if (CurrentRun.floor >= 5) StreakFire.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+                ApplyRunToUI();
 
                 if (hasNoRunData)
                 {
                     StartNewRun();
                     return;
                 }
-
-                RefreshAugmentCount();
             });
     }
     public void StartNewRun()
@@ -161,7 +157,7 @@ public class DungeonManager : MonoBehaviour
             dungeonDeck = new List<int>()
         };
         SaveRunData(resetStreak: true);
-        RefreshAugmentCount();
+        ApplyRunToUI();
     }
 
     public void SaveRunData(bool resetStreak = false)
@@ -195,7 +191,7 @@ public class DungeonManager : MonoBehaviour
             {
                 if (task.IsFaulted)
                     ErrorPopup.Show("Failed to save dungeon run data.");
-            }); RefreshAugmentCount();
+            }); ApplyRunToUI();
     }
     public void IncrementStreak()
     {
@@ -222,14 +218,11 @@ public class DungeonManager : MonoBehaviour
                 {
                     CurrentRun.floor = Mathf.Max(1, streak);
                     Debug.Log("User streak: " + streak);
-                    StreakText.text = streak.ToString();
-                    if (streak <= 1) StreakFire.gameObject.SetActive(false);
-                    else if (streak < 5) StreakFire.gameObject.SetActive(true);
-                    if (streak >= 5) StreakFire.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+                    ApplyRunToUI();
                     SaveRunData();
                 });
             });
-        RefreshAugmentCount();
+        ApplyRunToUI();
     }
     public void ResetStreak()
     {
@@ -256,10 +249,7 @@ public class DungeonManager : MonoBehaviour
                 GetUserCurrentStreak(streak =>
                 {
                     Debug.Log("User streak: " + streak);
-                    StreakText.text = streak.ToString();
-                    if (streak <= 1) StreakFire.gameObject.SetActive(false);
-                    else if (streak < 5) StreakFire.gameObject.SetActive(true);
-                    if (streak >= 5) StreakFire.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+                    ApplyRunToUI();
                 });
             });
 
@@ -272,7 +262,7 @@ public class DungeonManager : MonoBehaviour
             GameRunContext.DungeonData.Reset();
             GameRunContext.DungeonData.coins = 0;
         }
-        RefreshAugmentCount();
+        ApplyRunToUI();
     }
     public void GetUserCurrentStreak(Action<int> onResult)
     {
@@ -400,7 +390,22 @@ public class DungeonManager : MonoBehaviour
         return string.Join(",", augments.Select(a => ((int)a).ToString()));
     }
 
-    private static List<DungeonShop.Augment> ParseAugments(string raw)
+    private static List<DungeonShop.Augment> ParseAugments(DocumentSnapshot snapshot, string field)
+    {
+        if (!snapshot.ContainsField(field))
+            return new List<DungeonShop.Augment>();
+
+        string raw = string.Empty;
+
+        if (snapshot.TryGetValue(field, out string storedAsString))
+            raw = storedAsString;
+        else if (snapshot.TryGetValue(field, out object storedAsObject) && storedAsObject != null)
+            raw = storedAsObject.ToString();
+
+        return ParseAugmentsFromString(raw);
+    }
+
+    private static List<DungeonShop.Augment> ParseAugmentsFromString(string raw)
     {
         var list = new List<DungeonShop.Augment>();
 
@@ -408,12 +413,30 @@ public class DungeonManager : MonoBehaviour
             return list;
 
         string[] chunks = raw.Split(',');
-        foreach (var chunk in chunks)
+        foreach (string chunk in chunks)
         {
-            if (int.TryParse(chunk, out int value) && Enum.IsDefined(typeof(DungeonShop.Augment), value))
+            if (int.TryParse(chunk.Trim(), out int value) && Enum.IsDefined(typeof(DungeonShop.Augment), value))
                 list.Add((DungeonShop.Augment)value);
         }
 
         return list;
+    }
+
+    private void ApplyRunToUI()
+    {
+        if (CurrentRun != null)
+        {
+            if (StreakText != null)
+                StreakText.text = CurrentRun.floor.ToString();
+
+            if (StreakFire != null)
+            {
+                if (CurrentRun.floor <= 1) StreakFire.gameObject.SetActive(false);
+                else if (CurrentRun.floor < 5) StreakFire.gameObject.SetActive(true);
+                if (CurrentRun.floor >= 5) StreakFire.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+            }
+        }
+
+        RefreshAugmentCount();
     }
 }
