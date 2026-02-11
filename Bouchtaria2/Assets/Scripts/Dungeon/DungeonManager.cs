@@ -39,6 +39,11 @@ public class DungeonManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI StreakText;
     [SerializeField] Image StreakFire;
 
+    [Header("Current Augments")]
+    [SerializeField] GameObject HPAugment;
+    [SerializeField] GameObject ManaAugment;
+    [SerializeField] TextMeshProUGUI HPAugmentCount;
+    [SerializeField] TextMeshProUGUI ManaAugmentCount;
     public DungeonRunData CurrentRun;
 
     private const string StreakField = "streak";
@@ -79,6 +84,30 @@ public class DungeonManager : MonoBehaviour
             if (streak <= 0 && CurrentRun.dungeonDeck.Count<=0 && CurrentRun.augments.Count<=0) StartNewRun();
             else FetchRunData();
         });
+
+        RefreshAugmentCount();
+    }
+    public void RefreshAugmentCount()
+    {
+        Dictionary<DungeonShop.Augment, int> augmentCounts =
+            CurrentRun.augments
+                .GroupBy(a => a)
+                    .ToDictionary(g => g.Key, g => g.Count());
+        foreach (var pair in augmentCounts)
+        {
+            if (pair.Key == DungeonShop.Augment.MaxHP && pair.Value>0)
+            {
+                HPAugment.SetActive(true);HPAugmentCount.text = pair.Value.ToString();
+            }
+            else HPAugment.SetActive(false);
+
+            if (pair.Key == DungeonShop.Augment.StartMana && pair.Value > 0)
+            {
+                ManaAugment.SetActive(true); ManaAugmentCount.text = pair.Value.ToString();
+            }
+            else ManaAugment.SetActive(false);
+        }
+
     }
     public void FetchRunData()
     {
@@ -126,6 +155,7 @@ public class DungeonManager : MonoBehaviour
             dungeonDeck = new List<int>()
         };
         SaveRunData(resetStreak: true);
+        RefreshAugmentCount();
     }
 
     public void SaveRunData(bool resetStreak = false)
@@ -159,7 +189,7 @@ public class DungeonManager : MonoBehaviour
             {
                 if (task.IsFaulted)
                     ErrorPopup.Show("Failed to save dungeon run data.");
-            });
+            }); RefreshAugmentCount();
     }
     public void IncrementStreak()
     {
@@ -193,7 +223,7 @@ public class DungeonManager : MonoBehaviour
                     SaveRunData();
                 });
             });
-
+        RefreshAugmentCount();
     }
     public void ResetStreak()
     {
@@ -208,7 +238,7 @@ public class DungeonManager : MonoBehaviour
 
         db.Collection("users")
           .Document(user.UserId)
-          .UpdateAsync(StreakField, 0)
+          .UpdateAsync(StreakField, 1)
             .ContinueWithOnMainThread(task =>
             {
                 if (task.IsFaulted)
@@ -236,6 +266,7 @@ public class DungeonManager : MonoBehaviour
             GameRunContext.DungeonData.Reset();
             GameRunContext.DungeonData.coins = 0;
         }
+        RefreshAugmentCount();
     }
     public void GetUserCurrentStreak(Action<int> onResult)
     {

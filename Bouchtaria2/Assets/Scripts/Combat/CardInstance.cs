@@ -44,12 +44,12 @@ public class CardInstance : MonoBehaviour, IAttackable
     public CardData Data { get; private set; }
     CardView view;
     // Runtime state
-    public int CurrentAttack { get; private set; }
+    public int CurrentAttack { get; set; }
     public string CurrentEffect { get; set; }
     public string CurrentEffectText { get; set; }
     public int BaseManaCost { get; set; }
-    public int CurrentHealth { get; private set; }
-    public int CurrentMaxHealth { get; private set; }
+    public int CurrentHealth { get; set; }
+    public int CurrentMaxHealth { get; set; }
     public int CurrentManaCost
     {
         get
@@ -818,6 +818,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.ResurrectLast(Owner, Data);
             gameManager.CheckGlow();return;
         }
+        else if (effect.StartsWith("resurrectlow"))
+        {
+            gameManager.ResurrectLow(Owner, Data);
+            gameManager.CheckGlow(); return;
+        }
         else if (effect.StartsWith("resurrect"))
         {
             gameManager.ResurrectRandom(Owner, Data);
@@ -892,7 +897,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             AutoDamageCore(dmg);
             gameManager.CheckGlow();return;
         }
-
+        if (effect.StartsWith("advanceprogress"))
+        {
+            TryExecuteAdvanceProgress();
+            gameManager.CheckGlow(); return;
+        }
         if (effect.StartsWith("autoheal"))
         {
             if (!TryParseIntEffect(effect, "autoheal", out int heal))
@@ -946,6 +955,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.CheckGlow(); // keep UI in sync
             return;
         }
+        if (effect.StartsWith("selfheal"))
+        {
+            TryExecuteSelfHeal(effect);
+            gameManager.CheckGlow(); // keep UI in sync
+            return;
+        }
 
         if (effect.StartsWith("addcard"))
         {
@@ -972,6 +987,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             TryExecuteDamage(effect, null);
             gameManager.CheckGlow();return;
+        }
+
+        if (effect.StartsWith("catch") && effect.Contains(",target"))
+        {
+            BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
+            gameManager.CheckGlow(); return;
         }
 
         if (effect.StartsWith("gear"))
@@ -1248,6 +1269,14 @@ public class CardInstance : MonoBehaviour, IAttackable
                 executed = true;
             }
         }
+        else if (pendingTargetedEffect.StartsWith("catch"))
+        {
+            if (target != null)
+            {
+                TryExecuteCatch(pendingTargetedEffect, target);
+                executed = true;
+            }
+        }
         else if (pendingTargetedEffect.StartsWith("refreshattack") && target is CardInstance refresh)
         {
             TryRefreshAttack(refresh);
@@ -1351,11 +1380,38 @@ public class CardInstance : MonoBehaviour, IAttackable
         Debug.LogWarning($"Invalid selfbuff parameters '{effect}' on {Data.name}");
     }
 
+    private void TryExecuteSelfHeal(string effect)
+    {
+        int open = effect.IndexOf('(');
+        int close = effect.IndexOf(')');
+        if (open < 0 || close <= open)
+        {
+            Debug.LogWarning($"Malformed selfbuff effect '{effect}' on {Data.name}");
+            return;
+        }
+
+        string inner = effect.Substring(open + 1, close - open - 1).Trim();
+        if (string.IsNullOrEmpty(inner))
+        {
+            Debug.LogWarning($"Empty selfbuff parameters '{effect}' on {Data.name}");
+            return;
+        }
+
+        string[] parts = inner.Split(',');
+        // SELFBUFF(total) => random split total into atk/hp
+        if (parts.Length == 1 && int.TryParse(parts[0].Trim(), out int totalStats))
+        {
+            Heal(totalStats);
+            return;
+        }
+    }
     private void TryExecuteSummon(string effect)
     {
         if (!TryParseIntEffect(effect, "summon", out int cardId))
             return;
-
+        
+        if (effect.StartsWith("summoncopy("))
+        { gameManager.TrySummonForOwner(Owner, Data.id, setAtk: cardId, setHp: cardId); return; }
         // DEPLOY is pre-validated at play time. If there are fewer slots than declared
         // summons, consume only the allowed summon budget and skip the rest.
         if (currentResolvingTrigger == EffectTrigger.Deploy
@@ -1367,6 +1423,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.TrySummonForOther(Owner, cardId);
         else
             gameManager.TrySummonForOwner(Owner, cardId);
+
     }
     private IEnumerable<CardInstance> GetOwnerBoardCards()
     {
@@ -1671,6 +1728,30 @@ public class CardInstance : MonoBehaviour, IAttackable
         target.TakeDamage(amount);
         gameManager.OnDamageWithCard(Owner);
     }
+    private void TryExecuteCatch(string effect, IAttackable target)
+    {
+        if (!TryParseIntEffect(effect, "catch", out int minStats))
+            return;
+
+        if (target == null)
+        {
+            Debug.LogError($"Damage effect requires a target on {Data.name}");
+            return;
+        }
+        if(target is CardInstance cardInst)
+        {
+            if (cardInst.CurrentAttack + cardInst.CurrentHealth > minStats)
+                return;
+
+            target.TakeDamage(99999999);
+            gameManager.AddCardToHand(Owner, cardInst.Data.id);
+            if(gameManager.OwnerHasTrait(Owner, CardData.Trait.Pokemon))
+            {
+                //Add progression for pokemon trait
+            }
+        }
+
+    }
     private void TryExecuteAbsorb(string effect, IAttackable target)
     {
         if (!TryParseIntEffect(effect, "absorb", out int amount))
@@ -1772,7 +1853,16 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (target.Owner == PlayerOwner.Player)
             gameManager.CheckGlow();
     }
+    public void TryExecuteAdvanceProgress()
+    {
+        if (ProgressionCap > 0)
+        {
+            ProgressionCounter++;
+            cardView.ShowProgress(ProgressionCounter, ProgressionCap);
 
+            CheckProgressCompletion();
+        }
+    }
     private void TryExecuteHeal(string effect, IAttackable target)
     {
         if (!TryParseIntEffect(effect, "heal", out int amount))

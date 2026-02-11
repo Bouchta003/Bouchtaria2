@@ -79,8 +79,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject enemySpellAnchor;
 
     [Header("Trait Systems")]
-    [SerializeField] private TraitSystem allyTraitSystem;
-    [SerializeField] private TraitSystem enemyTraitSystem;
+    [SerializeField] public TraitSystem allyTraitSystem;
+    [SerializeField] public TraitSystem enemyTraitSystem;
     [SerializeField] private TraitUIManager allyTraitUI;
     [SerializeField] private TraitUIManager enemyTraitUI;
     [SerializeField] private WinLoseUI winLoseUI;
@@ -617,7 +617,7 @@ public class GameManager : MonoBehaviour
         TrySummonForOwner(owner, cardId, isTrait);
         return true;
     }
-    public void TrySummonForOwner(PlayerOwner owner, int cardId, bool isTrait = false)
+    public void TrySummonForOwner(PlayerOwner owner, int cardId, bool isTrait = false, bool islow = false, int setAtk = -1, int setHp = -1)
     {
         var board = GetBoardForOwner(owner);
         if (board == null) return;
@@ -659,6 +659,19 @@ public class GameManager : MonoBehaviour
             cardInst.Owner = PlayerOwner.Player;
             allyDropArea.AddSummonedCard(cardInst);
             allyDropArea.UpdateAllyCardPositions();
+            if (islow)
+            {
+                cardInst.CurrentHealth = 1;
+            }
+            if (setAtk > -1)
+            {
+                cardInst.CurrentAttack = setAtk;
+            }
+            if (setHp > -1)
+            {
+                cardInst.CurrentMaxHealth = setHp;
+                cardInst.CurrentHealth = setHp;
+            }
         }
         else
         {
@@ -670,6 +683,10 @@ public class GameManager : MonoBehaviour
             card.gameObject.GetComponent<CardView>().UpdateMode();
             enemyDropArea.AddSummonedCard(cardInst);
             enemyDropArea.UpdateEnemyCardPositions();
+            if (islow)
+            {
+                cardInst.CurrentHealth = 1;
+            }
         }
 
         // Verify the card was actually added to board list (AddSummonedCard may early-return when full)
@@ -1401,6 +1418,19 @@ public class GameManager : MonoBehaviour
             return;
 
         TrySummonForOwner(owner, data.id);
+    }
+    public void ResurrectLow(PlayerOwner owner, CardData excluded)
+    {
+        Graveyard graveyard =
+            owner == PlayerOwner.Player
+                ? PlayerGraveyard
+                : EnemyGraveyard;
+
+        CardData data = graveyard.PopRandomExcluding(excluded);
+        if (data == null)
+            return;
+
+        TrySummonForOwner(owner, data.id, islow:true);
     }
     #endregion
 

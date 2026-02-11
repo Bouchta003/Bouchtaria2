@@ -38,11 +38,6 @@ public class DungeonShop : MonoBehaviour
         });
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
     private void ModifyUserCoin(int delta)
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
@@ -94,7 +89,7 @@ public class DungeonShop : MonoBehaviour
 
                 ModifyUserCoin(-100);
                 DungeonManager.Instance.CurrentRun.coins -= 100;
-                int rand = UnityEngine.Random.Range(1, 3);
+                int rand = UnityEngine.Random.Range(0, 2);
                 ClickAugment(rand);
                 break;
             case 0:
@@ -124,6 +119,7 @@ public class DungeonShop : MonoBehaviour
             default:
                 ErrorPopup.Show("Unkown augment ID " + aug);break;
         }
+        DungeonManager.Instance.RefreshAugmentCount();
     }
     public void LeaveToDungeonMenu()
     {
