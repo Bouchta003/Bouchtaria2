@@ -1380,7 +1380,7 @@ public class GameManager : MonoBehaviour
 
             var card = ally.GetComponentInChildren<CardInstance>();
             if (card != null)
-                card.TakeDamage(999);
+                Kill(card);
         }
 
         foreach (GameObject enemy in enemyCards)
@@ -1389,10 +1389,15 @@ public class GameManager : MonoBehaviour
 
             var card = enemy.GetComponentInChildren<CardInstance>();
             if (card != null)
-                card.TakeDamage(999);
+                Kill(card);
         }
     }
-
+    public void Kill(CardInstance target)
+    {
+        target.IsDying = true;
+        target.Die();
+        return;
+    }
     public void ResurrectLast(PlayerOwner owner, CardData excluded)
     {
         Graveyard graveyard =

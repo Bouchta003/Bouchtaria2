@@ -99,13 +99,11 @@ public class DungeonManager : MonoBehaviour
             {
                 HPAugment.SetActive(true);HPAugmentCount.text = pair.Value.ToString();
             }
-            else HPAugment.SetActive(false);
 
             if (pair.Key == DungeonShop.Augment.StartMana && pair.Value > 0)
             {
                 ManaAugment.SetActive(true); ManaAugmentCount.text = pair.Value.ToString();
             }
-            else ManaAugment.SetActive(false);
         }
 
     }

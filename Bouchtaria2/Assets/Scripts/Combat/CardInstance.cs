@@ -24,8 +24,9 @@ public enum EffectTrigger
     Berserk,   // b
     Requiem,   // r
     Strike,    // s
-    EndOfTurn,
-    StartOfTurn,
+    Heal,      // h
+    EndOfTurn,      //eot
+    StartOfTurn,    //sot
     ProgressComplete,
 }
 public enum EffectTarget
@@ -81,7 +82,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public bool WasPlayed { get; set; }
     public bool IsAsleep { get; set; }
     public bool IsDisplay { get; set; }
-    public bool IsDying { get; private set; } = false;
+    public bool IsDying { get; set; } = false;
     public CardView cardView { get; set; }
     public bool DeployPending { get; set; }
     //Progression
@@ -384,8 +385,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (healamount <= 0)
             return;
 
-        if (HasKeyword("autodmg") && TryParseIntEffect(CurrentEffect, "autodmg", out int autoDmg))
-            AutoDamageCore(autoDmg);
+        TriggerHeal();
 
         ProgressionCounter += healamount;
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
@@ -1038,7 +1038,10 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         TriggerEffects(EffectTrigger.Requiem);
     }
-
+    private void TriggerHeal()
+    {
+        TriggerEffects(EffectTrigger.Heal);
+    }
     /// <summary>
     /// Returns how many same-side board summons this card can create from its DEPLOY trigger.
     /// Used by board-drop legality checks to account for the played card + deploy summons.
@@ -1151,6 +1154,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "b": trigger = EffectTrigger.Berserk; return true;
             case "r": trigger = EffectTrigger.Requiem; return true;
             case "s": trigger = EffectTrigger.Strike; return true;
+            case "h": trigger = EffectTrigger.Heal; return true;
             case "eot": trigger = EffectTrigger.EndOfTurn; return true;
             case "sot": trigger = EffectTrigger.StartOfTurn; return true;
 
@@ -1765,9 +1769,9 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (cardInst.CurrentAttack + cardInst.CurrentHealth > maxStats)
                 return;
 
-            target.TakeDamage(99999999);
             gameManager.AddCardToHand(Owner, cardInst.Data.id);
-            if(gameManager.OwnerHasTrait(Owner, CardData.Trait.Pokemon))
+            Kill(cardInst);
+            if (gameManager.OwnerHasTrait(Owner, CardData.Trait.Pokemon))
             {
                 //Add progression for pokemon trait
             }
@@ -2353,6 +2357,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         TriggerBerserk();
         UpdateStatsColor();
         gameManager.CheckGlow();
+    }
+    public void Kill(CardInstance target)
+    {
+        target.IsDying = true;
+        target.Die();
+        return;
     }
     public void Heal(int amount)
     {
