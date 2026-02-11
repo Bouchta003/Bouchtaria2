@@ -381,6 +381,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (owner != Owner)
             return;
 
+        if (healamount <= 0)
+            return;
+
+        if (HasKeyword("autodmg") && TryParseIntEffect(CurrentEffect, "autodmg", out int autoDmg))
+            AutoDamageCore(autoDmg);
+
         ProgressionCounter += healamount;
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
 
@@ -631,10 +637,21 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             string effect = rawEffect.ToLowerInvariant();
 
+            if (effect.StartsWith("damagerandomenemy"))
+            {
+                TryExecuteDamageRandomEnemy(effect);
+                continue;
+            }
+
             // Targeted spell effects
             if (effect.StartsWith("damage"))
             {
                 TryExecuteDamage(effect, target);
+                continue;
+            }
+            if (effect.StartsWith("catch"))
+            {
+                TryExecuteCatch(effect, target);
                 continue;
             }
             if (effect.StartsWith("refreshattack") && target is CardInstance refresh)
@@ -982,6 +999,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             TryExecuteDamageAoe(effect);
             gameManager.CheckGlow();return;
+        }
+        if (effect.StartsWith("damagerandomenemy"))
+        {
+            TryExecuteDamageRandomEnemy(effect);
+            gameManager.CheckGlow(); return;
         }
         else if (effect.StartsWith("damage"))
         {
@@ -1730,7 +1752,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TryExecuteCatch(string effect, IAttackable target)
     {
-        if (!TryParseIntEffect(effect, "catch", out int minStats))
+        if (!TryParseIntEffect(effect, "catch", out int maxStats))
             return;
 
         if (target == null)
@@ -1740,7 +1762,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         if(target is CardInstance cardInst)
         {
-            if (cardInst.CurrentAttack + cardInst.CurrentHealth > minStats)
+            if (cardInst.CurrentAttack + cardInst.CurrentHealth > maxStats)
                 return;
 
             target.TakeDamage(99999999);
@@ -1751,6 +1773,19 @@ public class CardInstance : MonoBehaviour, IAttackable
             }
         }
 
+    }
+    private void TryExecuteDamageRandomEnemy(string effect)
+    {
+        if (!TryParseIntEffect(effect, "damagerandomenemy", out int amount))
+            return;
+
+        PlayerOwner enemyOwner = Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player;
+        IAttackable target = gameManager.ChooseRandomEffectTarget(enemyOwner, EffectTarget.Any, canTargetCore: true);
+        if (target == null)
+            return;
+
+        target.TakeDamage(amount);
+        gameManager.OnDamageWithCard(Owner);
     }
     private void TryExecuteAbsorb(string effect, IAttackable target)
     {
