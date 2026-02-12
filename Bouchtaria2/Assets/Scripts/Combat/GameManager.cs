@@ -29,6 +29,10 @@ public enum GameState
 
 public class GameManager : MonoBehaviour
 {
+    private const int LossGoldCompensation = 20;
+    private const int WinGoldReward = 100;
+    private const int DungeonWinCoinReward = 20;
+
     public static GameManager Instance;
 
     [Header("Core")]
@@ -383,16 +387,36 @@ public class GameManager : MonoBehaviour
         {
             CurrentGameState = GameState.PlayerLost;
             Debug.Log("PLAYER LOSES");
-            ModifyUserGold(20);
+            ModifyUserGold(LossGoldCompensation);
         }
         else
         {
             CurrentGameState = GameState.PlayerWon;
             Debug.Log("PLAYER WINS");
-            ModifyUserGold(100); if (GameRunContext.IsDungeonRun) ModifyUserCoin(20);
+            ModifyUserGold(WinGoldReward);
+            if (GameRunContext.IsDungeonRun)
+                ApplyDungeonCoinReward(DungeonWinCoinReward);
         }
 
         EndGame();
+    }
+    private void ApplyDungeonCoinReward(int reward)
+    {
+        if (reward <= 0)
+            return;
+
+        if (DungeonManager.Instance?.CurrentRun != null)
+        {
+            DungeonManager.Instance.CurrentRun.coins += reward;
+        }
+        else
+        {
+            Debug.LogWarning("Dungeon run data missing while applying coin reward. Falling back to direct user coin update.");
+            ModifyUserCoin(reward);
+        }
+
+        if (GameRunContext.DungeonData != null)
+            GameRunContext.DungeonData.coins += reward;
     }
     private void ModifyUserCoin(int delta)
     {
