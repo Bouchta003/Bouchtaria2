@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviour
     private int startingEnemyCoreHealth = 50;
 
     [Header("Deck and Board")]
-    [SerializeField] private DeckManager deckManager;
+    [SerializeField] public DeckManager deckManager;
     [SerializeField] public AllyCardDropArea allyDropArea;
     [SerializeField] public EnemyCardDropArea enemyDropArea;
     [SerializeField] public HandManager allyHand;

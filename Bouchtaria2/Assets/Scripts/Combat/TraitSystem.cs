@@ -1920,6 +1920,9 @@ public class AvatarTier2Effect : IDeckTraitEffect
 
     private readonly PlayerOwner owner;
     private bool used;
+    AllyCardDropArea allyBoard = GameManager.Instance.allyDropArea;
+    EnemyCardDropArea enemyBoard = GameManager.Instance.enemyDropArea;
+    DeckManager deckManager = GameManager.Instance.deckManager;
     public AvatarTier2Effect(PlayerOwner owner)
     {
         this.owner = owner;
@@ -1929,32 +1932,43 @@ public class AvatarTier2Effect : IDeckTraitEffect
     {
         if (used) return;
 
-         
         GameManager.Instance.ShuffleInDeck(74, owner);
         GameManager.Instance.ShuffleInDeck(78, owner);
 
-        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
-        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
-
         if (allyBoard != null)
-            allyBoard.OnCardPlayed += OnCardPlayed;
+        { allyBoard.OnCardPlayed += OnCardPlayed; deckManager.OnCardDrawn += OnCardDrawn; }
 
         if (enemyBoard != null)
-            enemyBoard.OnCardPlayed += OnCardPlayed;
+        { enemyBoard.OnCardPlayed += OnCardPlayed; deckManager.OnCardDrawn += OnCardDrawn; }
 
         used = true;
     }
 
     public void OnUnregister()
     {
-        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
-        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
 
         if (allyBoard != null)
-            allyBoard.OnCardPlayed -= OnCardPlayed;
+        { allyBoard.OnCardPlayed -= OnCardPlayed; deckManager.OnCardDrawn -= OnCardDrawn; }
 
         if (enemyBoard != null)
-            enemyBoard.OnCardPlayed -= OnCardPlayed;
+        { enemyBoard.OnCardPlayed -= OnCardPlayed; deckManager.OnCardDrawn -= OnCardDrawn; }
+    }
+    public void OnCardDrawn(CardInstance card)
+    {
+        if (card.Owner != owner)
+            return;
+
+        if (card.Data.name == "Aang")
+        {
+            card.CurrentEffect = "avatar d[draw(1)] d[autoheal(5)] d[autodmg(3)] d[summon(76)] d[summon(76)]";
+            card.CurrentEffectText = "Avatar.\nDraw 1, Heal 5 HP to your core, Deal 3 damage to enemy core.\nSummon two 1/1 golemites.";
+            card.ParseEffects();
+        }
+        if (card.Data.name == "Korra")
+        {
+            card.CurrentEffect = "avatar quickstrike lifesteal protect blessed";
+            card.CurrentEffectText = "Avatar.\nQuickstrike Blessed\nProtect Lifesteal.";
+        }
     }
     private void OnCardPlayed(CardInstance card)
     {

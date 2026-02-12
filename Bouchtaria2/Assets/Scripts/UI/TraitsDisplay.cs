@@ -133,7 +133,7 @@ public class TraitsDisplay : MonoBehaviour
                 display += $"Praise to unlock the following: {Progression}/{CurrentCap}" +
                     "\nTier 1 : Shuffle the two avatars into your deck.";
                 if (tier > 1) display +=
-                        "\nTier 2 : Your avatars unlock their elements (in hand or deck).";
+                        "\nTier 2 : Shuffle two more Avatars; unlock their elements (in hand or deck).";
                 if (tier > 2) display +=
                          "\nTier 3 : Your avatars enter AVATAR STATE (in hand or deck).";
                 break;

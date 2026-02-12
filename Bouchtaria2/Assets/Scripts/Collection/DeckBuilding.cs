@@ -281,7 +281,7 @@ public class DeckBuilding : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log($"Deck '{deckName}' saved successfully.");
+                        ErrorPopup.Show("Deck successfully saved.");
                     }
                 });
             });

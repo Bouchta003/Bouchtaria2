@@ -481,9 +481,15 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (IsBleeding)
         {
             TakeDamage(1);
+            gameManager.OnDamageWithCard(OtherPlayer(Owner));
             BleedingTurns++;
             if (BleedingTurns >= 3) { IsBleeding = false; BleedingTurns = 0; view.UpdateMode(); }
         }
+    }
+    public static PlayerOwner OtherPlayer(PlayerOwner owner)
+    {
+        if (owner == PlayerOwner.Player) return PlayerOwner.Enemy;
+        else return PlayerOwner.Player;
     }
     #region EffectTriggers :
     #region Spells
