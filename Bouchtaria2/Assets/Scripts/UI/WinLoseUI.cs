@@ -22,8 +22,7 @@ public class WinLoseUI : MonoBehaviour
     {
         if (GameRunContext.IsDungeonRun)
         {
-            if (DungeonManager.Instance != null)
-                DungeonManager.Instance.IncrementStreak();
+            DungeonManager.Instance.IncrementStreak();
 
             ModifyUserCoin(20);
             Setup("VICTORY", Color.green, "Enemy Core Destroyed, you earned 100 Gold and 20 Coins");
