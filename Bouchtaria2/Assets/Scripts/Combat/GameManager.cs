@@ -240,9 +240,13 @@ public class GameManager : MonoBehaviour
     {
         MainCanvas.gameObject.SetActive(PauseCanvas.gameObject.activeSelf);
         PauseCanvas.gameObject.SetActive(!PauseCanvas.gameObject.activeSelf);
+        if (GameRunContext.IsDungeonRun) PauseCanvas.transform.GetChild(1).GetComponentInChildren<TextMeshProUGUI>().text = "Concede";
     }
     public void MainMenu()
     {
+        if (GameRunContext.IsDungeonRun) { DungeonManager.Instance.ConcedeRun();
+            GameFlowController.Instance.GoToDungeon();
+        }else
         GameFlowController.Instance.GoToMainMenu();
     }
     private void OnDestroy()
