@@ -13,6 +13,7 @@ public class CardData
     public int hpValue;
 
     public List<string> traits;
+    public List<int> relatedCards = new List<int>();
 
     public string effect;
     public string effectText;
@@ -23,6 +24,10 @@ public class CardData
     public bool packable;
     public bool token;
     public bool signature;
+    public CardData()
+    {
+        relatedCards = new List<int>();
+    }
     public enum SpellTargetType
     {
         None,

@@ -13,11 +13,11 @@ public class ScanPanelView : MonoBehaviour
     [Header("UI Content")]
     [SerializeField] private TMP_Text effectText;
     [SerializeField] private TMP_Text nameText;
+    [SerializeField] private Image cardSpriteCompact;
     [SerializeField] private Transform keywordContainer;
     [SerializeField] private Transform relatedContainer;
     [SerializeField] private GameObject keywordPrefab;
     [SerializeField] private GameObject relatedPrefab;
-    List<int> relatedCardsId = new List<int>();
 
     [Header("Animation")]
     [SerializeField] private float slideDuration = 0.25f;
@@ -109,7 +109,7 @@ public class ScanPanelView : MonoBehaviour
             return;
 
         CardData card = cardView.CardData;
-
+        cardSpriteCompact.sprite = card.artSpriteCompact;
 
         nameText.text = card.name;
         effectText.text = card.effectText;
@@ -127,7 +127,7 @@ public class ScanPanelView : MonoBehaviour
         //KeyWordCheck
         string[] keywordList = card.effect.Split(' ');
         UpdateTexts(keywordList);
-        DisplayRelatedCards();
+        DisplayRelatedCards(card);
     }
     private void PopulateBoard(CardView cardView)
     {
@@ -135,7 +135,7 @@ public class ScanPanelView : MonoBehaviour
             return;
 
         CardInstance card = cardView.GetComponent<CardInstance>();
-
+        cardSpriteCompact.sprite = card.Data.artSpriteCompact;
 
         nameText.text = card.Data.name;
         effectText.text = card.CurrentEffectText;
@@ -151,22 +151,42 @@ public class ScanPanelView : MonoBehaviour
         string[] keywordList = card.CurrentEffect.Split(' ');
 
         UpdateTexts(keywordList);
-        DisplayRelatedCards();
+        DisplayRelatedCards(card.Data);
     }
-    void DisplayRelatedCards()
+    void DisplayRelatedCards(CardData data)
     {
-        foreach (int id in relatedCardsId)
+        foreach (int id in data.relatedCards)
         {
+            Debug.Log("New related id " + id);
             GameObject entry = Instantiate(relatedPrefab, relatedContainer);
-            CardData data = CardDatabase.Instance.GetCardById(id);
-            entry.GetComponentInChildren<TextMeshProUGUI>().text = data.effectText; if(data.effectText == "") { entry.GetComponentInChildren<TextMeshProUGUI>().text = "No effect."; }
+            CardData relatedData = CardDatabase.Instance.GetCardById(id);
+            entry.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.effectText; if(relatedData.effectText == "") { entry.GetComponentInChildren<TextMeshProUGUI>().text = "No effect."; }
+            Color traitLeft = Color.white;
+            if (relatedData.traits.Count > 0 && TryGetTraitColor(relatedData.traits[0], out Color color))
+            { traitLeft = color; }
+            Color traitRight = Color.white;
+            if (relatedData.traits.Count > 1 && TryGetTraitColor(relatedData.traits[1], out Color color2))
+            { traitRight = color2; }
             Transform CardPreview = entry.transform.GetChild(1);
-            Transform Artwork = CardPreview.GetChild(0); Artwork.GetComponent<Image>().sprite = data.artSpriteCompact;
-            Transform Mana = CardPreview.GetChild(3); Mana.GetComponentInChildren<TextMeshProUGUI>().text = data.manaCost.ToString();
-            Transform Atk = CardPreview.GetChild(4); Atk.GetComponentInChildren<TextMeshProUGUI>().text = data.atkValue.ToString();
-            Transform Hp = CardPreview.GetChild(5); Hp.GetComponentInChildren<TextMeshProUGUI>().text = data.hpValue.ToString();
+            Transform Artwork = CardPreview.GetChild(0); Artwork.GetComponent<Image>().sprite = relatedData.artSpriteCompact;
+            Transform LeftTrait = CardPreview.GetChild(1); LeftTrait.GetComponent<Image>().color = traitLeft;
+            Transform RightTrait = CardPreview.GetChild(2); RightTrait.GetComponent<Image>().color = traitRight;
+            Transform Mana = CardPreview.GetChild(3); Mana.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.manaCost.ToString();
+            Transform LeftTraitMana = Mana.GetChild(0); LeftTraitMana.GetComponent<Image>().color = traitLeft;
+            Transform RightTraitMana = Mana.GetChild(1); RightTraitMana.GetComponent<Image>().color = traitRight;
+            Transform Atk = CardPreview.GetChild(4); Atk.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.atkValue.ToString(); Atk.GetComponent<Image>().color = traitLeft;
+            Transform Hp = CardPreview.GetChild(5); Hp.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.hpValue.ToString(); ; Hp.GetComponent<Image>().color = traitRight;
         }
-        relatedCardsId.Clear();
+    }
+    private bool TryGetTraitColor(string traitString, out Color color)
+    {
+        color = Color.white;
+
+        if (!System.Enum.TryParse<CardData.Trait>(traitString, true, out var trait))
+            return false;
+
+        color = TraitColorDatabase.Get(trait);
+        return true;
     }
     private void UpdateTexts(string[] keywordList)
     {
@@ -206,8 +226,6 @@ public class ScanPanelView : MonoBehaviour
                 keyName.text = "Morph";
                 keyDescription.text =
                     "Transforms into another unit and keeps damage.";
-                if (!keyword.Contains("morphto,"))
-                    relatedCardsId.Add(GetEffectID(keyword));
             }
             else if (keyword.Contains("thorns"))
             {
@@ -278,9 +296,7 @@ public class ScanPanelView : MonoBehaviour
             else if (keyword.Contains("summon"))
             {
                 keyName.text = "Summon";
-                keyDescription.text =
-                    "Summons a unit without triggering its Deploy effect.";
-                relatedCardsId.Add(GetEffectID(keyword));
+                keyDescription.text = "Summons a unit without triggering its Deploy effect.";
             }
             else
             {

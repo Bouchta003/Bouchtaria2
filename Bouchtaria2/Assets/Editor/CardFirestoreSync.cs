@@ -84,6 +84,7 @@ public class CardFirestoreSync
         { "artCompactPath", card.artCompactPath },
         { "packable", card.packable },
         { "token", card.token },
+        {"relatedCards", card.relatedCards ?? new List<int>()},
         { "signature", card.signature }
     });
         }

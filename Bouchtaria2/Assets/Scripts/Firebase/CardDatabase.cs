@@ -85,6 +85,10 @@ public class CardDatabase : MonoBehaviour
             ? new List<string>(doc.GetValue<List<string>>("traits"))
             : new List<string>();
 
+        card.relatedCards = doc.ContainsField("relatedCards")
+            ? new List<int>(doc.GetValue<List<int>>("relatedCards"))
+            : new List<int>();
+
         card.effect = doc.GetValue<string>("effect");
         card.effectText = doc.GetValue<string>("effectText");
 
