@@ -99,7 +99,6 @@ public class CollectionScreen : MonoBehaviour
 
             foreach (int id in DeckBuilding.Instance.CurrentDeck)
             {
-                Debug.Log($"[DECK DISPLAY] Found card ID {id}");
 
                 if (!cardCounts.ContainsKey(id))
                 {
@@ -159,10 +158,6 @@ public class CollectionScreen : MonoBehaviour
 
             visibleIndex++;
         }
-
-        Debug.Log(
-            $"📄 Page {currentPage + 1} / {GetMaxPageIndex(filteredCards) + 1} | Filter: {currentFilters}"
-        );
     }
     private int GetMaxPageIndex(List<CardData> cards)
     {

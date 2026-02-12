@@ -70,7 +70,9 @@ public class DungeonManager : MonoBehaviour
         CurrentRun ??= new DungeonRunData();
         CurrentRun.floor = Mathf.Max(1, CurrentRun.floor);
         CurrentRun.augments ??= new List<DungeonShop.Augment>();
-        CurrentRun.dungeonDeck ??= new List<int>();
+        CurrentRun.dungeonDeck ??= new List<int>(); 
+        if (CurrentRun.currentDeckSize <= 0)
+            CurrentRun.currentDeckSize = 15;
     }
 
     void Start()
@@ -121,8 +123,10 @@ public class DungeonManager : MonoBehaviour
         }
 
     }
-    public void CalculateDeckSize()
+    public int CalculateDeckSize()
     {
+        EnsureCurrentRunInitialized();
+
         int decksize = 15;
 
         Dictionary<DungeonShop.Augment, int> augmentCounts =
@@ -140,6 +144,8 @@ public class DungeonManager : MonoBehaviour
                 decksize -= 3 * pair.Value;
             }
         }
+        CurrentRun.currentDeckSize = Mathf.Max(5, decksize);
+        return CurrentRun.currentDeckSize;
     }
     public void FetchRunData()
     {
@@ -171,7 +177,8 @@ public class DungeonManager : MonoBehaviour
                     coins = snapshot.ContainsField(CoinField) ? task.Result.GetValue<int>(CoinField) : 0,
                     augments = ParseAugments(snapshot, AugmentsField),
                     dungeonDeck = ParseDeck(snapshot, DeckField)
-                };
+                }; CalculateDeckSize();
+
 
                 bool hasNoRunData = CurrentRun.floor <= 0
                     && CurrentRun.dungeonDeck.Count <= 0
@@ -198,7 +205,9 @@ public class DungeonManager : MonoBehaviour
             coins = 0,
             augments = new List<DungeonShop.Augment>(),
             dungeonDeck = new List<int>()
-        };
+        }; 
+        CalculateDeckSize();
+
         SaveRunData(resetStreak: true);
         ApplyRunToUI();
     }

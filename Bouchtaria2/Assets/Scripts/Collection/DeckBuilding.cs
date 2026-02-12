@@ -80,6 +80,8 @@ public class DeckBuilding : MonoBehaviour
         //In case of dungeon runs
         if (GameRunContext.IsDungeonRun)
         {
+            if (DungeonManager.Instance.CurrentRun.dungeonDeck.Count > 0)
+                LoadDeckDungeon();
             DungeonManager.Instance.CalculateDeckSize();
             maxDeckSize = DungeonManager.Instance.CurrentRun.currentDeckSize;
             //Add augment logic to increase deck size based on augment.
@@ -470,6 +472,11 @@ public class DeckBuilding : MonoBehaviour
         DeckNameInput.text = deckName;
 
         collection.ShowPage(collection.currentPage);
+        DetectUnlockableTraits();
+    }
+    private void LoadDeckDungeon()
+    {
+        CurrentDeck = new List<int>(DungeonManager.Instance.CurrentRun.dungeonDeck);
         DetectUnlockableTraits();
     }
     public void SwitchDeck()
