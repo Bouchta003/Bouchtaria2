@@ -16,6 +16,7 @@ public class DungeonRunData
     public int coins;
     public List<DungeonShop.Augment> augments;
     public List<int> dungeonDeck;
+    public int currentDeckSize;
 
     public void Reset()
     {
@@ -23,6 +24,7 @@ public class DungeonRunData
         coins = 0;
         augments ??= new List<DungeonShop.Augment>();
         dungeonDeck ??= new List<int>();
+        currentDeckSize = 15;
         augments.Clear();
         dungeonDeck.Clear();
     }
@@ -74,12 +76,13 @@ public class DungeonManager : MonoBehaviour
     void Start()
     {
         EnsureCurrentRunInitialized();
-
+        CalculateDeckSize();
         ApplyRunToUI();
         FetchRunData();
     }
     public void RefreshAugmentCount()
     {
+        int decksize = 15;
         if (HPAugmentCount != null)
             HPAugmentCount.text = "0";
 
@@ -106,8 +109,37 @@ public class DungeonManager : MonoBehaviour
                 if (ManaAugmentCount != null)
                     ManaAugmentCount.text = pair.Value.ToString();
             }
+
+            if (pair.Key == DungeonShop.Augment.DeckSizeUp3 && pair.Value > 0)
+            {
+                decksize += 3 * pair.Value;
+            }
+            if (pair.Key == DungeonShop.Augment.DeckSizeDown3 && pair.Value > 0)
+            {
+                decksize -= 3 * pair.Value;
+            }
         }
 
+    }
+    public void CalculateDeckSize()
+    {
+        int decksize = 15;
+
+        Dictionary<DungeonShop.Augment, int> augmentCounts =
+            CurrentRun.augments
+                .GroupBy(a => a)
+                    .ToDictionary(g => g.Key, g => g.Count());
+        foreach (var pair in augmentCounts)
+        {
+            if (pair.Key == DungeonShop.Augment.DeckSizeUp3 && pair.Value > 0)
+            {
+                decksize += 3 * pair.Value;
+            }
+            if (pair.Key == DungeonShop.Augment.DeckSizeDown3 && pair.Value > 0)
+            {
+                decksize -= 3 * pair.Value;
+            }
+        }
     }
     public void FetchRunData()
     {
@@ -416,7 +448,7 @@ public class DungeonManager : MonoBehaviour
     {
         GetUserCurrentDeck(deck =>
         {
-            if (deck.Count <= 0) GameFlowController.Instance.GoToDungeonDeck(CurrentRun);
+            if (deck.Count != CurrentRun.currentDeckSize) GameFlowController.Instance.GoToDungeonDeck(CurrentRun);
             else 
             {
                 //Start Combat :

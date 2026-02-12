@@ -15,7 +15,7 @@ public class DungeonShop : MonoBehaviour
     [SerializeField] Image CoinImage;
     public enum Augment
     {
-        MaxHP, StartMana
+        MaxHP, StartMana, DeckSizeUp3, DeckSizeDown3
     }
     private void Awake()
     {
@@ -87,7 +87,7 @@ public class DungeonShop : MonoBehaviour
                     break;
                 }
 
-                ModifyUserCoin(-100);
+                ModifyUserCoin(-75);
                 DungeonManager.Instance.CurrentRun.coins -= 75;
                 int rand = UnityEngine.Random.Range(0, 2);
                 ClickAugment(rand);
@@ -99,7 +99,7 @@ public class DungeonShop : MonoBehaviour
                     break;
                 }
 
-                ModifyUserCoin(-10);
+                ModifyUserCoin(-50);
                 DungeonManager.Instance.CurrentRun.coins -= 50;
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.MaxHP);
                 DungeonManager.Instance.SaveRunData();
@@ -111,9 +111,33 @@ public class DungeonShop : MonoBehaviour
                     break;
                 }
 
-                ModifyUserCoin(-50);
+                ModifyUserCoin(-100);
                 DungeonManager.Instance.CurrentRun.coins -= 100;
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.StartMana);
+                DungeonManager.Instance.SaveRunData();
+                break;
+            case 2:
+                if (DungeonManager.Instance.CurrentRun.coins < 30)
+                {
+                    ErrorPopup.Show("Not enough dungeon coins.");
+                    break;
+                }
+
+                ModifyUserCoin(-30);
+                DungeonManager.Instance.CurrentRun.coins -= 30;
+                DungeonManager.Instance.CurrentRun.augments.Add(Augment.DeckSizeUp3);
+                DungeonManager.Instance.SaveRunData();
+                break;
+            case 3:
+                if (DungeonManager.Instance.CurrentRun.coins < 30 ||DungeonManager.Instance.CurrentRun.currentDeckSize<=5)
+                {
+                    ErrorPopup.Show("Not enough dungeon coins or deck too small already.");
+                    break;
+                }
+
+                ModifyUserCoin(-30);
+                DungeonManager.Instance.CurrentRun.coins -= 30;
+                DungeonManager.Instance.CurrentRun.augments.Add(Augment.DeckSizeDown3);
                 DungeonManager.Instance.SaveRunData();
                 break;
             default:

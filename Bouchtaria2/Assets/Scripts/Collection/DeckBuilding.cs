@@ -80,7 +80,8 @@ public class DeckBuilding : MonoBehaviour
         //In case of dungeon runs
         if (GameRunContext.IsDungeonRun)
         {
-            maxDeckSize = 15;
+            DungeonManager.Instance.CalculateDeckSize();
+            maxDeckSize = DungeonManager.Instance.CurrentRun.currentDeckSize;
             //Add augment logic to increase deck size based on augment.
 
             DeckNameInput.text = "DungeonDeck";
