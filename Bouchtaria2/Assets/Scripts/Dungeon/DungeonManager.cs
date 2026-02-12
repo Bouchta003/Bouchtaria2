@@ -57,13 +57,29 @@ public class DungeonManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
     {
-        if (Instance != null)
+        if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
-            return;
+            CurrentRun = Instance.CurrentRun;
+            Destroy(Instance.gameObject);
         }
 
         Instance = this;
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        RebindSceneUIReferences();
+        ApplyRunToUI();
     }
 
     private void EnsureCurrentRunInitialized()
@@ -78,10 +94,32 @@ public class DungeonManager : MonoBehaviour
 
     void Start()
     {
+        RebindSceneUIReferences();
         EnsureCurrentRunInitialized();
         CalculateDeckSize();
         ApplyRunToUI();
         FetchRunData();
+    }
+
+    private void RebindSceneUIReferences()
+    {
+        if (StreakText == null)
+            StreakText = GameObject.Find("StreakText")?.GetComponent<TextMeshProUGUI>();
+
+        if (StreakFire == null)
+            StreakFire = GameObject.Find("StreakFire")?.GetComponent<Image>();
+
+        if (NextEnemy == null)
+            NextEnemy = GameObject.Find("NextEnemy")?.GetComponent<Image>();
+
+        if (HPAugmentCount == null)
+            HPAugmentCount = GameObject.Find("HPAugmentCount")?.GetComponent<TextMeshProUGUI>();
+
+        if (ManaAugmentCount == null)
+            ManaAugmentCount = GameObject.Find("ManaAugmentCount")?.GetComponent<TextMeshProUGUI>();
+
+        if (DrawAugmentCount == null)
+            DrawAugmentCount = GameObject.Find("DrawAugmentCount")?.GetComponent<TextMeshProUGUI>();
     }
     public void RefreshAugmentCount()
     {
