@@ -125,8 +125,7 @@ public class ScanPanelView : MonoBehaviour
         foreach (Transform child in keywordContainer)
             Destroy(child.gameObject);
         //KeyWordCheck
-        string[] keywordList = card.effect.Split(' ');
-        UpdateTexts(keywordList);
+        UpdateTexts(card.effectText);
         DisplayRelatedCards(card);
     }
     private void PopulateBoard(CardView cardView)
@@ -148,9 +147,8 @@ public class ScanPanelView : MonoBehaviour
         foreach (Transform child in keywordContainer)
             Destroy(child.gameObject);
         //KeyWordCheck
-        string[] keywordList = card.CurrentEffect.Split(' ');
 
-        UpdateTexts(keywordList);
+        UpdateTexts(card.CurrentEffectText);
         DisplayRelatedCards(card.Data);
     }
     void DisplayRelatedCards(CardData data)
@@ -206,6 +204,7 @@ public class ScanPanelView : MonoBehaviour
             {
                 traitRight = color2;
             }
+            else traitRight = traitLeft;
 
             Transform CardPreview = entry.transform.GetChild(1);
             Transform Artwork = CardPreview.GetChild(0);
@@ -221,9 +220,11 @@ public class ScanPanelView : MonoBehaviour
             Transform RightTraitMana = Mana.GetChild(1);
             RightTraitMana.GetComponent<Image>().color = traitRight;
             Transform Atk = CardPreview.GetChild(4);
+            if (relatedData.cardType == "spell") Atk.gameObject.SetActive(false);
             Atk.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.atkValue.ToString();
             Atk.GetComponent<Image>().color = traitLeft;
             Transform Hp = CardPreview.GetChild(5);
+            if (relatedData.cardType == "spell") Hp.gameObject.SetActive(false);
             Hp.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.hpValue.ToString();
             Hp.GetComponent<Image>().color = traitRight;
         }
@@ -238,121 +239,161 @@ public class ScanPanelView : MonoBehaviour
         color = TraitColorDatabase.Get(trait);
         return true;
     }
-    private void UpdateTexts(string[] keywordList)
+    private void UpdateTexts(string effectText)
     {
-        foreach (string raw in keywordList)
+        if (effectText.ToLower().Contains(("protect").ToLower()))
         {
-            string keyword = raw.ToLowerInvariant();
             GameObject entry = Instantiate(keywordPrefab, keywordContainer);
             var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
             var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
-
-            if (keyword.Contains("protect"))
-            {
-                keyName.text = "Protect";
-                keyDescription.text =
-                    "Forces enemies to attack this unit.";
-            }
-            if (keyword.Contains("chaotic event"))
-            {
-                keyName.text = "Chaotic Event";
-                keyDescription.text =
-                    "A random effect effect chosen at random in a fixed pool.\nExample : Draw, Gain mana, Summon units ...";
-            }
-            else if (keyword.Contains("hunter*"))
-            {
-                keyName.text = "Monster Hunter";
-                keyDescription.text =
-                    "Equipping gear to hunters grant them +1/+1.";
-            }
-            else if (keyword.Contains("gear"))
-            {
-                keyName.text = "Gear";
-                keyDescription.text =
-                    "Equip this spell to a unit to grand them various buffs.";
-            }
-            else if (keyword.Contains("morphto"))
-            {
-                keyName.text = "Morph";
-                keyDescription.text =
-                    "Transforms into another unit and keeps damage.";
-            }
-            else if (keyword.Contains("thorns"))
-            {
-                keyName.text = "Thorns";
-                keyDescription.text =
-                    "When defending, deal damage to the attacker eaqual to the thorn value.";
-            }
-            else if (keyword.Contains("avatar"))
-            {
-                keyName.text = "Avatar";
-                keyDescription.text =
-                    "The avatar's stats increase for each praise this game.";
-            }
-            else if (keyword.Contains("praise"))
-            {
-                keyName.text = "Praise";
-                keyDescription.text =
-                    "The avatar gets stronger when played.";
-            }
-            else if (keyword.Contains("lifesteal"))
-            {
-                keyName.text = "Lifesteal";
-                keyDescription.text =
-                    "Heal the unit's core for the damage dealt during combat.";
-            }
-            else if (keyword.Contains("sleep"))
-            {
-                keyName.text = "Sleep";
-                keyDescription.text =
-                    "An asleep unit cannot attack, at the end of its turn it awakens.";
-            }
-            else if (keyword.Contains("monsterpart"))
-            {
-                keyName.text = "Monster Parts";
-                keyDescription.text =
-                    "Cannot be used, get other monster parts to assemble into gear.";
-            }
-            else if (keyword.Contains("blessed"))
-            {
-                keyName.text = "Blessed";
-                keyDescription.text =
-                    "Has a divine shield that absorbs one instance of damage.";
-            }
-            else if (keyword.Contains("hidden"))
-            {
-                keyName.text = "Hidden";
-                keyDescription.text =
-                    "Cannot be target by attacks until this unit attacks.";
-            }
-            else if (keyword.Contains("quickstrike"))
-            {
-                keyName.text = "QuickStrike";
-                keyDescription.text =
-                    "Can attack units only during the turn it is summoned.";
-            }
-            else if (keyword.Contains("charge"))
-            {
-                keyName.text = "Charge";
-                keyDescription.text =
-                    "Can attack any enemy during the turn it is summoned.";
-            }
-            else if (keyword.Contains("haste"))
-            {
-                keyName.text = "Haste";
-                keyDescription.text =
-                    "Can attack twice per turn (not stackable).";
-            }
-            else if (keyword.Contains("summon"))
-            {
-                keyName.text = "Summon";
-                keyDescription.text = "Summons a unit without triggering its Deploy effect.";
-            }
-            else
-            {
-                Destroy(entry);
-            }
+            keyName.text = "Protect";
+            keyDescription.text =
+                "Forces enemies to attack this unit.";
         }
+        if (effectText.ToLower().Contains(("chaotic event").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Chaotic Event";
+            keyDescription.text =
+                "A random effect effect chosen at random in a fixed pool.\nExample : Draw, Gain mana, Summon units ...";
+        }
+        if (effectText.ToLower().Contains(("hunter*").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Monster Hunter";
+            keyDescription.text =
+                "Equipping gear to hunters grant them +1/+1.";
+        }
+        if (effectText.ToLower().Contains(("gear").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Gear";
+            keyDescription.text =
+                "Equip this spell to a unit to grand them various buffs.";
+        }
+        if (effectText.ToLower().Contains(("morphto").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Morph";
+            keyDescription.text =
+                "Transforms into another unit and keeps damage.";
+        }
+        if (effectText.ToLower().Contains(("thorns").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Thorns";
+            keyDescription.text =
+                "When defending, deal damage to the attacker eaqual to the thorn value.";
+        }
+        if (effectText.ToLower().Contains(("avatar").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Avatar";
+            keyDescription.text =
+                "The avatar's stats increase for each praise this game.";
+        }
+        if (effectText.ToLower().Contains(("praise").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Praise";
+            keyDescription.text =
+                "The avatar gets stronger when played.";
+        }
+        if (effectText.ToLower().Contains(("lifesteal").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Lifesteal";
+            keyDescription.text =
+                "Heal the unit's core for the damage dealt during combat.";
+        }
+        if (effectText.ToLower().Contains(("sleep").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Sleep";
+            keyDescription.text =
+                "An asleep unit cannot attack, at the end of its turn it awakens.";
+        }
+        if (effectText.ToLower().Contains(("monsterpart").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Monster Parts";
+            keyDescription.text =
+                "Cannot be used, get other monster parts to assemble into gear.";
+        }
+        if (effectText.ToLower().Contains(("blessed").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Blessed";
+            keyDescription.text =
+                "Has a divine shield that absorbs one instance of damage.";
+        }
+        if (effectText.ToLower().Contains(("hidden").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Hidden";
+            keyDescription.text =
+                "Cannot be target by attacks until this unit attacks.";
+        }
+        if (effectText.ToLower().Contains(("quickstrike").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "QuickStrike";
+            keyDescription.text =
+                "Can attack units only during the turn it is summoned.";
+        }
+          if (effectText.ToLower().Contains(("charge").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Charge";
+            keyDescription.text =
+                "Can attack any enemy during the turn it is summoned.";
+        }
+          if (effectText.ToLower().Contains(("haste").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Haste";
+            keyDescription.text =
+                "Can attack twice per turn (not stackable).";
+        }
+          if (effectText.ToLower().Contains(("summon").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Summon";
+            keyDescription.text = "Summons a unit without triggering its Deploy effect.";
+        }
+        
     }
     private int GetEffectID(string effect)
     {
