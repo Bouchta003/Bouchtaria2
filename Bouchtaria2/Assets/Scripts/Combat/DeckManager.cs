@@ -103,7 +103,12 @@ public class DeckManager : MonoBehaviour
 
     private void DrawCard(PlayerOwner owner)
     {
-        Queue<CardData> deck = decks[owner];
+        if (!decks.TryGetValue(owner, out Queue<CardData> deck))
+        {
+            Debug.LogError($"Tried to draw for {owner}, but no deck is initialized for that owner.");
+            return;
+        }
+
         HandManager hand = owner == PlayerOwner.Player
             ? handManager
             : handManagerEnemy;

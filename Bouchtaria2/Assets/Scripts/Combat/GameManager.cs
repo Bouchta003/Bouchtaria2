@@ -136,6 +136,7 @@ public class GameManager : MonoBehaviour
     [Header("Discovery")]
     [SerializeField] public GameObject discoverDisplay;
     public bool isDiscovering;
+    private int dungeonStartDrawBonus;
     private void Awake()
     {
         if (Instance != null)
@@ -156,6 +157,7 @@ public class GameManager : MonoBehaviour
         //Combat setup that might be changed bu Dungeon mode
         startingPlayerCoreHealth = startingCoreHealth;
         startingEnemyCoreHealth = startingCoreHealth;
+        dungeonStartDrawBonus = 0;
         InitializeMana();
         
         //Logic for dungeon runs
@@ -190,6 +192,10 @@ public class GameManager : MonoBehaviour
         //Start turn logic
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
         TurnManager.Instance.StartFirstTurn();
+        if (dungeonStartDrawBonus > 0)
+        {
+            StartCoroutine(deckManager.Draw(dungeonStartDrawBonus, PlayerOwner.Player));
+        }
         foreach (var progression in activeProgressions)
         {
             progression.ResetProgression();
@@ -225,7 +231,7 @@ public class GameManager : MonoBehaviour
 
             if (augment == DungeonShop.Augment.StartDraw)
             {
-                StartCoroutine(deckManager.Draw(1, PlayerOwner.Player));
+                dungeonStartDrawBonus++;
             }
         }
         Debug.Log(myaugments);
