@@ -180,7 +180,7 @@ public class DungeonManager : MonoBehaviour
 
         if (resetStreak)
         { 
-            updates[StreakField] = 0;
+            updates[StreakField] = 1;
             updates[DeckField] = new List<int>();
         }
 
@@ -270,7 +270,7 @@ public class DungeonManager : MonoBehaviour
         if (user == null)
         {
             Debug.LogError("No authenticated user.");
-            onResult?.Invoke(0);
+            onResult?.Invoke(1);
             return;
         }
 
@@ -284,15 +284,15 @@ public class DungeonManager : MonoBehaviour
               if (task.IsFaulted || !task.Result.Exists)
               {
                   ErrorPopup.Show("Failed to fetch user streak.");
-                  onResult?.Invoke(0);
+                  onResult?.Invoke(1);
                   return;
               }
 
               int streak = task.Result.ContainsField(StreakField)
                   ? task.Result.GetValue<int>(StreakField)
-                  : 0;
+                  : 1;
 
-              onResult?.Invoke(streak);
+              onResult?.Invoke(Mathf.Max(1, streak));
           });
     }
     public void GetUserCurrentDeck(Action<List<int>> onResult)
