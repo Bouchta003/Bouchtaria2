@@ -25,9 +25,11 @@ public class CardDatabase : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
+        else if(Instance != this)
         {
-            Destroy(gameObject);
+            // Avoid deleting unrelated components that may share this GameObject
+            // (for example DungeonManager in DungeonAdventure).
+            Destroy(this);
         }
     }
 

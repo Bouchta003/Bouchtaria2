@@ -63,12 +63,6 @@ public class DungeonManager : MonoBehaviour
         Instance = this;
     }
 
-    private void OnDestroy()
-    {
-        if (Instance == this)
-            Instance = null;
-    }
-
     private void EnsureCurrentRunInitialized()
     {
         CurrentRun ??= new DungeonRunData();
