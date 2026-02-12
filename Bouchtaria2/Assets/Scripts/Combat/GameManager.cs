@@ -389,10 +389,29 @@ public class GameManager : MonoBehaviour
         {
             CurrentGameState = GameState.PlayerWon;
             Debug.Log("PLAYER WINS");
-            ModifyUserGold(100);
+            ModifyUserGold(100); if (GameRunContext.IsDungeonRun) ModifyUserCoin(20);
         }
 
         EndGame();
+    }
+    private void ModifyUserCoin(int delta)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            return;
+        }
+
+        FirebaseFirestore.DefaultInstance
+            .Collection("users")
+            .Document(user.UserId)
+            .UpdateAsync("coin", FieldValue.Increment(delta))
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                    Debug.LogError("Failed to modify coin reward after match.");
+            });
     }
     private void ModifyUserGold(int delta)
     {

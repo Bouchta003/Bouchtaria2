@@ -25,7 +25,7 @@ public class WinLoseUI : MonoBehaviour
         {
             DungeonManager.Instance.IncrementStreak();
 
-            ModifyUserCoin(20); restartBtn.SetActive(false);
+            restartBtn.SetActive(false);
             Setup("VICTORY", Color.green, "Enemy Core Destroyed, you earned 100 Gold and 20 Coins");
             return;
         }
@@ -101,23 +101,4 @@ public class WinLoseUI : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    private void ModifyUserCoin(int delta)
-    {
-        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
-        if (user == null)
-        {
-            Debug.LogError("No authenticated user.");
-            return;
-        }
-
-        FirebaseFirestore.DefaultInstance
-            .Collection("users")
-            .Document(user.UserId)
-            .UpdateAsync("coin", FieldValue.Increment(delta))
-            .ContinueWithOnMainThread(task =>
-            {
-                if (task.IsFaulted)
-                    Debug.LogError("Failed to modify coin reward after match.");
-            });
-    }
 }
