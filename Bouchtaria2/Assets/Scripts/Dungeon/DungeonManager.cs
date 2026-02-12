@@ -21,6 +21,8 @@ public class DungeonRunData
     {
         floor = 1;
         coins = 0;
+        augments ??= new List<DungeonShop.Augment>();
+        dungeonDeck ??= new List<int>();
         augments.Clear();
         dungeonDeck.Clear();
     }
@@ -59,23 +61,35 @@ public class DungeonManager : MonoBehaviour
 
         Instance = this;
     }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
+    private void EnsureCurrentRunInitialized()
+    {
+        CurrentRun ??= new DungeonRunData();
+        CurrentRun.floor = Mathf.Max(1, CurrentRun.floor);
+        CurrentRun.augments ??= new List<DungeonShop.Augment>();
+        CurrentRun.dungeonDeck ??= new List<int>();
+    }
+
     void Start()
     {
-        CurrentRun ??= new DungeonRunData
-        {
-            floor = 1,
-            coins = 0,
-            augments = new List<DungeonShop.Augment>(),
-            dungeonDeck = new List<int>()
-        };
+        EnsureCurrentRunInitialized();
 
         ApplyRunToUI();
         FetchRunData();
     }
     public void RefreshAugmentCount()
     {
-        HPAugmentCount.text = "0";
-        ManaAugmentCount.text = "0";
+        if (HPAugmentCount != null)
+            HPAugmentCount.text = "0";
+
+        if (ManaAugmentCount != null)
+            ManaAugmentCount.text = "0";
 
         if (CurrentRun == null || CurrentRun.augments == null)
             return;
@@ -88,12 +102,14 @@ public class DungeonManager : MonoBehaviour
         {
             if (pair.Key == DungeonShop.Augment.MaxHP && pair.Value>0)
             {
-                HPAugmentCount.text = pair.Value.ToString();
+                if (HPAugmentCount != null)
+                    HPAugmentCount.text = pair.Value.ToString();
             }
 
             if (pair.Key == DungeonShop.Augment.StartMana && pair.Value > 0)
             {
-                ManaAugmentCount.text = pair.Value.ToString();
+                if (ManaAugmentCount != null)
+                    ManaAugmentCount.text = pair.Value.ToString();
             }
         }
 
@@ -180,7 +196,7 @@ public class DungeonManager : MonoBehaviour
 
         if (resetStreak)
         { 
-            updates[StreakField] = 0;
+            updates[StreakField] = 1;
             updates[DeckField] = new List<int>();
         }
 
@@ -253,6 +269,7 @@ public class DungeonManager : MonoBehaviour
                 });
             });
 
+        EnsureCurrentRunInitialized();
         CurrentRun.Reset();
         CurrentRun.coins = 0;
         SaveRunData(resetStreak: true);
@@ -270,7 +287,7 @@ public class DungeonManager : MonoBehaviour
         if (user == null)
         {
             Debug.LogError("No authenticated user.");
-            onResult?.Invoke(0);
+            onResult?.Invoke(1);
             return;
         }
 
@@ -284,15 +301,15 @@ public class DungeonManager : MonoBehaviour
               if (task.IsFaulted || !task.Result.Exists)
               {
                   ErrorPopup.Show("Failed to fetch user streak.");
-                  onResult?.Invoke(0);
+                  onResult?.Invoke(1);
                   return;
               }
 
               int streak = task.Result.ContainsField(StreakField)
                   ? task.Result.GetValue<int>(StreakField)
-                  : 0;
+                  : 1;
 
-              onResult?.Invoke(streak);
+              onResult?.Invoke(Mathf.Max(1, streak));
           });
     }
     public void GetUserCurrentDeck(Action<List<int>> onResult)
@@ -424,6 +441,8 @@ public class DungeonManager : MonoBehaviour
 
     private void ApplyRunToUI()
     {
+        EnsureCurrentRunInitialized();
+
         if (CurrentRun != null)
         {
             if (StreakText != null)
