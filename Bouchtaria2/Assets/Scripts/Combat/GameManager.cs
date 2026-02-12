@@ -68,8 +68,7 @@ public class GameManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] TextMeshProUGUI manacounterAlly;
     [SerializeField] GameObject boardDesign;
-    [SerializeField] Sprite defaultBoard;
-    [SerializeField] Sprite defaultMagicBoard;
+    [SerializeField] List<Sprite> boards;
     [SerializeField] Sprite distortionBoard;
     [SerializeField] TextMeshProUGUI manacounterEnmy;
     [SerializeField] Canvas MainCanvas;
@@ -174,8 +173,9 @@ public class GameManager : MonoBehaviour
         }
 
         //Setup cores mana and deck before the turn logic
-        Sprite[] defaultBoards = new Sprite[] { defaultBoard, defaultMagicBoard };
-        boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = defaultBoards[UnityEngine.Random.Range(0, defaultBoards.Length)];
+        boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[UnityEngine.Random.Range(0, boards.Count)];
+        if (GameRunContext.IsDungeonRun) boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[0];
+
 
         deckManager.InitializeDecks();        // build decks
         deckManager.DetectUnlockableTraits(); // analyze decks
@@ -250,7 +250,7 @@ public class GameManager : MonoBehaviour
         }
         if (!DistortionWorld && boardDesign.GetComponentInChildren<SpriteRenderer>().sprite == distortionBoard)
         {
-            boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = defaultMagicBoard;
+            boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[UnityEngine.Random.Range(0, boards.Count)];
         }
     }
     #region Turn Logic

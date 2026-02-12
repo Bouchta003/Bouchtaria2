@@ -948,7 +948,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1089225106
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1377,7 +1377,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1465397398
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1467,6 +1467,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DungeonManager
   StreakText: {fileID: 927902426}
   StreakFire: {fileID: 1080836288}
+  NextEnemy: {fileID: 0}
   HPAugmentCount: {fileID: 1632931914}
   ManaAugmentCount: {fileID: 255817081}
   CurrentRun:
@@ -1474,6 +1475,7 @@ MonoBehaviour:
     coins: 0
     augments: 
     dungeonDeck: 
+    currentDeckSize: 0
 --- !u!4 &1525587506
 Transform:
   m_ObjectHideFlags: 0

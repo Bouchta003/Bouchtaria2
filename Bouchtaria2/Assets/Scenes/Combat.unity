@@ -776,8 +776,13 @@ MonoBehaviour:
   baseManaCap: 10
   manacounterAlly: {fileID: 1015722741}
   boardDesign: {fileID: 1591761420}
-  defaultBoard: {fileID: 9119414098855660196, guid: 8bd203919f978434c88fb8fd60a6495e, type: 3}
-  defaultMagicBoard: {fileID: 7457923528475331426, guid: 8a5637cc6dc864241ae964db25f2a4cf, type: 3}
+  boards:
+  - {fileID: -6745894422431646979, guid: a4dd735e8e24ecc498fea6e579e2150a, type: 3}
+  - {fileID: 9119414098855660196, guid: 8bd203919f978434c88fb8fd60a6495e, type: 3}
+  - {fileID: 7457923528475331426, guid: 8a5637cc6dc864241ae964db25f2a4cf, type: 3}
+  - {fileID: -8079000004695571286, guid: 45d93c51074c8d64a9670a1650991782, type: 3}
+  - {fileID: 3697348364515601160, guid: 04904a1335e527b44a5f636f518ce7d9, type: 3}
+  - {fileID: -6533518431797266695, guid: 5765f94dbe7ccf94baf6d08be1861b95, type: 3}
   distortionBoard: {fileID: 1123560429962625998, guid: 58e39beb08c8fd747bdcf05fef3c5a8b, type: 3}
   manacounterEnmy: {fileID: 589142854}
   MainCanvas: {fileID: 438573345}
