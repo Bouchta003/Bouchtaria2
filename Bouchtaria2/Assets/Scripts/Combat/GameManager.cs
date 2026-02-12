@@ -239,7 +239,7 @@ public class GameManager : MonoBehaviour
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
         if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
-        if (Input.GetKeyDown(KeyCode.G)) EnemyCore.TakeDamage(999);
+        if (Input.GetKeyDown(KeyCode.G)) EnemyCore.TakeDamage(99);
         if (DistortionWorld && boardDesign.GetComponentInChildren<SpriteRenderer>().sprite != distortionBoard)
         {
             boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = distortionBoard;

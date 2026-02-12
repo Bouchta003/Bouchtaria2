@@ -896,7 +896,7 @@ public class PokemonProgression : ITraitProgression
         {
             0 => 3,
             1 => 6,
-            2 => 10,
+            2 => 12,
             _ => 999
         };
     }
