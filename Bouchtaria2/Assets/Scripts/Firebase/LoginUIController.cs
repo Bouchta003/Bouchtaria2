@@ -10,6 +10,7 @@ public class LoginUIController : MonoBehaviour
     [SerializeField] private TMP_InputField emailInput;
     [SerializeField] private TMP_InputField passwordInput;
     [SerializeField] private Button createAccountButton;
+    [SerializeField] private GameObject logregisterWindow;
     public static LoginUIController Instance;
     void Start()
     {
@@ -19,7 +20,10 @@ public class LoginUIController : MonoBehaviour
     {
         AuthManager.Instance.SignInAnonymously();
     }
-
+    public void ToggleAccountLoginCreation()
+    {
+        logregisterWindow.SetActive(!logregisterWindow.activeSelf);
+    }
     public void OnCreateAccountClicked()
     {
         AuthManager.Instance.CreateOrLinkAccount(
