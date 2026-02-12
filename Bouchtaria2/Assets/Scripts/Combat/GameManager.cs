@@ -206,8 +206,10 @@ public class GameManager : MonoBehaviour
 
         if (startingEnemyCoreHealth > 100) startingEnemyCoreHealth = 100;
 
+        string myaugments = "Current augments = ";
         foreach(DungeonShop.Augment augment in runData.augments)
         {
+            myaugments += augment.ToString() + "/";
             //Max HP Augment
             if(augment == DungeonShop.Augment.MaxHP)
             {
@@ -223,9 +225,10 @@ public class GameManager : MonoBehaviour
 
             if (augment == DungeonShop.Augment.StartDraw)
             {
-                deckManager.Draw(1, PlayerOwner.Player);
+                StartCoroutine(deckManager.Draw(1, PlayerOwner.Player));
             }
         }
+        Debug.Log(myaugments);
     }
     public void TogglePause()
     {
