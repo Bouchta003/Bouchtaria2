@@ -155,27 +155,77 @@ public class ScanPanelView : MonoBehaviour
     }
     void DisplayRelatedCards(CardData data)
     {
+        HashSet<int> desiredIds = new HashSet<int>(data.relatedCards);
+        Dictionary<int, GameObject> existingEntries = new Dictionary<int, GameObject>();
+        List<GameObject> entriesToRemove = new List<GameObject>();
+
+        foreach (Transform child in relatedContainer)
+        {
+            RelatedCardEntry marker = child.GetComponent<RelatedCardEntry>();
+            if (marker == null || !desiredIds.Contains(marker.CardId) || existingEntries.ContainsKey(marker.CardId))
+            {
+                entriesToRemove.Add(child.gameObject);
+                continue;
+            }
+
+            existingEntries[marker.CardId] = child.gameObject;
+        }
+
+        foreach (GameObject staleEntry in entriesToRemove)
+        {
+            Destroy(staleEntry);
+        }
+
         foreach (int id in data.relatedCards)
         {
+            if (existingEntries.ContainsKey(id))
+                continue;
+
             Debug.Log("New related id " + id);
             GameObject entry = Instantiate(relatedPrefab, relatedContainer);
+            RelatedCardEntry marker = entry.GetComponent<RelatedCardEntry>();
+            if (marker == null)
+                marker = entry.AddComponent<RelatedCardEntry>();
+            marker.CardId = id;
+
             CardData relatedData = CardDatabase.Instance.GetCardById(id);
-            entry.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.effectText; if(relatedData.effectText == "") { entry.GetComponentInChildren<TextMeshProUGUI>().text = "No effect."; }
+            entry.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.effectText;
+            if (relatedData.effectText == "")
+            {
+                entry.GetComponentInChildren<TextMeshProUGUI>().text = "No effect.";
+            }
+
             Color traitLeft = Color.white;
             if (relatedData.traits.Count > 0 && TryGetTraitColor(relatedData.traits[0], out Color color))
-            { traitLeft = color; }
+            {
+                traitLeft = color;
+            }
+
             Color traitRight = Color.white;
             if (relatedData.traits.Count > 1 && TryGetTraitColor(relatedData.traits[1], out Color color2))
-            { traitRight = color2; }
+            {
+                traitRight = color2;
+            }
+
             Transform CardPreview = entry.transform.GetChild(1);
-            Transform Artwork = CardPreview.GetChild(0); Artwork.GetComponent<Image>().sprite = relatedData.artSpriteCompact;
-            Transform LeftTrait = CardPreview.GetChild(1); LeftTrait.GetComponent<Image>().color = traitLeft;
-            Transform RightTrait = CardPreview.GetChild(2); RightTrait.GetComponent<Image>().color = traitRight;
-            Transform Mana = CardPreview.GetChild(3); Mana.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.manaCost.ToString();
-            Transform LeftTraitMana = Mana.GetChild(0); LeftTraitMana.GetComponent<Image>().color = traitLeft;
-            Transform RightTraitMana = Mana.GetChild(1); RightTraitMana.GetComponent<Image>().color = traitRight;
-            Transform Atk = CardPreview.GetChild(4); Atk.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.atkValue.ToString(); Atk.GetComponent<Image>().color = traitLeft;
-            Transform Hp = CardPreview.GetChild(5); Hp.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.hpValue.ToString(); ; Hp.GetComponent<Image>().color = traitRight;
+            Transform Artwork = CardPreview.GetChild(0);
+            Artwork.GetComponent<Image>().sprite = relatedData.artSpriteCompact;
+            Transform LeftTrait = CardPreview.GetChild(1);
+            LeftTrait.GetComponent<Image>().color = traitLeft;
+            Transform RightTrait = CardPreview.GetChild(2);
+            RightTrait.GetComponent<Image>().color = traitRight;
+            Transform Mana = CardPreview.GetChild(3);
+            Mana.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.manaCost.ToString();
+            Transform LeftTraitMana = Mana.GetChild(0);
+            LeftTraitMana.GetComponent<Image>().color = traitLeft;
+            Transform RightTraitMana = Mana.GetChild(1);
+            RightTraitMana.GetComponent<Image>().color = traitRight;
+            Transform Atk = CardPreview.GetChild(4);
+            Atk.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.atkValue.ToString();
+            Atk.GetComponent<Image>().color = traitLeft;
+            Transform Hp = CardPreview.GetChild(5);
+            Hp.GetComponentInChildren<TextMeshProUGUI>().text = relatedData.hpValue.ToString();
+            Hp.GetComponent<Image>().color = traitRight;
         }
     }
     private bool TryGetTraitColor(string traitString, out Color color)
