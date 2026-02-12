@@ -38,6 +38,7 @@ public class DungeonManager : MonoBehaviour
     [Header("UI Elements")]
     [SerializeField] TextMeshProUGUI StreakText;
     [SerializeField] Image StreakFire;
+    [SerializeField] Image NextEnemy;
 
     [Header("Current Augments")]
     [SerializeField] TextMeshProUGUI HPAugmentCount;
@@ -468,6 +469,11 @@ public class DungeonManager : MonoBehaviour
             {
                 if (CurrentRun.floor < 5) StreakFire.gameObject.SetActive(true);
                 if (CurrentRun.floor >= 5) StreakFire.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+            }
+
+            if (SceneManager.GetActiveScene().name == "DungeonAdventure")
+            {
+                if (NextEnemy != null) NextEnemy.sprite = CardDatabase.Instance.GetCardById(EnemyDecks.GetFloorDeck(CurrentRun.floor)[0]).artSpriteCompact;
             }
         }
 
