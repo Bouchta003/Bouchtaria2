@@ -1538,6 +1538,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WinLoseUI
   resultText: {fileID: 786345760}
   subText: {fileID: 900490724}
+  restartBtn: {fileID: 1559829699}
   backgroundPanel: {fileID: 1266972051}
 --- !u!114 &554539687
 MonoBehaviour:

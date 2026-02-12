@@ -11,6 +11,7 @@ public class WinLoseUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI resultText;
     [SerializeField] private TextMeshProUGUI subText;
+    [SerializeField] private GameObject restartBtn;
     [SerializeField] private Image backgroundPanel;
 
     private void Awake()
@@ -24,7 +25,7 @@ public class WinLoseUI : MonoBehaviour
         {
             DungeonManager.Instance.IncrementStreak();
 
-            ModifyUserCoin(20);
+            ModifyUserCoin(20); restartBtn.SetActive(false);
             Setup("VICTORY", Color.green, "Enemy Core Destroyed, you earned 100 Gold and 20 Coins");
             return;
         }
@@ -34,14 +35,18 @@ public class WinLoseUI : MonoBehaviour
 
     public void ShowLose()
     {
-        if (GameRunContext.IsDungeonRun && DungeonManager.Instance != null)
-            DungeonManager.Instance.ResetStreak();
+        if (GameRunContext.IsDungeonRun)
+        { DungeonManager.Instance.ResetStreak(); restartBtn.SetActive(false); }
 
         Setup("DEFEAT", Color.red, "Your Core Was Destroyed, you earned 20 Gold as compensation");
     }
     public void LeaveToMenu()
     {
-        if (GameRunContext.IsDungeonRun) SceneManager.LoadScene("DungeonMenu");
+        if (GameRunContext.IsDungeonRun) {
+            if (resultText.color != Color.red)
+            { SceneManager.LoadScene("DungeonAdventure"); }
+            else { SceneManager.LoadScene("DungeonMenu"); }
+        } 
         else SceneManager.LoadScene("Main_Menu");
     }
     private void Setup(string title, Color color, string subtitle)

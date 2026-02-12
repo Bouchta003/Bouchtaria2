@@ -61,6 +61,7 @@ public class DungeonManager : MonoBehaviour
     }
     void Start()
     {
+        GameRunContext.IsDungeonRun = true;
         CurrentRun ??= new DungeonRunData
         {
             floor = 1,
@@ -264,6 +265,47 @@ public class DungeonManager : MonoBehaviour
         }
         ApplyRunToUI();
     }
+    public void ConcedeRun()
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        db.Collection("users")
+          .Document(user.UserId)
+          .UpdateAsync(StreakField, 1)
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("Failed to modify dust.");
+                    return;
+                }
+
+                GetUserCurrentStreak(streak =>
+                {
+                    Debug.Log("User streak: " + streak);
+                    ApplyRunToUI();
+                });
+            });
+
+        CurrentRun.Reset();
+        CurrentRun.coins = 0;
+        SaveRunData(resetStreak: true);
+
+        if (GameRunContext.DungeonData != null)
+        {
+            GameRunContext.DungeonData.Reset();
+            GameRunContext.DungeonData.coins = 0;
+        }
+        ApplyRunToUI();
+        GoToDungeonMenu();
+    }
     public void GetUserCurrentStreak(Action<int> onResult)
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
@@ -346,6 +388,18 @@ public class DungeonManager : MonoBehaviour
     public void GoToShop()
     {
         SceneManager.LoadScene("DungeonShop");
+    }
+    public void GoToAdventure()
+    {
+        SceneManager.LoadScene("DungeonAdventure");
+    }
+    public void GoToDungeonMenu()
+    {
+        SceneManager.LoadScene("DungeonMenu");
+    }
+    public void GoToDeck()
+    {
+        GameFlowController.Instance.GoToDungeonDeck(CurrentRun);
     }
     public void FloorCombat()
     {
@@ -431,8 +485,7 @@ public class DungeonManager : MonoBehaviour
 
             if (StreakFire != null)
             {
-                if (CurrentRun.floor <= 1) StreakFire.gameObject.SetActive(false);
-                else if (CurrentRun.floor < 5) StreakFire.gameObject.SetActive(true);
+                if (CurrentRun.floor < 5) StreakFire.gameObject.SetActive(true);
                 if (CurrentRun.floor >= 5) StreakFire.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
             }
         }

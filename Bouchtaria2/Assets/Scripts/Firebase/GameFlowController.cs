@@ -126,6 +126,13 @@ public class GameFlowController : MonoBehaviour
         GameRunContext.DungeonData = DungeonManager.Instance.CurrentRun;
         SceneManager.LoadScene("Combat");
     }
+    public void GoToDungeonAdventure()
+    {
+        if (!isGameReady) return;
+        GameRunContext.IsDungeonRun = true;
+        GameRunContext.DungeonData = DungeonManager.Instance.CurrentRun;
+        SceneManager.LoadScene("DungeonAdventure");
+    }
     public void GoToDungeonDeck(DungeonRunData data)
     {
         GameRunContext.IsDungeonRun = true;
@@ -161,6 +168,7 @@ public class GameFlowController : MonoBehaviour
         }
 
         UserCollectionManager.Instance.RefreshCollection();
+        GameRunContext.IsDungeonRun = false;
         SceneManager.LoadScene("Collection");
     }
     public void GoToDungeon()

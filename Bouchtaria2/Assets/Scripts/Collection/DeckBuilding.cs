@@ -95,7 +95,7 @@ public class DeckBuilding : MonoBehaviour
     }
     private void Update()
     {
-        craftFilter.gameObject.SetActive(isCrafting);
+        craftFilter.gameObject.SetActive(isCrafting);    
     }
     public void ShowIndex()
     {

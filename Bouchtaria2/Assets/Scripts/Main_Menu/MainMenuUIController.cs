@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class MainMenuUIController : MonoBehaviour
 {
+    private void Start()
+    {
+        GameRunContext.IsDungeonRun = false;
+    }
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Tab)) OnDungeonlicked();
@@ -22,7 +26,6 @@ public class MainMenuUIController : MonoBehaviour
     {
         GameFlowController.Instance.GoToShop();
     }
-
     public void OnBackToTitleClicked()
     {
         GameFlowController.Instance.GoToTitleScreen();
