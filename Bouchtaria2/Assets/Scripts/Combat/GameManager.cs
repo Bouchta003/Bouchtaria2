@@ -415,8 +415,6 @@ public class GameManager : MonoBehaviour
             ModifyUserCoin(reward);
         }
 
-        if (GameRunContext.DungeonData != null)
-            GameRunContext.DungeonData.coins += reward;
     }
     private void ModifyUserCoin(int delta)
     {
