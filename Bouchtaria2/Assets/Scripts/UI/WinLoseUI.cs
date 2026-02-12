@@ -3,6 +3,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
+using Firebase.Auth;
+using Firebase.Extensions;
+using Firebase.Firestore;
 
 public class WinLoseUI : MonoBehaviour
 {
@@ -17,14 +20,24 @@ public class WinLoseUI : MonoBehaviour
 
     public void ShowWin()
     {
-        if (GameRunContext.IsDungeonRun) DungeonManager.Instance.IncrementStreak();
+        if (GameRunContext.IsDungeonRun)
+        {
+            if (DungeonManager.Instance != null)
+                DungeonManager.Instance.IncrementStreak();
+
+            ModifyUserCoin(20);
+            Setup("VICTORY", Color.green, "Enemy Core Destroyed, you earned 100 Gold and 20 Coins");
+            return;
+        }
+
         Setup("VICTORY", Color.green, "Enemy Core Destroyed, you earned 100 Gold");
-        DungeonShop.Instance.ModifyUserCoin(20);
     }
 
     public void ShowLose()
     {
-        if (GameRunContext.IsDungeonRun) DungeonManager.Instance.ResetStreak();
+        if (GameRunContext.IsDungeonRun && DungeonManager.Instance != null)
+            DungeonManager.Instance.ResetStreak();
+
         Setup("DEFEAT", Color.red, "Your Core Was Destroyed, you earned 20 Gold as compensation");
     }
     public void LeaveToMenu()
@@ -82,5 +95,25 @@ public class WinLoseUI : MonoBehaviour
     public void RestartMatch()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    private void ModifyUserCoin(int delta)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            return;
+        }
+
+        FirebaseFirestore.DefaultInstance
+            .Collection("users")
+            .Document(user.UserId)
+            .UpdateAsync("coin", FieldValue.Increment(delta))
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                    Debug.LogError("Failed to modify coin reward after match.");
+            });
     }
 }
