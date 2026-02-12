@@ -220,6 +220,11 @@ public class GameManager : MonoBehaviour
                 AllyCurrentMaxMana++;
                 AllyCurrentMana++;
             }
+
+            if (augment == DungeonShop.Augment.StartDraw)
+            {
+                deckManager.Draw(1, PlayerOwner.Player);
+            }
         }
     }
     public void TogglePause()

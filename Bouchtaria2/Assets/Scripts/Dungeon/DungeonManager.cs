@@ -47,6 +47,7 @@ public class DungeonManager : MonoBehaviour
     [Header("Current Augments")]
     [SerializeField] TextMeshProUGUI HPAugmentCount;
     [SerializeField] TextMeshProUGUI ManaAugmentCount;
+    [SerializeField] TextMeshProUGUI DrawAugmentCount;
     public DungeonRunData CurrentRun;
 
     private const string StreakField = "streak";
@@ -91,6 +92,9 @@ public class DungeonManager : MonoBehaviour
         if (ManaAugmentCount != null)
             ManaAugmentCount.text = "0";
 
+        if (DrawAugmentCount != null)
+            DrawAugmentCount.text = "0";
+
         if (CurrentRun == null || CurrentRun.augments == null)
             return;
 
@@ -112,6 +116,11 @@ public class DungeonManager : MonoBehaviour
                     ManaAugmentCount.text = pair.Value.ToString();
             }
 
+            if (pair.Key == DungeonShop.Augment.StartDraw && pair.Value > 0)
+            {
+                if (DrawAugmentCount != null)
+                    DrawAugmentCount.text = pair.Value.ToString();
+            }
             if (pair.Key == DungeonShop.Augment.DeckSizeUp3 && pair.Value > 0)
             {
                 decksize += 3 * pair.Value;
@@ -243,7 +252,9 @@ public class DungeonManager : MonoBehaviour
             {
                 if (task.IsFaulted)
                     ErrorPopup.Show("Failed to save dungeon run data.");
-            }); ApplyRunToUI();
+            });
+        GameRunContext.DungeonData = CurrentRun;
+        ApplyRunToUI();
     }
     public void IncrementStreak()
     {
