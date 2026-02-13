@@ -11,9 +11,12 @@ public class LoginUIController : MonoBehaviour
     [SerializeField] private TMP_InputField passwordInput;
     [SerializeField] private Button createAccountButton;
     [SerializeField] private GameObject logregisterWindow;
+    [SerializeField] private GameObject DisplayedNamePanel;
+    [SerializeField] private TMP_InputField DisplayedNameInput;
     public static LoginUIController Instance;
     void Start()
     {
+        DisplayedNamePanel.SetActive(false);
         EventSystem.current.SetSelectedGameObject(emailInput.gameObject);
     }
     public void OnGuestClicked()
@@ -36,6 +39,14 @@ public class LoginUIController : MonoBehaviour
         if (AuthManager.Instance.CurrentUser != null)
         {
             GameFlowController.Instance.GoToMainMenu();
+        }
+    }
+    public void ConfirmDisplayName()
+    {
+        if(DisplayedNameInput.text!=null && DisplayedNameInput.text.Length > 1)
+        {
+            //Update display name in firestore
+            DisplayedNamePanel.SetActive(false);
         }
     }
     public static void CloseGame()
