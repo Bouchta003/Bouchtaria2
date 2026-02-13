@@ -648,7 +648,11 @@ public class CardInstance : MonoBehaviour, IAttackable
                 TryExecuteDamageRandomEnemy(effect);
                 continue;
             }
-
+            if (effect.StartsWith("damageaoe"))
+            {
+                TryExecuteDamageAoe(effect);
+                continue;
+            }
             // Targeted spell effects
             if (effect.StartsWith("damage"))
             {
@@ -897,13 +901,31 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (effect.StartsWith("draw"))
         {
-            if (!TryParseIntEffect(effect, "draw", out int cards))
-            { gameManager.CheckGlow(); return; }
+            if (effect.StartsWith("draweffect"))
+            {
+                int open = effect.IndexOf('(');
+                int close = effect.IndexOf(')');
+                if (open < 0 || close <= open)
+                {
+                    Debug.LogWarning($"Malformed draweffet effect '{effect}' on {Data.name}");
+                    return;
+                }
 
-
-            deckManager.StartCoroutine(deckManager.Draw(cards, Owner));
-
-            gameManager.CheckGlow();return;
+                string inner = effect.Substring(open + 1, close - open - 1).Trim();
+                if (string.IsNullOrEmpty(inner))
+                {
+                    Debug.LogWarning($"Empty selfbuff parameters '{effect}' on {Data.name}");
+                    return;
+                }
+                deckManager.StartCoroutine(deckManager.DrawEffect(inner, Owner));
+                gameManager.CheckGlow(); return;
+            }
+           
+            else if(TryParseIntEffect(effect, "draw", out int cards))
+            {
+                gameManager.CheckGlow();
+                deckManager.StartCoroutine(deckManager.Draw(cards, Owner)); return;
+            }
         }
 
         if (effect.StartsWith("praise"))
@@ -1096,8 +1118,6 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (!int.TryParse(valueStr, out value))
         {
-            Debug.LogError(
-                $"Invalid {effectName} parameter '{valueStr}' on card {Data.name}");
             return false;
         }
 
@@ -1741,7 +1761,10 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (target is CardInstance inst)
                 inst.ModifyStats(atk, hp);
         }
-
+        if (effect.StartsWith("buffdiscovertrait") && target is CardInstance cardinst)
+        {
+            gameManager.DiscoverTrait(cardinst.Data.traits[0], Owner);
+        }
         //Update view
         view.hpTextBoard.text = CurrentHealth.ToString();
         UpdateStatsColor();

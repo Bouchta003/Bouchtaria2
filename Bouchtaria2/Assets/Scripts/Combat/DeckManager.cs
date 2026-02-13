@@ -100,6 +100,100 @@ public class DeckManager : MonoBehaviour
             yield return new WaitForSeconds(0.2f);
         }
     }
+    public IEnumerator DrawEffect(string effect, PlayerOwner owner)
+    {
+        DrawNextCardWithEffect(owner, effect+"*");
+        yield return new WaitForSeconds(0.2f);
+    }
+    private void DrawNextCardWithEffect(PlayerOwner owner, string effectSearch)
+    {
+        if (!decks.TryGetValue(owner, out Queue<CardData> deck))
+        {
+            Debug.LogError($"Tried to draw for {owner}, but no deck is initialized.");
+            return;
+        }
+
+        if (deck.Count == 0)
+        {
+            Debug.Log($"{owner} deck is empty.");
+            return;
+        }
+
+        HandManager hand = owner == PlayerOwner.Player
+            ? handManager
+            : handManagerEnemy;
+
+        if (hand.handCards.Count >= hand.maxHandSize)
+        {
+            Debug.Log($"{owner} hand is full.");
+            return;
+        }
+
+        CardData foundCard = null;
+        int originalCount = deck.Count;
+
+        // We temporarily cycle through the deck
+        for (int i = 0; i < originalCount; i++)
+        {
+            CardData top = deck.Dequeue();
+
+            if (foundCard == null &&
+                !string.IsNullOrEmpty(top.effect) &&
+                top.effect.Contains(effectSearch))
+            {
+                foundCard = top;
+                continue; // don't re-enqueue this one
+            }
+
+            deck.Enqueue(top);
+        }
+
+        if (foundCard == null)
+        {
+            Debug.Log($"No card found with effect containing '{effectSearch}'");
+            return;
+        }
+
+        // Use your existing draw logic
+        CardInstance card = CardFactory.Instance.CreateCard(foundCard, owner);
+
+        switch (IdealEffect)
+        {
+            case -1: break;
+            case 0:
+                if (owner == PlayerOwner.Player)
+                    card.AddTemporaryManaModifier(-2);
+                break;
+            case 1:
+                if (owner == PlayerOwner.Enemy)
+                    card.AddTemporaryManaModifier(-2);
+                break;
+            case 2:
+                card.AddTemporaryManaModifier(-2);
+                break;
+        }
+
+        switch (TruthEffect)
+        {
+            case -1: break;
+            case 0:
+                if (owner == PlayerOwner.Enemy)
+                    card.AddTemporaryManaModifier(2);
+                break;
+            case 1:
+                if (owner == PlayerOwner.Player)
+                    card.AddTemporaryManaModifier(2);
+                break;
+            case 2:
+                card.AddTemporaryManaModifier(2);
+                break;
+        }
+
+        card.SetZone(CardZone.Hand);
+        hand.AddCard(card.gameObject);
+        hand.UpdateCardPositions();
+        OnCardDrawn?.Invoke(card);
+    }
 
     private void DrawCard(PlayerOwner owner)
     {
