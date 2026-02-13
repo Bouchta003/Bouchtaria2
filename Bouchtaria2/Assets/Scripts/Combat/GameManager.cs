@@ -31,7 +31,7 @@ public class GameManager : MonoBehaviour
 {
     private const int LossGoldCompensation = 20;
     private const int WinGoldReward = 100;
-    private const int DungeonWinCoinReward = 20;
+    private const int DungeonWinCoinReward = 30;
 
     public static GameManager Instance;
 
@@ -440,7 +440,7 @@ public class GameManager : MonoBehaviour
     {
         if (reward <= 0)
             return;
-
+        if (GameRunContext.DungeonData.floor % 10 == 0) reward += 50;
         if (DungeonManager.Instance?.CurrentRun != null)
         {
             DungeonManager.Instance.CurrentRun.coins += reward;

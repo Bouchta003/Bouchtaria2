@@ -136,7 +136,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         InitializeProgressIfAny();
         ParseEffects();
         
-        gameManager.OnOwnerHeal += OnHeal;
+        if(CurrentEffect.Contains("h[")&&!CurrentEffect.Contains("progressheal"))gameManager.OnOwnerHeal += OnHeal;
     }
     public bool CanAttackCoreOnSummon()
     {
@@ -276,7 +276,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryParseProgress("progressheal", out int healCap))
         {
             ProgressionCap = healCap;
-            //gameManager.OnOwnerHeal += OnHeal;
+            gameManager.OnOwnerHeal += OnHeal;
         }
         else if (HasKeyword("progressdamage") &&
             TryParseProgress("progressdamage", out int dmgCap))
@@ -1773,6 +1773,15 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TryExecuteDamage(string effect, IAttackable target)
     {
+        if(effect.StartsWith("damagenheal")){
+            (int atk, int hp) = GetTwoIntsFromEffect(effect);
+
+            target.TakeDamage(atk);
+            gameManager.OnDamageWithCard(Owner);
+            target.Heal(hp);
+            return;
+        }
+
         if (!TryParseIntEffect(effect, "damage", out int amount))
             return;
 

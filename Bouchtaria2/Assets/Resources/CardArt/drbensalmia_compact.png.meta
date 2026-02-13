@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 780b69a3c8757714abaaec15a758e34b
+guid: e52398965db30e344b516e6fd9143668
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7679784718604264650
-    second: sogeking_0
+      213: 8327655768174992825
+    second: drbensalmia_compact_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: sogeking_0
+      name: drbensalmia_compact_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1200
-        height: 1200
+        width: 796
+        height: 796
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 63b9e18dc7ceb6590800000000000000
-      internalID: -7679784718604264650
+      spriteID: 9bd9dc1acc6c19370800000000000000
+      internalID: 8327655768174992825
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      sogeking_0: -7679784718604264650
+      drbensalmia_compact_0: 8327655768174992825
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

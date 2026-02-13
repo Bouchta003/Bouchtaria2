@@ -2670,6 +2670,38 @@
       "packable": false,
       "token": false,
       "signature": false
+    },
+    "164": {
+      "id": 164,
+      "name": "Sogeking",
+      "cardType": "minion",
+      "manaCost": 2,
+      "atkValue": 2,
+      "hpValue": 2,
+      "traits": [ "Gunner" ],
+      "effect": "d[damage(2),targetunit]",
+      "effectText": "Deploy : Deal 2 damage to a unit",
+      "artPath": "CardArt/sogeking",
+      "artCompactPath": "CardArt/sogeking_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
+    },
+    "165": {
+      "id": 165,
+      "name": "DrBensalmia",
+      "cardType": "minion",
+      "manaCost": 3,
+      "atkValue": 3,
+      "hpValue": 2,
+      "traits": [ "Healer", "Chaos" ],
+      "effect": "d[damagenheal(1,3),targetunit]",
+      "effectText": "Deploy : Deal 1 damage to a unit then heal it by 3",
+      "artPath": "CardArt/drbensalmia",
+      "artCompactPath": "CardArt/drbensalmia_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
     }
   }
 }

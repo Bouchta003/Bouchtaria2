@@ -180,7 +180,7 @@ public class DungeonManager : MonoBehaviour
     {
         EnsureCurrentRunInitialized();
 
-        int decksize = 15;
+        int decksize = 20;
 
         Dictionary<DungeonShop.Augment, int> augmentCounts =
             CurrentRun.augments
