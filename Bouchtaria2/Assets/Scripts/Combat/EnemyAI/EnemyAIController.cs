@@ -9,6 +9,22 @@ public class EnemyAIController : MonoBehaviour
     [SerializeField] private AllyCardDropArea allyBoard;
     [SerializeField] private GameManager gameManager;
     public event System.Action<CardInstance> OnCardPlayed;
+
+    // We keep action planning simple and deterministic:
+    // evaluate legal combinations under mana + board constraints,
+    // then execute the highest score sequence.
+    private enum PlannedActionType
+    {
+        Spell,
+        Summon
+    }
+
+    private class PlannedAction
+    {
+        public PlannedActionType Type;
+        public CardInstance Card;
+        public int Score;
+    }
     private void OnEnable()
     {
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
@@ -37,19 +53,16 @@ public class EnemyAIController : MonoBehaviour
 
         yield return new WaitForSeconds(0.3f);
 
-        // Spells
-        if(!gameManager.DistortionWorld)
-        yield return StartCoroutine(TryPlaySpells());
-
-        // Summons
-        yield return StartCoroutine(TrySummon());
+        // Build a smarter turn plan that optimizes mana usage and board space,
+        // instead of playing the first acceptable card.
+        yield return StartCoroutine(PlayBestMainPhaseSequence());
 
         // Attacks
         yield return StartCoroutine(TryAttack());
         yield return StartCoroutine(TryAttack());
 
-        //Summon if new place
-        yield return StartCoroutine(TrySummon());
+        // If combat created new strategic value (e.g. a post-combat summon), try once more.
+        yield return StartCoroutine(PlayBestMainPhaseSequence());
 
         yield return new WaitForSeconds(0.2f);
 
@@ -58,23 +71,198 @@ public class EnemyAIController : MonoBehaviour
     private int EvaluateSpell(CardInstance spell)
     {
         int score = 0;
+        string effect = spell.CurrentEffect.ToLowerInvariant();
 
-        if (spell.CurrentEffect.Contains("damage"))
+        // Damage spells are highly valuable, and even more valuable when they can clear units.
+        if (effect.Contains("damage"))
+        {
             score += 40;
+            if (allyBoard.allyPrefabCards.Count > 0) score += 10;
+        }
 
-        if (spell.CurrentEffect.Contains("buff"))
+        if (effect.Contains("buff"))
             score += enemyBoard.enemyPrefabCards.Count * 10;
 
-        if (spell.CurrentEffect.Contains("heal"))
+        if (effect.Contains("heal"))
             score += 20;
 
-        if (spell.CurrentEffect.Contains("gear"))
+        if (effect.Contains("gear"))
             score += 30;
+
+        // If opponent board is threatening, value interaction more.
+        score += EvaluateAllyBoardThreat() / 3;
 
         // Penalize low-impact expensive spells
         score -= spell.CurrentManaCost * 5;
 
         return score;
+    }
+
+    private int EvaluateAllyBoardThreat()
+    {
+        int threat = 0;
+        foreach (GameObject allyGo in allyBoard.allyPrefabCards)
+        {
+            if (allyGo == null) continue;
+            CardInstance ally = allyGo.GetComponent<CardInstance>();
+            if (ally == null) continue;
+
+            threat += ally.CurrentAttack * 2;
+            if (ally.HasKeyword("haste")) threat += 3;
+            if (ally.HasKeyword("protect")) threat += 6;
+            if (ally.HasKeyword("quickstrike")) threat += 4;
+        }
+        return threat;
+    }
+
+    private IEnumerator PlayBestMainPhaseSequence()
+    {
+        List<PlannedAction> plan = BuildBestMainPhasePlan();
+        if (plan.Count == 0)
+            yield break;
+
+        foreach (PlannedAction action in plan)
+        {
+            if (action.Card == null)
+                continue;
+
+            if (action.Type == PlannedActionType.Spell)
+            {
+                if (!CanEnemyActuallyCastSpell(action.Card))
+                    continue;
+
+                yield return StartCoroutine(gameManager.ShowEnemySpell(action.Card.Data));
+                PlaySpell(action.Card);
+            }
+            else
+            {
+                if (enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
+                    continue;
+
+                if (action.Card.CurrentManaCost > gameManager.EnemyCurrentMana)
+                    continue;
+
+                Summon(action.Card.GetComponent<Card>());
+            }
+
+            yield return new WaitForSeconds(0.35f);
+        }
+    }
+
+    private List<PlannedAction> BuildBestMainPhasePlan()
+    {
+        int mana = gameManager.EnemyCurrentMana;
+        int freeSlots = enemyBoard.maxBoardSize - enemyBoard.enemyPrefabCards.Count;
+
+        List<CardInstance> candidates = new();
+
+        foreach (GameObject cardGO in enemyHand.handCards)
+        {
+            if (cardGO == null) continue;
+            CardInstance inst = cardGO.GetComponent<CardInstance>();
+            if (inst == null) continue;
+            if (inst.CurrentManaCost > mana) continue;
+
+            string cardType = inst.Data.cardType.ToLowerInvariant();
+            if (cardType == "spell")
+            {
+                if (inst.CurrentEffect.Contains("monsterpart"))
+                    continue;
+                if (!CanEnemyActuallyCastSpell(inst))
+                    continue;
+                candidates.Add(inst);
+            }
+            else if (cardType == "minion")
+            {
+                if (freeSlots <= 0) continue;
+                candidates.Add(inst);
+            }
+        }
+
+        int bestScore = int.MinValue;
+        List<PlannedAction> bestPlan = new();
+        BuildBestPlanDfs(candidates, 0, mana, freeSlots, new List<PlannedAction>(), 0, ref bestScore, ref bestPlan);
+        return bestPlan;
+    }
+
+    private void BuildBestPlanDfs(
+        List<CardInstance> candidates,
+        int index,
+        int manaLeft,
+        int freeSlots,
+        List<PlannedAction> current,
+        int currentScore,
+        ref int bestScore,
+        ref List<PlannedAction> bestPlan)
+    {
+        if (index >= candidates.Count)
+        {
+            // Minor bonus for efficient mana usage.
+            int finalScore = currentScore - manaLeft;
+            if (finalScore > bestScore)
+            {
+                bestScore = finalScore;
+                bestPlan = new List<PlannedAction>(current);
+            }
+            return;
+        }
+
+        CardInstance card = candidates[index];
+
+        // Option A: skip
+        BuildBestPlanDfs(candidates, index + 1, manaLeft, freeSlots, current, currentScore, ref bestScore, ref bestPlan);
+
+        if (card == null || card.CurrentManaCost > manaLeft)
+            return;
+
+        string cardType = card.Data.cardType.ToLowerInvariant();
+
+        if (cardType == "spell")
+        {
+            if (!CanEnemyActuallyCastSpell(card))
+                return;
+
+            current.Add(new PlannedAction
+            {
+                Type = PlannedActionType.Spell,
+                Card = card,
+                Score = EvaluateSpell(card)
+            });
+
+            BuildBestPlanDfs(
+                candidates,
+                index + 1,
+                manaLeft - card.CurrentManaCost,
+                freeSlots,
+                current,
+                currentScore + EvaluateSpell(card),
+                ref bestScore,
+                ref bestPlan);
+
+            current.RemoveAt(current.Count - 1);
+        }
+        else if (cardType == "minion" && freeSlots > 0)
+        {
+            int minionScore = EvaluateMinion(card) + 4; // Base tempo value
+            current.Add(new PlannedAction
+            {
+                Type = PlannedActionType.Summon,
+                Card = card,
+                Score = minionScore
+            });
+
+            BuildBestPlanDfs(
+                candidates,
+                index + 1,
+                manaLeft - card.CurrentManaCost,
+                freeSlots - 1,
+                current,
+                currentScore + minionScore,
+                ref bestScore,
+                ref bestPlan);
+
+            current.RemoveAt(current.Count - 1);
+        }
     }
 
     private IEnumerator TryPlaySpells()
@@ -186,15 +374,10 @@ public class EnemyAIController : MonoBehaviour
 
     private void PlaySpell(CardInstance spell)
     {
-        //Verify if there is board before playing buff spell :
-
-        // Trigger deploy effects (spells use deploy)
+        // OnPlaySpell already handles legality resolution, mana spending,
+        // and clean removal from hand. Keeping it centralized avoids illegal casts.
         spell.OnPlaySpell();
         OnCardPlayed?.Invoke(spell);
-
-        // Remove from hand & destroy
-        enemyHand.handCards.Remove(spell.gameObject);
-        Destroy(spell.gameObject);
     }
     private int EvaluateMinion(CardInstance minion)
     {
@@ -339,7 +522,11 @@ public class EnemyAIController : MonoBehaviour
             // CORE
             if (target is CoreInstance)
             {
-                score += 50;
+                score += 45;
+
+                // If this exact hit is lethal, prioritize it heavily.
+                if (attacker.CurrentAttack >= gameManager.PlayerCore.CurrentHealth)
+                    score += 10000;
 
                 if (HasLethalThisTurn())
                     score += 10000;
@@ -347,8 +534,17 @@ public class EnemyAIController : MonoBehaviour
             // UNIT
             else if (target is CardInstance unit)
             {
+                // Prefer clean trades and removing high-value keywords.
                 if (attacker.CurrentAttack >= unit.CurrentHealth)
                     score += 60;
+                else
+                    score -= 20;
+
+                if (unit.HasKeyword("protect"))
+                    score += 30;
+
+                if (unit.HasKeyword("quickstrike"))
+                    score += 18;
 
                 if (unit.CurrentAttack > attacker.CurrentHealth)
                     score -= 10;
@@ -357,6 +553,7 @@ public class EnemyAIController : MonoBehaviour
                     score += 100;
 
                 score += unit.CurrentAttack;
+                score += Mathf.Max(0, unit.CurrentAttack - unit.CurrentHealth / 2);
             }
 
             if (score > bestScore)
