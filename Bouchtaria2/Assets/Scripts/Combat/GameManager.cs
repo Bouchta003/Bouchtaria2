@@ -226,8 +226,8 @@ public class GameManager : MonoBehaviour
 
         if (startingEnemyCoreHealth > 100) startingEnemyCoreHealth = 100;
 
-        int bonusenemyMana = Math.Min(runData.floor % 10, 9);
-        int bonusenemyDraw = Math.Min(runData.floor/2 % 10, 5);
+        int bonusenemyMana = Math.Min(runData.floor/10, 9);
+        int bonusenemyDraw = Math.Min(runData.floor/15, 5);
         EnemyCurrentMana += bonusenemyMana;
         EnemyCurrentMaxMana += bonusenemyMana;
         dungeonStartDrawBonusEnemy += bonusenemyDraw;
@@ -279,7 +279,7 @@ public class GameManager : MonoBehaviour
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
         if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
-        if (Input.GetKeyDown(KeyCode.G)) EnemyCore.TakeDamage(99);
+        //if (Input.GetKeyDown(KeyCode.G)) EnemyCore.TakeDamage(99);
         if (DistortionWorld && boardDesign.GetComponentInChildren<SpriteRenderer>().sprite != distortionBoard)
         {
             boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = distortionBoard;
