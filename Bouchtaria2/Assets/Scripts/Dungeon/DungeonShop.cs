@@ -6,13 +6,21 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Collections;
+
 public class DungeonShop : MonoBehaviour
 {
     public static DungeonShop Instance;
 
     [Header("UI Elements")]
     [SerializeField] TextMeshProUGUI CoinText;
+    [SerializeField] TextMeshProUGUI ColonelText;
+    [SerializeField] GameObject SpeechBubbleGO;
     [SerializeField] Image CoinImage;
+
+    private Coroutine speechBubbleCoroutine;
+    [SerializeField] private float displayDuration = 3f; // seconds
+
     public enum Augment
     {
         MaxHP, StartMana, StartDraw, DeckSizeUp3, DeckSizeDown3
@@ -31,11 +39,52 @@ public class DungeonShop : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        SpeechBubbleGO.SetActive(false);
         GetUserCurrentCoin(coin =>
         {
             Debug.Log("User coin: " + coin); CoinText.text = coin.ToString();
             if (coin >= 100) CoinImage.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
         });
+    }
+    public void DisplayItemDescription(int itemIndex)
+    {
+        SpeechBubbleGO.SetActive(true);
+
+        switch (itemIndex)
+        {
+            case -1:
+                ColonelText.text = "Wanna gamble for a random item ? Don't worry the ones you can get are 50 coins or higher. Feeling lucky ?";
+                break;
+            case 0:
+                ColonelText.text = "Get some more health before your fight, I sell 5 HP per buy, what do you say ?";
+                break;
+            case 1:
+                ColonelText.text = "With this mana potion, you'll start your fights with a lil more mana than the enemy, pretty neat right ?";
+                break;
+            case -2:
+                ColonelText.text = "Ya deck too tiny ? With this you'll get a three more slots. On the colonel !";
+                break;
+            case -3:
+                ColonelText.text = "Too much cards in your deck? Buy this and I'll make three of them disappear !\n*poof*";
+                break;
+            case 2:
+                ColonelText.text = "Ya buy this one, ya draw one more card at each fight !";
+                break;
+            default:
+                ColonelText.text = "Hummmm... I am not sure about this one, maybe in another patch I'll have some more info to share for this.";
+                break;
+        }
+
+        // Reset timer if already running
+        if (speechBubbleCoroutine != null)
+            StopCoroutine(speechBubbleCoroutine);
+
+        speechBubbleCoroutine = StartCoroutine(HideSpeechBubbleAfterDelay());
+    }
+    private IEnumerator HideSpeechBubbleAfterDelay()
+    {
+        yield return new WaitForSeconds(displayDuration);
+        SpeechBubbleGO.SetActive(false);
     }
 
     public void ModifyUserCoin(int delta)
