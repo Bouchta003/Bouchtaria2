@@ -1608,7 +1608,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &421660138
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3259,6 +3259,7 @@ MonoBehaviour:
   emailInput: {fileID: 16590969}
   passwordInput: {fileID: 1768538851}
   createAccountButton: {fileID: 862544462}
+  playButton: {fileID: 1853939352}
   logregisterWindow: {fileID: 887060437}
   DisplayedNamePanel: {fileID: 421660137}
   DisplayedNameInput: {fileID: 23039587}

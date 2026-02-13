@@ -5,6 +5,7 @@ using Firebase.Extensions;
 using Firebase.Firestore;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DungeonRank : MonoBehaviour
 {
@@ -83,7 +84,10 @@ public class DungeonRank : MonoBehaviour
                     ThirdRankText.text = topRanks.Count > 2 ? FormatRank(topRanks[2]) : "-";
             });
     }
-
+    public void GoToDungeonMenu()
+    {
+        SceneManager.LoadScene("DungeonMenu");
+    }
     private void FetchAndDisplayCurrentUserBestStreak()
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
