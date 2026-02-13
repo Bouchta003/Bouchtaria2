@@ -226,8 +226,8 @@ public class GameManager : MonoBehaviour
 
         if (startingEnemyCoreHealth > 100) startingEnemyCoreHealth = 100;
 
-        int bonusenemyMana = Math.Min(runData.floor/10, 9);
-        int bonusenemyDraw = Math.Min(runData.floor/15, 5);
+        int bonusenemyMana = Math.Min(runData.floor/6, 9);
+        int bonusenemyDraw = Math.Min(runData.floor/5, 5);
         EnemyCurrentMana += bonusenemyMana;
         EnemyCurrentMaxMana += bonusenemyMana;
         dungeonStartDrawBonusEnemy += bonusenemyDraw;
