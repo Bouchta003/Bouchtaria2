@@ -112,7 +112,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     }
     private void HandleTurnEnd(PlayerOwner owner)
     {
-        if (owner != PlayerOwner.Player)
+        if (owner != PlayerOwner.Enemy)
             return;
 
         int index = 0;
@@ -150,7 +150,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     }
     private void HandleTurnStart(PlayerOwner owner)
     {
-        if (owner != PlayerOwner.Player)
+        if (owner != PlayerOwner.Enemy)
             return;
 
         foreach (var cardGO in enemyPrefabCards)
