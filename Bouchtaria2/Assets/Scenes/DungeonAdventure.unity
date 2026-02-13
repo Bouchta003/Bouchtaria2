@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 255817082}
   - component: {fileID: 255817081}
   m_Layer: 5
-  m_Name: Counter
+  m_Name: ManaAugmentCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -725,7 +725,7 @@ GameObject:
   - component: {fileID: 927902425}
   - component: {fileID: 927902426}
   m_Layer: 5
-  m_Name: StreakValue
+  m_Name: StreakText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1089,7 +1089,7 @@ GameObject:
   - component: {fileID: 1080836289}
   - component: {fileID: 1080836288}
   m_Layer: 5
-  m_Name: StreakImage
+  m_Name: StreakFire
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1236,6 +1236,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1290904574}
     m_Modifications:
+    - target: {fileID: 2605947081122450016, guid: fd0d792a305f96e419ac9c96b28da929, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1525587505}
+    - target: {fileID: 2605947081122450016, guid: fd0d792a305f96e419ac9c96b28da929, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: GoToRankings
+      objectReference: {fileID: 0}
+    - target: {fileID: 2605947081122450016, guid: fd0d792a305f96e419ac9c96b28da929, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: DungeonManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 2605947081122450016, guid: fd0d792a305f96e419ac9c96b28da929, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 4428739773278598106, guid: fd0d792a305f96e419ac9c96b28da929, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1920,7 +1936,7 @@ GameObject:
   - component: {fileID: 1428573213}
   - component: {fileID: 1428573212}
   m_Layer: 5
-  m_Name: Counter
+  m_Name: DrawAugmentCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2338,7 +2354,7 @@ GameObject:
   - component: {fileID: 1632931913}
   - component: {fileID: 1632931914}
   m_Layer: 5
-  m_Name: Counter
+  m_Name: HPAugmentCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2944,6 +2960,10 @@ PrefabInstance:
     - target: {fileID: 843318020585998375, guid: 5925c2d566d284940843cfd2fabd00ee, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4542204593173334276, guid: 5925c2d566d284940843cfd2fabd00ee, type: 3}
+      propertyPath: m_Name
+      value: NextEnemy
       objectReference: {fileID: 0}
     - target: {fileID: 8363321720116557214, guid: 5925c2d566d284940843cfd2fabd00ee, type: 3}
       propertyPath: m_Name

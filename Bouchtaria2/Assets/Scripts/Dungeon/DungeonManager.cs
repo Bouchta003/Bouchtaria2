@@ -523,6 +523,10 @@ public class DungeonManager : MonoBehaviour
     {
         SceneManager.LoadScene("DungeonShop");
     }
+    public void GoToRankings()
+    {
+        SceneManager.LoadScene("DungeonRank");
+    }
     public void GoToAdventure()
     {
         SceneManager.LoadScene("DungeonAdventure");
@@ -609,10 +613,7 @@ public class DungeonManager : MonoBehaviour
                 if (CurrentRun.floor >= 5) StreakFire.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
             }
 
-            if (SceneManager.GetActiveScene().name == "DungeonAdventure")
-            {
-                if (NextEnemy != null) NextEnemy.sprite = CardDatabase.Instance.GetCardById(EnemyDecks.GetFloorDeck(CurrentRun.floor)[0]).artSpriteCompact;
-            }
+            if (NextEnemy != null) NextEnemy.sprite = CardDatabase.Instance.GetCardById(EnemyDecks.GetFloorDeck(CurrentRun.floor)[0]).artSpriteCompact;
         }
 
         RefreshAugmentCount();
