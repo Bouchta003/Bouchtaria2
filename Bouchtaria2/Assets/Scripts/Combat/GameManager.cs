@@ -137,6 +137,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] public GameObject discoverDisplay;
     public bool isDiscovering;
     private int dungeonStartDrawBonus;
+    private int dungeonStartDrawBonusEnemy;
     private void Awake()
     {
         if (Instance != null)
@@ -158,6 +159,7 @@ public class GameManager : MonoBehaviour
         startingPlayerCoreHealth = startingCoreHealth;
         startingEnemyCoreHealth = startingCoreHealth;
         dungeonStartDrawBonus = 0;
+        dungeonStartDrawBonusEnemy = 0;
         InitializeMana();
         
         //Logic for dungeon runs
@@ -196,22 +198,39 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(deckManager.Draw(dungeonStartDrawBonus, PlayerOwner.Player));
         }
+        if (dungeonStartDrawBonusEnemy > 0)
+        {
+            StartCoroutine(deckManager.Draw(dungeonStartDrawBonusEnemy, PlayerOwner.Enemy));
+        }
         foreach (var progression in activeProgressions)
         {
             progression.ResetProgression();
             progression.PushInitialState();
         }
+    }
+    public void BuffAllAllies(int atk, int hp, PlayerOwner owner)
+    {
+        List<GameObject> allies;
+        if (owner == PlayerOwner.Player) allies = allyDropArea.allyPrefabCards;
+        else allies = enemyDropArea.enemyPrefabCards;
 
-
-        
+        foreach(GameObject go in allies)
+        {
+            go.GetComponent<CardInstance>().ModifyStats(atk, hp);
+        }
     }
     void SetupDungeonFight(DungeonRunData runData)
     {
-        startingEnemyCoreHealth = 5 * (runData.floor+5);
-        startingPlayerCoreHealth = 5 * (runData.floor+5);
+        startingEnemyCoreHealth = 5 * (runData.floor+4);
+        startingPlayerCoreHealth = 30;
 
         if (startingEnemyCoreHealth > 100) startingEnemyCoreHealth = 100;
 
+        int bonusenemyMana = Math.Min(runData.floor % 10, 9);
+        int bonusenemyDraw = Math.Min(runData.floor/2 % 10, 5);
+        EnemyCurrentMana += bonusenemyMana;
+        EnemyCurrentMaxMana += bonusenemyMana;
+        dungeonStartDrawBonusEnemy += bonusenemyDraw;
         string myaugments = "Current augments = ";
         foreach(DungeonShop.Augment augment in runData.augments)
         {
@@ -234,7 +253,6 @@ public class GameManager : MonoBehaviour
                 dungeonStartDrawBonus++;
             }
         }
-        Debug.Log(myaugments);
     }
     public void TogglePause()
     {

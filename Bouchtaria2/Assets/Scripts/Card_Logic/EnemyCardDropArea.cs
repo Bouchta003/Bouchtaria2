@@ -99,7 +99,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     private void OnEnable()
     {
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
-        TurnManager.Instance.OnTurnStarted += HandleTurnEnd;
+        TurnManager.Instance.OnTurnEnded += HandleTurnEnd;
     }
 
     private void OnDisable()
@@ -107,7 +107,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         if (TurnManager.Instance != null)
         {
             TurnManager.Instance.OnTurnStarted -= HandleTurnStart;
-            TurnManager.Instance.OnTurnStarted -= HandleTurnEnd;
+            TurnManager.Instance.OnTurnEnded -= HandleTurnEnd;
         }
     }
     private void HandleTurnEnd(PlayerOwner owner)
@@ -116,6 +116,11 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
             return;
 
         int index = 0;
+
+        if(GameRunContext.DungeonData.floor > 15)
+            GameManager.GetComponent<GameManager>().BuffAllAllies(1, 1, PlayerOwner.Enemy); 
+        if (GameRunContext.DungeonData.floor > 30)
+            GameManager.GetComponent<GameManager>().BuffAllAllies(1, 1, PlayerOwner.Enemy);
 
         // IMPORTANT:
         // allyPrefabCards may grow during iteration (summons),

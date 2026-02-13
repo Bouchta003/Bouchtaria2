@@ -86,6 +86,6 @@ public static class EnemyDecks
         if (FloorDecks.TryGetValue(floor, out List<int> deck))
             return deck;
 
-        return FloorDecks.GetValueOrDefault(0);
+        return FloorDecks.GetValueOrDefault(UnityEngine.Random.Range(0,FloorDecks.Count));
     }
 }
