@@ -19,7 +19,12 @@ public class DungeonShop : MonoBehaviour
     [SerializeField] Image CoinImage;
 
     private Coroutine speechBubbleCoroutine;
-    [SerializeField] private float displayDuration = 3f; // seconds
+    [SerializeField] private float fadeDuration = 0.25f;
+    [SerializeField] private float displayDuration = 4f;
+    [SerializeField] private float typeSpeed = 0.02f;
+
+    private CanvasGroup canvasGroup;
+    private Coroutine speechRoutine;
 
     public enum Augment
     {
@@ -39,48 +44,110 @@ public class DungeonShop : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        canvasGroup = SpeechBubbleGO.GetComponent<CanvasGroup>();
+
+        if (canvasGroup == null)
+            canvasGroup = SpeechBubbleGO.AddComponent<CanvasGroup>();
+
+        canvasGroup.alpha = 0f;
         SpeechBubbleGO.SetActive(false);
+
         GetUserCurrentCoin(coin =>
         {
-            Debug.Log("User coin: " + coin); CoinText.text = coin.ToString();
-            if (coin >= 100) CoinImage.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+            CoinText.text = coin.ToString();
+            if (coin >= 100)
+                CoinImage.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
         });
     }
+
     public void DisplayItemDescription(int itemIndex)
     {
-        SpeechBubbleGO.SetActive(true);
+        string message = "";
 
         switch (itemIndex)
         {
             case -1:
-                ColonelText.text = "Wanna gamble for a random item ? Don't worry the ones you can get are 50 coins or higher. Feeling lucky ?";
+                message = "Wanna gamble for a random item ? Don't worry the ones you can get are 50 coins or higher. Feeling lucky ?";
                 break;
             case 0:
-                ColonelText.text = "Get some more health before your fight, I sell 5 HP per buy, what do you say ?";
+                message = "Get some more health before your fight, I sell 5 HP per buy, what do you say ?";
                 break;
             case 1:
-                ColonelText.text = "With this mana potion, you'll start your fights with a lil more mana than the enemy, pretty neat right ?";
+                message = "With this mana potion, you'll start your fights with a lil more mana than the enemy, pretty neat right ?";
                 break;
             case -2:
-                ColonelText.text = "Ya deck too tiny ? With this you'll get a three more slots. On the colonel !";
+                message = "Ya deck too tiny ? With this you'll get three more slots. On the colonel !";
                 break;
             case -3:
-                ColonelText.text = "Too much cards in your deck? Buy this and I'll make three of them disappear !\n*poof*";
+                message = "Too much cards in your deck? Buy this and I'll make three of them disappear !\n*poof*";
                 break;
             case 2:
-                ColonelText.text = "Ya buy this one, ya draw one more card at each fight !";
+                message = "Ya buy this one, ya draw one more card at each fight !";
                 break;
             default:
-                ColonelText.text = "Hummmm... I am not sure about this one, maybe in another patch I'll have some more info to share for this.";
+                message = "Hummmm... I am not sure about this one, maybe in another patch I'll have some more info to share for this.";
                 break;
         }
+        ResetSpeechBubble();
 
-        // Reset timer if already running
-        if (speechBubbleCoroutine != null)
-            StopCoroutine(speechBubbleCoroutine);
-
-        speechBubbleCoroutine = StartCoroutine(HideSpeechBubbleAfterDelay());
+        speechRoutine = StartCoroutine(SpeechBubbleSequence(message));
     }
+    private IEnumerator SpeechBubbleSequence(string message)
+    {
+        SpeechBubbleGO.SetActive(true);
+
+        yield return StartCoroutine(Fade(0, 1));
+
+        yield return StartCoroutine(TypeText(message));
+
+        yield return new WaitForSeconds(displayDuration);
+
+        yield return StartCoroutine(Fade(1, 0));
+
+        SpeechBubbleGO.SetActive(false);
+    }
+    private IEnumerator TypeText(string message)
+    {
+        ColonelText.text = message;
+        ColonelText.maxVisibleCharacters = 0;
+
+        while (ColonelText.maxVisibleCharacters < message.Length)
+        {
+            ColonelText.maxVisibleCharacters++;
+            yield return new WaitForSeconds(typeSpeed);
+        }
+    }
+
+    private IEnumerator Fade(float start, float end)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Lerp(start, end, elapsed / fadeDuration);
+            yield return null;
+        }
+
+        canvasGroup.alpha = end;
+    }
+    private void ResetSpeechBubble()
+    {
+        if (speechRoutine != null)
+        {
+            StopCoroutine(speechRoutine);
+            speechRoutine = null;
+        }
+
+        StopAllCoroutines(); // extra safety
+
+        ColonelText.text = "";
+        ColonelText.maxVisibleCharacters = 0;
+
+        canvasGroup.alpha = 0f;
+        SpeechBubbleGO.SetActive(false);
+    }
+
     private IEnumerator HideSpeechBubbleAfterDelay()
     {
         yield return new WaitForSeconds(displayDuration);
