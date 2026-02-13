@@ -181,13 +181,72 @@ public class EnemyAIController : MonoBehaviour
 
         int bestScore = int.MinValue;
         List<PlannedAction> bestPlan = new();
-        BuildBestPlanDfs(candidates, 0, mana, freeSlots, new List<PlannedAction>(), 0, ref bestScore, ref bestPlan);
+
+        BuildBestPlanDfs(candidates, 0, mana, mana, freeSlots, new List<PlannedAction>(), 0, ref bestScore, ref bestPlan);
+
+        // Fallback: if DFS elected to pass despite playable cards, force a mana-spending plan.
+        if (bestPlan.Count == 0 && candidates.Count > 0)
+        {
+            bestPlan = BuildFallbackManaSpendingPlan(candidates, mana, freeSlots);
+        }
+
         return bestPlan;
+    }
+
+    private List<PlannedAction> BuildFallbackManaSpendingPlan(List<CardInstance> candidates, int mana, int freeSlots)
+    {
+        List<PlannedAction> plan = new();
+        List<CardInstance> remaining = new(candidates);
+
+        while (remaining.Count > 0)
+        {
+            CardInstance best = null;
+            int bestManaCost = -1;
+
+            foreach (CardInstance card in remaining)
+            {
+                if (card == null || card.CurrentManaCost > mana)
+                    continue;
+
+                string cardType = card.Data.cardType.ToLowerInvariant();
+                if (cardType == "minion" && freeSlots <= 0)
+                    continue;
+
+                if (cardType == "spell" && !CanEnemyActuallyCastSpell(card))
+                    continue;
+
+                if (card.CurrentManaCost > bestManaCost)
+                {
+                    best = card;
+                    bestManaCost = card.CurrentManaCost;
+                }
+            }
+
+            if (best == null)
+                break;
+
+            string bestType = best.Data.cardType.ToLowerInvariant();
+            plan.Add(new PlannedAction
+            {
+                Type = bestType == "spell" ? PlannedActionType.Spell : PlannedActionType.Summon,
+                Card = best,
+                Score = 0
+            });
+
+            mana -= best.CurrentManaCost;
+            if (bestType == "minion")
+                freeSlots--;
+
+            remaining.Remove(best);
+        }
+
+        return plan;
     }
 
     private void BuildBestPlanDfs(
         List<CardInstance> candidates,
         int index,
+        int initialMana,
         int manaLeft,
         int freeSlots,
         List<PlannedAction> current,
@@ -197,8 +256,9 @@ public class EnemyAIController : MonoBehaviour
     {
         if (index >= candidates.Count)
         {
-            // Minor bonus for efficient mana usage.
-            int finalScore = currentScore - manaLeft;
+            // Strongly reward spending mana so AI doesn't pass with playable cards.
+            int manaSpent = initialMana - manaLeft;
+            int finalScore = currentScore + (manaSpent * 100) - (manaLeft * 2);
             if (finalScore > bestScore)
             {
                 bestScore = finalScore;
@@ -210,7 +270,7 @@ public class EnemyAIController : MonoBehaviour
         CardInstance card = candidates[index];
 
         // Option A: skip
-        BuildBestPlanDfs(candidates, index + 1, manaLeft, freeSlots, current, currentScore, ref bestScore, ref bestPlan);
+        BuildBestPlanDfs(candidates, index + 1, initialMana, manaLeft, freeSlots, current, currentScore, ref bestScore, ref bestPlan);
 
         if (card == null || card.CurrentManaCost > manaLeft)
             return;
@@ -232,6 +292,7 @@ public class EnemyAIController : MonoBehaviour
             BuildBestPlanDfs(
                 candidates,
                 index + 1,
+                initialMana,
                 manaLeft - card.CurrentManaCost,
                 freeSlots,
                 current,
@@ -254,6 +315,7 @@ public class EnemyAIController : MonoBehaviour
             BuildBestPlanDfs(
                 candidates,
                 index + 1,
+                initialMana,
                 manaLeft - card.CurrentManaCost,
                 freeSlots - 1,
                 current,
@@ -344,11 +406,13 @@ public class EnemyAIController : MonoBehaviour
         if (gameManager.DistortionWorld)
             return false;
 
+        string effect = spell.CurrentEffect.ToLowerInvariant();
+
         // Buff / Gear / non-auto Heal → requires enemy board
         if (
-            spell.CurrentEffect.Contains("gear") ||
-            spell.CurrentEffect.Contains("buff") ||
-            (spell.CurrentEffect.Contains("heal") && !spell.CurrentEffect.Contains("autoheal"))
+            effect.Contains("gear") ||
+            effect.Contains("buff") ||
+            (effect.Contains("heal") && !effect.Contains("autoheal"))
         )
         {
             if (enemyBoard.enemyPrefabCards.Count == 0)
@@ -356,20 +420,63 @@ public class EnemyAIController : MonoBehaviour
         }
 
         // Targeted unit spell → requires ally board
-        if (spell.CurrentEffect.Contains("targetunit"))
+        if (effect.Contains("targetunit"))
         {
-            if (allyBoard.allyPrefabCards.Count == 0)
+            bool needsEnemyUnits = effect.Contains("heal") || effect.Contains("buff") || effect.Contains("gear");
+            PlayerOwner targetOwner = needsEnemyUnits ? PlayerOwner.Enemy : PlayerOwner.Player;
+
+            List<IAttackable> validTargets = gameManager.GetValidTargets(targetOwner);
+            bool hasValidUnit = false;
+
+            foreach (IAttackable t in validTargets)
+            {
+                if (t is not CardInstance unit)
+                    continue;
+
+                if (effect.Contains("sleep") && unit.IsAsleep)
+                    continue;
+
+                hasValidUnit = true;
+                break;
+            }
+
+            if (!hasValidUnit)
                 return false;
         }
 
         // Targeted core spell → requires core (always true, but explicit)
-        if (spell.CurrentEffect.Contains("targetcore"))
+        if (effect.Contains("targetcore"))
         {
             if (gameManager.PlayerCore == null)
                 return false;
         }
 
+        // Never heal at full life (board + core already full HP).
+        if (effect.Contains("heal") && !HasMissingHealthOnEnemySide())
+            return false;
+
         return true;
+    }
+
+    private bool HasMissingHealthOnEnemySide()
+    {
+        if (gameManager.EnemyCore != null && gameManager.EnemyCore.CurrentHealth < gameManager.EnemyCore.MaxHealth)
+            return true;
+
+        foreach (GameObject allyGo in enemyBoard.enemyPrefabCards)
+        {
+            if (allyGo == null)
+                continue;
+
+            CardInstance ally = allyGo.GetComponent<CardInstance>();
+            if (ally == null)
+                continue;
+
+            if (ally.CurrentHealth < ally.CurrentMaxHealth)
+                return true;
+        }
+
+        return false;
     }
 
     private void PlaySpell(CardInstance spell)

@@ -535,6 +535,19 @@ public class GameManager : MonoBehaviour
 
         else { EnemyCurrentMaxMana += mana; EnemyCurrentMana += mana; }
     }
+    public int GainMaxManaCapped(int mana, PlayerOwner owner)
+    {
+        int effectiveCap = GetEffectiveManaCap(owner);
+        int currentMax = owner == PlayerOwner.Player ? AllyCurrentMaxMana : EnemyCurrentMaxMana;
+        int room = Mathf.Max(0, effectiveCap - currentMax);
+        int applied = Mathf.Clamp(mana, 0, room);
+
+        if (applied <= 0)
+            return 0;
+
+        GainMaxMana(applied, owner);
+        return applied;
+    }
     private int GetEffectiveManaCap(PlayerOwner owner)
     {
         return baseManaCap + GetBonusManaCap(owner);
@@ -2254,12 +2267,20 @@ public class GameManager : MonoBehaviour
         // Filter by effect target type
         targets = targets.Where(t =>
         {
-            if (type == EffectTarget.Unit || type == EffectTarget.Any)
+            if (effectSource != null &&
+                effectSource.CurrentEffect.Contains("sleep") &&
+                t is CardInstance sleepingCandidate &&
+                sleepingCandidate.IsAsleep)
+            {
+                return false;
+            }
+
+            if (type == EffectTarget.Unit)
                 return t is CardInstance;
-            if (type == EffectTarget.Core || type == EffectTarget.Any)
+
+            if (type == EffectTarget.Core)
                 return t is CoreInstance;
-            if (effectSource != null && effectSource.CurrentEffect.Contains("sleep") && t is CardInstance ti && ti.IsAsleep)
-                return false;            
+
             return true; // Any
         }).ToList();
         

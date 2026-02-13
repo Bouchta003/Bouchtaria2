@@ -33,6 +33,7 @@ public class TurnManager : MonoBehaviour
     public bool EnemySkipsNextDraw;
     public int PlayerChaosEventCount = 0;
     public int EnemyChaosEventCount = 0;
+    private int enemyDungeonTurnCount = 0;
     private void Awake()
     {
         if (Instance != null)
@@ -45,6 +46,7 @@ public class TurnManager : MonoBehaviour
     }
     public void StartFirstTurn()
     {
+        enemyDungeonTurnCount = 0;
         CurrentPlayer = PlayerOwner.Player;
         BeginTurn();
         StartCoroutine(deckManager.Draw(3, PlayerOwner.Player));
@@ -147,6 +149,16 @@ public class TurnManager : MonoBehaviour
         }
         // NOW the turn officially starts
         OnTurnStarted?.Invoke(CurrentPlayer);
+
+        if (GameRunContext.IsDungeonRun && CurrentPlayer == PlayerOwner.Enemy)
+        {
+            enemyDungeonTurnCount++;
+            if (enemyDungeonTurnCount % 5 == 0)
+            {
+                gameManager.GainMaxManaCapped(1, PlayerOwner.Enemy);
+                StartCoroutine(deckManager.Draw(1, PlayerOwner.Enemy));
+            }
+        }
 
         // Immediately enter main phase
         CurrentPhase = TurnPhase.Main;
