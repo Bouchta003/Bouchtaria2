@@ -41,6 +41,7 @@ public class DungeonManager : MonoBehaviour
 
     [Header("UI Elements")]
     [SerializeField] TextMeshProUGUI StreakText;
+    [SerializeField] TextMeshProUGUI BestStreakText;
     [SerializeField] Image StreakFire;
     [SerializeField] Image NextEnemy;
 
@@ -51,9 +52,11 @@ public class DungeonManager : MonoBehaviour
     public DungeonRunData CurrentRun;
 
     private const string StreakField = "streak";
+    private const string BestStreakField = "beststreak";
     private const string CoinField = "coin";
     private const string DeckField = "dungeondeck";
     private const string AugmentsField = "dungeonaugments";
+    private int currentBestStreak;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
     {
@@ -105,6 +108,9 @@ public class DungeonManager : MonoBehaviour
     {
         if (StreakText == null)
             StreakText = GameObject.Find("StreakText")?.GetComponent<TextMeshProUGUI>();
+
+        if (BestStreakText == null)
+            BestStreakText = GameObject.Find("BestStreakText")?.GetComponent<TextMeshProUGUI>();
 
         if (StreakFire == null)
             StreakFire = GameObject.Find("StreakFire")?.GetComponent<Image>();
@@ -225,6 +231,7 @@ public class DungeonManager : MonoBehaviour
                     augments = ParseAugments(snapshot, AugmentsField),
                     dungeonDeck = ParseDeck(snapshot, DeckField)
                 }; CalculateDeckSize();
+                currentBestStreak = snapshot.ContainsField(BestStreakField) ? task.Result.GetValue<int>(BestStreakField) : 0;
 
 
                 bool hasNoRunData = CurrentRun.floor <= 0
@@ -254,6 +261,7 @@ public class DungeonManager : MonoBehaviour
             dungeonDeck = new List<int>()
         }; 
         CalculateDeckSize();
+        currentBestStreak = 0;
 
         SaveRunData(resetStreak: true);
         ApplyRunToUI();
@@ -319,6 +327,7 @@ public class DungeonManager : MonoBehaviour
                 {
                     CurrentRun.floor = Mathf.Max(1, streak);
                     Debug.Log("User streak: " + streak);
+                    TryUpdateBestStreak(CurrentRun.floor);
                     ApplyRunToUI();
                     SaveRunData();
                 });
@@ -334,37 +343,7 @@ public class DungeonManager : MonoBehaviour
             return;
         }
 
-        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
-
-        db.Collection("users")
-          .Document(user.UserId)
-          .UpdateAsync(StreakField, 1)
-            .ContinueWithOnMainThread(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    Debug.LogError("Failed to modify dust.");
-                    return;
-                }
-
-                GetUserCurrentStreak(streak =>
-                {
-                    Debug.Log("User streak: " + streak);
-                    ApplyRunToUI();
-                });
-            });
-
-        EnsureCurrentRunInitialized();
-        CurrentRun.Reset();
-        CurrentRun.coins = 0;
-        SaveRunData(resetStreak: true);
-
-        if (GameRunContext.DungeonData != null)
-        {
-            GameRunContext.DungeonData.Reset();
-            GameRunContext.DungeonData.coins = 0;
-        }
-        ApplyRunToUI();
+        EndRunAndReset(user, goToDungeonMenu: false);
     }
     public void ConcedeRun()
     {
@@ -375,37 +354,91 @@ public class DungeonManager : MonoBehaviour
             return;
         }
 
-        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+        EndRunAndReset(user, goToDungeonMenu: true);
+    }
 
-        db.Collection("users")
-          .Document(user.UserId)
-          .UpdateAsync(StreakField, 1)
-            .ContinueWithOnMainThread(task =>
-            {
-                if (task.IsFaulted)
-                {
-                    Debug.LogError("Failed to modify dust.");
-                    return;
-                }
-
-                GetUserCurrentStreak(streak =>
-                {
-                    Debug.Log("User streak: " + streak);
-                    ApplyRunToUI();
-                });
-            });
-
-        CurrentRun.Reset();
-        CurrentRun.coins = 0;
-        SaveRunData(resetStreak: true);
-
-        if (GameRunContext.DungeonData != null)
+    private void EndRunAndReset(FirebaseUser user, bool goToDungeonMenu)
+    {
+        int runScore = Mathf.Max(1, CurrentRun?.floor ?? 1);
+        TryUpdateBestStreak(runScore, () =>
         {
-            GameRunContext.DungeonData.Reset();
-            GameRunContext.DungeonData.coins = 0;
+            FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+            db.Collection("users")
+              .Document(user.UserId)
+              .UpdateAsync(StreakField, 1)
+                .ContinueWithOnMainThread(task =>
+                {
+                    if (task.IsFaulted)
+                    {
+                        Debug.LogError("Failed to reset streak.");
+                        return;
+                    }
+
+                    GetUserCurrentStreak(streak =>
+                    {
+                        Debug.Log("User streak: " + streak);
+                        ApplyRunToUI();
+                    });
+                });
+
+            EnsureCurrentRunInitialized();
+            CurrentRun.Reset();
+            CurrentRun.coins = 0;
+            SaveRunData(resetStreak: true);
+
+            if (GameRunContext.DungeonData != null)
+            {
+                GameRunContext.DungeonData.Reset();
+                GameRunContext.DungeonData.coins = 0;
+            }
+            ApplyRunToUI();
+
+            if (goToDungeonMenu)
+                GoToDungeonMenu();
+        });
+    }
+
+    private void TryUpdateBestStreak(int candidateStreak, Action onComplete = null)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            onComplete?.Invoke();
+            return;
         }
-        ApplyRunToUI();
-        GoToDungeonMenu();
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+        DocumentReference userDoc = db.Collection("users").Document(user.UserId);
+
+        userDoc.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || !task.Result.Exists)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            int bestStreak = task.Result.ContainsField(BestStreakField)
+                ? task.Result.GetValue<int>(BestStreakField)
+                : 0;
+
+            int targetBest = Mathf.Max(bestStreak, candidateStreak);
+            currentBestStreak = targetBest;
+
+            if (targetBest > bestStreak)
+            {
+                userDoc.UpdateAsync(BestStreakField, targetBest).ContinueWithOnMainThread(_ =>
+                {
+                    ApplyRunToUI();
+                    onComplete?.Invoke();
+                });
+                return;
+            }
+
+            ApplyRunToUI();
+            onComplete?.Invoke();
+        });
     }
     public void GetUserCurrentStreak(Action<int> onResult)
     {
@@ -566,6 +599,9 @@ public class DungeonManager : MonoBehaviour
         {
             if (StreakText != null)
                 StreakText.text = CurrentRun.floor.ToString();
+
+            if (BestStreakText != null)
+                BestStreakText.text = currentBestStreak.ToString();
 
             if (StreakFire != null)
             {
