@@ -135,6 +135,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         WasPlayed = true;
         InitializeProgressIfAny();
         ParseEffects();
+        
+        gameManager.OnOwnerHeal += OnHeal;
     }
     public bool CanAttackCoreOnSummon()
     {
@@ -274,7 +276,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryParseProgress("progressheal", out int healCap))
         {
             ProgressionCap = healCap;
-            gameManager.OnOwnerHeal += OnHeal;
+            //gameManager.OnOwnerHeal += OnHeal;
         }
         else if (HasKeyword("progressdamage") &&
             TryParseProgress("progressdamage", out int dmgCap))

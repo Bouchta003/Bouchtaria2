@@ -116,11 +116,13 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
             return;
 
         int index = 0;
-
-        if(GameRunContext.DungeonData.floor > 15)
-            GameManager.GetComponent<GameManager>().BuffAllAllies(1, 1, PlayerOwner.Enemy); 
-        if (GameRunContext.DungeonData.floor > 30)
-            GameManager.GetComponent<GameManager>().BuffAllAllies(1, 1, PlayerOwner.Enemy);
+        if (GameRunContext.IsDungeonRun)
+        {
+            if (GameRunContext.DungeonData.floor > 15)
+                GameManager.GetComponent<GameManager>().BuffAllAllies(1, 1, PlayerOwner.Enemy);
+            if (GameRunContext.DungeonData.floor > 30)
+                GameManager.GetComponent<GameManager>().BuffAllAllies(1, 1, PlayerOwner.Enemy);
+        }
 
         // IMPORTANT:
         // allyPrefabCards may grow during iteration (summons),
