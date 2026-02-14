@@ -133,10 +133,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         cardView = GetComponent<CardView>();
 
         WasPlayed = true;
-        InitializeProgressIfAny();
         ParseEffects();
-        
-        if(CurrentEffect.Contains("h[")&&!CurrentEffect.Contains("progressheal"))gameManager.OnOwnerHeal += OnHeal;
+        InitializeProgressIfAny();
     }
     public bool CanAttackCoreOnSummon()
     {
@@ -270,13 +268,15 @@ public class CardInstance : MonoBehaviour, IAttackable
         progressionCompleted = false;
 
         if (Data.cardType != "minion" || !CurrentEffect.Contains("progress"))
+        {
+            SyncHealSubscription();
             return;
+        }
 
         if (HasKeyword("progressheal") &&
             TryParseProgress("progressheal", out int healCap))
         {
             ProgressionCap = healCap;
-            gameManager.OnOwnerHeal += OnHeal;
         }
         else if (HasKeyword("progressdamage") &&
             TryParseProgress("progressdamage", out int dmgCap))
@@ -302,6 +302,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             ProgressionCap = turnCap;
             TurnManager.Instance.OnTurnEnded += OnEndTurn;
         }
+
+        SyncHealSubscription();
     }
 
     private void CheckProgressCompletion()
@@ -335,6 +337,22 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (deckManager != null)
             TurnManager.Instance.OnTurnEnded -= OnEndTurn;
+    }
+    private void SyncHealSubscription()
+    {
+        if (gameManager == null)
+            return;
+
+        gameManager.OnOwnerHeal -= OnHeal;
+
+        bool hasHealTrigger = parsedEffects.TryGetValue(EffectTrigger.Heal, out var healEffects)
+                              && healEffects != null
+                              && healEffects.Count > 0;
+
+        bool hasProgressHeal = HasKeyword("progressheal") && ProgressionCap > 0;
+
+        if (hasHealTrigger || hasProgressHeal)
+            gameManager.OnOwnerHeal += OnHeal;
     }
     private bool TryParseProgress(
     string keyword,
@@ -387,7 +405,15 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (healamount <= 0)
             return;
 
-        TriggerHeal();
+        bool hasHealTrigger = parsedEffects.TryGetValue(EffectTrigger.Heal, out var healEffects)
+                              && healEffects != null
+                              && healEffects.Count > 0;
+
+        if (hasHealTrigger)
+            TriggerHeal();
+
+        if (!HasKeyword("progressheal") || ProgressionCap <= 0)
+            return;
 
         ProgressionCounter += healamount;
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
@@ -1181,6 +1207,8 @@ public class CardInstance : MonoBehaviour, IAttackable
                 parsedEffects[trigger].Add(e.Trim()); Debug.Log($"Parsing deploy effects: {e}");
             }
         }
+
+        SyncHealSubscription();
     }
     private bool TryParseTrigger(string str, out EffectTrigger trigger)
     {
