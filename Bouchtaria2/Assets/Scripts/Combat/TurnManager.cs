@@ -141,9 +141,15 @@ public class TurnManager : MonoBehaviour
             // Wait until the animation finishes
             while (!chaosFinished)
                 yield return null;
-            yield return (0.5f);
+            yield return new WaitForSeconds(0.5f);
             TriggerChaosEffect(randomChaosIndex, CurrentPlayer);
-            yield return (0.5f);
+
+            // Wait for all chaos side-effects/coroutines to fully resolve
+            // before the active player can act.
+            while (GameManager.Instance != null && GameManager.Instance.IsResolvingEffects)
+                yield return null;
+
+            yield return new WaitForSeconds(0.5f);
             if (CurrentPlayer == PlayerOwner.Player) PlayerChaosEventCount++;
             else EnemyChaosEventCount++;
         }
@@ -186,7 +192,7 @@ public class TurnManager : MonoBehaviour
         while (!chaosFinished)
             yield return null;
 
-        yield return (0.5f);
+        yield return new WaitForSeconds(0.5f);
 
         // Trigger the chaos effect (this may start its own coroutines)
         TriggerChaosEffect(randomChaosIndex, CurrentPlayer);
@@ -195,7 +201,7 @@ public class TurnManager : MonoBehaviour
         while (GameManager.Instance != null && GameManager.Instance.IsResolvingEffects)
             yield return null;
 
-        yield return (0.5f);
+        yield return new WaitForSeconds(0.5f);
 
         if (CurrentPlayer == PlayerOwner.Player) PlayerChaosEventCount++;
         else EnemyChaosEventCount++;
@@ -237,7 +243,9 @@ public class TurnManager : MonoBehaviour
             case 3:
                 gameManager.AddCardToHand(owner, 62); gameManager.AddCardToHand(owner, 62); break;
             case 4:
-                gameManager.PlayerCore.Heal(5); break;
+                if (owner == PlayerOwner.Player) gameManager.PlayerCore.Heal(5);
+                else gameManager.EnemyCore.Heal(5);
+                break;
             case 5:
                 gameManager.GainMaxMana(1, owner); break;
         }
