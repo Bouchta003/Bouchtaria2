@@ -16,6 +16,9 @@ public class CardInputManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1)) // Right click
         {
+            if (hoveredCard != null)
+                hoveredCard.OnRightClick();
+
             GameManager gm = FindFirstObjectByType<GameManager>();
             if (gm != null)
                 gm.CancelCurrentTargeting();

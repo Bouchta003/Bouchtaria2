@@ -225,6 +225,46 @@ public class EnemyAIController : MonoBehaviour
                 best = inst;
                 bestManaCost = inst.CurrentManaCost;
             }
+            if (plan.Count == 0)
+                yield break;
+
+            bool playedSomething = false;
+
+            foreach (PlannedAction action in plan)
+            {
+                if (action.Card == null)
+                    continue;
+
+                if (action.Type == PlannedActionType.Spell)
+                {
+                    if (!CanEnemyActuallyCastSpell(action.Card))
+                        continue;
+
+                    yield return StartCoroutine(gameManager.ShowEnemySpell(action.Card.Data));
+                    PlaySpell(action.Card);
+                    playedSomething = true;
+                }
+                else
+                {
+                    if (enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
+                        continue;
+
+                    if (action.Card.CurrentManaCost > gameManager.EnemyCurrentMana)
+                        continue;
+
+                    Summon(action.Card.GetComponent<Card>());
+                    playedSomething = true;
+                }
+
+                if (playedSomething)
+                {
+                    yield return new WaitForSeconds(0.35f);
+                    break;
+                }
+            }
+
+            if (!playedSomething)
+                yield break;
         }
 
         return best;
