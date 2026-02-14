@@ -646,7 +646,47 @@ public class GameManager : MonoBehaviour
             EndEffect();
         }
     }
+    public IEnumerator DamageRandomEnemyChaos(bool andCore, int ticsDmg, PlayerOwner owner)
+    {
+        BeginEffect();
+        try
+        {
+            for (int i = 0; i < ticsDmg; i++)
+            {
+                var enemyBoard = GetBoardForOther(owner);
+                var enemyCards = enemyBoard.GetCards();
+                int unitCount = enemyCards.Count;
 
+                // Total possible targets
+                int totalTargets = unitCount + (andCore ? 1 : 0);
+
+                if (totalTargets > 0)
+                {
+                    int rndTarget = UnityEngine.Random.Range(0, totalTargets);
+
+                    if (andCore && rndTarget == unitCount)
+                    {
+                        // Last index represents the core
+                        GetCoreForEnemy(owner).TakeDamage(1);
+                    }
+                    else
+                    {
+                        enemyCards[rndTarget]
+                            .GetComponent<CardInstance>()
+                            .TakeDamage(1);
+                    }
+
+                    Debug.Log("Dealt damage to enemy chaos");
+                }
+
+                yield return new WaitForSeconds(0.5f);
+            }
+        }
+        finally
+        {
+            EndEffect();
+        }
+    }
     // reservation counters to avoid concurrent over-summon
     private int allyPendingSummons = 0;
     private int enemyPendingSummons = 0;

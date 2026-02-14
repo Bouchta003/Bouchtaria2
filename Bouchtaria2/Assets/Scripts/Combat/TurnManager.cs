@@ -233,7 +233,7 @@ public class TurnManager : MonoBehaviour
             case 1:
                 gameManager.TrySummonForOwnerManaCost(owner, 2); break;
             case 2:
-                StartCoroutine(gameManager.DamageRandomEnemy(true, 5, owner)); break;
+                StartCoroutine(gameManager.DamageRandomEnemyChaos(true, 5, owner)); break;
             case 3:
                 gameManager.AddCardToHand(owner, 62); gameManager.AddCardToHand(owner, 62); break;
             case 4:
