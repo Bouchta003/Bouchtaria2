@@ -563,7 +563,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         else
         {
             // Enemy TARGET spell
-            if (CurrentEffect.Contains("gear") || (CurrentEffect.Contains("heal") && !CurrentEffect.Contains("autoheal")) || CurrentEffect.Contains("buff"))
+            if (CurrentEffect.Contains("gear") || (CurrentEffect.Contains("heal") && !CurrentEffect.Contains("autoheal")) || CurrentEffect.Contains("buff") || CurrentEffect.Contains("damagenheal"))
             {
                 IAttackable target =
                     gameManager.ChooseEnemyEffectTarget(

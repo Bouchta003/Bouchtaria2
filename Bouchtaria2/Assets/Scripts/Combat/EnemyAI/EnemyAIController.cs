@@ -534,7 +534,7 @@ public class EnemyAIController : MonoBehaviour
             bool canStillAttackNormally = !ally.HasAttackedThisTurn;
 
             // If it can already attack now, refreshattack has no value for this unit.
-            if (canStillAttackWithHaste || canStillAttackNormally)
+            if (canStillAttackWithHaste || canStillAttackNormally || ally.IsAsleep)
                 continue;
 
             return true;
