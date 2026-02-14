@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c0c47a2ca855b064fbe0b6b783cb2b7b
+guid: 0864ce9179761a440905a0be8893797a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6247287197807811734
-    second: Barbell--Streamline-Tabler_0
+      213: 6712514608114313245
+    second: agni_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Barbell--Streamline-Tabler_0
+      name: agni_0
       rect:
         serializedVersion: 2
-        x: 7
-        y: 11
-        width: 82
-        height: 82
+        x: 0
+        y: 0
+        width: 1173
+        height: 1759
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 69c1e2b5b92d2b650800000000000000
-      internalID: 6247287197807811734
+      spriteID: d18264eb874a72d50800000000000000
+      internalID: 6712514608114313245
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 904cc07c23782ad4faf0c8372d56ad88
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Barbell--Streamline-Tabler_0: 6247287197807811734
+      agni_0: 6712514608114313245
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

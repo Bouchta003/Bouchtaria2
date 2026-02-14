@@ -69,12 +69,10 @@ public class TraitsDetection : MonoBehaviour
         Dictionary<CardData.Trait, int[]> tierThresholds = new()
         {
             { CardData.Trait.Speedster, new[] { 4,8,12 } },
-            { CardData.Trait.Fighter, new[] { 4, 7 } },
+            { CardData.Trait.Fighter, new[] { 4, 8, 15 } },
             { CardData.Trait.Gunner, new[] { 4,8,12 } },
             { CardData.Trait.Faith, new[] { 4,8,10 } },
             { CardData.Trait.Avatar, new[] { 5,8,15 } },//Make it later 5, 8, 15
-            { CardData.Trait.Hater, new[] { 6, 9 } },
-            { CardData.Trait.SpellFocus, new[] { 6, 9, 12 } },
             { CardData.Trait.Combo, new[] { 5, 8 } },
             { CardData.Trait.Healer, new[] { 6, 9, 14 } },
             { CardData.Trait.Chaos, new[] { 4, 8, 12 } },
@@ -82,7 +80,9 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Pokemon, new[] { 4,8,12 } },
             { CardData.Trait.MonsterHunter, new[] { 5, 10, 15 } },
             { CardData.Trait.Neutral, new[] { 4,8,12 } },
-            { CardData.Trait.Blizzard, new[] { 5, 10 } }
+            { CardData.Trait.Blizzard, new[] { 5, 10 } },
+            { CardData.Trait.Hater, new[] { 6, 9 } },
+            { CardData.Trait.SpellFocus, new[] { 6, 9, 12 } },
         };
 
         // 3. Resolve tiers

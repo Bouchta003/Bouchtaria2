@@ -268,6 +268,15 @@ public class ScanPanelView : MonoBehaviour
             keyDescription.text =
                 "Equipping gear to monster hunters grant them +1/+1.";
         }
+        if (effectText.ToLower().Contains(("regeneration").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Regeneration";
+            keyDescription.text =
+                "Fully heals at the end of your turn.";
+        }
         if (effectText.ToLower().Contains(("is bleeding").ToLower()))
         {
             GameObject entry = Instantiate(keywordPrefab, keywordContainer);

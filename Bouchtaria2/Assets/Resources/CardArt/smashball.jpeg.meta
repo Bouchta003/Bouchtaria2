@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c0c47a2ca855b064fbe0b6b783cb2b7b
+guid: ae1634797c42bca43a8b7e8190d7fcfe
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6247287197807811734
-    second: Barbell--Streamline-Tabler_0
+      213: 7983213307671026791
+    second: smashball_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Barbell--Streamline-Tabler_0
+      name: smashball_0
       rect:
         serializedVersion: 2
-        x: 7
-        y: 11
-        width: 82
-        height: 82
+        x: 0
+        y: 0
+        width: 573
+        height: 860
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 69c1e2b5b92d2b650800000000000000
-      internalID: 6247287197807811734
+      spriteID: 76c17e9d4321ace60800000000000000
+      internalID: 7983213307671026791
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 904cc07c23782ad4faf0c8372d56ad88
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Barbell--Streamline-Tabler_0: 6247287197807811734
+      smashball_0: 7983213307671026791
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

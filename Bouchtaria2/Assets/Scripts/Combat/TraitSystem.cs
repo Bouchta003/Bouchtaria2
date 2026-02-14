@@ -363,6 +363,241 @@ public class NeutralTier3Effect : IDeckTraitEffect
     }
 }
 #endregion
+#region Fighter Trait
+public class FighterProgression : ITraitProgression
+{
+    public CardData.Trait Trait => CardData.Trait.Fighter;
+    public PlayerOwner Owner { get; }
+    public int CurrentTier { get; private set; }
+
+    private readonly int maxTier;
+    private int FighterPlayed = 0;
+
+    public int CurrentProgress => FighterPlayed;
+
+    public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
+
+    private readonly TraitSystem traitSystem;
+    private readonly AllyCardDropArea allyBoard;
+    private readonly EnemyCardDropArea enemyBoard;
+
+    public FighterProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem, AllyCardDropArea allyBoard, EnemyCardDropArea enemyBoard)
+    {
+        Owner = owner;
+        this.maxTier = maxTier;
+        this.traitSystem = traitSystem;
+        this.allyBoard = allyBoard;
+        this.enemyBoard = enemyBoard;
+    }
+    public void ResetProgression()
+    {
+        FighterPlayed = 0;
+    }
+    public void PushInitialState()
+    {
+        int cap = GetCurrentCap();
+        OnProgressUpdated?.Invoke(Trait, FighterPlayed, cap, Owner);
+    }
+
+    public void Register()
+    {
+        Debug.Log($"[FighterProgression] Register for {Owner}");
+
+        allyBoard.OnCardPlayed += OnCardPlayed;
+        enemyBoard.OnCardPlayed += OnCardPlayed;
+
+        OnProgressUpdated?.Invoke(Trait, FighterPlayed, GetCurrentCap(), Owner);
+    }
+    public void Unregister()
+    {
+        Debug.Log($"[FighterProgression] Unregister for {Owner}");
+
+        allyBoard.OnCardPlayed -= OnCardPlayed;
+        enemyBoard.OnCardPlayed -= OnCardPlayed;
+    }
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 5,
+            1 => 10,
+            2 => 15,
+            _ => 999
+        };
+    }
+
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (card.Owner != Owner)
+            return;
+
+        if (!card.HasTrait("Fighter") || card.Data.cardType!="minion")
+            return;
+        FighterPlayed++;
+        OnProgressUpdated?.Invoke(Trait, FighterPlayed, GetCurrentCap(), Owner);
+
+        if (FighterPlayed >= 5 && CurrentTier < 1 && maxTier >= 1)
+        {
+            UnlockTier1();
+        }
+
+        if (FighterPlayed >= 10 && CurrentTier < 2 && maxTier >= 2)
+        {
+            UnlockTier2();
+        }
+
+        if (FighterPlayed >= 15 && CurrentTier < 3 && maxTier >= 3)
+        {
+            UnlockTier3();
+        }
+    }
+
+    private void UnlockTier1()
+    {
+        CurrentTier = 1;
+
+        traitSystem.ActivateEffect(
+            new FighterTier1Effect(Owner)
+        );
+
+        Debug.Log($"{Owner} unlocked Fighter Tier 1");
+    }
+    private void UnlockTier2()
+    {
+        CurrentTier = 2;
+        traitSystem.ActivateEffect(
+            new FighterTier2Effect(Owner)
+        );
+
+        Debug.Log($"{Owner} unlocked Fighter Tier 2");
+    }
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+        traitSystem.ActivateEffect(
+            new FighterTier3Effect(Owner)
+        );
+
+        Debug.Log($"{Owner} unlocked Fighter Tier 3");
+    }
+
+}
+public class FighterTier1Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Fighter;
+    public int Tier => 1;
+
+    private readonly PlayerOwner owner;
+    private bool used;
+
+    public FighterTier1Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+    public void OnRegister()
+    {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed += OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed += OnCardPlayed;
+
+        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
+    }
+    public void OnUnregister()
+    {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
+    }
+
+    private void OnTurnStarted(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        used = false;
+    }
+
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (used)
+            return;
+
+        if (card.Owner != owner)
+            return;
+
+        if (card.Data.cardType != "minion")
+            return;
+        card.ModifyStats(1,1);
+        used = true;
+    }
+}
+public class FighterTier2Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Fighter;
+    public int Tier => 2;
+
+    private readonly PlayerOwner owner;
+
+    public FighterTier2Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        DiscoverFighterArtifact();
+    }
+    public void OnUnregister()
+    {
+
+    }
+    void DiscoverFighterArtifact()
+    {
+        GameManager.Instance.DiscoverEffectDiscount("fighterartifact", owner,-3);
+    }
+}
+public class FighterTier3Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Fighter;
+    public int Tier => 3;
+
+    private readonly PlayerOwner owner;
+    public FighterTier3Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+    public void OnRegister()
+    {
+        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
+    }
+    public void OnUnregister()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+    }
+
+    private void OnTurnEnded(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        GameManager.Instance.BuffAllAllies(1,1,owner);
+    }
+}
+#endregion
 #region Chaos Trait
 public class ChaosProgression : ITraitProgression
 {

@@ -96,9 +96,9 @@ public class Card : MonoBehaviour
                 gameManager.isDiscovering = false; // lock FIRST
 
                 if (gameManager.OwnerHasTrait(thisInstance.Owner, CardData.Trait.Faith, 2))
-                    gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id, -1);
+                    gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id, -(1+ gameManager.DiscoverDiscount));
                 else
-                    gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id);
+                    gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id, gameManager.DiscoverDiscount);
 
                 //RefreshMana
                 if (gameManager.OwnerHasTrait(thisInstance.Owner, CardData.Trait.Faith, 3))
@@ -109,6 +109,7 @@ public class Card : MonoBehaviour
                 Destroy(child.gameObject);
 
                 gameManager.discoverDisplay.SetActive(false);
+                gameManager.DiscoverDiscount = 0;
                 return;
             }
             //Drag to play card

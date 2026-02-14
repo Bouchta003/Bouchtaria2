@@ -97,6 +97,14 @@ public class TraitsDisplay : MonoBehaviour
                 if (tier > 2) display +=
                          "\nTier 3 : You draw one more at the start of your turn.";
                 break;
+            case CardData.Trait.Fighter:
+                display += $"Play fighter units to unlock. Currently played : {Progression}/{CurrentCap}" +
+                    "\nTier 1 : The first unit you play each turn has +1/+1.";
+                if (tier > 1) display +=
+                        "\nTier 2 : Discover a Fighter Relic, reduce its cost by 3.";
+                if (tier > 2) display +=
+                         "\nTier 3 : End of Turn : Buff all your units by +1/+1.";
+                break;
             case CardData.Trait.Healer:
                 display += $"Heal ally units or core to unlock : {Progression}/{CurrentCap}" +
                     "\nTier 1 : Your heals heal 2 more HP for the rest of the game.";
@@ -143,7 +151,7 @@ public class TraitsDisplay : MonoBehaviour
                 if (tier > 1) display +=
                         "\nTier 2 : Also deal 1 damage to the enemy core.";
                 if (tier > 2) display +=
-                         "\nTier 3 : Gun effect triggers thrice.";
+                         "\nTier 3 : Gun trait effect triggers thrice.";
                 break;
             default:
                 display += "Need to define this trait's tier logic";
