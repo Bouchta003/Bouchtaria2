@@ -249,14 +249,14 @@ public class DungeonShop : MonoBehaviour
                 DungeonManager.Instance.SaveRunData();
                 ShouldPay = true; break;
             case 1:
-                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 100)
+                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 120)
                 {
                     ErrorPopup.Show("Not enough dungeon coins.");
                     ShouldPay = true; break;
                 }
 
-                if(ShouldPay)ModifyUserCoin(-100);
-                if(ShouldPay)DungeonManager.Instance.CurrentRun.coins -= 100;
+                if(ShouldPay)ModifyUserCoin(-120);
+                if(ShouldPay)DungeonManager.Instance.CurrentRun.coins -= 120;
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.StartMana);
                 DungeonManager.Instance.SaveRunData();
                 ShouldPay = true; break;
