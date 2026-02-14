@@ -408,6 +408,28 @@ public class EnemyAIController : MonoBehaviour
 
         string effect = spell.CurrentEffect.ToLowerInvariant();
 
+        // =====================================================================
+        // AI SPELL SAFETY CONDITIONS (CUSTOMIZATION ZONE)
+        // Add custom checks here whenever a specific spell type should be skipped
+        // if the board/game state would make it wasteful.
+        //
+        // Pattern:
+        // if (effect.Contains("yourkeyword") && !YourCondition())
+        //     return false;
+        // =====================================================================
+
+        // Do not spend draw if hand is already almost full (requested threshold: 9+).
+        if (effect.Contains("draw") && enemyHand.handCards.Count >= 9)
+            return false;
+
+        // Don't play refreshattack with no ally unit that can actually benefit.
+        if (effect.Contains("refreshattack") && !HasRefreshAttackTarget())
+            return false;
+
+        // Don't spend heal if every valid friendly heal target is already at full health.
+        if (effect.Contains("heal") && effect.Contains("targetunit") && !effect.Contains("autoheal") && !HasDamagedFriendlyUnit())
+            return false;
+
         // Buff / Gear / non-auto Heal → requires enemy board
         if (
             effect.Contains("gear") ||
@@ -474,6 +496,48 @@ public class EnemyAIController : MonoBehaviour
 
             if (ally.CurrentHealth < ally.CurrentMaxHealth)
                 return true;
+        }
+
+        return false;
+    }
+
+    private bool HasDamagedFriendlyUnit()
+    {
+        foreach (GameObject allyGo in enemyBoard.enemyPrefabCards)
+        {
+            if (allyGo == null)
+                continue;
+
+            CardInstance ally = allyGo.GetComponent<CardInstance>();
+            if (ally == null || ally.IsDead)
+                continue;
+
+            if (ally.CurrentHealth < ally.CurrentMaxHealth)
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool HasRefreshAttackTarget()
+    {
+        foreach (GameObject allyGo in enemyBoard.enemyPrefabCards)
+        {
+            if (allyGo == null)
+                continue;
+
+            CardInstance ally = allyGo.GetComponent<CardInstance>();
+            if (ally == null || ally.IsDead || ally.CurrentAttack <= 0)
+                continue;
+
+            bool canStillAttackWithHaste = ally.HasKeyword("haste") && !ally.HasAttackedTwiceThisTurn;
+            bool canStillAttackNormally = !ally.HasAttackedThisTurn;
+
+            // If it can already attack now, refreshattack has no value for this unit.
+            if (canStillAttackWithHaste || canStillAttackNormally)
+                continue;
+
+            return true;
         }
 
         return false;

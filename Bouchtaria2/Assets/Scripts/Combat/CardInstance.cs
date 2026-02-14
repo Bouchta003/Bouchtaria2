@@ -2028,8 +2028,9 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             target.CurrentEffect += " " + subEffect;
 
-            if (subEffect == "quickstrike" && target.IsSummoningSick)
-                target.IsSummoningSick = false;
+            // NOTE: quickstrike allows attacking UNITS while summoning sick.
+            // It should never remove summoning sickness, otherwise it behaves like charge.
+            // Keep IsSummoningSick unchanged here.
 
             return;
         }
@@ -2184,9 +2185,13 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
 
-        // Preserve state you want to keep
+        // Preserve runtime-only additions (ex: extra gear effects / injected rules text)
+        // before changing Data.
+        string runtimeAddedEffects = ExtractRuntimeAddedEffects(CurrentEffect, Data.effect);
+        string runtimeAddedEffectText = ExtractRuntimeAddedEffectText(CurrentEffectText, Data.effectText);
 
         int currentDamage = Data.hpValue - CurrentHealth;
+
         // Swap data
         Data = newData;
 
@@ -2195,25 +2200,84 @@ public class CardInstance : MonoBehaviour, IAttackable
         CurrentAttack = newData.atkValue;
         BaseManaCost = newData.manaCost;
 
-        CurrentEffect = newData.effect;
-        CurrentEffectText = newData.effectText;
+        CurrentEffect = string.IsNullOrWhiteSpace(runtimeAddedEffects)
+            ? newData.effect
+            : $"{newData.effect} {runtimeAddedEffects}";
 
-        ParseEffects();
+        CurrentEffectText = string.IsNullOrWhiteSpace(runtimeAddedEffectText)
+            ? newData.effectText
+            : $"{newData.effectText}{runtimeAddedEffectText}";
 
         // Notify view
         cardView.UpdateMode();
         StartCoroutine(DelayedProgressInit());
+
         // 🔑 Reset deploy eligibility
         WasPlayed = true;
         EffectsSuppressed = false;
 
-        // Re-parse effects for new card
+        // Re-parse effects for morphed card + preserved runtime additions
         ParseEffects();
 
         // Trigger deploy next frame
         StartCoroutine(DelayedDeployAfterMorph());
-
     }
+    private string ExtractRuntimeAddedEffects(string runtimeEffect, string baseEffect)
+    {
+        runtimeEffect ??= string.Empty;
+        baseEffect ??= string.Empty;
+
+        List<string> runtimeTokens = runtimeEffect
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .ToList();
+
+        List<string> baseTokens = baseEffect
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .ToList();
+
+        Dictionary<string, int> baseCount = new();
+        foreach (string token in baseTokens)
+        {
+            if (!baseCount.ContainsKey(token))
+                baseCount[token] = 0;
+
+            baseCount[token]++;
+        }
+
+        List<string> additions = new();
+
+        foreach (string token in runtimeTokens)
+        {
+            if (baseCount.TryGetValue(token, out int count) && count > 0)
+            {
+                baseCount[token] = count - 1;
+                continue;
+            }
+
+            additions.Add(token);
+        }
+
+        return string.Join(" ", additions).Trim();
+    }
+
+    private string ExtractRuntimeAddedEffectText(string runtimeText, string baseText)
+    {
+        if (string.IsNullOrEmpty(runtimeText))
+            return string.Empty;
+
+        if (string.IsNullOrEmpty(baseText))
+            return "\n" + runtimeText;
+
+        if (runtimeText.StartsWith(baseText))
+            return runtimeText.Substring(baseText.Length);
+
+        // Fallback if text was edited in another way: keep non-duplicate content.
+        if (runtimeText == baseText)
+            return string.Empty;
+
+        return "\n" + runtimeText;
+    }
+
     private IEnumerator DelayedDeployAfterMorph()
     {
         yield return null; // wait one frame
