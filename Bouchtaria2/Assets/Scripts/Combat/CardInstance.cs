@@ -1253,8 +1253,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             pendingTargetedEffect.StartsWith("gear")
             || pendingTargetedEffect.StartsWith("heal")
             || pendingTargetedEffect.StartsWith("buff")
-            || pendingTargetedEffect.StartsWith("refreshattack")
-            || pendingTargetedEffect.StartsWith("morphto");
+            || pendingTargetedEffect.StartsWith("refreshattack");
 
         if (forceRandomTarget)
         {
@@ -1296,24 +1295,23 @@ public class CardInstance : MonoBehaviour, IAttackable
             }
             else if (pendingTargetedEffect.StartsWith("morphto"))
             {
-                ICardDropArea board =
-                    Owner == PlayerOwner.Player
-                        ? gameManager.allyDropArea
-                        : gameManager.enemyDropArea;
+                List<CardInstance> candidates = new();
 
-                List<CardInstance> allies =
-                    board.GetCards()
-                         .Select(go => go.GetComponent<CardInstance>())
-                         .Where(ci => ci != null && !ci.IsDead && ci != this)
-                         .ToList();
+                candidates.AddRange(gameManager.allyDropArea.GetCards()
+                    .Select(go => go.GetComponent<CardInstance>())
+                    .Where(ci => ci != null && !ci.IsDead && ci != this));
 
-                if (allies.Count == 0)
+                candidates.AddRange(gameManager.enemyDropArea.GetCards()
+                    .Select(go => go.GetComponent<CardInstance>())
+                    .Where(ci => ci != null && !ci.IsDead && ci != this));
+
+                if (candidates.Count == 0)
                     return;
 
                 // Pick strongest (atk + hp)
-                CardInstance best =
-                    allies.OrderByDescending(ci => ci.CurrentAttack + ci.CurrentHealth)
-                          .First();
+                CardInstance best = candidates
+                    .OrderByDescending(ci => ci.CurrentAttack + ci.CurrentHealth)
+                    .First();
 
                 OnEffectTargetChosen(best);
             }
@@ -2199,19 +2197,27 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (randCount < 1)
             yield break;
 
-        for (int i = 0; i < randCount; i++)
+        GameManager.Instance.BeginEffect();
+        try
         {
-            // ⛔ Stop if a player is already dead
-            if (GameManager.Instance.CurrentGameState != GameState.Playing)
-                yield break;
+            for (int i = 0; i < randCount; i++)
+            {
+                // ⛔ Stop if a player is already dead
+                if (GameManager.Instance.CurrentGameState != GameState.Playing)
+                    yield break;
 
-            yield return StartCoroutine(
-                TurnManager.Instance.TriggerSingleChaosEvent()
-            );
+                yield return StartCoroutine(
+                    TurnManager.Instance.TriggerSingleChaosEvent()
+                );
 
-            // ⛔ Stop immediately if this chaos event killed someone
-            if (GameManager.Instance.CurrentGameState != GameState.Playing)
-                yield break;
+                // ⛔ Stop immediately if this chaos event killed someone
+                if (GameManager.Instance.CurrentGameState != GameState.Playing)
+                    yield break;
+            }
+        }
+        finally
+        {
+            GameManager.Instance.EndEffect();
         }
     }
 

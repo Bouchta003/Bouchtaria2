@@ -42,27 +42,41 @@ public class EnemyAIController : MonoBehaviour
 
         StartCoroutine(EnemyTurnRoutine());
     }
+
+    private IEnumerator WaitForEffectsToSettle()
+    {
+        while (gameManager != null && gameManager.IsResolvingEffects)
+            yield return null;
+    }
     private IEnumerator EnemyTurnRoutine()
     {
+        yield return StartCoroutine(WaitForEffectsToSettle());
+
         if (HasLethalThisTurn())
         {
             yield return StartCoroutine(TryAttack());
+            yield return StartCoroutine(WaitForEffectsToSettle());
             EndEnemyTurn();
             yield break;
         }
 
         yield return new WaitForSeconds(0.3f);
+        yield return StartCoroutine(WaitForEffectsToSettle());
 
         // Build a smarter turn plan that optimizes mana usage and board space,
         // instead of playing the first acceptable card.
         yield return StartCoroutine(PlayBestMainPhaseSequence());
+        yield return StartCoroutine(WaitForEffectsToSettle());
 
         // Attacks
         yield return StartCoroutine(TryAttack());
+        yield return StartCoroutine(WaitForEffectsToSettle());
         yield return StartCoroutine(TryAttack());
+        yield return StartCoroutine(WaitForEffectsToSettle());
 
         // If combat created new strategic value (e.g. a post-combat summon), try once more.
         yield return StartCoroutine(PlayBestMainPhaseSequence());
+        yield return StartCoroutine(WaitForEffectsToSettle());
 
         yield return new WaitForSeconds(0.2f);
 
@@ -150,12 +164,16 @@ public class EnemyAIController : MonoBehaviour
                     if (action.Card.CurrentManaCost > gameManager.EnemyCurrentMana)
                         continue;
 
+                    if (!CanEnemyPlayMinion(action.Card))
+                        continue;
+
                     Summon(action.Card.GetComponent<Card>());
                     playedSomething = true;
                 }
 
                 if (playedSomething)
                 {
+                    yield return StartCoroutine(WaitForEffectsToSettle());
                     yield return new WaitForSeconds(0.35f);
                     break;
                 }
@@ -192,6 +210,7 @@ public class EnemyAIController : MonoBehaviour
             else if (cardType == "minion")
             {
                 if (freeSlots <= 0) continue;
+                if (!CanEnemyPlayMinion(inst)) continue;
                 candidates.Add(inst);
             }
         }
@@ -478,37 +497,45 @@ public class EnemyAIController : MonoBehaviour
                 return false;
         }
 
-        // Targeted unit spell → requires ally board
+        // Targeted unit spell validation
         if (effect.Contains("targetunit"))
         {
-            bool needsEnemyUnits = effect.Contains("heal") || effect.Contains("buff") || effect.Contains("gear");
-            PlayerOwner targetOwner = needsEnemyUnits ? PlayerOwner.Enemy : PlayerOwner.Player;
-
-            List<IAttackable> validTargets = gameManager.GetValidTargets(targetOwner);
-            bool hasValidUnit = false;
-
-            foreach (IAttackable t in validTargets)
+            // Ditto-like morph can target ANY other board unit.
+            if (effect.Contains("morphto"))
             {
-                if (t is not CardInstance unit)
-                    continue;
-
-                if (effect.Contains("sleep") && unit.IsAsleep)
-                    continue; 
-                
-                if (effect.Contains("catch"))
-                {
-                    int catchValue = GetCatchValueFromEffect(effect);
-                    if (catchValue <= 0 || unit.CurrentTotalStats >= catchValue)
-                        continue;
-                }
-                    
-
-                hasValidUnit = true;
-                break;
+                if (!HasAnyDittoTargetOnBoard())
+                    return false;
             }
+            else
+            {
+                bool needsEnemyUnits = effect.Contains("heal") || effect.Contains("buff") || effect.Contains("gear");
+                PlayerOwner targetOwner = needsEnemyUnits ? PlayerOwner.Enemy : PlayerOwner.Player;
 
-            if (!hasValidUnit)
-                return false;
+                List<IAttackable> validTargets = gameManager.GetValidTargets(targetOwner);
+                bool hasValidUnit = false;
+
+                foreach (IAttackable t in validTargets)
+                {
+                    if (t is not CardInstance unit)
+                        continue;
+
+                    if (effect.Contains("sleep") && unit.IsAsleep)
+                        continue;
+
+                    if (effect.Contains("catch"))
+                    {
+                        int catchValue = GetCatchValueFromEffect(effect);
+                        if (catchValue <= 0 || unit.CurrentTotalStats >= catchValue)
+                            continue;
+                    }
+
+                    hasValidUnit = true;
+                    break;
+                }
+
+                if (!hasValidUnit)
+                    return false;
+            }
         }
 
         // Targeted core spell → requires core (always true, but explicit)
@@ -664,6 +691,41 @@ public class EnemyAIController : MonoBehaviour
 
         return best;
     }
+    private bool HasAnyDittoTargetOnBoard()
+    {
+        foreach (GameObject go in allyBoard.allyPrefabCards)
+        {
+            if (go == null) continue;
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci != null && !ci.IsDead)
+                return true;
+        }
+
+        foreach (GameObject go in enemyBoard.enemyPrefabCards)
+        {
+            if (go == null) continue;
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci != null && !ci.IsDead)
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool CanEnemyPlayMinion(CardInstance minion)
+    {
+        if (minion == null)
+            return false;
+
+        string effect = minion.CurrentEffect?.ToLowerInvariant() ?? string.Empty;
+
+        // Ditto/morph minions need at least one existing board unit to copy.
+        if (effect.Contains("morphto") && effect.Contains("targetunit"))
+            return HasAnyDittoTargetOnBoard();
+
+        return true;
+    }
+
     private int EvaluateMinion(CardInstance minion)
     {
         int value = 0;
@@ -711,6 +773,9 @@ public class EnemyAIController : MonoBehaviour
                 continue;
 
             if (inst.CurrentManaCost > availableMana)
+                continue;
+
+            if (!CanEnemyPlayMinion(inst))
                 continue;
 
             playable.Add(inst);
