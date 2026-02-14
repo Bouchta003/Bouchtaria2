@@ -2207,7 +2207,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                     yield break;
 
                 yield return StartCoroutine(
-                    TurnManager.Instance.TriggerSingleChaosEvent()
+                    TurnManager.Instance.TriggerSingleChaosEvent(Owner)
                 );
 
                 // ⛔ Stop immediately if this chaos event killed someone

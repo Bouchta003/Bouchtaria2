@@ -177,14 +177,19 @@ public class TurnManager : MonoBehaviour
 
         UpdateGlow();
     }
-    public IEnumerator TriggerSingleChaosEvent()
+    public IEnumerator TriggerSingleChaosEvent(PlayerOwner owner)
     {
         bool chaosFinished = false;
         int randomChaosIndex = UnityEngine.Random.Range(0, ChaosSprites.Count);
+
+        int activeEffectsBeforeChaos = 0;
+        if (GameManager.Instance != null)
+            activeEffectsBeforeChaos = GameManager.Instance.ActiveEffectCount;
+
         // Trigger chaos effect FIRST
         chaosEffectDisplay.ShowChaosEffect(
             rune: ChaosSprites[randomChaosIndex],
-            description: GetChaosDescription(randomChaosIndex, CurrentPlayer),
+            description: GetChaosDescription(randomChaosIndex, owner),
             onComplete: () => chaosFinished = true
         );
 
@@ -195,15 +200,16 @@ public class TurnManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         // Trigger the chaos effect (this may start its own coroutines)
-        TriggerChaosEffect(randomChaosIndex, CurrentPlayer);
+        TriggerChaosEffect(randomChaosIndex, owner);
 
-        // WAIT here until any effects started by TriggerChaosEffect finish.
-        while (GameManager.Instance != null && GameManager.Instance.IsResolvingEffects)
+        // WAIT until chaos-started effects complete. Respect any already-active outer
+        // resolver guard (ex: Lebens multi-chaos wrapper) by waiting back to baseline.
+        while (GameManager.Instance != null && GameManager.Instance.ActiveEffectCount > activeEffectsBeforeChaos)
             yield return null;
 
         yield return new WaitForSeconds(0.5f);
 
-        if (CurrentPlayer == PlayerOwner.Player) PlayerChaosEventCount++;
+        if (owner == PlayerOwner.Player) PlayerChaosEventCount++;
         else EnemyChaosEventCount++;
 
     }
@@ -235,7 +241,7 @@ public class TurnManager : MonoBehaviour
         {
             case 0:
                 //Trigger effect here
-                deckManager.StartCoroutine(deckManager.Draw(1, CurrentPlayer));break;
+                deckManager.StartCoroutine(deckManager.Draw(1, owner));break;
             case 1:
                 gameManager.TrySummonForOwnerManaCost(owner, 2); break;
             case 2:
