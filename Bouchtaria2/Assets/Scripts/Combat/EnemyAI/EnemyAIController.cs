@@ -117,35 +117,52 @@ public class EnemyAIController : MonoBehaviour
 
     private IEnumerator PlayBestMainPhaseSequence()
     {
-        List<PlannedAction> plan = BuildBestMainPhasePlan();
-        if (plan.Count == 0)
-            yield break;
-
-        foreach (PlannedAction action in plan)
+        // Re-plan after each successful action so the enemy keeps spending mana
+        // even if board state changes invalidate parts of an earlier plan.
+        int safety = 0;
+        while (safety++ < 20)
         {
-            if (action.Card == null)
-                continue;
+            List<PlannedAction> plan = BuildBestMainPhasePlan();
+            if (plan.Count == 0)
+                yield break;
 
-            if (action.Type == PlannedActionType.Spell)
+            bool playedSomething = false;
+
+            foreach (PlannedAction action in plan)
             {
-                if (!CanEnemyActuallyCastSpell(action.Card))
+                if (action.Card == null)
                     continue;
 
-                yield return StartCoroutine(gameManager.ShowEnemySpell(action.Card.Data));
-                PlaySpell(action.Card);
+                if (action.Type == PlannedActionType.Spell)
+                {
+                    if (!CanEnemyActuallyCastSpell(action.Card))
+                        continue;
+
+                    yield return StartCoroutine(gameManager.ShowEnemySpell(action.Card.Data));
+                    PlaySpell(action.Card);
+                    playedSomething = true;
+                }
+                else
+                {
+                    if (enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
+                        continue;
+
+                    if (action.Card.CurrentManaCost > gameManager.EnemyCurrentMana)
+                        continue;
+
+                    Summon(action.Card.GetComponent<Card>());
+                    playedSomething = true;
+                }
+
+                if (playedSomething)
+                {
+                    yield return new WaitForSeconds(0.35f);
+                    break;
+                }
             }
-            else
-            {
-                if (enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
-                    continue;
 
-                if (action.Card.CurrentManaCost > gameManager.EnemyCurrentMana)
-                    continue;
-
-                Summon(action.Card.GetComponent<Card>());
-            }
-
-            yield return new WaitForSeconds(0.35f);
+            if (!playedSomething)
+                yield break;
         }
     }
 
@@ -180,9 +197,20 @@ public class EnemyAIController : MonoBehaviour
         }
 
         int bestScore = int.MinValue;
+        int bestManaSpent = int.MinValue;
         List<PlannedAction> bestPlan = new();
 
-        BuildBestPlanDfs(candidates, 0, mana, mana, freeSlots, new List<PlannedAction>(), 0, ref bestScore, ref bestPlan);
+        BuildBestPlanDfs(
+            candidates,
+            0,
+            mana,
+            mana,
+            freeSlots,
+            new List<PlannedAction>(),
+            0,
+            ref bestScore,
+            ref bestManaSpent,
+            ref bestPlan);
 
         // Fallback: if DFS elected to pass despite playable cards, force a mana-spending plan.
         if (bestPlan.Count == 0 && candidates.Count > 0)
@@ -252,15 +280,22 @@ public class EnemyAIController : MonoBehaviour
         List<PlannedAction> current,
         int currentScore,
         ref int bestScore,
+        ref int bestManaSpent,
         ref List<PlannedAction> bestPlan)
     {
         if (index >= candidates.Count)
         {
-            // Strongly reward spending mana so AI doesn't pass with playable cards.
             int manaSpent = initialMana - manaLeft;
-            int finalScore = currentScore + (manaSpent * 100) - (manaLeft * 2);
-            if (finalScore > bestScore)
+            int finalScore = currentScore;
+
+            bool isBetterPlan =
+                manaSpent > bestManaSpent ||
+                (manaSpent == bestManaSpent && finalScore > bestScore) ||
+                (manaSpent == bestManaSpent && finalScore == bestScore && current.Count > bestPlan.Count);
+
+            if (isBetterPlan)
             {
+                bestManaSpent = manaSpent;
                 bestScore = finalScore;
                 bestPlan = new List<PlannedAction>(current);
             }
@@ -270,7 +305,7 @@ public class EnemyAIController : MonoBehaviour
         CardInstance card = candidates[index];
 
         // Option A: skip
-        BuildBestPlanDfs(candidates, index + 1, initialMana, manaLeft, freeSlots, current, currentScore, ref bestScore, ref bestPlan);
+        BuildBestPlanDfs(candidates, index + 1, initialMana, manaLeft, freeSlots, current, currentScore, ref bestScore, ref bestManaSpent, ref bestPlan);
 
         if (card == null || card.CurrentManaCost > manaLeft)
             return;
@@ -298,6 +333,7 @@ public class EnemyAIController : MonoBehaviour
                 current,
                 currentScore + EvaluateSpell(card),
                 ref bestScore,
+                ref bestManaSpent,
                 ref bestPlan);
 
             current.RemoveAt(current.Count - 1);
@@ -321,6 +357,7 @@ public class EnemyAIController : MonoBehaviour
                 current,
                 currentScore + minionScore,
                 ref bestScore,
+                ref bestManaSpent,
                 ref bestPlan);
 
             current.RemoveAt(current.Count - 1);
@@ -458,9 +495,11 @@ public class EnemyAIController : MonoBehaviour
                 if (effect.Contains("sleep") && unit.IsAsleep)
                     continue; 
                 
-                if (effect.Contains("catch") && unit.CurrentTotalStats > GetSingleIntFromEffect(effect)) 
-                {  Debug.Log($"Checking for ball target with effect : {effect} and target stats are {unit.CurrentTotalStats} and ball value should be {GetSingleIntFromEffect(effect)}"); 
-                    continue;  
+                if (effect.Contains("catch"))
+                {
+                    int catchValue = GetCatchValueFromEffect(effect);
+                    if (catchValue <= 0 || unit.CurrentTotalStats >= catchValue)
+                        continue;
                 }
                     
 
@@ -479,8 +518,8 @@ public class EnemyAIController : MonoBehaviour
                 return false;
         }
 
-        // Never heal at full life (board + core already full HP).
-        if (effect.Contains("heal") && !HasMissingHealthOnEnemySide())
+        // Never cast pure-heal effects at full life (but still allow mixed effects such as damagenheal).
+        if (effect.Contains("heal") && !effect.Contains("damage") && !HasMissingHealthOnEnemySide())
             return false;
 
         return true;
@@ -495,6 +534,22 @@ public class EnemyAIController : MonoBehaviour
         return int.TryParse(effect.Substring(start + 1, end - start - 1), out int v)
             ? v
             : -1;
+    }
+
+    private int GetCatchValueFromEffect(string effect)
+    {
+        if (string.IsNullOrWhiteSpace(effect))
+            return -1;
+
+        foreach (string token in effect.ToLowerInvariant().Split(' '))
+        {
+            if (!token.StartsWith("catch"))
+                continue;
+
+            return GetSingleIntFromEffect(token);
+        }
+
+        return -1;
     }
     private bool HasMissingHealthOnEnemySide()
     {
@@ -561,10 +616,53 @@ public class EnemyAIController : MonoBehaviour
 
     private void PlaySpell(CardInstance spell)
     {
+        IAttackable forcedTarget = GetForcedSpellTarget(spell);
+
         // OnPlaySpell already handles legality resolution, mana spending,
         // and clean removal from hand. Keeping it centralized avoids illegal casts.
-        spell.OnPlaySpell();
+        spell.OnPlaySpell(forcedTarget);
         OnCardPlayed?.Invoke(spell);
+    }
+
+    private IAttackable GetForcedSpellTarget(CardInstance spell)
+    {
+        if (spell == null || string.IsNullOrWhiteSpace(spell.CurrentEffect))
+            return null;
+
+        string effect = spell.CurrentEffect.ToLowerInvariant();
+
+        if (effect.Contains("catch"))
+            return GetBestCatchTarget(spell.CurrentEffect);
+
+        return null;
+    }
+
+    private CardInstance GetBestCatchTarget(string effect)
+    {
+        int catchValue = GetCatchValueFromEffect(effect);
+        if (catchValue <= 0)
+            return null;
+
+        CardInstance best = null;
+        int bestStats = int.MinValue;
+
+        List<IAttackable> validTargets = gameManager.GetValidTargets(PlayerOwner.Player);
+        foreach (IAttackable target in validTargets)
+        {
+            if (target is not CardInstance unit)
+                continue;
+
+            if (unit.CurrentTotalStats >= catchValue)
+                continue;
+
+            if (unit.CurrentTotalStats > bestStats)
+            {
+                best = unit;
+                bestStats = unit.CurrentTotalStats;
+            }
+        }
+
+        return best;
     }
     private int EvaluateMinion(CardInstance minion)
     {
