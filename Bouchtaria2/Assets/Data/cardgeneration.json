@@ -2702,6 +2702,22 @@
       "packable": true,
       "token": false,
       "signature": false
+    },
+    "166": {
+      "id": 166,
+      "name": "Dr Bensalmia",
+      "cardType": "minion",
+      "manaCost": 3,
+      "atkValue": 2,
+      "hpValue": 3,
+      "traits": [ "Chaos", "Healer" ],
+      "effect": "d[damagenheal(1,3)]",
+      "effectText": "Deploy : Deal 1 damage to the target then heal it by 3 HP",
+      "artPath": "CardArt/drbensalmia",
+      "artCompactPath": "CardArt/drbensalmia_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
     }
   }
 }
