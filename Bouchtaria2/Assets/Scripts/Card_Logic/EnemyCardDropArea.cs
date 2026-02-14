@@ -89,8 +89,8 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     {
         foreach (GameObject cardGO in enemyPrefabCards)
         {
-            CardInstance instance = cardGO.GetComponent<CardInstance>();
-            if (instance != null && instance.HasKeyword("protect"))
+            CardInstance instance = cardGO.GetComponent<CardInstance>(); 
+            if (instance != null && !instance.IsDead && instance.HasKeyword("protect") && !instance.HasKeyword("hidden")) if (instance != null && instance.HasKeyword("protect"))
                 return true;
         }
         return false;

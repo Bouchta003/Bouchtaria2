@@ -275,7 +275,7 @@ public class ScanPanelView : MonoBehaviour
             var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
             keyName.text = "Bleeding";
             keyDescription.text =
-                "Takes 1 damage at the start and end of your turn.";
+                "Takes 1 damage at the start and end of your turn, lasts 3 turns.";
         }
         if (effectText.ToLower().Contains(("gear").ToLower()))
         {

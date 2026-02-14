@@ -147,7 +147,7 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         foreach (GameObject cardGO in allyPrefabCards)
         {
             CardInstance instance = cardGO.GetComponent<CardInstance>();
-            if (instance != null && instance.HasKeyword("protect"))
+            if (instance != null && !instance.IsDead && instance.HasKeyword("protect") && !instance.HasKeyword("hidden"))
                 return true;
         }
         return false;
