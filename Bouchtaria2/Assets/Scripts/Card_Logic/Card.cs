@@ -209,6 +209,21 @@ public class Card : MonoBehaviour
         cardDropArea.OnCardDrop(this);
         LockOnBoard();
     }
+
+    public void OnRightClick()
+    {
+        if (SceneManager.GetActiveScene().name != "Collection")
+            return;
+
+        if (DeckBuilding.Instance == null || DeckBuilding.Instance.collection == null)
+            return;
+
+        if (DeckBuilding.Instance.collection.isDeck)
+            return;
+
+        DeckBuilding.Instance.DropCardToChest(this);
+    }
+
     public SpriteRenderer GetActiveSpriteRenderer()
     {
         if (thisInstance.CurrentZone == CardZone.Hand && handVisual.gameObject.activeInHierarchy)
