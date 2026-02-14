@@ -244,11 +244,12 @@ public class DeckBuilding : MonoBehaviour
         // 🔍 Look for existing deck with same name
         decksRef.WhereEqualTo("name", deckName)
             .GetSnapshotAsync()
-            .ContinueWith(task =>
+            .ContinueWithOnMainThread(task =>
             {
-                if (task.IsFaulted)
+                if (task.IsFaulted || task.IsCanceled)
                 {
                     Debug.LogError("Failed to query decks: " + task.Exception);
+                    ShowWarning("Failed to query decks.");
                     return;
                 }
 
@@ -276,9 +277,9 @@ public class DeckBuilding : MonoBehaviour
                 { "updatedAt", Timestamp.GetCurrentTimestamp() }
                 };
 
-                deckDoc.SetAsync(deckData).ContinueWith(saveTask =>
+                deckDoc.SetAsync(deckData).ContinueWithOnMainThread(saveTask =>
                 {
-                    if (saveTask.IsFaulted)
+                    if (saveTask.IsFaulted || saveTask.IsCanceled)
                     {
                         ShowWarning("Failed to save deck: " + saveTask.Exception);
                     }
