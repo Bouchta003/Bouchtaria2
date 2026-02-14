@@ -483,6 +483,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     public void OnTurnStart()
     {
+        Bleed();
         HasAttackedThisTurn = false;
         if (HasKeyword("haste"))
             HasAttackedTwiceThisTurn = false;

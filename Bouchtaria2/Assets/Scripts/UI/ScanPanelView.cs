@@ -259,14 +259,23 @@ public class ScanPanelView : MonoBehaviour
             keyDescription.text =
                 "A random effect effect chosen at random in a fixed pool.\nExample : Draw, Gain mana, Summon units ...";
         }
-        if (effectText.ToLower().Contains(("hunter*").ToLower()))
+        if (effectText.ToLower().Contains(("monster hunter").ToLower()))
         {
             GameObject entry = Instantiate(keywordPrefab, keywordContainer);
             var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
             var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
             keyName.text = "Monster Hunter";
             keyDescription.text =
-                "Equipping gear to hunters grant them +1/+1.";
+                "Equipping gear to monster hunters grant them +1/+1.";
+        }
+        if (effectText.ToLower().Contains(("is bleeding").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Bleeding";
+            keyDescription.text =
+                "Takes 1 damage at the start and end of your turn.";
         }
         if (effectText.ToLower().Contains(("gear").ToLower()))
         {

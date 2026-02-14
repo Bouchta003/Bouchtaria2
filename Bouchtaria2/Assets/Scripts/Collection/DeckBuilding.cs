@@ -286,7 +286,10 @@ public class DeckBuilding : MonoBehaviour
                     else
                     {
                         ErrorPopup.Show("Deck successfully saved.");
-                        GameFlowController.Instance.GoToDungeonAdventure();
+                        if (GameRunContext.IsDungeonRun)
+                            GameFlowController.Instance.GoToDungeonAdventure();
+                        else
+                            GameFlowController.Instance.GoToMainMenu();
                     }
                 });
             });

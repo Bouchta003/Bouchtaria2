@@ -1998,6 +1998,7 @@ public class GameManager : MonoBehaviour
             if (attacker.HasKeyword("bleed"))
             {
                 targetUnit.IsBleeding = true;
+                targetUnit.CurrentEffectText += "\nIs Bleeding";
                 targetUnit.GetComponent<CardView>().UpdateMode();
             }
             //Apply lifesteal Heal before damage if enemy not blessed
