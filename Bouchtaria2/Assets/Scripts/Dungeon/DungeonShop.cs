@@ -25,6 +25,7 @@ public class DungeonShop : MonoBehaviour
 
     private CanvasGroup canvasGroup;
     private Coroutine speechRoutine;
+    private bool ShouldPay;
 
     public enum Augment
     {
@@ -58,6 +59,8 @@ public class DungeonShop : MonoBehaviour
             if (coin >= 100)
                 CoinImage.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
         });
+
+        ShouldPay = true;
     }
 
     public void DisplayItemDescription(int itemIndex)
@@ -69,17 +72,17 @@ public class DungeonShop : MonoBehaviour
             case -1:
                 message = "Wanna gamble for a random item ? Don't worry the ones you can get are 50 coins or higher. Feeling lucky ?";
                 break;
-            case 0:
-                message = "Get some more health before your fight, I sell 5 HP per buy, what do you say ?";
-                break;
-            case 1:
-                message = "With this mana potion, you'll start your fights with a lil more mana than the enemy, pretty neat right ?";
-                break;
             case -2:
                 message = "Ya deck too tiny ? With this you'll get three more slots. On the colonel !";
                 break;
             case -3:
                 message = "Too much cards in your deck? Buy this and I'll make three of them disappear !\n*poof*";
+                break;
+            case 0:
+                message = "Get some more health before your fight, I sell 5 HP per buy, what do you say ?";
+                break;
+            case 1:
+                message = "With this mana potion, you'll start your fights with a lil more mana than the enemy, pretty neat right ?";
                 break;
             case 2:
                 message = "Ya buy this one, ya draw one more card at each fight !";
@@ -206,70 +209,71 @@ public class DungeonShop : MonoBehaviour
                 ModifyUserCoin(-75);
                 DungeonManager.Instance.CurrentRun.coins -= 75;
                 int rand = UnityEngine.Random.Range(0, 3);
+                ShouldPay = false;
                 ClickAugment(rand);
                 break;
-            case 0:
-                if (DungeonManager.Instance.CurrentRun.coins < 50)
-                {
-                    ErrorPopup.Show("Not enough dungeon coins.");
-                    break;
-                }
-
-                ModifyUserCoin(-50);
-                DungeonManager.Instance.CurrentRun.coins -= 50;
-                DungeonManager.Instance.CurrentRun.augments.Add(Augment.MaxHP);
-                DungeonManager.Instance.SaveRunData();
-                break;
-            case 1:
-                if (DungeonManager.Instance.CurrentRun.coins < 100)
-                {
-                    ErrorPopup.Show("Not enough dungeon coins.");
-                    break;
-                }
-
-                ModifyUserCoin(-100);
-                DungeonManager.Instance.CurrentRun.coins -= 100;
-                DungeonManager.Instance.CurrentRun.augments.Add(Augment.StartMana);
-                DungeonManager.Instance.SaveRunData();
-                break;
             case -2:
-                if (DungeonManager.Instance.CurrentRun.coins < 30)
+                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 30)
                 {
                     ErrorPopup.Show("Not enough dungeon coins.");
-                    break;
+                    ShouldPay = true; break;
                 }
 
-                ModifyUserCoin(-30);
-                DungeonManager.Instance.CurrentRun.coins -= 30;
+                if(ShouldPay)ModifyUserCoin(-30);
+                if(ShouldPay)DungeonManager.Instance.CurrentRun.coins -= 30;
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.DeckSizeUp3);
                 DungeonManager.Instance.SaveRunData();
-                break;
+                ShouldPay = true; break;
             case -3:
-                if (DungeonManager.Instance.CurrentRun.coins < 30 ||DungeonManager.Instance.CurrentRun.currentDeckSize<=5)
+                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 30 ||DungeonManager.Instance.CurrentRun.currentDeckSize<=5)
                 {
                     ErrorPopup.Show("Not enough dungeon coins or deck too small already.");
-                    break;
+                    ShouldPay = true; break;
                 }
 
-                ModifyUserCoin(-30);
-                DungeonManager.Instance.CurrentRun.coins -= 30;
+                if(ShouldPay)ModifyUserCoin(-30);
+                if(ShouldPay)DungeonManager.Instance.CurrentRun.coins -= 30;
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.DeckSizeDown3);
                 DungeonManager.Instance.SaveRunData();
-                break;
-            case 2:
-                if (DungeonManager.Instance.CurrentRun.coins < 100)
+                ShouldPay = true; break;
+            case 0:
+                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 50)
                 {
                     ErrorPopup.Show("Not enough dungeon coins.");
-                    break;
+                    ShouldPay = true; break;
                 }
 
-                ModifyUserCoin(-100);
-                DungeonManager.Instance.CurrentRun.coins -= 100;
+                if(ShouldPay)ModifyUserCoin(-50);
+                if(ShouldPay)DungeonManager.Instance.CurrentRun.coins -= 50;
+                DungeonManager.Instance.CurrentRun.augments.Add(Augment.MaxHP);
+                DungeonManager.Instance.SaveRunData();
+                ShouldPay = true; break;
+            case 1:
+                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 100)
+                {
+                    ErrorPopup.Show("Not enough dungeon coins.");
+                    ShouldPay = true; break;
+                }
+
+                if(ShouldPay)ModifyUserCoin(-100);
+                if(ShouldPay)DungeonManager.Instance.CurrentRun.coins -= 100;
+                DungeonManager.Instance.CurrentRun.augments.Add(Augment.StartMana);
+                DungeonManager.Instance.SaveRunData();
+                ShouldPay = true; break;
+            case 2:
+                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 100)
+                {
+                    ErrorPopup.Show("Not enough dungeon coins.");
+                    ShouldPay = true; break;
+                }
+
+                if(ShouldPay)ModifyUserCoin(-100);
+                if(ShouldPay)DungeonManager.Instance.CurrentRun.coins -= 100;
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.StartDraw);
                 DungeonManager.Instance.SaveRunData();
-                break;
+                ShouldPay = true; break;
             default:
-                ErrorPopup.Show("Unkown augment ID " + aug);break;
+                ErrorPopup.Show("Unkown augment ID " + aug);ShouldPay = true; break;
         }
         DungeonManager.Instance.RefreshAugmentCount();
     }

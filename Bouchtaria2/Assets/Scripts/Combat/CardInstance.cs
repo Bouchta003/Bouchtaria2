@@ -1741,8 +1741,16 @@ public class CardInstance : MonoBehaviour, IAttackable
         string valueStr = effect.Substring(start + 1, end - start - 1);
         string[] stats = valueStr.Split(','); int atk = -1; int hp = -1;
         if (stats.Length < 2)
-        {
-            //Keyword logic
+        {// SELFBUFF(x)
+            if (int.TryParse(stats[0], out int totalStats))
+            {
+                int newAtk = UnityEngine.Random.Range(0, totalStats + 1);
+                int newHp = totalStats - newAtk;
+
+                if (target is CardInstance inst)
+                    inst.ModifyStats(newAtk, newHp);
+                return;
+            }
             return;
         }
         if (int.TryParse(stats[0], out int atkbuff))

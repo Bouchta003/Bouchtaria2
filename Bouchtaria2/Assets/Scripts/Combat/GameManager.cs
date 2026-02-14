@@ -1395,6 +1395,7 @@ public class GameManager : MonoBehaviour
 
         List<CardData> options = CardDatabase.Instance.GetNonPackableCards();
         options = options.FindAll(card => card.id != prohibitedId);
+        options = options.FindAll(card => card.id != 39);
 
         if (options.Count == 0)
             return null;
