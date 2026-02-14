@@ -123,108 +123,6 @@ public class EnemyAIController : MonoBehaviour
         while (safety++ < 20)
         {
             List<PlannedAction> plan = BuildBestMainPhasePlan();
-            bool playedSomething = false;
-
-            if (plan.Count == 0)
-            {
-                CardInstance emergencyCard = GetHighestManaPlayableCard();
-                if (emergencyCard == null)
-                    yield break;
-
-                string emergencyType = emergencyCard.Data.cardType.ToLowerInvariant();
-                if (emergencyType == "spell")
-                {
-                    yield return StartCoroutine(gameManager.ShowEnemySpell(emergencyCard.Data));
-                    PlaySpell(emergencyCard);
-                }
-                else
-                {
-                    Summon(emergencyCard.GetComponent<Card>());
-                }
-
-                yield return new WaitForSeconds(0.35f);
-                continue;
-            }
-
-            foreach (PlannedAction action in plan)
-            {
-                if (action.Card == null)
-                    continue;
-
-                if (action.Type == PlannedActionType.Spell)
-                {
-                    if (!CanEnemyActuallyCastSpell(action.Card))
-                        continue;
-
-                    yield return StartCoroutine(gameManager.ShowEnemySpell(action.Card.Data));
-                    PlaySpell(action.Card);
-                    playedSomething = true;
-                }
-                else
-                {
-                    if (enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
-                        continue;
-
-                    if (action.Card.CurrentManaCost > gameManager.EnemyCurrentMana)
-                        continue;
-
-                    Summon(action.Card.GetComponent<Card>());
-                    playedSomething = true;
-                }
-
-                if (playedSomething)
-                {
-                    yield return new WaitForSeconds(0.35f);
-                    break;
-                }
-            }
-
-            if (!playedSomething)
-                yield break;
-        }
-    }
-
-    private CardInstance GetHighestManaPlayableCard()
-    {
-        CardInstance best = null;
-        int bestManaCost = -1;
-
-        foreach (GameObject cardGO in enemyHand.handCards)
-        {
-            if (cardGO == null)
-                continue;
-
-            CardInstance inst = cardGO.GetComponent<CardInstance>();
-            if (inst == null)
-                continue;
-
-            if (inst.CurrentManaCost > gameManager.EnemyCurrentMana)
-                continue;
-
-            string cardType = inst.Data.cardType.ToLowerInvariant();
-            if (cardType == "spell")
-            {
-                if (inst.CurrentEffect.Contains("monsterpart"))
-                    continue;
-
-                if (!CanEnemyActuallyCastSpell(inst))
-                    continue;
-            }
-            else if (cardType == "minion")
-            {
-                if (enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
-                    continue;
-            }
-            else
-            {
-                continue;
-            }
-
-            if (inst.CurrentManaCost > bestManaCost)
-            {
-                best = inst;
-                bestManaCost = inst.CurrentManaCost;
-            }
             if (plan.Count == 0)
                 yield break;
 
@@ -266,8 +164,6 @@ public class EnemyAIController : MonoBehaviour
             if (!playedSomething)
                 yield break;
         }
-
-        return best;
     }
 
     private List<PlannedAction> BuildBestMainPhasePlan()
@@ -412,16 +308,12 @@ public class EnemyAIController : MonoBehaviour
         BuildBestPlanDfs(candidates, index + 1, initialMana, manaLeft, freeSlots, current, currentScore, ref bestScore, ref bestManaSpent, ref bestPlan);
 
         if (card == null || card.CurrentManaCost > manaLeft)
-        {
-            // Can't take this card, but skip-branch above already explores later cards.
             return;
-        }
 
         string cardType = card.Data.cardType.ToLowerInvariant();
 
         if (cardType == "spell")
         {
-            // Keep exploring later cards even if this spell is currently invalid.
             if (!CanEnemyActuallyCastSpell(card))
                 return;
 

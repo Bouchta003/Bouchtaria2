@@ -627,6 +627,10 @@ public class CardInstance : MonoBehaviour, IAttackable
         gameManager.UseMana(CurrentManaCost, Owner);
         ExecuteSpellEffects(null);
 
+        if (HasText("random") && Owner == PlayerOwner.Enemy)
+        {
+            gameManager.EnemyRandomCount++;
+        }
         HandManager hand = Owner == PlayerOwner.Player
             ? gameManager.allyHand
             : gameManager.enemyHand;
