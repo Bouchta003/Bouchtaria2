@@ -2330,7 +2330,7 @@ public class GameManager : MonoBehaviour
 
         // Simple AI: UnityEngine.Random valid target
         IAttackable choice = targets[UnityEngine.Random.Range(0, targets.Count)];
-        Debug.Log("Enemy triggered effect on " + choice.ToString() + " ");
+        Debug.Log($"Enemy triggered effect on " + choice.ToString() + " ");
         return choice;
     }
 

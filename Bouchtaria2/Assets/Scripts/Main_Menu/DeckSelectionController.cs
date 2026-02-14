@@ -12,24 +12,7 @@ public class DeckSelectionController : MonoBehaviour
     private Dictionary<string, List<int>> userDecks;
 
     List<int> enemyDeck0 = new List<int>
-    {0,0,        // Starter Choice
-    46,46,      // Faust flower
-    19,19,      // Chimchar
-    58,58,      // NoMusic
-
-    49,49,      // IO
-    120,120,    // Metronome
-    40,40,      // Beldum
-
-    54,54,      // Dormis
-    55,55,      // Darkrai
-    56,56,      // Wigglytuff
-    57,57,      // Snorlax
-
-    116,118,    // Reshiram et Zekrom
-    88,88,      // Rainbow Card
-    89,89,      // Frog
-    133,133     // Hoopa portal
+    {144,144,156,156,156,156,144,144,144,156,156,156,144,144,144   // Hoopa portal
     };
     List<int> enemyDeck1 = new List<int>
 {

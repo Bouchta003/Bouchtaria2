@@ -64,7 +64,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             return Mathf.Clamp(raw, 1, 10);
         }
     }
-
+    public int CurrentTotalStats { get { return CurrentAttack + CurrentHealth; } }
     public bool IsDead = false;
     public PlayerOwner Owner { get; set; }
     private string pendingTargetedEffect;

@@ -456,7 +456,13 @@ public class EnemyAIController : MonoBehaviour
                     continue;
 
                 if (effect.Contains("sleep") && unit.IsAsleep)
-                    continue;
+                    continue; 
+                
+                if (effect.Contains("catch") && unit.CurrentTotalStats > GetSingleIntFromEffect(effect)) 
+                {  Debug.Log($"Checking for ball target with effect : {effect} and target stats are {unit.CurrentTotalStats} and ball value should be {GetSingleIntFromEffect(effect)}"); 
+                    continue;  
+                }
+                    
 
                 hasValidUnit = true;
                 break;
@@ -479,7 +485,17 @@ public class EnemyAIController : MonoBehaviour
 
         return true;
     }
+    private int GetSingleIntFromEffect(string effect)
+    {
+        int start = effect.IndexOf('(');
+        int end = effect.IndexOf(')');
+        if (start < 0 || end <= start + 1)
+            return -1;
 
+        return int.TryParse(effect.Substring(start + 1, end - start - 1), out int v)
+            ? v
+            : -1;
+    }
     private bool HasMissingHealthOnEnemySide()
     {
         if (gameManager.EnemyCore != null && gameManager.EnemyCore.CurrentHealth < gameManager.EnemyCore.MaxHealth)
