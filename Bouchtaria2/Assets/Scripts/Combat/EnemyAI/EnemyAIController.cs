@@ -458,9 +458,11 @@ public class EnemyAIController : MonoBehaviour
                 if (effect.Contains("sleep") && unit.IsAsleep)
                     continue; 
                 
-                if (effect.Contains("catch") && unit.CurrentTotalStats > GetSingleIntFromEffect(effect)) 
-                {  Debug.Log($"Checking for ball target with effect : {effect} and target stats are {unit.CurrentTotalStats} and ball value should be {GetSingleIntFromEffect(effect)}"); 
-                    continue;  
+                if (effect.Contains("catch"))
+                {
+                    int catchValue = GetCatchValueFromEffect(effect);
+                    if (catchValue <= 0 || unit.CurrentTotalStats >= catchValue)
+                        continue;
                 }
                     
 
@@ -495,6 +497,22 @@ public class EnemyAIController : MonoBehaviour
         return int.TryParse(effect.Substring(start + 1, end - start - 1), out int v)
             ? v
             : -1;
+    }
+
+    private int GetCatchValueFromEffect(string effect)
+    {
+        if (string.IsNullOrWhiteSpace(effect))
+            return -1;
+
+        foreach (string token in effect.ToLowerInvariant().Split(' '))
+        {
+            if (!token.StartsWith("catch"))
+                continue;
+
+            return GetSingleIntFromEffect(token);
+        }
+
+        return -1;
     }
     private bool HasMissingHealthOnEnemySide()
     {
@@ -561,10 +579,53 @@ public class EnemyAIController : MonoBehaviour
 
     private void PlaySpell(CardInstance spell)
     {
+        IAttackable forcedTarget = GetForcedSpellTarget(spell);
+
         // OnPlaySpell already handles legality resolution, mana spending,
         // and clean removal from hand. Keeping it centralized avoids illegal casts.
-        spell.OnPlaySpell();
+        spell.OnPlaySpell(forcedTarget);
         OnCardPlayed?.Invoke(spell);
+    }
+
+    private IAttackable GetForcedSpellTarget(CardInstance spell)
+    {
+        if (spell == null || string.IsNullOrWhiteSpace(spell.CurrentEffect))
+            return null;
+
+        string effect = spell.CurrentEffect.ToLowerInvariant();
+
+        if (effect.Contains("catch"))
+            return GetBestCatchTarget(spell.CurrentEffect);
+
+        return null;
+    }
+
+    private CardInstance GetBestCatchTarget(string effect)
+    {
+        int catchValue = GetCatchValueFromEffect(effect);
+        if (catchValue <= 0)
+            return null;
+
+        CardInstance best = null;
+        int bestStats = int.MinValue;
+
+        List<IAttackable> validTargets = gameManager.GetValidTargets(PlayerOwner.Player);
+        foreach (IAttackable target in validTargets)
+        {
+            if (target is not CardInstance unit)
+                continue;
+
+            if (unit.CurrentTotalStats >= catchValue)
+                continue;
+
+            if (unit.CurrentTotalStats > bestStats)
+            {
+                best = unit;
+                bestStats = unit.CurrentTotalStats;
+            }
+        }
+
+        return best;
     }
     private int EvaluateMinion(CardInstance minion)
     {

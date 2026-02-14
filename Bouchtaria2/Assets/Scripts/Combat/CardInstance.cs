@@ -521,7 +521,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             yield return content.Substring(lastSplit).Trim();
     }
 
-    public void OnPlaySpell()
+    public void OnPlaySpell(IAttackable forcedTarget = null)
     {
         //Cannot cast spells in distortion world
         if (gameManager.DistortionWorld) return;
@@ -563,6 +563,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         else
         {
             // Enemy TARGET spell
+            if (forcedTarget != null)
+            {
+                ResolveSpell(forcedTarget);
+                return;
+            }
+
             if (CurrentEffect.Contains("gear") || (CurrentEffect.Contains("heal") && !CurrentEffect.Contains("autoheal")) || CurrentEffect.Contains("buff") || CurrentEffect.Contains("damagenheal"))
             {
                 IAttackable target =
