@@ -218,8 +218,7 @@ public class Card : MonoBehaviour
         if (DeckBuilding.Instance == null || DeckBuilding.Instance.collection == null)
             return;
 
-        if (DeckBuilding.Instance.collection.isDeck)
-            return;
+        if (DeckBuilding.Instance.collection.isDeck) { DeckBuilding.Instance.RemoveCardFromChest(this); return; }
 
         DeckBuilding.Instance.DropCardToChest(this);
     }
