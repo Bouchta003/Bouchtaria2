@@ -873,6 +873,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.CheckGlow();return;
         }
 
+        if (effect.StartsWith("buffall"))
+        {
+            (int atk, int hp) = GetTwoIntsFromEffect(effect);
+            gameManager.BuffAllAllies(atk,hp,Owner);
+            gameManager.CheckGlow(); return;
+        }
 
         if (effect.StartsWith("wipeboard"))
         {
