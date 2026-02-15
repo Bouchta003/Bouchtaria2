@@ -125,6 +125,12 @@ public class GameManager : MonoBehaviour
     public event System.Action<PlayerOwner> OnDiscover;
     public event System.Action<PlayerOwner> OnPraise;
     public event System.Action<PlayerOwner> OnDamageCard;
+    public event System.Action<CardInstance> OnSpellPlayed;
+
+    public void NotifySpellPlayed(CardInstance spell)
+    {
+        OnSpellPlayed?.Invoke(spell);
+    }
 
     //Camera shake
     private Vector3 cameraBasePos;
@@ -2358,6 +2364,9 @@ public class GameManager : MonoBehaviour
     }
     private bool IsValidEffectTarget(PlayerOwner owner, IAttackable target, EffectTarget effectTargetType)
     {
+        if (target is CardInstance targetCard && targetCard.HasKeyword("untargettable"))
+            return false;
+
         // Enforce type rules
         if ((target is CoreInstance) && effectTargetType == EffectTarget.Unit)
             return false;
@@ -2387,6 +2396,9 @@ public class GameManager : MonoBehaviour
         // Filter by effect target type
         targets = targets.Where(t =>
         {
+            if (t is CardInstance untargettableCandidate && untargettableCandidate.HasKeyword("untargettable"))
+                return false;
+
             if (effectSource != null &&
                 effectSource.CurrentEffect.Contains("sleep") &&
                 t is CardInstance sleepingCandidate &&
@@ -2419,6 +2431,9 @@ public class GameManager : MonoBehaviour
 
         targets = targets.Where(t =>
         {
+            if (t is CardInstance untargettableCandidate && untargettableCandidate.HasKeyword("untargettable"))
+                return false;
+
             if (!canTargetCore && t is CoreInstance)
                 return false;
 
