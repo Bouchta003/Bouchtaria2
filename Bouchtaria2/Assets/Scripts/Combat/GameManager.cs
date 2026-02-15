@@ -829,8 +829,6 @@ public class GameManager : MonoBehaviour
         // successful add -> release reservation
         DecPendingSummons(owner);
 
-        TriggerAutoHitOnEnemySummon(cardInst);
-
         if (isTrait)
         {
             StartCoroutine(DelayedDeploy(cardInst, forceRandomTarget: true));
@@ -903,7 +901,6 @@ public class GameManager : MonoBehaviour
         // successful add -> release reservation
         DecPendingSummons(owner);
 
-        TriggerAutoHitOnEnemySummon(cardInst);
 
         if (isTrait)
         {
