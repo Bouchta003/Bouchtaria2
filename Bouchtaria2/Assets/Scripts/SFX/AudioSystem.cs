@@ -33,6 +33,7 @@ public class AudioSystem : MonoBehaviour
     }
     public void MainMenu()
     {
+        TogglePause();
         if (GameRunContext.IsDungeonRun)
         {
             DungeonManager.Instance.ConcedeRun();

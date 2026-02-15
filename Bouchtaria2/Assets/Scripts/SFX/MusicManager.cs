@@ -94,14 +94,24 @@ public class MusicManager : MonoBehaviour
 
     private AudioClip GetMusicForScene(string sceneName)
     {
+        List<AudioClip> candidates = new List<AudioClip>();
+
         foreach (SceneMusicEntry entry in sceneMusic)
         {
-            if (entry.sceneName == sceneName)
-                return entry.music;
+            if (entry.sceneName == sceneName && entry.music != null)
+            {
+                candidates.Add(entry.music);
+            }
         }
 
-        return null;
+        if (candidates.Count == 0)
+            return null;
+
+        // Pick random music
+        int index = Random.Range(0, candidates.Count);
+        return candidates[index];
     }
+
     public void PlayMusic(AudioClip newClip, float fadeTime)
     {
         if (newClip == null)

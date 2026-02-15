@@ -4108,8 +4108,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 649846004}
-        m_TargetAssemblyTypeName: SoundMixer, Assembly-CSharp
+      - m_Target: {fileID: 310773709}
+        m_TargetAssemblyTypeName: AudioSystem, Assembly-CSharp
         m_MethodName: TogglePause
         m_Mode: 1
         m_Arguments:
@@ -4638,10 +4638,14 @@ MonoBehaviour:
   sourceA: {fileID: 1030446223}
   sourceB: {fileID: 1030446224}
   sceneMusic:
-  - sceneName: Combat
-    music: {fileID: 8300000, guid: 28132a168e69e95458cc8ac593b1f66b, type: 3}
   - sceneName: Firebase
-    music: {fileID: 8300000, guid: 9df1d1ee8971ea749a616cabc55b8a62, type: 3}
+    music: {fileID: 8300000, guid: 28132a168e69e95458cc8ac593b1f66b, type: 3}
+  - sceneName: Combat
+    music: {fileID: 8300000, guid: d4d60e8e8f470c84ea2ef95825632827, type: 3}
+  - sceneName: Combat
+    music: {fileID: 8300000, guid: 7e994010a958e7649b6b59231a244377, type: 3}
+  - sceneName: Combat
+    music: {fileID: 8300000, guid: a3a72c84881a29142b09504163875635, type: 3}
   - sceneName: Collection
     music: {fileID: 8300000, guid: 35724c0260ae0454a8e22c396815a866, type: 3}
   - sceneName: Shop
@@ -7265,8 +7269,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+      - m_Target: {fileID: 310773709}
+        m_TargetAssemblyTypeName: AudioSystem, Assembly-CSharp
         m_MethodName: MainMenu
         m_Mode: 1
         m_Arguments:
