@@ -29,6 +29,10 @@ public class DeckBuilding : MonoBehaviour
     [Header("Cursor")]
     [SerializeField] Image craftCursor;
     [SerializeField] Image craftFilter;
+    
+    [Header("SFX")]
+    [SerializeField] AudioClip addCardSFX;
+    [SerializeField] AudioClip removeCardSFX;
 
     public static DeckBuilding Instance;
 
@@ -128,6 +132,7 @@ public class DeckBuilding : MonoBehaviour
         }
 
         CurrentDeck.Add(cardId);
+        SFXManager.Instance.PlaySFXClip(addCardSFX, transform, 1f);
         ShowProgress(CurrentDeck.Count, maxDeckSize);
         DetectUnlockableTraits();
     }
@@ -137,6 +142,7 @@ public class DeckBuilding : MonoBehaviour
         {
             CurrentDeck.Remove(card.GetComponent<CardView>().CardData.id);
             collection.ShowPage(collection.currentPage);
+            SFXManager.Instance.PlaySFXClip(removeCardSFX, transform, 1f);
             ShowProgress(CurrentDeck.Count, maxDeckSize);
         }
         else ErrorPopup.Show("Couldn't remove card of id " + card.GetComponent<CardView>().CardData.id);

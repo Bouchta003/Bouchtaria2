@@ -680,7 +680,7 @@
       "cardType": "minion",
       "manaCost": 4,
       "atkValue": 4,
-      "hpValue": 4,
+      "hpValue": 3,
       "traits": [ "Pokemon" ],
       "effect": "progressattack(5)[morphto(7)]",
       "effectText": "Evolves into Metagross when allies attack five more times.",

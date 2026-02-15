@@ -21,7 +21,7 @@ public class DungeonRunData
     public void Reset()
     {
         floor = 1;
-        coins = 0;
+        coins = 30;
         augments ??= new List<DungeonShop.Augment>();
         dungeonDeck ??= new List<int>();
         currentDeckSize = 15;
@@ -227,7 +227,7 @@ public class DungeonManager : MonoBehaviour
                 CurrentRun = new DungeonRunData
                 {
                     floor = snapshot.ContainsField(StreakField) ? task.Result.GetValue<int>(StreakField) : 1,
-                    coins = snapshot.ContainsField(CoinField) ? task.Result.GetValue<int>(CoinField) : 0,
+                    coins = snapshot.ContainsField(CoinField) ? task.Result.GetValue<int>(CoinField) : 30,
                     augments = ParseAugments(snapshot, AugmentsField),
                     dungeonDeck = ParseDeck(snapshot, DeckField)
                 }; CalculateDeckSize();
@@ -256,7 +256,7 @@ public class DungeonManager : MonoBehaviour
         CurrentRun = new DungeonRunData
         {
             floor = 1,
-            coins = 0,
+            coins = 30,
             augments = new List<DungeonShop.Augment>(),
             dungeonDeck = new List<int>()
         }; 
@@ -384,13 +384,13 @@ public class DungeonManager : MonoBehaviour
 
             EnsureCurrentRunInitialized();
             CurrentRun.Reset();
-            CurrentRun.coins = 0;
+            CurrentRun.coins = 30;
             SaveRunData(resetStreak: true);
 
             if (GameRunContext.DungeonData != null)
             {
                 GameRunContext.DungeonData.Reset();
-                GameRunContext.DungeonData.coins = 0;
+                GameRunContext.DungeonData.coins = 30;
             }
             ApplyRunToUI();
 

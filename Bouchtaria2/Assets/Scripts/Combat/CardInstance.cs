@@ -2492,6 +2492,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         CurrentHealth -= amount;
         gameManager.NotifyDamage(Owner, amount);
+        SFXManager.Instance.PlaySFXClip(gameManager.dmgSFX, transform, 1f);
 
         //Trigore Logic :
         CardInstance trigore = gameManager.GetBoardForOwner(Owner).BoardHasEffect("trigore");
@@ -2526,6 +2527,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (amount <= 0) return;
         int bonus = 0; int preHeal = CurrentHealth;
 
+        SFXManager.Instance.PlaySFXClip(gameManager.healSFX, transform, 1f);
         //ApplyBonus
         if (Owner == PlayerOwner.Player) bonus =gameManager.PlayerHealBonus;
         else bonus = gameManager.EnemyHealBonus;

@@ -13922,6 +13922,8 @@ MonoBehaviour:
   ChestSpriteBot: {fileID: 1484331792}
   craftCursor: {fileID: 795417742}
   craftFilter: {fileID: 1175173213}
+  addCardSFX: {fileID: 8300000, guid: 66b99133efafa68498346525318591b4, type: 3}
+  removeCardSFX: {fileID: 8300000, guid: 14a4b891b7c594249bade0c983f4a90a, type: 3}
   CurrentDeck: 
   collection: {fileID: 976420575}
   UserDust: 0

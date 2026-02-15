@@ -768,6 +768,8 @@ MonoBehaviour:
   startingCoreHealth: 50
   spawnPlayerCore: {fileID: 1391987188}
   spawnEnemyCore: {fileID: 2137164847}
+  healSFX: {fileID: 8300000, guid: 4ab00a34eb83c29499c3b8658d31df6c, type: 3}
+  dmgSFX: {fileID: 8300000, guid: dd4aa2160f049ff4bbf23a13e998b4a9, type: 3}
   deckManager: {fileID: 752328686}
   allyDropArea: {fileID: 1531594430}
   enemyDropArea: {fileID: 1449377217}
@@ -785,8 +787,6 @@ MonoBehaviour:
   - {fileID: -6533518431797266695, guid: 5765f94dbe7ccf94baf6d08be1861b95, type: 3}
   distortionBoard: {fileID: 1123560429962625998, guid: 58e39beb08c8fd747bdcf05fef3c5a8b, type: 3}
   manacounterEnmy: {fileID: 589142854}
-  MainCanvas: {fileID: 438573345}
-  PauseCanvas: {fileID: 598825172}
   attackCursor: {fileID: 1698028025}
   enemySpellReveal: {fileID: 1225827927}
   enemySpellAnchor: {fileID: 1059127843}
@@ -1209,7 +1209,7 @@ GameObject:
   - component: {fileID: 341304094}
   - component: {fileID: 341304095}
   m_Layer: 0
-  m_Name: ChatGPT Image Dec 22, 2025, 06_36_36 PM_6 (1)
+  m_Name: separato1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1652,6 +1652,7 @@ RectTransform:
   - {fileID: 159398173}
   - {fileID: 1133202968}
   - {fileID: 552127395}
+  - {fileID: 1964250506}
   - {fileID: 1019756353}
   - {fileID: 1391987189}
   - {fileID: 2137164848}
@@ -4906,8 +4907,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 45}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 900, y: 200}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: 870, y: 200}
+  m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1019756354
 MonoBehaviour:
@@ -4985,7 +4986,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -4995827854974260112, guid: f02326f99cc1b4b4a95ead3e28d8f889, type: 3}
+  m_Sprite: {fileID: -9018148900744180236, guid: c24fe42eeca912d4b8624c8ea4e119e8, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6011,7 +6012,7 @@ GameObject:
   - component: {fileID: 1274853105}
   - component: {fileID: 1274853106}
   m_Layer: 0
-  m_Name: ChatGPT Image Dec 22, 2025, 06_36_36 PM_6
+  m_Name: separator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7678,7 +7679,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -45}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -3.1, y: -3.1}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1650480709
@@ -7728,8 +7729,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -8454,6 +8455,81 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -100}
   m_SizeDelta: {x: 500, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1964250505
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1964250506}
+  - component: {fileID: 1964250508}
+  - component: {fileID: 1964250507}
+  m_Layer: 5
+  m_Name: Outside
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1964250506
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964250505}
+  m_LocalRotation: {x: -0, y: -0, z: 0.38268343, w: 0.92387956}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 438573346}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 870, y: 200}
+  m_SizeDelta: {x: 170, y: 170}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1964250507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964250505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -9018148900744180236, guid: c24fe42eeca912d4b8624c8ea4e119e8, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1964250508
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964250505}
+  m_CullTransparentMesh: 1
 --- !u!1 &2002538652
 GameObject:
   m_ObjectHideFlags: 0
