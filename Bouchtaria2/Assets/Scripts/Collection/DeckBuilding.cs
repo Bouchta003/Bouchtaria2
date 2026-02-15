@@ -62,10 +62,12 @@ public class DeckBuilding : MonoBehaviour
         }
 
         Instance = this;
-
-        craftFilter.gameObject.SetActive(false);
-        DeckUI.SetActive(false);
-        collection = CollectionLayout.GetComponentInChildren<CollectionScreen>();
+        if(craftFilter!=null)
+            craftFilter.gameObject.SetActive(false);
+        if (DeckUI != null)
+            DeckUI.SetActive(false);
+        if(collection!=null)
+            collection = CollectionLayout.GetComponentInChildren<CollectionScreen>();
 
         GetUserDust(dust =>
         {
@@ -98,7 +100,8 @@ public class DeckBuilding : MonoBehaviour
     }
     private void Update()
     {
-        craftFilter.gameObject.SetActive(isCrafting);    
+        if(craftFilter!=null)
+            craftFilter.gameObject.SetActive(isCrafting);    
     }
     public void ShowIndex()
     {
@@ -184,6 +187,7 @@ public class DeckBuilding : MonoBehaviour
     {
         collection.isDeck = !collection.isDeck;
         DeckUI.SetActive(collection.isDeck);
+        isCrafting = false;
 
         if (collection.isDeck)
             FetchDecks();

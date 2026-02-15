@@ -28,6 +28,7 @@ public class MusicManager : MonoBehaviour
 
     private AudioClip currentClip;
 
+    private Coroutine crossfadeCoroutine;
     [System.Serializable]
     public class SceneMusicEntry
     {
@@ -48,21 +49,25 @@ public class MusicManager : MonoBehaviour
 
         activeSource = sourceA;
         inactiveSource = sourceB;
+
+        // safety checks
+        if (activeSource == null || inactiveSource == null)
+            Debug.LogError("MusicManager: assign both audio sources in the inspector.");
+
+        // ensure sources are configured correctly
+        if (activeSource != null) activeSource.playOnAwake = false;
+        if (inactiveSource != null) inactiveSource.playOnAwake = false;
     }
 
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
+    private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
+    private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
     private void Start()
     {
-        // Play music for current scene on startup
+        Invoke(nameof(PlayInitialMusic), 0.05f);
+    }
+    private void PlayInitialMusic()
+    {
         PlayMusicForScene(SceneManager.GetActiveScene().name);
     }
 
@@ -97,42 +102,119 @@ public class MusicManager : MonoBehaviour
 
         return null;
     }
-
     public void PlayMusic(AudioClip newClip, float fadeTime)
     {
-        if (currentClip == newClip)
+        if (newClip == null)
+            return;
+
+        if (currentClip == newClip && crossfadeCoroutine == null)
             return;
 
         currentClip = newClip;
 
-        StartCoroutine(Crossfade(newClip, fadeTime));
+        if (crossfadeCoroutine != null)
+        {
+            StopCoroutine(crossfadeCoroutine);
+            crossfadeCoroutine = null;
+        }
+
+        crossfadeCoroutine = StartCoroutine(Crossfade(newClip, fadeTime));
     }
+
 
     private IEnumerator Crossfade(AudioClip newClip, float fadeTime)
     {
-        inactiveSource.clip = newClip;
-        inactiveSource.volume = 0;
-        inactiveSource.loop = true;
-        inactiveSource.Play();
-
-        float time = 0f;
-        float startVolume = activeSource.volume;
-
-        while (time < fadeTime)
+        // Immediate (no fade) path
+        if (fadeTime <= 0f)
         {
-            time += Time.deltaTime;
+            if (inactiveSource == null || activeSource == null)
+                yield break;
 
-            activeSource.volume = Mathf.Lerp(startVolume, 0, time / fadeTime);
-            inactiveSource.volume = Mathf.Lerp(0, 1, time / fadeTime);
+            inactiveSource.clip = newClip;
+            inactiveSource.loop = true;
+            inactiveSource.volume = 1f;
+            inactiveSource.Play();
+
+            activeSource.Stop();
+
+            // swap
+            var tmp = activeSource;
+            activeSource = inactiveSource;
+            inactiveSource = tmp;
+
+            inactiveSource.volume = 0f;
+            crossfadeCoroutine = null;
+            yield break;
+        }
+
+        // Prepare inactive source with new clip
+        inactiveSource.clip = newClip;
+        inactiveSource.loop = true;
+        inactiveSource.volume = 0f;
+
+        if (!inactiveSource.isPlaying)
+            inactiveSource.Play();
+
+        float elapsed = 0f;
+        float startVolume = activeSource.isPlaying ? activeSource.volume : 1f;
+
+        // Do the fade
+        while (elapsed < fadeTime)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / fadeTime);
+
+            if (activeSource != null)
+                activeSource.volume = Mathf.Lerp(startVolume, 0f, t);
+
+            if (inactiveSource != null)
+                inactiveSource.volume = Mathf.Lerp(0f, 1f, t);
 
             yield return null;
         }
 
-        activeSource.Stop();
+        // Ensure final volumes
+        if (activeSource != null)
+            activeSource.volume = 0f;
 
-        // swap sources
-        AudioSource temp = activeSource;
+        if (inactiveSource != null)
+            inactiveSource.volume = 1f;
+
+        // Stop old source and swap references
+        if (activeSource != null && activeSource.isPlaying)
+            activeSource.Stop();
+
+
+        var temp = activeSource;
         activeSource = inactiveSource;
         inactiveSource = temp;
+
+        // make sure inactive is silent (so it's ready next time)
+        inactiveSource.volume = 0f;
+
+        crossfadeCoroutine = null;
+    }
+    // Optional quick stop
+    public void StopMusicImmediate()
+    {
+        if (crossfadeCoroutine != null)
+        {
+            StopCoroutine(crossfadeCoroutine);
+            crossfadeCoroutine = null;
+        }
+
+        if (activeSource != null)
+        {
+            activeSource.Stop();
+            activeSource.volume = 0f;
+        }
+
+        if (inactiveSource != null)
+        {
+            inactiveSource.Stop();
+            inactiveSource.volume = 0f;
+        }
+
+        currentClip = null;
     }
 }

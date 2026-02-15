@@ -161,7 +161,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 177052006}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &16590967
 GameObject:
@@ -389,7 +389,7 @@ Transform:
   - {fileID: 894877104}
   - {fileID: 821402782}
   - {fileID: 376250977}
-  m_Father: {fileID: 177052006}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &20997006
 MonoBehaviour:
@@ -978,15 +978,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1951655583}
-  - {fileID: 1585252758}
-  - {fileID: 2758519}
-  - {fileID: 313366537}
-  - {fileID: 1209003349}
-  - {fileID: 631636361}
-  - {fileID: 1091698650}
-  - {fileID: 20997005}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &225273981
@@ -1275,7 +1267,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 177052006}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &325449086
 GameObject:
@@ -2413,7 +2405,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 177052006}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &649846003
 GameObject:
@@ -4647,9 +4639,13 @@ MonoBehaviour:
   sourceB: {fileID: 1030446224}
   sceneMusic:
   - sceneName: Combat
-    music: {fileID: 8300000, guid: 7cd8d724373536f4c887fa416662b03f, type: 3}
+    music: {fileID: 8300000, guid: 28132a168e69e95458cc8ac593b1f66b, type: 3}
   - sceneName: Firebase
     music: {fileID: 8300000, guid: 9df1d1ee8971ea749a616cabc55b8a62, type: 3}
+  - sceneName: Collection
+    music: {fileID: 8300000, guid: 35724c0260ae0454a8e22c396815a866, type: 3}
+  - sceneName: Shop
+    music: {fileID: 8300000, guid: 76aaa73f61459fe458645c45385324ce, type: 3}
   defaultFadeTime: 1.5
   defaultMusic: {fileID: 8300000, guid: 28132a168e69e95458cc8ac593b1f66b, type: 3}
 --- !u!1 &1067415198
@@ -5010,7 +5006,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 177052006}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1091698651
 MonoBehaviour:
@@ -5508,7 +5504,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 177052006}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1229522781
 GameObject:
@@ -6735,7 +6731,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 177052006}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1585415718
 GameObject:
@@ -8801,7 +8797,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 177052006}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1955341618
 GameObject:
@@ -9296,6 +9292,14 @@ SceneRoots:
   - {fileID: 1428608289}
   - {fileID: 310773708}
   - {fileID: 177052006}
+  - {fileID: 1951655583}
+  - {fileID: 1585252758}
+  - {fileID: 2758519}
+  - {fileID: 313366537}
+  - {fileID: 1209003349}
+  - {fileID: 631636361}
+  - {fileID: 1091698650}
+  - {fileID: 20997005}
   - {fileID: 417472062}
   - {fileID: 95983499}
   - {fileID: 1444337238}

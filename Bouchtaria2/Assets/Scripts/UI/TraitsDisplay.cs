@@ -123,7 +123,7 @@ public class TraitsDisplay : MonoBehaviour
                 break;
             case CardData.Trait.Speedster:
                 display += $"Attack with allies to unlock : {Progression}/{CurrentCap}" +
-                    "\nTier 1 : Your speedsters has +1 ATK.";
+                    "\nTier 1 : Your speedsters have +1 ATK.";
                 if (tier > 1) display +=
                         "\nTier 2 : Your speedsters also have quickstrike.";
                 if (tier > 2) display +=

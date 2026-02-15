@@ -939,7 +939,7 @@
       "name": "Snorlax",
       "cardType": "minion",
       "manaCost": 6,
-      "atkValue": 5,
+      "atkValue": 4,
       "hpValue": 6,
       "traits": [ "Pokemon" ],
       "effect": "r[sleepall] protect",

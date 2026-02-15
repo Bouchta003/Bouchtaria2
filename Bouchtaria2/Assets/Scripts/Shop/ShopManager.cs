@@ -96,7 +96,7 @@ public class ShopManager : MonoBehaviour
             UserGold = gold;
             GoldCounter.text = "Gold: " + gold.ToString();
         });
-        DeckBuilding.Instance.GetUserDust(dust =>
+        GetUserDust(dust =>
         {
             UserDust = dust;
             DustCounter.text = "Dust: " + dust.ToString();
@@ -108,6 +108,37 @@ public class ShopManager : MonoBehaviour
     // Call: UpdateProgressionCounter() to update the ProgressionCounter UI text.
     // Tries Firestore first; falls back to client-side CardDatabase and UserCollectionManager.
 
+    public void GetUserDust(Action<int> onResult)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            onResult?.Invoke(0);
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+        db.Collection("users")
+          .Document(user.UserId)
+          .GetSnapshotAsync()
+          .ContinueWithOnMainThread(task =>
+          {
+              if (task.IsFaulted || !task.Result.Exists)
+              {
+                  Debug.LogError("Failed to fetch user dust.");
+                  onResult?.Invoke(0);
+                  return;
+              }
+
+              int dust = task.Result.ContainsField("dust")
+                  ? task.Result.GetValue<int>("dust")
+                  : 0;
+
+              onResult?.Invoke(dust);
+          });
+    }
     public void UpdateProgressionCounter()
     {
         int ownedPackable = 0;
