@@ -2990,7 +2990,7 @@
       "effectText": "Deathless Autohit\nBerserk : Gain +2 ATK.",
       "artPath": "CardArt/tryndamine",
       "artCompactPath": "CardArt/tryndamine_compact",
-      "packable": false,
+      "packable": true,
       "token": false,
       "signature": false
     },
