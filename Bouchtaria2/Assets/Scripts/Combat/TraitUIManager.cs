@@ -23,6 +23,35 @@ public class TraitUIManager : MonoBehaviour
             }
         }
     }
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            TraitsDisplay[] allTraits = FindObjectsByType<TraitsDisplay>(sortMode:FindObjectsSortMode.None);
+
+            bool anyOpen = false;
+
+            // Check if any trait window is open
+            foreach (TraitsDisplay trait in allTraits)
+            {
+                if (trait.traitEffect.activeSelf)
+                {
+                    anyOpen = true;
+                    break;
+                }
+            }
+
+            // If any is open, close them all
+            if (anyOpen)
+            {
+                foreach (TraitsDisplay trait in allTraits)
+                {
+                    trait.traitEffect.SetActive(false);
+                }
+            }
+        }
+    }
+
     public TraitsDisplay GetTraitDisplay(CardData.Trait trait)
     {
         displaysByTrait.TryGetValue(trait, out TraitsDisplay display);
