@@ -829,6 +829,8 @@ public class GameManager : MonoBehaviour
         // successful add -> release reservation
         DecPendingSummons(owner);
 
+        TriggerAutoHitOnEnemySummon(cardInst);
+
         if (isTrait)
         {
             StartCoroutine(DelayedDeploy(cardInst, forceRandomTarget: true));
@@ -900,6 +902,8 @@ public class GameManager : MonoBehaviour
 
         // successful add -> release reservation
         DecPendingSummons(owner);
+
+        TriggerAutoHitOnEnemySummon(cardInst);
 
         if (isTrait)
         {
@@ -988,6 +992,35 @@ public class GameManager : MonoBehaviour
 
         // ✅ Success
         DecPendingSummons(targetOwner);
+
+        TriggerAutoHitOnEnemySummon(cardInst);
+    }
+
+    private void TriggerAutoHitOnEnemySummon(CardInstance summonedCard)
+    {
+        if (summonedCard == null || summonedCard.IsDead || summonedCard.CurrentZone != CardZone.Board)
+            return;
+
+        PlayerOwner opposingOwner =
+            summonedCard.Owner == PlayerOwner.Player
+                ? PlayerOwner.Enemy
+                : PlayerOwner.Player;
+
+        var opposingBoard = GetBoardForOwner(opposingOwner);
+        foreach (GameObject cardObj in opposingBoard.GetCards())
+        {
+            if (cardObj == null)
+                continue;
+
+            CardInstance autoHitter = cardObj.GetComponent<CardInstance>();
+            if (autoHitter == null || autoHitter.IsDead || autoHitter.CurrentZone != CardZone.Board)
+                continue;
+
+            if (!autoHitter.HasKeyword("autohit"))
+                continue;
+
+            QueueAttack(autoHitter, summonedCard);
+        }
     }
 
     public void Praise(PlayerOwner owner)
