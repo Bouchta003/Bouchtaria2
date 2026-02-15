@@ -2113,6 +2113,7 @@ public class AvatarTier1Effect : IDeckTraitEffect
          
         GameManager.Instance.ShuffleInDeck(74, owner);
         GameManager.Instance.ShuffleInDeck(78, owner);
+        GameManager.Instance.ShuffleInDeck(178, owner);
 
         var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
         var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
@@ -2169,6 +2170,7 @@ public class AvatarTier2Effect : IDeckTraitEffect
 
         GameManager.Instance.ShuffleInDeck(74, owner);
         GameManager.Instance.ShuffleInDeck(78, owner);
+        GameManager.Instance.ShuffleInDeck(178, owner);
 
         if (allyBoard != null)
         { allyBoard.OnCardPlayed += OnCardPlayed; deckManager.OnCardDrawn += OnCardDrawn; }
@@ -2204,6 +2206,11 @@ public class AvatarTier2Effect : IDeckTraitEffect
             card.CurrentEffect = "avatar quickstrike lifesteal protect blessed";
             card.CurrentEffectText = "Avatar.\nQuickstrike Blessed\nProtect Lifesteal.";
         }
+        if (card.Data.name == "Wan")
+        {
+            card.CurrentEffect = "avatar sot[draw(1)] s[buffall(1,0)] eot[summon(76)] b[autoheal(2)]";
+            card.CurrentEffectText = "Avatar.\nStart of turn : Draw 1\nStrike : Give all allies +1/+0\nEnd of turn : Summon a golemite\nBerserk : Heal your core for 3";
+        }
     }
     private void OnCardPlayed(CardInstance card)
     {
@@ -2219,6 +2226,11 @@ public class AvatarTier2Effect : IDeckTraitEffect
         {
             card.CurrentEffect = "avatar quickstrike lifesteal protect blessed";
             card.CurrentEffectText = "Avatar.\nQuickstrike Blessed \nProtect Lifesteal.";
+        }
+        if (card.Data.name == "Wan")
+        {
+            card.CurrentEffect = "avatar sot[draw(1)] s[buffall(1,0)] eot[summon(76)] b[autoheal(2)]";
+            card.CurrentEffectText = "Avatar.\nStart of turn : Draw 1\nStrike : Give all allies +1/+0\nEnd of turn : Summon a golemite\nBerserk : Heal your core for 3";
         }
     }
 
@@ -2244,13 +2256,12 @@ public class AvatarTier3Effect : IDeckTraitEffect
             new Dictionary<int, int>
             {
             { 74, 75 },
-            { 78, 79 }
+            { 78, 79 },
+            { 178, 179 },
             }
         );
     }
-
     public void OnUnregister() { }
-
 }
 
 #endregion
