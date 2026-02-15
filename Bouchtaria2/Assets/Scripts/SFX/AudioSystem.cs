@@ -30,6 +30,7 @@ public class AudioSystem : MonoBehaviour
         PauseCanvas.SetActive(!PauseCanvas.activeSelf);
         if (GameRunContext.IsDungeonRun) MenuButton.GetComponentInChildren<TextMeshProUGUI>().text = "Concede";
         if (SceneManager.GetActiveScene().name == "Firebase") MenuButton.SetActive(false);
+        else MenuButton.SetActive(true);
     }
     public void MainMenu()
     {

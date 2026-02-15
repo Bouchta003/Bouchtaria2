@@ -153,7 +153,9 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         if (owner != PlayerOwner.Enemy)
             return;
 
-        foreach (var cardGO in enemyPrefabCards)
+        var enemyCards = new List<GameObject>(enemyPrefabCards);
+
+        foreach (var cardGO in enemyCards)
         {
             var instance = cardGO.GetComponent<CardInstance>();
             instance.OnTurnStart();

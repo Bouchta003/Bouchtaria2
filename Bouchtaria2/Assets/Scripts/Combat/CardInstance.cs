@@ -392,7 +392,10 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         return false;
     }
+    void OnSummon()
+    {
 
+    }
     void OnHeal(PlayerOwner owner, int healamount)
     {
         if (CurrentZone != CardZone.Board)
@@ -2511,6 +2514,13 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (CurrentHealth <= 0 && !IsDead)
         {
+            if (HasKeyword("deathless") && !HasKeyword("deathlessused"))
+            {
+                CurrentHealth = 1;
+                CurrentEffect.Replace("deathless", "deathlessused");
+                UpdateStatsColor();
+                return;
+            }
             IsDying = true;
             Die();
             return;
@@ -2535,7 +2545,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         SFXManager.Instance.PlaySFXClip(gameManager.healSFX, transform, 1f);
         //ApplyBonus
-        if (Owner == PlayerOwner.Player) bonus =gameManager.PlayerHealBonus;
+        if (Owner == PlayerOwner.Player) bonus = gameManager.PlayerHealBonus;
         else bonus = gameManager.EnemyHealBonus;
         CurrentHealth = Mathf.Min(CurrentHealth += amount + bonus, CurrentMaxHealth);
         int differenceHp = CurrentHealth - preHeal;
@@ -2544,6 +2554,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         UpdateStatsColor();
 
         gameManager.NotifyHealed(Owner, differenceHp);
+
+        if(CurrentHealth==CurrentMaxHealth && CurrentEffect.ToLower().Contains("deathlessused"))
+        {
+            //Refresh deathless
+            CurrentEffect.Replace("deathlessused", "deathless");
+        }
     }
     internal void ModifyStats(int atk, int hp)
     {
@@ -2579,7 +2595,6 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (deckManager != null)
             deckManager.OnCardDrawn -= OnCardDrawn;
 
-
         if (CurrentZone != CardZone.Board)
             return;
         gameManager.NotifyCardKilled(this);
@@ -2597,8 +2612,6 @@ public class CardInstance : MonoBehaviour, IAttackable
                 board.RemoveEnemyCardFromBoard(this);
         }
 
-        // Requiem (ON DEATH) resolves only after the slot is freed,
-        // so death summons can immediately use that newly opened slot.
         TriggerRequiem();
 
         Destroy(gameObject);

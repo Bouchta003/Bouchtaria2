@@ -2061,7 +2061,7 @@ public class AvatarProgression : ITraitProgression
         if (praiseCount >= 8 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2();
 
-        if (praiseCount >= 12 && CurrentTier < 3 && maxTier >= 3)
+        if (praiseCount >= 15 && CurrentTier < 3 && maxTier >= 3)
             UnlockTier3();
     }
     private void UnlockTier1()
@@ -2085,7 +2085,7 @@ public class AvatarProgression : ITraitProgression
         {
             0 => 4,
             1 => 8,
-            2 => 12,
+            2 => 15,
             3 => 9999,
             _ => 9999,
         };

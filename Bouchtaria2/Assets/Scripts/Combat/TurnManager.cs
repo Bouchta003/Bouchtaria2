@@ -197,7 +197,7 @@ public class TurnManager : MonoBehaviour
         while (!chaosFinished)
             yield return null;
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.2f);
 
         // Trigger the chaos effect (this may start its own coroutines)
         TriggerChaosEffect(randomChaosIndex, owner);
@@ -207,7 +207,7 @@ public class TurnManager : MonoBehaviour
         while (GameManager.Instance != null && GameManager.Instance.ActiveEffectCount > activeEffectsBeforeChaos)
             yield return null;
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.2f);
 
         if (owner == PlayerOwner.Player) PlayerChaosEventCount++;
         else EnemyChaosEventCount++;
