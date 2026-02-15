@@ -79,6 +79,7 @@ public class FirestoreManager : MonoBehaviour
                     { "coin",0 },
                     { "dungeondeck", new System.Collections.Generic.List<int>() },
                     { "dungeonaugments","" },
+                    { "dungeoncombatactive", false },
                 })
                 .ContinueWithOnMainThread(setTask =>
                 {
@@ -120,6 +121,9 @@ public class FirestoreManager : MonoBehaviour
 
                 if (!snapshot.ContainsField("dungeonaugments"))
                     updates["dungeonaugments"] = "";
+
+                if (!snapshot.ContainsField("dungeoncombatactive"))
+                    updates["dungeoncombatactive"] = false;
 
                 if (updates.Count > 0)
                 {

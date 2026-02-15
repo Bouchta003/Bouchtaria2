@@ -56,6 +56,7 @@ public class DungeonManager : MonoBehaviour
     private const string CoinField = "coin";
     private const string DeckField = "dungeondeck";
     private const string AugmentsField = "dungeonaugments";
+    private const string DungeonCombatActiveField = "dungeoncombatactive";
     private int currentBestStreak;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
@@ -224,6 +225,8 @@ public class DungeonManager : MonoBehaviour
                 }
 
                 var snapshot = task.Result;
+                bool hadPendingCombat = snapshot.ContainsField(DungeonCombatActiveField)
+                    && snapshot.GetValue<bool>(DungeonCombatActiveField);
                 CurrentRun = new DungeonRunData
                 {
                     floor = snapshot.ContainsField(StreakField) ? task.Result.GetValue<int>(StreakField) : 1,
@@ -248,6 +251,12 @@ public class DungeonManager : MonoBehaviour
                 {
                     StartNewRun();
                     return;
+                }
+
+                if (hadPendingCombat)
+                {
+                    Debug.LogWarning("Detected unfinished dungeon combat from previous session. Resetting the run to prevent progress abuse.");
+                    EndRunAndReset(user, goToDungeonMenu: false);
                 }
             });
     }
@@ -282,7 +291,8 @@ public class DungeonManager : MonoBehaviour
             { StreakField, CurrentRun.floor},
             { CoinField, CurrentRun.coins },
             { AugmentsField, SerializeAugments(CurrentRun.augments) },
-            { DeckField,  CurrentRun.dungeonDeck}
+            { DeckField,  CurrentRun.dungeonDeck},
+            { DungeonCombatActiveField, false }
         };
 
         if (resetStreak)
@@ -551,9 +561,32 @@ public class DungeonManager : MonoBehaviour
                 DeckSelectionCache.SelectedEnemyDeck = enemyDeck0;
                 DeckSelectionCache.SelectedPlayerDeck = new List<int>(deck);
                 CurrentRun.dungeonDeck = new List<int>(deck);
-                GameFlowController.Instance.GoToDungeonCombat(CurrentRun); 
+                SetDungeonCombatActive(true, () => GameFlowController.Instance.GoToDungeonCombat(CurrentRun));
             }
         });
+    }
+
+    public static void SetDungeonCombatActive(bool isActive, Action onComplete = null)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            onComplete?.Invoke();
+            return;
+        }
+
+        FirebaseFirestore.DefaultInstance
+            .Collection("users")
+            .Document(user.UserId)
+            .UpdateAsync(DungeonCombatActiveField, isActive)
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                    Debug.LogError($"Failed to set dungeon combat flag ({isActive}).");
+
+                onComplete?.Invoke();
+            });
     }
     private static string SerializeAugments(List<DungeonShop.Augment> augments)
     {
