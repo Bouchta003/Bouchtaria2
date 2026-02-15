@@ -75,6 +75,9 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
 
         enemyPrefabCards.Add(card.gameObject);
         UpdateEnemyCardPositions();
+
+        if (gm != null)
+            gm.NotifyUnitEnteredBoard(cardInst);
     }
     public void CardPlayed(CardInstance cardInst)
     {
@@ -206,10 +209,14 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         if (gm != null && gm.IsResolvingAttackQueue())
         {
             layoutDirty = true;
+            if (gm != null)
+                gm.NotifyUnitEnteredBoard(cardInst);
             return;
         }
 
         UpdateEnemyCardPositions();
+        if (gm != null)
+            gm.NotifyUnitEnteredBoard(cardInst);
     }
     public void FlushLayoutIfDirty()
     {

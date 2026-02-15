@@ -988,6 +988,44 @@ public class GameManager : MonoBehaviour
 
         // ✅ Success
         DecPendingSummons(targetOwner);
+
+    }
+
+    public void NotifyUnitEnteredBoard(CardInstance summonedCard)
+    {
+        if (summonedCard == null)
+            return;
+
+        StartCoroutine(TriggerAutoHitAfterSummonDelay(summonedCard));
+    }
+
+    private IEnumerator TriggerAutoHitAfterSummonDelay(CardInstance summonedCard)
+    {
+        yield return new WaitForSeconds(0.1f);
+
+        if (summonedCard == null || summonedCard.IsDead || summonedCard.CurrentZone != CardZone.Board)
+            yield break;
+
+        PlayerOwner opposingOwner =
+            summonedCard.Owner == PlayerOwner.Player
+                ? PlayerOwner.Enemy
+                : PlayerOwner.Player;
+
+        var opposingBoard = GetBoardForOwner(opposingOwner);
+        foreach (GameObject cardObj in opposingBoard.GetCards())
+        {
+            if (cardObj == null)
+                continue;
+
+            CardInstance autoHitter = cardObj.GetComponent<CardInstance>();
+            if (autoHitter == null || autoHitter.IsDead || autoHitter.CurrentZone != CardZone.Board)
+                continue;
+
+            if (!autoHitter.HasKeyword("autohit"))
+                continue;
+
+            QueueAttack(autoHitter, summonedCard);
+        }
     }
 
     public void Praise(PlayerOwner owner)
