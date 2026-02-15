@@ -414,6 +414,8 @@ public class GameManager : MonoBehaviour
             CurrentGameState = GameState.PlayerLost;
             Debug.Log("PLAYER LOSES");
             ModifyUserGold(LossGoldCompensation);
+            if (GameRunContext.IsDungeonRun)
+                DungeonManager.SetDungeonCombatActive(false);
         }
         else
         {
@@ -421,7 +423,10 @@ public class GameManager : MonoBehaviour
             Debug.Log("PLAYER WINS");
             ModifyUserGold(WinGoldReward);
             if (GameRunContext.IsDungeonRun)
+            {
+                DungeonManager.SetDungeonCombatActive(false);
                 ApplyDungeonCoinReward(DungeonWinCoinReward);
+            }
         }
 
         EndGame();
