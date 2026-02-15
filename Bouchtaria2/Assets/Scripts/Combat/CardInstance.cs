@@ -2517,7 +2517,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (HasKeyword("deathless") && !HasKeyword("deathlessused"))
             {
                 CurrentHealth = 1;
-                CurrentEffect.Replace("deathless", "deathlessused");
+                CurrentEffect = CurrentEffect.Replace("deathless", "deathlessused");
                 UpdateStatsColor();
                 return;
             }
@@ -2558,7 +2558,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if(CurrentHealth==CurrentMaxHealth && CurrentEffect.ToLower().Contains("deathlessused"))
         {
             //Refresh deathless
-            CurrentEffect.Replace("deathlessused", "deathless");
+            CurrentEffect = CurrentEffect.Replace("deathlessused", "deathless");
         }
     }
     internal void ModifyStats(int atk, int hp)
