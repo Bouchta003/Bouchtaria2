@@ -302,6 +302,13 @@ public class CardInstance : MonoBehaviour, IAttackable
             ProgressionCap = turnCap;
             TurnManager.Instance.OnTurnEnded += OnEndTurn;
         }
+        else if (HasKeyword("progresskazuyacombo") &&
+          TryParseProgress("progresskazuyacombo", out int kazuyaCap))
+        {
+            ProgressionCap = kazuyaCap;
+            gameManager.OnSpellPlayed += OnSpellPlayed;
+            cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+        }
 
         SyncHealSubscription();
     }
@@ -337,6 +344,9 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (deckManager != null)
             TurnManager.Instance.OnTurnEnded -= OnEndTurn;
+
+        if (gameManager != null)
+            gameManager.OnSpellPlayed -= OnSpellPlayed;
     }
     private void SyncHealSubscription()
     {
@@ -372,6 +382,12 @@ public class CardInstance : MonoBehaviour, IAttackable
 
             int start = token.IndexOf('(');
             int end = token.IndexOf(')');
+
+            if (start < 0 || end <= start + 1)
+            {
+                start = token.IndexOf('[');
+                end = token.IndexOf(']');
+            }
 
             if (start < 0 || end <= start + 1)
             {
@@ -471,6 +487,38 @@ public class CardInstance : MonoBehaviour, IAttackable
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
         Debug.Log($"[PROGRESS] {Data.name} draw {ProgressionCounter}/{ProgressionCap}");
 
+        CheckProgressCompletion();
+    }
+
+    private void OnSpellPlayed(CardInstance spell)
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+
+        if (spell == null || spell.Owner != Owner)
+            return;
+
+        if (!HasKeyword("progresskazuyacombo") || ProgressionCap <= 0)
+            return;
+
+        string effect = spell.CurrentEffect?.ToLowerInvariant() ?? string.Empty;
+        bool hasBuff = effect.Contains("buff");
+        bool hasDamage = effect.Contains("damage") || effect.Contains("dmg");
+
+        bool validStep = ProgressionCounter switch
+        {
+            0 => hasBuff,
+            1 => hasBuff,
+            2 => hasDamage,
+            _ => false
+        };
+
+        if (validStep)
+            ProgressionCounter++;
+        else
+            ProgressionCounter = 0;
+
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
         CheckProgressCompletion();
     }
 
@@ -637,6 +685,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     public void ResolveSpell(IAttackable target)
     {
+        gameManager.NotifySpellPlayed(this);
         gameManager.UseMana(CurrentManaCost, Owner);
 
         ExecuteSpellEffects(target);
@@ -654,6 +703,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
     private void ResolveSpell()
     {
+        gameManager.NotifySpellPlayed(this);
         gameManager.UseMana(CurrentManaCost, Owner);
         ExecuteSpellEffects(null);
 
