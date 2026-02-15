@@ -71,8 +71,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] List<Sprite> boards;
     [SerializeField] Sprite distortionBoard;
     [SerializeField] TextMeshProUGUI manacounterEnmy;
-    [SerializeField] Canvas MainCanvas;
-    [SerializeField] public Canvas PauseCanvas;
 
     [Header("Cursor")]
     [SerializeField] Image attackCursor;
@@ -255,19 +253,7 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-    public void TogglePause()
-    {
-        MainCanvas.gameObject.SetActive(PauseCanvas.gameObject.activeSelf);
-        PauseCanvas.gameObject.SetActive(!PauseCanvas.gameObject.activeSelf);
-        if (GameRunContext.IsDungeonRun) PauseCanvas.transform.GetChild(1).GetComponentInChildren<TextMeshProUGUI>().text = "Concede";
-    }
-    public void MainMenu()
-    {
-        if (GameRunContext.IsDungeonRun) { DungeonManager.Instance.ConcedeRun();
-            GameFlowController.Instance.GoToDungeon();
-        }else
-        GameFlowController.Instance.GoToMainMenu();
-    }
+    
     private void OnDestroy()
     {
         if (TurnManager.Instance != null)
@@ -279,7 +265,6 @@ public class GameManager : MonoBehaviour
         manacounterAlly.text = $"{AllyCurrentMana}/{AllyCurrentMaxMana}";
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
-        if (Input.GetKeyDown(KeyCode.Escape)) TogglePause();
         //if (Input.GetKeyDown(KeyCode.G)) EnemyCore.TakeDamage(99);
         if (DistortionWorld && boardDesign.GetComponentInChildren<SpriteRenderer>().sprite != distortionBoard)
         {
