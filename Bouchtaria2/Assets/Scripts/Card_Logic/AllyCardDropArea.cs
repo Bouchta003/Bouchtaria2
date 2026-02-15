@@ -116,6 +116,9 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         //Add to list of ally cards
         allyPrefabCards.Add(card.gameObject);
         UpdateAllyCardPositions();
+
+        if (gm != null)
+            gm.NotifyUnitEnteredBoard(cardInst);
     }
     public void AddSummonedCard(CardInstance cardInst)
     {
@@ -140,6 +143,9 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         // Position immediately
         if (Owner == PlayerOwner.Player)
             UpdateAllyCardPositions();
+
+        if (gm != null)
+            gm.NotifyUnitEnteredBoard(cardInst);
     }
 
     public bool HasProtectUnits()
