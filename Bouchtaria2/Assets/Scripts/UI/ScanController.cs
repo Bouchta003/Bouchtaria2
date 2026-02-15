@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 public class ScanController : MonoBehaviour
@@ -51,26 +51,69 @@ public class ScanController : MonoBehaviour
             return null;
 
         CardView bestCard = null;
+        int bestSortingLayerValue = int.MinValue;
         int bestSortingOrder = int.MinValue;
 
         foreach (Collider2D col in hits)
         {
-            CardView view = col.GetComponent<CardView>();
+            CardView view = col.GetComponentInParent<CardView>();
             if (view == null)
                 continue;
 
-            SpriteRenderer sr = view.GetComponentInChildren<SpriteRenderer>();
-            if (sr == null)
+            int sortingLayerValue;
+            int sortingOrder;
+            if (!TryGetRenderSorting(view, out sortingLayerValue, out sortingOrder))
                 continue;
 
-            if (sr.sortingOrder > bestSortingOrder)
+            bool isHigherLayer = sortingLayerValue > bestSortingLayerValue;
+            bool isSameLayerHigherOrder = sortingLayerValue == bestSortingLayerValue && sortingOrder > bestSortingOrder;
+            if (isHigherLayer || isSameLayerHigherOrder)
             {
-                bestSortingOrder = sr.sortingOrder;
+                bestSortingLayerValue = sortingLayerValue;
+                bestSortingOrder = sortingOrder;
                 bestCard = view;
             }
         }
 
         return bestCard;
+    }
+
+    private bool TryGetRenderSorting(CardView view, out int sortingLayerValue, out int sortingOrder)
+    {
+        sortingLayerValue = int.MinValue;
+        sortingOrder = int.MinValue;
+
+        SortingGroup sortingGroup = view.GetComponent<SortingGroup>();
+        if (sortingGroup != null)
+        {
+            sortingLayerValue = SortingLayer.GetLayerValueFromID(sortingGroup.sortingLayerID);
+            sortingOrder = sortingGroup.sortingOrder;
+            return true;
+        }
+
+        SpriteRenderer topRenderer = null;
+        foreach (SpriteRenderer renderer in view.GetComponentsInChildren<SpriteRenderer>())
+        {
+            if (topRenderer == null)
+            {
+                topRenderer = renderer;
+                continue;
+            }
+
+            int rendererLayerValue = SortingLayer.GetLayerValueFromID(renderer.sortingLayerID);
+            int topLayerValue = SortingLayer.GetLayerValueFromID(topRenderer.sortingLayerID);
+            bool isHigherLayer = rendererLayerValue > topLayerValue;
+            bool isSameLayerHigherOrder = rendererLayerValue == topLayerValue && renderer.sortingOrder > topRenderer.sortingOrder;
+            if (isHigherLayer || isSameLayerHigherOrder)
+                topRenderer = renderer;
+        }
+
+        if (topRenderer == null)
+            return false;
+
+        sortingLayerValue = SortingLayer.GetLayerValueFromID(topRenderer.sortingLayerID);
+        sortingOrder = topRenderer.sortingOrder;
+        return true;
     }
 
     public void OnCardHoverEnter(CardView card)
