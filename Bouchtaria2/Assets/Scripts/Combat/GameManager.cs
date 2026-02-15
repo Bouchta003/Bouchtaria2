@@ -993,10 +993,9 @@ public class GameManager : MonoBehaviour
         // ✅ Success
         DecPendingSummons(targetOwner);
 
-        TriggerAutoHitOnEnemySummon(cardInst);
     }
 
-    private void TriggerAutoHitOnEnemySummon(CardInstance summonedCard)
+    public void NotifyUnitEnteredBoard(CardInstance summonedCard)
     {
         if (summonedCard == null || summonedCard.IsDead || summonedCard.CurrentZone != CardZone.Board)
             return;
