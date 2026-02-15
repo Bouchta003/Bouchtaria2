@@ -997,8 +997,18 @@ public class GameManager : MonoBehaviour
 
     public void NotifyUnitEnteredBoard(CardInstance summonedCard)
     {
-        if (summonedCard == null || summonedCard.IsDead || summonedCard.CurrentZone != CardZone.Board)
+        if (summonedCard == null)
             return;
+
+        StartCoroutine(TriggerAutoHitAfterSummonDelay(summonedCard));
+    }
+
+    private IEnumerator TriggerAutoHitAfterSummonDelay(CardInstance summonedCard)
+    {
+        yield return new WaitForSeconds(0.1f);
+
+        if (summonedCard == null || summonedCard.IsDead || summonedCard.CurrentZone != CardZone.Board)
+            yield break;
 
         PlayerOwner opposingOwner =
             summonedCard.Owner == PlayerOwner.Player
