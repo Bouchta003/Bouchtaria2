@@ -272,6 +272,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (Data.cardType != "minion" || !CurrentEffect.Contains("progress"))
         {
             SyncHealSubscription();
+            SyncSpellSubscription();
             return;
         }
 
@@ -313,6 +314,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         SyncHealSubscription();
+        SyncSpellSubscription();
     }
 
     private void CheckProgressCompletion()
@@ -365,6 +367,22 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (hasHealTrigger || hasProgressHeal)
             gameManager.OnOwnerHeal += OnHeal;
+    }
+    private void SyncSpellSubscription()
+    {
+        if (gameManager == null)
+            return;
+
+        gameManager.OnSpellPlayed -= OnSpellPlayed;
+
+        bool hasSpellTrigger = parsedEffects.TryGetValue(EffectTrigger.SpellCast, out var spellEffects)
+                              && spellEffects != null
+                              && spellEffects.Count > 0;
+
+        bool hasProgressSpell = HasKeyword("progresskazuyacombo") && ProgressionCap > 0;
+
+        if (hasSpellTrigger || hasProgressSpell)
+            gameManager.OnSpellPlayed += OnSpellPlayed;
     }
     private bool TryParseProgress(
     string keyword,
@@ -499,6 +517,13 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (spell == null || spell.Owner != Owner)
             return;
+
+        bool hasSpellTrigger = parsedEffects.TryGetValue(EffectTrigger.SpellCast, out var spellEffects)
+                               && spellEffects != null
+                               && spellEffects.Count > 0;
+
+        if (hasSpellTrigger)
+            TriggerEffects(EffectTrigger.SpellCast);
 
         if (!HasKeyword("progresskazuyacombo") || ProgressionCap <= 0)
             return;
@@ -1271,6 +1296,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         SyncHealSubscription();
+        SyncSpellSubscription();
     }
     private bool TryParseTrigger(string str, out EffectTrigger trigger)
     {

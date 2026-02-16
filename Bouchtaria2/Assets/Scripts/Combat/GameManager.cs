@@ -2357,7 +2357,9 @@ public class GameManager : MonoBehaviour
 
             if (target is CoreInstance core)
             {
-                Transform proxy = core.AttackProxy;
+                // Prefer board-level proxy anchors so each side always gets hit on the
+                // correct visual lane, even if a core prefab proxy is misconfigured.
+                Transform proxy = GetCoreProxy(core.Owner) ?? core.AttackProxy;
 
                 if (attackerView != null && proxy != null)
                     yield return attackerView.PlayAttackAnimation(proxy);
