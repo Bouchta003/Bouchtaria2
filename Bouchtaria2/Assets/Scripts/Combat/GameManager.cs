@@ -2295,8 +2295,8 @@ public class GameManager : MonoBehaviour
     private Transform GetCoreProxy(PlayerOwner owner)
     {
         return owner == PlayerOwner.Player
-            ? playerCoreProxy
-            : enemyCoreProxy;
+            ? enemyCoreProxy
+            : playerCoreProxy;
     }
     private IEnumerator ProcessAttackQueue()
     {

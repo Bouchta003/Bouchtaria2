@@ -1958,8 +1958,19 @@ public class CardInstance : MonoBehaviour, IAttackable
     private void TryExecuteDamageRandomEnemy(string effect)
     {
         if (!TryParseIntEffect(effect, "damagerandomenemy", out int amount))
-            return;
-
+        {
+            if (effect.Contains("atk"))
+            {
+                PlayerOwner enemyOwneratk = Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player;
+                IAttackable targetatk = gameManager.ChooseRandomEffectTarget(enemyOwneratk, EffectTarget.Any, canTargetCore: true);
+                if (targetatk == null)
+                    return;
+                targetatk.TakeDamage(CurrentAttack);
+                gameManager.OnDamageWithCard(Owner);
+                return;
+            }
+            else return;
+        }
         PlayerOwner enemyOwner = Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player;
         IAttackable target = gameManager.ChooseRandomEffectTarget(enemyOwner, EffectTarget.Any, canTargetCore: true);
         if (target == null)
