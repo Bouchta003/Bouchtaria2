@@ -95,7 +95,9 @@ public class CardView : MonoBehaviour,
     {
         transform.DOKill();
 
-        Vector3 startPos = BoardPosition; // IMPORTANT
+        // Use the card's real transform position to avoid snapping/jitter when
+        // layout updates happen right before attacks (common with autohit chains).
+        Vector3 startPos = transform.position;
         Vector3 targetPos = target.position;
 
         Vector3 dir = (targetPos - startPos).normalized;
@@ -120,7 +122,7 @@ public class CardView : MonoBehaviour,
         //Play SFX punch
 
         // Return
-        yield return MoveOverTime(hitPos, BoardPosition, returnTime);
+        yield return MoveOverTime(hitPos, startPos, returnTime);
     }
     public IEnumerator PlayHitReaction(int damage)
     {
@@ -545,4 +547,3 @@ public class CardView : MonoBehaviour,
             : new Color(1f, 1f, 1f, 0.35f);
     }
 }
-
