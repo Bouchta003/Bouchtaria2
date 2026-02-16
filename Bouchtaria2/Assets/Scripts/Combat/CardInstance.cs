@@ -1289,6 +1289,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "progressheal":
             case "progressattack":
             case "progressdamage":
+            case "progresskazuyacombo":
             case "progresseot":
                 trigger = EffectTrigger.ProgressComplete;
                 return true;

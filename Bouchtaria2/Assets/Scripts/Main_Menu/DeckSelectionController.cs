@@ -12,28 +12,12 @@ public class DeckSelectionController : MonoBehaviour
     private Dictionary<string, List<int>> userDecks;
 
     List<int> enemyDeck0 = new List<int>
-    {126,126,126,126,126,126,126,128,128,128,128,128,128,128,126,126,126,126,126,126,126 // Hoopa portal
+    {
+        126,126,126,126,126,126,126,128,128,128,128,128,128,128,126,126,126,126,126,126,126 // Hoopa portal
     };
     List<int> enemyDeck1 = new List<int>
 {
-    3,3,        // Palico
-    4,4,        // Gemma
-    5,5,        // Alma
-
-    34,34,      // Balahara (packable)
-    9,9,        // Odogaron (packable)
-    30,30,      // Rathalos (packable)
-    32,32,      // Rathian (packable)
-
-    36,36,      // Greatsword Hunter (packable)
-    37,37,      // Insectglaive Hunter (packable)
-    38,38,      // Sword'n'Shield Hunter (packable)
-    103,103,    // Stygian Zinogre (packable)
-
-    104,104,    // Rey Dau (packable)
-    129,129,    // Thief's gloves (packable, value/gear)
-    101,101,    // Alatreon (non-packable, heavy finisher)
-    105,105     // Arkveld (non-packable, strong MonsterPart synergy)
+    53,54,53,54,53,
 
 };
     List<int> enemyDeck2 = new List<int>
