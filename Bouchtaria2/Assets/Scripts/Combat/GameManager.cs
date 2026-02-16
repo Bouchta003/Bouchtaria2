@@ -57,9 +57,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] public HandManager allyHand;
     [SerializeField] public HandManager enemyHand;
 
-    private Transform playerCoreProxy;
-    private Transform enemyCoreProxy;
-
     [Header("Mana")]
     [SerializeField] private int baseManaCap = 10;
     public int AllyCurrentMana { get; private set; }
@@ -1040,6 +1037,41 @@ public class GameManager : MonoBehaviour
                 bypassSelectionRules: true,
                 allowRetarget: false);
         }
+    }
+
+    public bool IsAntiRandomActive()
+    {
+        return BoardHasKeyword(allyDropArea.GetCards(), "antirandom") ||
+               BoardHasKeyword(enemyDropArea.GetCards(), "antirandom");
+    }
+
+    public bool ShouldBlockRandomCardPlay(CardInstance cardInst)
+    {
+        if (cardInst == null)
+            return false;
+
+        return IsAntiRandomActive() && cardInst.HasText("random");
+    }
+
+    private bool BoardHasKeyword(List<GameObject> cards, string keyword)
+    {
+        if (cards == null)
+            return false;
+
+        foreach (GameObject cardObj in cards)
+        {
+            if (cardObj == null)
+                continue;
+
+            CardInstance boardCard = cardObj.GetComponent<CardInstance>();
+            if (boardCard == null || boardCard.IsDead || boardCard.CurrentZone != CardZone.Board)
+                continue;
+
+            if (boardCard.HasKeyword(keyword))
+                return true;
+        }
+
+        return false;
     }
 
     public bool IsAntiRandomActive()
@@ -2360,7 +2392,7 @@ public class GameManager : MonoBehaviour
 
             if (target is CoreInstance core)
             {
-                Transform proxy = GetCoreProxy(core.Owner);
+                Transform proxy = core.AttackProxy;
 
                 if (attackerView != null && proxy != null)
                     yield return attackerView.PlayAttackAnimation(proxy);

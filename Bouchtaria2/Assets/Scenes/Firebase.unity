@@ -6183,6 +6183,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1470588448}
   - component: {fileID: 1470588449}
+  - component: {fileID: 1470588450}
   m_Layer: 5
   m_Name: SFXSlider
   m_TagString: Untagged
@@ -6275,6 +6276,20 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1470588450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1470588447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d003660d6e554445b115fb13c9d66ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderLoader
+  playerPrefKey: SFXVolume
+  slider: {fileID: 1470588449}
 --- !u!1 &1479004159
 GameObject:
   m_ObjectHideFlags: 0
@@ -7004,6 +7019,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1644987940}
   - component: {fileID: 1644987941}
+  - component: {fileID: 1644987942}
   m_Layer: 5
   m_Name: MusicSlider
   m_TagString: Untagged
@@ -7096,6 +7112,20 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1644987942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1644987939}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d003660d6e554445b115fb13c9d66ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderLoader
+  playerPrefKey: MusicVolume
+  slider: {fileID: 1644987941}
 --- !u!1 &1702030973
 GameObject:
   m_ObjectHideFlags: 0
@@ -9106,6 +9136,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2017923360}
   - component: {fileID: 2017923361}
+  - component: {fileID: 2017923362}
   m_Layer: 5
   m_Name: MasterSlider
   m_TagString: Untagged
@@ -9198,6 +9229,20 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &2017923362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2017923359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d003660d6e554445b115fb13c9d66ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderLoader
+  playerPrefKey: MasterVolume
+  slider: {fileID: 2017923361}
 --- !u!1 &2045130404
 GameObject:
   m_ObjectHideFlags: 0
