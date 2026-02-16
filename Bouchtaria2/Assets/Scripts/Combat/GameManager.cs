@@ -57,9 +57,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] public HandManager allyHand;
     [SerializeField] public HandManager enemyHand;
 
-    private Transform playerCoreProxy;
-    private Transform enemyCoreProxy;
-
     [Header("Mana")]
     [SerializeField] private int baseManaCap = 10;
     public int AllyCurrentMana { get; private set; }
@@ -198,8 +195,6 @@ public class GameManager : MonoBehaviour
         PlayerCore.GetComponent<CoreView>().Bind(PlayerCore);
         EnemyCore.GetComponent<CoreView>().Bind(EnemyCore);
 
-        playerCoreProxy = PlayerCore.AttackProxy;
-        enemyCoreProxy = EnemyCore.AttackProxy;
         //Start turn logic
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
         TurnManager.Instance.StartFirstTurn();
@@ -1031,7 +1026,12 @@ public class GameManager : MonoBehaviour
             if (!autoHitter.HasKeyword("autohit"))
                 continue;
 
-            QueueAttack(autoHitter, summonedCard, consumeAttackForTurn: false, bypassSelectionRules: true);
+            QueueAttack(
+                autoHitter,
+                summonedCard,
+                consumeAttackForTurn: false,
+                bypassSelectionRules: true,
+                allowRetarget: false);
         }
     }
 
@@ -2254,7 +2254,8 @@ public class GameManager : MonoBehaviour
         CardInstance attacker,
         IAttackable target,
         bool consumeAttackForTurn = true,
-        bool bypassSelectionRules = false)
+        bool bypassSelectionRules = false,
+        bool allowRetarget = true)
     {
         // Safety checks
         if (attacker == null || target == null)
@@ -2277,7 +2278,7 @@ public class GameManager : MonoBehaviour
         if (!bypassSelectionRules && !CanSelectAttacker(attacker))
             return;
 
-        attackQueue.Enqueue(new AttackRequest(attacker, target, consumeAttackForTurn, bypassSelectionRules));
+        attackQueue.Enqueue(new AttackRequest(attacker, target, consumeAttackForTurn, bypassSelectionRules, allowRetarget));
 
         // Start processing if idle
         if (!isResolvingAttack)
@@ -2286,12 +2287,6 @@ public class GameManager : MonoBehaviour
     public bool IsResolvingAttackQueue()
     {
         return isResolvingAttack || attackQueue.Count > 0;
-    }
-    private Transform GetCoreProxy(PlayerOwner owner)
-    {
-        return owner == PlayerOwner.Player
-            ? playerCoreProxy
-            : enemyCoreProxy;
     }
     private IEnumerator ProcessAttackQueue()
     {
@@ -2331,6 +2326,9 @@ public class GameManager : MonoBehaviour
 
             if (targetInvalid)
             {
+                if (!req.AllowRetarget)
+                    continue;
+
                 List<IAttackable> newTargets = GetValidTargets(req.Attacker);
                 if (newTargets.Count == 0)
                     continue;
@@ -2349,7 +2347,7 @@ public class GameManager : MonoBehaviour
 
             if (target is CoreInstance core)
             {
-                Transform proxy = GetCoreProxy(core.Owner);
+                Transform proxy = core.AttackProxy;
 
                 if (attackerView != null && proxy != null)
                     yield return attackerView.PlayAttackAnimation(proxy);
@@ -2558,17 +2556,20 @@ public class AttackRequest
     public Transform TargetTransform;
     public bool ConsumeAttackForTurn;
     public bool BypassSelectionRules;
+    public bool AllowRetarget;
 
     public AttackRequest(
         CardInstance attacker,
         IAttackable target,
         bool consumeAttackForTurn,
-        bool bypassSelectionRules)
+        bool bypassSelectionRules,
+        bool allowRetarget)
     {
         Attacker = attacker;
         Target = target;
         TargetTransform = target != null ? target.Transform : null;
         ConsumeAttackForTurn = consumeAttackForTurn;
         BypassSelectionRules = bypassSelectionRules;
+        AllowRetarget = allowRetarget;
     }
 }
