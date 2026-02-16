@@ -192,6 +192,8 @@ public class GameManager : MonoBehaviour
         SetupTraits();                        // create progressions
 
         SetupCores();
+        playerCoreProxy = PlayerCore.AttackProxy;
+        enemyCoreProxy = EnemyCore.AttackProxy;
         PlayerCore.GetComponent<CoreView>().Bind(PlayerCore);
         EnemyCore.GetComponent<CoreView>().Bind(EnemyCore);
 
@@ -1003,7 +1005,9 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator TriggerAutoHitAfterSummonDelay(CardInstance summonedCard)
     {
-        yield return new WaitForSeconds(0.1f);
+        // Let board placement / layout settle for a few frames before triggering autohit.
+        for (int i = 0; i < 3; i++)
+            yield return new WaitForEndOfFrame();
 
         if (summonedCard == null || summonedCard.IsDead || summonedCard.CurrentZone != CardZone.Board)
             yield break;
@@ -1033,6 +1037,41 @@ public class GameManager : MonoBehaviour
                 bypassSelectionRules: true,
                 allowRetarget: false);
         }
+    }
+
+    public bool IsAntiRandomActive()
+    {
+        return BoardHasKeyword(allyDropArea.GetCards(), "antirandom") ||
+               BoardHasKeyword(enemyDropArea.GetCards(), "antirandom");
+    }
+
+    public bool ShouldBlockRandomCardPlay(CardInstance cardInst)
+    {
+        if (cardInst == null)
+            return false;
+
+        return IsAntiRandomActive() && cardInst.HasText("random");
+    }
+
+    private bool BoardHasKeyword(List<GameObject> cards, string keyword)
+    {
+        if (cards == null)
+            return false;
+
+        foreach (GameObject cardObj in cards)
+        {
+            if (cardObj == null)
+                continue;
+
+            CardInstance boardCard = cardObj.GetComponent<CardInstance>();
+            if (boardCard == null || boardCard.IsDead || boardCard.CurrentZone != CardZone.Board)
+                continue;
+
+            if (boardCard.HasKeyword(keyword))
+                return true;
+        }
+
+        return false;
     }
 
     public bool IsAntiRandomActive()
@@ -2287,6 +2326,12 @@ public class GameManager : MonoBehaviour
     public bool IsResolvingAttackQueue()
     {
         return isResolvingAttack || attackQueue.Count > 0;
+    }
+    private Transform GetCoreProxy(PlayerOwner owner)
+    {
+        return owner == PlayerOwner.Player
+            ? playerCoreProxy
+            : enemyCoreProxy;
     }
     private IEnumerator ProcessAttackQueue()
     {
