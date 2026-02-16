@@ -57,9 +57,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] public HandManager allyHand;
     [SerializeField] public HandManager enemyHand;
 
-    private Transform playerCoreProxy;
-    private Transform enemyCoreProxy;
-
     [Header("Mana")]
     [SerializeField] private int baseManaCap = 10;
     public int AllyCurrentMana { get; private set; }
@@ -198,8 +195,6 @@ public class GameManager : MonoBehaviour
         PlayerCore.GetComponent<CoreView>().Bind(PlayerCore);
         EnemyCore.GetComponent<CoreView>().Bind(EnemyCore);
 
-        playerCoreProxy = PlayerCore.AttackProxy;
-        enemyCoreProxy = EnemyCore.AttackProxy;
         //Start turn logic
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
         TurnManager.Instance.StartFirstTurn();
@@ -1031,8 +1026,48 @@ public class GameManager : MonoBehaviour
             if (!autoHitter.HasKeyword("autohit"))
                 continue;
 
-            QueueAttack(autoHitter, summonedCard);
+            QueueAttack(
+                autoHitter,
+                summonedCard,
+                consumeAttackForTurn: false,
+                bypassSelectionRules: true,
+                allowRetarget: false);
         }
+    }
+
+    public bool IsAntiRandomActive()
+    {
+        return BoardHasKeyword(allyDropArea.GetCards(), "antirandom") ||
+               BoardHasKeyword(enemyDropArea.GetCards(), "antirandom");
+    }
+
+    public bool ShouldBlockRandomCardPlay(CardInstance cardInst)
+    {
+        if (cardInst == null)
+            return false;
+
+        return IsAntiRandomActive() && cardInst.HasText("random");
+    }
+
+    private bool BoardHasKeyword(List<GameObject> cards, string keyword)
+    {
+        if (cards == null)
+            return false;
+
+        foreach (GameObject cardObj in cards)
+        {
+            if (cardObj == null)
+                continue;
+
+            CardInstance boardCard = cardObj.GetComponent<CardInstance>();
+            if (boardCard == null || boardCard.IsDead || boardCard.CurrentZone != CardZone.Board)
+                continue;
+
+            if (boardCard.HasKeyword(keyword))
+                return true;
+        }
+
+        return false;
     }
 
     public void Praise(PlayerOwner owner)
@@ -2031,7 +2066,11 @@ public class GameManager : MonoBehaviour
             }
         
     }
-    public void ResolveAttack(CardInstance attacker, IAttackable target)
+    public void ResolveAttack(
+        CardInstance attacker,
+        IAttackable target,
+        bool consumeAttackForTurn = true,
+        bool bypassSelectionRules = false)
     {
         if (attacker == null || target == null)
             return;
@@ -2045,17 +2084,20 @@ public class GameManager : MonoBehaviour
                 return;
         }
 
-        if (!CanSelectAttacker(attacker))
+        if (!bypassSelectionRules && !CanSelectAttacker(attacker))
             return;
 
         if (attacker.Owner == target.Owner)
             return;
-        //Handle Haste Scenario
-        if (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste"))
-            attacker.HasAttackedTwiceThisTurn = true;
+        if (consumeAttackForTurn)
+        {
+            //Handle Haste Scenario
+            if (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste"))
+                attacker.HasAttackedTwiceThisTurn = true;
 
-        attacker.HasAttackedThisTurn = true;
-        attacker.RemoveEffect("hidden");
+            attacker.HasAttackedThisTurn = true;
+            attacker.RemoveEffect("hidden");
+        }
 
         if (attacker.Owner == PlayerOwner.Player)
         {
@@ -2208,7 +2250,12 @@ public class GameManager : MonoBehaviour
         attackCursor.gameObject.SetActive(false);
         currentAttacker = null; isTargettingAttack = false;
     }
-    public void QueueAttack(CardInstance attacker, IAttackable target)
+    public void QueueAttack(
+        CardInstance attacker,
+        IAttackable target,
+        bool consumeAttackForTurn = true,
+        bool bypassSelectionRules = false,
+        bool allowRetarget = true)
     {
         // Safety checks
         if (attacker == null || target == null)
@@ -2228,7 +2275,10 @@ public class GameManager : MonoBehaviour
             return;
 
 
-        attackQueue.Enqueue(new AttackRequest(attacker, target));
+        if (!bypassSelectionRules && !CanSelectAttacker(attacker))
+            return;
+
+        attackQueue.Enqueue(new AttackRequest(attacker, target, consumeAttackForTurn, bypassSelectionRules, allowRetarget));
 
         // Start processing if idle
         if (!isResolvingAttack)
@@ -2237,12 +2287,6 @@ public class GameManager : MonoBehaviour
     public bool IsResolvingAttackQueue()
     {
         return isResolvingAttack || attackQueue.Count > 0;
-    }
-    private Transform GetCoreProxy(PlayerOwner owner)
-    {
-        return owner == PlayerOwner.Player
-            ? enemyCoreProxy
-            : playerCoreProxy;
     }
     private IEnumerator ProcessAttackQueue()
     {
@@ -2255,6 +2299,9 @@ public class GameManager : MonoBehaviour
             // Attacker validation
             if (req.Attacker == null ||
                 req.Attacker.CurrentZone != CardZone.Board ||
+                req.Attacker.IsDead ||
+                req.Attacker.IsAsleep ||
+                req.Attacker.CurrentAttack <= 0 ||
                 (req.Attacker.HasAttackedThisTurn && !req.Attacker.HasKeyword("haste")) || 
                 (req.Attacker.HasAttackedThisTurn && req.Attacker.HasKeyword("haste") && req.Attacker.HasAttackedTwiceThisTurn))
             {
@@ -2279,6 +2326,9 @@ public class GameManager : MonoBehaviour
 
             if (targetInvalid)
             {
+                if (!req.AllowRetarget)
+                    continue;
+
                 List<IAttackable> newTargets = GetValidTargets(req.Attacker);
                 if (newTargets.Count == 0)
                     continue;
@@ -2297,7 +2347,7 @@ public class GameManager : MonoBehaviour
 
             if (target is CoreInstance core)
             {
-                Transform proxy = GetCoreProxy(core.Owner);
+                Transform proxy = core.AttackProxy;
 
                 if (attackerView != null && proxy != null)
                     yield return attackerView.PlayAttackAnimation(proxy);
@@ -2317,7 +2367,11 @@ public class GameManager : MonoBehaviour
             }
 
             // Apply combat logic AFTER visual impact
-            ResolveAttack(req.Attacker, target);
+            ResolveAttack(
+                req.Attacker,
+                target,
+                consumeAttackForTurn: req.ConsumeAttackForTurn,
+                bypassSelectionRules: req.BypassSelectionRules);
 
 
             // Small pacing delay (FEELS GOOD)
@@ -2500,11 +2554,22 @@ public class AttackRequest
     public CardInstance Attacker;
     public IAttackable Target;
     public Transform TargetTransform;
+    public bool ConsumeAttackForTurn;
+    public bool BypassSelectionRules;
+    public bool AllowRetarget;
 
-    public AttackRequest(CardInstance attacker, IAttackable target)
+    public AttackRequest(
+        CardInstance attacker,
+        IAttackable target,
+        bool consumeAttackForTurn,
+        bool bypassSelectionRules,
+        bool allowRetarget)
     {
         Attacker = attacker;
         Target = target;
         TargetTransform = target != null ? target.Transform : null;
+        ConsumeAttackForTurn = consumeAttackForTurn;
+        BypassSelectionRules = bypassSelectionRules;
+        AllowRetarget = allowRetarget;
     }
 }
