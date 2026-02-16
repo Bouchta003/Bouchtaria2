@@ -787,6 +787,8 @@ MonoBehaviour:
   - {fileID: -6533518431797266695, guid: 5765f94dbe7ccf94baf6d08be1861b95, type: 3}
   distortionBoard: {fileID: 1123560429962625998, guid: 58e39beb08c8fd747bdcf05fef3c5a8b, type: 3}
   manacounterEnmy: {fileID: 589142854}
+  playerCoreProxy: {fileID: 2063063505}
+  enemyCoreProxy: {fileID: 1283809121}
   attackCursor: {fileID: 1698028025}
   enemySpellReveal: {fileID: 1225827927}
   enemySpellAnchor: {fileID: 1059127843}

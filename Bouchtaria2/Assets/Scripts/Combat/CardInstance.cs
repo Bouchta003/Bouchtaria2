@@ -20,11 +20,13 @@ public enum PlayerOwner
 }
 public enum EffectTrigger
 {
+    None,    // none
     Deploy,    // d
     Berserk,   // b
     Requiem,   // r
     Strike,    // s
     Heal,      // h
+    SpellCast,      // spell
     EndOfTurn,      //eot
     StartOfTurn,    //sot
     ProgressComplete,
@@ -1283,6 +1285,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "h": trigger = EffectTrigger.Heal; return true;
             case "eot": trigger = EffectTrigger.EndOfTurn; return true;
             case "sot": trigger = EffectTrigger.StartOfTurn; return true;
+            case "spell": trigger = EffectTrigger.SpellCast; return true;
+
 
             // ✅ Progress triggers (parameterized)
             case "progressdraw":
@@ -1297,6 +1301,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             default:
                 return false;
         }
+        trigger = EffectTrigger.None;
+        return false;
     }
 
     private void BeginTargetedEffect(string effect, bool forceRandomTarget = false)
