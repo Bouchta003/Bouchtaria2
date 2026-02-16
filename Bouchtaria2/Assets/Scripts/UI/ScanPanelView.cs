@@ -411,6 +411,14 @@ public class ScanPanelView : MonoBehaviour
             keyName.text = "Summon";
             keyDescription.text = "Summons a unit without triggering its Deploy effect.";
         }
+        if (effectText.ToLower().Contains(("antirandom").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Antirandom";
+            keyDescription.text = "While this unit is on the field, cards with 'random' in their effect text can't be played.";
+        }
         
     }
     private int GetEffectID(string effect)

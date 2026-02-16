@@ -34,6 +34,12 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
             return;
         }
         CardInstance cardInst = card.gameObject.GetComponent<CardInstance>();
+
+        if (gm.ShouldBlockRandomCardPlay(cardInst))
+        {
+            card.ResetCard();
+            return;
+        }
         //SpellCast
         //SpellCast
         // Spell cast

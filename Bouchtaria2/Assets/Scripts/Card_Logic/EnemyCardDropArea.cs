@@ -30,6 +30,12 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
     {
         CardInstance cardInst = card.GetComponent<CardInstance>();
 
+        if (gm.ShouldBlockRandomCardPlay(cardInst))
+        {
+            card.ResetCard();
+            return;
+        }
+
         // Mana / legality
         if (cardInst.CurrentManaCost > gm.EnemyCurrentMana || cardInst.Owner==PlayerOwner.Player)
         {
