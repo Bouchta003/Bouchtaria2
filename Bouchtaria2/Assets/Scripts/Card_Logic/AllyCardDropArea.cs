@@ -61,11 +61,15 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
                 gm.PlayerRandomCount++;
             }
 
+            cardInst.OnSpellResolved += HandleSpellResolved;
+
             // 🔑 THIS is what you were missing
             cardInst.OnPlaySpell();
 
+            if (!gm.IsAwaitingEffectTarget(cardInst) && handManager.handCards.Contains(card.gameObject))
+                cardInst.OnSpellResolved -= HandleSpellResolved;
+
             Debug.Log($"Played {cardInst.Data.name} with the effect {cardInst.CurrentEffect}");
-            OnCardPlayed?.Invoke(cardInst);
             return;
         }
 
@@ -109,12 +113,11 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         cardInst.IsSummoningSick = true;
 
         // Deploy logic
-        cardInst.DeployPending = cardInst.CurrentEffect.Contains("target");
+        cardInst.OnDeployResolved += HandleCardDeployResolved;
         cardInst.OnEnterBoard();
 
-
-        //Call for  update
-        OnCardPlayed?.Invoke(cardInst);
+        if (!cardInst.DeployPending)
+            HandleCardDeployResolved(cardInst);
         
         //UpdateView to board mode
         card.gameObject.GetComponent<CardView>().UpdateMode();
@@ -125,6 +128,22 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
 
         if (gm != null)
             gm.NotifyUnitEnteredBoard(cardInst);
+    }
+    private void HandleSpellResolved(CardInstance cardInst)
+    {
+        if (cardInst == null)
+            return;
+
+        cardInst.OnSpellResolved -= HandleSpellResolved;
+        OnCardPlayed?.Invoke(cardInst);
+    }
+    private void HandleCardDeployResolved(CardInstance cardInst)
+    {
+        if (cardInst == null)
+            return;
+
+        cardInst.OnDeployResolved -= HandleCardDeployResolved;
+        OnCardPlayed?.Invoke(cardInst);
     }
     public void AddSummonedCard(CardInstance cardInst)
     {

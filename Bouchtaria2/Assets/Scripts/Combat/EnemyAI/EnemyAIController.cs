@@ -153,8 +153,12 @@ public class EnemyAIController : MonoBehaviour
                         continue;
 
                     yield return StartCoroutine(gameManager.ShowEnemySpell(action.Card.Data));
+                    int manaBefore = gameManager.EnemyCurrentMana;
+                    int handCountBefore = enemyHand.handCards.Count;
+
                     PlaySpell(action.Card);
-                    playedSomething = true;
+                    playedSomething = gameManager.EnemyCurrentMana < manaBefore ||
+                                     enemyHand.handCards.Count < handCountBefore;
                 }
                 else
                 {
@@ -167,8 +171,13 @@ public class EnemyAIController : MonoBehaviour
                     if (!CanEnemyPlayMinion(action.Card))
                         continue;
 
+                    int manaBefore = gameManager.EnemyCurrentMana;
+                    int handCountBefore = enemyHand.handCards.Count;
+
                     Summon(action.Card.GetComponent<Card>());
-                    playedSomething = true;
+
+                    playedSomething = gameManager.EnemyCurrentMana < manaBefore ||
+                                     enemyHand.handCards.Count < handCountBefore;
                 }
 
                 if (playedSomething)
@@ -464,6 +473,12 @@ public class EnemyAIController : MonoBehaviour
 
         string effect = spell.CurrentEffect.ToLowerInvariant();
 
+        if (gameManager.ShouldBlockRandomCardPlay(spell))
+            return false;
+
+        if (EnemyHasBoardAdvantage() && (effect.Contains("wipeboard") || effect.Contains("tawakkul")))
+            return false;
+
         // =====================================================================
         // AI SPELL SAFETY CONDITIONS (CUSTOMIZATION ZONE)
         // Add custom checks here whenever a specific spell type should be skipped
@@ -712,12 +727,43 @@ public class EnemyAIController : MonoBehaviour
         return false;
     }
 
+    private int GetBoardStatsTotal(List<GameObject> cards)
+    {
+        int total = 0;
+        foreach (GameObject go in cards)
+        {
+            if (go == null)
+                continue;
+
+            CardInstance unit = go.GetComponent<CardInstance>();
+            if (unit == null || unit.IsDead)
+                continue;
+
+            total += unit.CurrentAttack + unit.CurrentHealth;
+        }
+
+        return total;
+    }
+
+    private bool EnemyHasBoardAdvantage()
+    {
+        int enemyStats = GetBoardStatsTotal(enemyBoard.enemyPrefabCards);
+        int allyStats = GetBoardStatsTotal(allyBoard.allyPrefabCards);
+        return enemyStats > allyStats;
+    }
+
     private bool CanEnemyPlayMinion(CardInstance minion)
     {
         if (minion == null)
             return false;
 
+        if (gameManager.ShouldBlockRandomCardPlay(minion))
+            return false;
+
         string effect = minion.CurrentEffect?.ToLowerInvariant() ?? string.Empty;
+
+        if (EnemyHasBoardAdvantage() && (effect.Contains("wipeboard") || effect.Contains("tawakkul")))
+            return false;
 
         // Ditto/morph minions need at least one existing board unit to copy.
         if (effect.Contains("morphto") && effect.Contains("targetunit"))

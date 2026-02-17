@@ -1747,6 +1747,7 @@ public class GameManager : MonoBehaviour
         card.GetComponent<Card>().ResetCard();
         card.DeployPending = false;
         card.CurrentCastEffect = null;
+        card.CancelPendingResolution();
         if(card.Data.cardType=="minion")GainMana(card.CurrentManaCost, PlayerOwner.Player);
         // Restore card so it behaves like a fresh hand card
         card.WasPlayed = true;
@@ -2394,6 +2395,11 @@ public class GameManager : MonoBehaviour
         enemyDropArea.FlushLayoutIfDirty();
 
     }
+    public bool IsAwaitingEffectTarget(CardInstance source)
+    {
+        return isTargetingEffect && effectSource == source;
+    }
+
     public void EndEffectTargetting()
     {
         // Exit effect targeting mode

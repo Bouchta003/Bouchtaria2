@@ -69,12 +69,14 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
 
         cardInst.IsSummoningSick = true;
 
+        cardInst.OnDeployResolved += HandleCardDeployResolved;
         cardInst.OnEnterBoard();
         if (cardInst.HasText("random"))
         {
             gm.EnemyRandomCount++;
         }
-        OnCardPlayed?.Invoke(cardInst);
+        if (!cardInst.DeployPending)
+            HandleCardDeployResolved(cardInst);
 
         // Switch to compact board view
         card.GetComponent<CardView>().UpdateMode();
@@ -84,6 +86,14 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
 
         if (gm != null)
             gm.NotifyUnitEnteredBoard(cardInst);
+    }
+    private void HandleCardDeployResolved(CardInstance cardInst)
+    {
+        if (cardInst == null)
+            return;
+
+        cardInst.OnDeployResolved -= HandleCardDeployResolved;
+        OnCardPlayed?.Invoke(cardInst);
     }
     public void CardPlayed(CardInstance cardInst)
     {
