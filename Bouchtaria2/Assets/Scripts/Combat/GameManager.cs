@@ -2395,6 +2395,11 @@ public class GameManager : MonoBehaviour
         enemyDropArea.FlushLayoutIfDirty();
 
     }
+    public bool IsAwaitingEffectTarget(CardInstance source)
+    {
+        return isTargetingEffect && effectSource == source;
+    }
+
     public void EndEffectTargetting()
     {
         // Exit effect targeting mode
