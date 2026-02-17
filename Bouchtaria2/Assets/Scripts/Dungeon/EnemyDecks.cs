@@ -44,11 +44,11 @@ public static class EnemyDecks
             },
             { 5, new List<int>
                 {
-                // Aggro Gunner deck that keeps pressure with pings, quickstrikes and refill turns.
-                // Core card preview: Deadpool (packable) backed by draw engines Palico/Frog/Trapwire.
-                97, 97, 3, 3, 89, 89, 98, 98, 95, 95,
-                99, 99, 131, 131, 119, 119, 1, 1, 143, 143,
-                69, 69, 151, 151, 160, 160, 72, 72, 159, 159
+                // Faith core with chaos splash finishers
+                // Core card preview: Seeker of Ilm (packable).
+                109, 109, 126, 126, 110, 110, 128, 128, 111, 111,
+                129, 129, 145, 145, 130, 130, 162, 162, 132, 132,
+                58, 58, 133, 133, 60, 60, 157, 157, 127, 88
                 }
             },
             { 6, new List<int>
@@ -62,12 +62,13 @@ public static class EnemyDecks
             },
             { 7, new List<int>
                 {
-                // Constand chaos feeding
-                // Core card preview: Feed the chaos (packable).
-                126,126,126,126,126,126,126,126,126,126,
-                126,126,126,126,126,126,126,126,126,126,
-                126,126,126,126,126,126,126,126,126,126,
-                126,126,126,126,126,126,126,126,128,128
+                // Gunner ambush list that recycles summons and never runs out of gas.
+                // Core card preview: Rocket Raccoon (packable); extra draw from Frog, Palico and Trapwire.
+                161, 161, 95, 95, 51, 51, 131, 131, 90, 90,
+                1, 1, 92, 92, 69, 69, 160, 160, 71, 71,
+                89, 89, 3, 3, 98, 98, 99, 99, 94, 96
+
+
                 }
             },
             { 8, new List<int>
@@ -108,11 +109,11 @@ public static class EnemyDecks
             },
             { 12, new List<int>
                 {
-                // Faith core with chaos splash finishers
-                // Core card preview: Seeker of Ilm (packable).
-                109, 109, 126, 126, 110, 110, 128, 128, 111, 111,
-                129, 129, 145, 145, 130, 130, 162, 162, 132, 132,
-                58, 58, 133, 133, 60, 60, 157, 157, 127, 88
+                // Aggro Gunner deck that keeps pressure with pings, quickstrikes and refill turns.
+                // Core card preview: Deadpool (packable) backed by draw engines Palico/Frog/Trapwire.
+                97, 97, 3, 3, 89, 89, 98, 98, 95, 95,
+                99, 99, 131, 131, 119, 119, 1, 1, 143, 143,
+                69, 69, 151, 151, 160, 160, 72, 72, 159, 159
                 }
             },
             { 13, new List<int>
@@ -126,11 +127,12 @@ public static class EnemyDecks
             },
             { 14, new List<int>
                 {
-                // Gunner ambush list that recycles summons and never runs out of gas.
-                // Core card preview: Rocket Raccoon (packable); extra draw from Frog, Palico and Trapwire.
-                161, 161, 95, 95, 51, 51, 131, 131, 90, 90,
-                1, 1, 92, 92, 69, 69, 160, 160, 71, 71,
-                89, 89, 3, 3, 98, 98, 99, 99, 94, 96
+                // Constand chaos feeding
+                // Core card preview: Feed the chaos (packable).
+                126,126,126,126,126,126,126,126,126,126,
+                126,126,126,126,126,126,126,126,126,126,
+                126,126,126,126,126,126,126,126,126,126,
+                126,126,126,126,126,126,126,126,128,128
                 }
             },
             { 15, new List<int>

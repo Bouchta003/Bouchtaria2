@@ -225,6 +225,20 @@ public class GameManager : MonoBehaviour
             go.GetComponent<CardInstance>().ModifyStats(atk, hp);
         }
     }
+    public void BuffAllAllies(int totalStats, PlayerOwner owner)
+    {
+        List<GameObject> allies;
+        if (owner == PlayerOwner.Player) allies = allyDropArea.allyPrefabCards;
+        else allies = enemyDropArea.enemyPrefabCards;
+
+        foreach (GameObject go in allies)
+        {
+            int newAtk = UnityEngine.Random.Range(0, totalStats + 1);
+            int newHp = totalStats - newAtk;
+
+            go.GetComponent<CardInstance>().ModifyStats(newAtk, newHp);
+        }
+    }
     void SetupDungeonFight(DungeonRunData runData)
     {
         startingEnemyCoreHealth = 5 * (runData.floor+4);
@@ -1645,6 +1659,28 @@ public class GameManager : MonoBehaviour
             var card = enemy.GetComponentInChildren<CardInstance>();
             if (card != null)
                 Kill(card);
+        }
+    }
+    public void ScrambleAllUnitsStats()
+    {
+        // Copy lists first to avoid modification during iteration
+        var allyCards = new List<GameObject>(allyDropArea.allyPrefabCards);
+        var enemyCards = new List<GameObject>(enemyDropArea.enemyPrefabCards);
+
+        foreach (GameObject ally in allyCards)
+        {
+            if (ally == null) continue;
+
+            var card = ally.GetComponentInChildren<CardInstance>();
+            card.ScrambleStats();
+        }
+
+        foreach (GameObject enemy in enemyCards)
+        {
+            if (enemy == null) continue;
+
+            var card = enemy.GetComponentInChildren<CardInstance>();
+            card.ScrambleStats();
         }
     }
     public void Kill(CardInstance target)

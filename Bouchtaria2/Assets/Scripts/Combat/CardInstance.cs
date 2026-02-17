@@ -156,7 +156,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         int atk = CurrentAttack;
         int hp = CurrentMaxHealth;
-
+        int CurrentDamage = CurrentMaxHealth - CurrentHealth;
         int total = atk + hp;
 
         // Safety
@@ -176,7 +176,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         CurrentAttack = newAtk;
         CurrentMaxHealth = newHp;
-        CurrentHealth = Mathf.Min(CurrentHealth, CurrentMaxHealth);
+        CurrentHealth = CurrentMaxHealth-CurrentDamage;
 
         cardView.UpdateMode();
     }
@@ -1011,6 +1011,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("buffall"))
         {
             (int atk, int hp) = GetTwoIntsFromEffect(effect);
+            if (atk == -1 && hp == -1){ 
+                //Scenario of random mix of stats
+                TryParseIntEffect(effect, "buffall", out int stats);
+                gameManager.BuffAllAllies(stats, Owner);
+                gameManager.CheckGlow(); return false;
+            } 
             gameManager.BuffAllAllies(atk,hp,Owner);
             gameManager.CheckGlow(); return false;
         }
@@ -1018,6 +1024,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("wipeboard"))
         {
             gameManager.WipeBoard();
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("scrambleallstats"))
+        {
+            gameManager.ScrambleAllUnitsStats();
             gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("resurrectlast"))
@@ -1415,10 +1426,9 @@ public class CardInstance : MonoBehaviour, IAttackable
                 return true;
 
             default:
+            trigger = EffectTrigger.None;
                 return false;
         }
-        trigger = EffectTrigger.None;
-        return false;
     }
 
     private void BeginTargetedEffect(string effect, bool forceRandomTarget = false)
@@ -2358,7 +2368,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         string[] parts = effect.Substring(start + 1, end - start - 1).Split(',');
         if (parts.Length != 2)
-            return (0, 0);
+            return (-1, -1);
 
         int.TryParse(parts[0], out int a);
         int.TryParse(parts[1], out int b);
@@ -2682,7 +2692,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (amount <= 0) return;
 
-        if (HasKeyword("blessed"))
+        if (HasKeyword("blessed") && amount > 0)
         {
             RemoveEffect("blessed");
             UpdateStatsColor();
