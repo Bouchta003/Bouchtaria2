@@ -13,43 +13,22 @@ public class DeckSelectionController : MonoBehaviour
 
     List<int> enemyDeck0 = new List<int>
     {
-        126,126,126,126,126,126,126,128,128,128,128,128,128,128,126,126,126,126,126,126,126 // Hoopa portal
+        58, 58, 60, 60, 61, 61, 63, 63, 64, 64,
+        65, 65, 66, 66, 67, 67, 68, 68, 106, 106,
+        107, 107, 108, 108, 109, 109, 110, 110, 111, 111
     };
     List<int> enemyDeck1 = new List<int>
-{
-    53,54,53,54,53,
-
-};
+    {
+        16, 16, 19, 19, 22, 22, 25, 25, 26, 26,
+        52, 52, 55, 55, 56, 56, 57, 57, 87, 87,
+        144, 144, 146, 146, 147, 147, 148, 148, 150, 150
+    };
     List<int> enemyDeck2 = new List<int>
-{
-    // ===== CHAOS CORE (all available Chaos cards) =====
-    126,126,      // Colonel Whatsapp (Chaos – draw engine)
-    127,127,      // Giratina Origin (Chaos – UNPACKABLE finisher)
-
-    // ===== FAITH DRAW & VALUE =====
-    129,129,      // Duaa (Faith – discover Faith)
-    130,130,      // Sadaqa (Faith – draw + heal)
-
-    109,109,    // Seeker of Ilm (Faith – repeat draw)
-    67,67,      // Awrah Man (Faith – tempo draw)
-
-    // ===== FAITH BOARD CONTROL =====
-    58,58,      // No More Music ! (Faith – silence all enemies)
-    68,68,      // Dans l'din (Faith – burn + discover)
-
-    // ===== FAITH DEFENSIVE CORE =====
-    63,63,      // Hijabi (Faith – Blessed body)
-    64,64,      // Hijab (Faith – Blessed gear)
-
-    65,65,      // Armor Clad Faith (Faith – armor + summon)
-    66,66,      // Potemslim (Faith – Protect + Blessed)
-
-    // ===== FAITH LATE GAME =====
-    108,108,    // Guardian of Niyyah (Faith – sustain engine)
-    106,106,    // Bearer of Sabr (Faith – resilient absorber)
-
-    110,110     // Voice Of Dhikr (Faith – scaling finisher)
-};
+    {
+        80, 80, 81, 81, 82, 82, 83, 83, 84, 84,
+        134, 134, 135, 135, 136, 136, 137, 137, 138, 138,
+        139, 139, 145, 145, 155, 155, 168, 168, 176, 176
+    };
 
     private void Start()
     {

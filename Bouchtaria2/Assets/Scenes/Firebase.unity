@@ -1185,6 +1185,9 @@ GameObject:
   m_Component:
   - component: {fileID: 310773708}
   - component: {fileID: 310773709}
+  - component: {fileID: 310773712}
+  - component: {fileID: 310773711}
+  - component: {fileID: 310773710}
   m_Layer: 0
   m_Name: AudioSystem
   m_TagString: Untagged
@@ -1226,6 +1229,48 @@ MonoBehaviour:
   soundMixer: {fileID: 649846004}
   PauseCanvas: {fileID: 574747220}
   MenuButton: {fileID: 1703627133}
+--- !u!114 &310773710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310773707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d003660d6e554445b115fb13c9d66ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderLoader
+  playerPrefKey: SFXVolume
+  slider: {fileID: 1470588449}
+--- !u!114 &310773711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310773707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d003660d6e554445b115fb13c9d66ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderLoader
+  playerPrefKey: MusicVolume
+  slider: {fileID: 1644987941}
+--- !u!114 &310773712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310773707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d003660d6e554445b115fb13c9d66ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderLoader
+  playerPrefKey: MasterVolume
+  slider: {fileID: 2017923361}
 --- !u!1 &313366535
 GameObject:
   m_ObjectHideFlags: 0
@@ -4686,16 +4731,20 @@ MonoBehaviour:
   sceneMusic:
   - sceneName: Firebase
     music: {fileID: 8300000, guid: 28132a168e69e95458cc8ac593b1f66b, type: 3}
+  - sceneName: Shop
+    music: {fileID: 8300000, guid: 76aaa73f61459fe458645c45385324ce, type: 3}
+  - sceneName: Collection
+    music: {fileID: 8300000, guid: 35724c0260ae0454a8e22c396815a866, type: 3}
   - sceneName: Combat
     music: {fileID: 8300000, guid: d4d60e8e8f470c84ea2ef95825632827, type: 3}
   - sceneName: Combat
     music: {fileID: 8300000, guid: 7e994010a958e7649b6b59231a244377, type: 3}
   - sceneName: Combat
     music: {fileID: 8300000, guid: a3a72c84881a29142b09504163875635, type: 3}
-  - sceneName: Collection
-    music: {fileID: 8300000, guid: 35724c0260ae0454a8e22c396815a866, type: 3}
-  - sceneName: Shop
-    music: {fileID: 8300000, guid: 76aaa73f61459fe458645c45385324ce, type: 3}
+  - sceneName: Combat
+    music: {fileID: 8300000, guid: 2bd3766dd754c0a43be2465a31eec1e1, type: 3}
+  - sceneName: Combat
+    music: {fileID: 8300000, guid: c0674d0458a5dfc4ca2addeedea5bdf2, type: 3}
   defaultFadeTime: 1.5
   defaultMusic: {fileID: 8300000, guid: 28132a168e69e95458cc8ac593b1f66b, type: 3}
 --- !u!1 &1067415198
@@ -6183,7 +6232,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1470588448}
   - component: {fileID: 1470588449}
-  - component: {fileID: 1470588450}
   m_Layer: 5
   m_Name: SFXSlider
   m_TagString: Untagged
@@ -6276,20 +6324,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &1470588450
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1470588447}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d003660d6e554445b115fb13c9d66ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderLoader
-  playerPrefKey: SFXVolume
-  slider: {fileID: 1470588449}
 --- !u!1 &1479004159
 GameObject:
   m_ObjectHideFlags: 0
@@ -7019,7 +7053,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1644987940}
   - component: {fileID: 1644987941}
-  - component: {fileID: 1644987942}
   m_Layer: 5
   m_Name: MusicSlider
   m_TagString: Untagged
@@ -7112,20 +7145,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &1644987942
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1644987939}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d003660d6e554445b115fb13c9d66ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderLoader
-  playerPrefKey: MusicVolume
-  slider: {fileID: 1644987941}
 --- !u!1 &1702030973
 GameObject:
   m_ObjectHideFlags: 0
@@ -9136,7 +9155,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2017923360}
   - component: {fileID: 2017923361}
-  - component: {fileID: 2017923362}
   m_Layer: 5
   m_Name: MasterSlider
   m_TagString: Untagged
@@ -9229,20 +9247,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &2017923362
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2017923359}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d003660d6e554445b115fb13c9d66ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VolumeSliderLoader
-  playerPrefKey: MasterVolume
-  slider: {fileID: 2017923361}
 --- !u!1 &2045130404
 GameObject:
   m_ObjectHideFlags: 0
