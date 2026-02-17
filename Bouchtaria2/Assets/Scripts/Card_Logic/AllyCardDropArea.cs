@@ -109,12 +109,11 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         cardInst.IsSummoningSick = true;
 
         // Deploy logic
-        cardInst.DeployPending = cardInst.CurrentEffect.Contains("target");
+        cardInst.OnDeployResolved += HandleCardDeployResolved;
         cardInst.OnEnterBoard();
 
-
-        //Call for  update
-        OnCardPlayed?.Invoke(cardInst);
+        if (!cardInst.DeployPending)
+            HandleCardDeployResolved(cardInst);
         
         //UpdateView to board mode
         card.gameObject.GetComponent<CardView>().UpdateMode();
@@ -125,6 +124,14 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
 
         if (gm != null)
             gm.NotifyUnitEnteredBoard(cardInst);
+    }
+    private void HandleCardDeployResolved(CardInstance cardInst)
+    {
+        if (cardInst == null)
+            return;
+
+        cardInst.OnDeployResolved -= HandleCardDeployResolved;
+        OnCardPlayed?.Invoke(cardInst);
     }
     public void AddSummonedCard(CardInstance cardInst)
     {

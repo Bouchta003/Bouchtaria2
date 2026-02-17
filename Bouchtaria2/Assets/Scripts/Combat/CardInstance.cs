@@ -70,6 +70,9 @@ public class CardInstance : MonoBehaviour, IAttackable
     public bool IsDead = false;
     public PlayerOwner Owner { get; set; }
     private string pendingTargetedEffect;
+    private List<string> pendingTriggeredEffects;
+    private int pendingTriggeredEffectIndex;
+    private EffectTrigger? pendingTriggeredEffectType;
     private bool forceRandomTargetingForCurrentDeploy;
     private EffectTrigger? currentResolvingTrigger;
     public CardData.SpellTargetType spellType { get; set; }
@@ -87,6 +90,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public bool IsDying { get; set; } = false;
     public CardView cardView { get; set; }
     public bool DeployPending { get; set; }
+    public event System.Action<CardInstance> OnDeployResolved;
     //Progression
     public int ProgressionCounter { get; set; }
     public int ProgressionCap { get; set; }
@@ -862,10 +866,50 @@ public class CardInstance : MonoBehaviour, IAttackable
             forceRandomTargetingForCurrentDeploy = forceRandomTarget;
             TriggerEffects(EffectTrigger.Deploy);
             forceRandomTargetingForCurrentDeploy = false;
-            WasPlayed = false;
-            gameManager.ClearDeploySummonCap(this);
+
+            if (!DeployPending)
+                FinalizeDeployResolution();
         }
     }
+    private void FinalizeDeployResolution()
+    {
+        if (!WasPlayed)
+            return;
+
+        WasPlayed = false;
+        gameManager.ClearDeploySummonCap(this);
+        OnDeployResolved?.Invoke(this);
+    }
+
+    public void CancelPendingResolution()
+    {
+        pendingTargetedEffect = null;
+        pendingTriggeredEffects = null;
+        pendingTriggeredEffectType = null;
+        pendingTriggeredEffectIndex = 0;
+        DeployPending = false;
+    }
+
+    private static List<string> OrderEffectsForResolution(List<string> effects)
+    {
+        if (effects == null || effects.Count <= 1)
+            return effects;
+
+        List<string> targeted = new();
+        List<string> nonTargeted = new();
+
+        foreach (string effect in effects)
+        {
+            if (effect.Contains(",target") && !effect.StartsWith("gear"))
+                targeted.Add(effect);
+            else
+                nonTargeted.Add(effect);
+        }
+
+        targeted.AddRange(nonTargeted);
+        return targeted;
+    }
+
     private void TriggerEffects(EffectTrigger trigger)
     {
         if (EffectsSuppressed && Data.id != 29 && Data.id != 86) return;
@@ -873,11 +917,21 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
 
         currentResolvingTrigger = trigger;
-        foreach (string effect in effects)
-            ExecuteEffect(effect);
+        List<string> orderedEffects = OrderEffectsForResolution(effects);
+        for (int i = 0; i < orderedEffects.Count; i++)
+        {
+            if (ExecuteEffect(orderedEffects[i]))
+            {
+                pendingTriggeredEffects = orderedEffects;
+                pendingTriggeredEffectIndex = i + 1;
+                pendingTriggeredEffectType = trigger;
+                currentResolvingTrigger = null;
+                return;
+            }
+        }
         currentResolvingTrigger = null;
     }
-    private void ExecuteEffect(string effect)
+    private bool ExecuteEffect(string effect)
     {
         effect = effect.ToLowerInvariant();
         Debug.Log($"[DEPLOY] Executing effect: {effect}");
@@ -885,23 +939,24 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             DeployPending = (CurrentZone == CardZone.Board);
             BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();
+            return true;
         }
         //Unique Effects
         //Turn tempering
         if (effect.StartsWith("extraturn"))
         {
             GainExtraTurn();
-            gameManager.CheckGlow(); return;
+            gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("lebens"))
         {
-            StartCoroutine(TriggerBensEffect()); return;
+            StartCoroutine(TriggerBensEffect()); return false;
         }
         if (effect.StartsWith("skipenemydraw"))
         {
             SkipNextEnemyDraw();
-            gameManager.CheckGlow(); return;
+            gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("limitenemyspace"))
         {
@@ -909,12 +964,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             {
                 gameManager.LimitEnemySpace(Owner, limit);
             }
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("giratina"))
         {
             gameManager.DistortionWorld = true;
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("ideal"))
         {
@@ -926,7 +981,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 if (deckManager.IdealEffect != 0) deckManager.IdealEffect = 1;
                 else deckManager.IdealEffect = 3;
             }
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("truth"))
         {
@@ -940,88 +995,88 @@ public class CardInstance : MonoBehaviour, IAttackable
                 if (deckManager.TruthEffect != 0) deckManager.TruthEffect = 1;
                 else deckManager.TruthEffect = 3;
             }
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("emperorsapphire"))
         {
             gameManager.EmperorSapphire(Owner);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("tawakkul"))
         {
             gameManager.StartCoroutine(gameManager.Tawakkul(5));
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
 
         if (effect.StartsWith("buffall"))
         {
             (int atk, int hp) = GetTwoIntsFromEffect(effect);
             gameManager.BuffAllAllies(atk,hp,Owner);
-            gameManager.CheckGlow(); return;
+            gameManager.CheckGlow(); return false;
         }
 
         if (effect.StartsWith("wipeboard"))
         {
             gameManager.WipeBoard();
-            gameManager.CheckGlow(); return;
+            gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("resurrectlast"))
         {
             gameManager.ResurrectLast(Owner, Data);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         else if (effect.StartsWith("resurrectlow"))
         {
             gameManager.ResurrectLow(Owner, Data);
-            gameManager.CheckGlow(); return;
+            gameManager.CheckGlow(); return false;
         }
         else if (effect.StartsWith("resurrect"))
         {
             gameManager.ResurrectRandom(Owner, Data);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
 
         if (effect.StartsWith("selfdestroy"))
         {
             SelfDestroy();
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
 
         if (effect.StartsWith("sleepall"))
         {
             SleepAll();
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         else if (effect.StartsWith("sleep"))
         {
             BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("silenceall"))
         {
             SilenceAll();
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         else if (effect.StartsWith("silence"))
         {
             BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("morphto"))
         {
             if (!TryParseIntEffect(effect, "morphto", out int id))
-            { gameManager.CheckGlow(); return; }
+            { gameManager.CheckGlow(); return false; }
 
             MorphTo(id);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("absorb"))
         {
             if (!TryParseIntEffect(effect, "absorb", out int amount))
-            { gameManager.CheckGlow(); return; }
+            { gameManager.CheckGlow(); return false; }
 
             TryExecuteAbsorb(effect, null);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
 
         if (effect.StartsWith("draw"))
@@ -1033,155 +1088,190 @@ public class CardInstance : MonoBehaviour, IAttackable
                 if (open < 0 || close <= open)
                 {
                     Debug.LogWarning($"Malformed draweffet effect '{effect}' on {Data.name}");
-                    return;
+                    return false;
                 }
 
                 string inner = effect.Substring(open + 1, close - open - 1).Trim();
                 if (string.IsNullOrEmpty(inner))
                 {
                     Debug.LogWarning($"Empty selfbuff parameters '{effect}' on {Data.name}");
-                    return;
+                    return false;
                 }
                 deckManager.StartCoroutine(deckManager.DrawEffect(inner, Owner));
-                gameManager.CheckGlow(); return;
+                gameManager.CheckGlow(); return false;
             }
            
             else if(TryParseIntEffect(effect, "draw", out int cards))
             {
                 gameManager.CheckGlow();
-                deckManager.StartCoroutine(deckManager.Draw(cards, Owner)); return;
+                deckManager.StartCoroutine(deckManager.Draw(cards, Owner)); return false;
             }
         }
 
         if (effect.StartsWith("praise"))
         {
             gameManager.Praise(Owner);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
 
         if (effect.StartsWith("autodmg"))
         {
             if (!TryParseIntEffect(effect, "autodmg", out int dmg))
-            { gameManager.CheckGlow(); return; }
+            { gameManager.CheckGlow(); return false; }
 
             AutoDamageCore(dmg);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("advanceprogress"))
         {
             TryExecuteAdvanceProgress();
-            gameManager.CheckGlow(); return;
+            gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("autoheal"))
         {
             if (!TryParseIntEffect(effect, "autoheal", out int heal))
-            { gameManager.CheckGlow(); return; }
+            { gameManager.CheckGlow(); return false; }
 
             AutoHealCore(heal);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
 
         if (effect.StartsWith("healall"))
         {
             if (!TryParseIntEffect(effect, "healall", out int heal))
-            { gameManager.CheckGlow(); return; }
+            { gameManager.CheckGlow(); return false; }
 
             HealAll(heal);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
 
         if (effect.StartsWith("autoshield"))
         {
             if (!TryParseIntEffect(effect, "autoshield", out int shield))
-            { gameManager.CheckGlow(); return; }
+            { gameManager.CheckGlow(); return false; }
 
             AutoShieldCore(shield);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("summonrandomcost"))
         {
             gameManager.TrySummonForOwnerManaCost(Owner, GetSingleIntFromEffect(effect));
-            gameManager.CheckGlow(); return;
+            gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("summon"))
         {
             TryExecuteSummon(effect);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("discover"))
         {
             TryExecuteDiscover(effect);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("ally?"))
         {
             TryExecuteAllyConditional(effect);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         // near other effect.StartsWith checks in ExecuteEffect:
         if (effect.StartsWith("selfbuff"))
         {
             TryExecuteSelfBuff(effect);
             gameManager.CheckGlow(); // keep UI in sync
-            return;
+            return false;
         }
         if (effect.StartsWith("selfheal"))
         {
             TryExecuteSelfHeal(effect);
             gameManager.CheckGlow(); // keep UI in sync
-            return;
+            return false;
         }
 
         if (effect.StartsWith("addcard"))
         {
             TryExecuteAddCard(effect);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         
         if (effect.StartsWith("buff"))
         {
             TryExecuteBuff(effect, null);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("buff") && effect.Contains(",target"))
         {
             BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("damageaoe"))
         {
             TryExecuteDamageAoe(effect);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("damagerandomenemy"))
         {
             TryExecuteDamageRandomEnemy(effect);
-            gameManager.CheckGlow(); return;
+            gameManager.CheckGlow(); return false;
         }
         else if (effect.StartsWith("damage"))
         {
             TryExecuteDamage(effect, null);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
 
         if (effect.StartsWith("catch") && effect.Contains(",target"))
         {
             BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
-            gameManager.CheckGlow(); return;
+            gameManager.CheckGlow(); return false;
         }
 
         if (effect.StartsWith("gear"))
         {
             TryExecuteGear(effect, CurrentEffectText, null);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
 
         if (effect.StartsWith("managain"))
         {
             TryExecuteManaGain(effect);
-            gameManager.CheckGlow();return;
+            gameManager.CheckGlow();return false;
         }
         Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
+        return false;
+    }
+
+    private void ResumePendingTriggeredEffects()
+    {
+        if (pendingTriggeredEffects == null)
+            return;
+
+        var queuedEffects = pendingTriggeredEffects;
+        int start = pendingTriggeredEffectIndex;
+        EffectTrigger? queuedTrigger = pendingTriggeredEffectType;
+
+        pendingTriggeredEffects = null;
+        pendingTriggeredEffectType = null;
+        pendingTriggeredEffectIndex = 0;
+
+        if (queuedTrigger.HasValue)
+            currentResolvingTrigger = queuedTrigger.Value;
+
+        for (int i = start; i < queuedEffects.Count; i++)
+        {
+            if (ExecuteEffect(queuedEffects[i]))
+            {
+                pendingTriggeredEffects = queuedEffects;
+                pendingTriggeredEffectIndex = i + 1;
+                pendingTriggeredEffectType = queuedTrigger;
+                currentResolvingTrigger = null;
+                return;
+            }
+        }
+
+        currentResolvingTrigger = null;
+
+        if (CurrentZone == CardZone.Board && !DeployPending)
+            FinalizeDeployResolution();
     }
     private void TriggerBerserk()
     {
@@ -1499,8 +1589,10 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (executed)
         {
             pendingTargetedEffect = null;
+            DeployPending = false;
 
             gameManager.EndEffectTargetting();
+            ResumePendingTriggeredEffects();
         }
 
         return executed;
