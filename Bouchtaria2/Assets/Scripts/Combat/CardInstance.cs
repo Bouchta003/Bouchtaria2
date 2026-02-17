@@ -1890,8 +1890,15 @@ public class CardInstance : MonoBehaviour, IAttackable
                 gameManager.Discover(id, idd, iddd, Owner);
             }
             else if (effect.StartsWith("discovertrait")) { gameManager.DiscoverTrait(valueStr, Owner); }
-            else
-            { gameManager.DiscoverEffect(valueStr, Owner); }
+            else 
+            {
+                //Test for three different effects ? 
+                (string e1, string e2, string e3) = GetThreeStringsFromEffect(effect);
+                if(e1 == "" || e2 == "" || e3 == "")
+                    gameManager.DiscoverEffect(valueStr, Owner); 
+                else
+                    gameManager.DiscoverEffect(e1,e2,e3, Owner);
+            }
         }
         else { gameManager.DiscoverOwnerTrait(Owner); }
     }
@@ -2374,6 +2381,19 @@ public class CardInstance : MonoBehaviour, IAttackable
         int.TryParse(parts[1], out int b);
         return (a, b);
     }
+    private (string, string, string) GetThreeStringsFromEffect(string effect)
+    {
+        int start = effect.IndexOf('(');
+        int end = effect.IndexOf(')');
+        if (start < 0 || end <= start + 1)
+            return ("", "", "");
+
+        string[] parts = effect.Substring(start + 1, end - start - 1).Split(',');
+        if (parts.Length != 3)
+            return ("", "", "");
+
+        return (parts[0], parts[1], parts[2]);
+    }
     private string RemoveEffectByPrefix(string effects, string prefix)
     {
         if (string.IsNullOrEmpty(effects))
@@ -2539,10 +2559,6 @@ public class CardInstance : MonoBehaviour, IAttackable
 
     private bool TryExecuteDitto(CardInstance target)
     {
-        // Must be ally
-        if (target.Owner != Owner)
-            return false;
-
         // Cannot morph into self
         if (target == this)
             return false;

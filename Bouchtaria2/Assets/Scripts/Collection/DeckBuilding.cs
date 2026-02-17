@@ -95,7 +95,7 @@ public class DeckBuilding : MonoBehaviour
             DeckNameInput.text = "DungeonDeck";
             DeckNameInput.DeactivateInputField();// To test
 
-            ChangeDecksButton.SetActive(false);
+            //ChangeDecksButton.SetActive(false);
             DeleteDeckButton.SetActive(false);
             
             ChestSpriteBot.color = new Color(1, 0.8f, 0.3f);

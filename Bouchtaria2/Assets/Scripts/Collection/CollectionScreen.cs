@@ -4,6 +4,7 @@ using TMPro;
 using System.Collections;
 using System;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class CollectionScreen : MonoBehaviour
 {
@@ -12,6 +13,9 @@ public class CollectionScreen : MonoBehaviour
     [SerializeField] private CardView cardViewPrefab;
     [SerializeField] private Transform layoutAnchor;
     [SerializeField] private TextMeshProUGUI ownedButtonLabel;
+    [SerializeField] private TextMeshProUGUI UnitsButtonLabel;
+    [SerializeField] private TextMeshProUGUI ManaButtonLabel;
+    [SerializeField] private TextMeshProUGUI SpellsButtonLabel;
     [SerializeField] private TMP_InputField nameResearchText;
     [SerializeField] private TMP_Dropdown traitsDropDown;
 
@@ -28,7 +32,17 @@ public class CollectionScreen : MonoBehaviour
     public bool isDeck = false;
 
     public int currentPage = 0;
-    public enum Filter { None, Ownership, Name, Mana, Attack, Health, Trait, Type }
+    public enum Filter
+    {
+        None,
+        Ownership,
+        Name,
+        Mana,    // now used only for sorting
+        Minion,  // replaces Attack
+        Spell,   // replaces Health
+        Trait
+    }
+
     public List<Filter> currentFilters = new List<Filter>();
     private Dictionary<int, int> duplicateCounts = new Dictionary<int, int>();
 
@@ -75,6 +89,10 @@ public class CollectionScreen : MonoBehaviour
             currentPage = 0;
             ShowPage(0);
         }
+
+        if (currentFilters.Contains(Filter.Mana)) ManaButtonLabel.color = Color.yellow;else ManaButtonLabel.color = Color.white;
+        if (currentFilters.Contains(Filter.Minion)) UnitsButtonLabel.color = Color.yellow; else UnitsButtonLabel.color = Color.white;
+        if (currentFilters.Contains(Filter.Spell)) SpellsButtonLabel.color = Color.yellow; else SpellsButtonLabel.color = Color.white;
     }
     private void RefreshCurrentPage()
     {
@@ -91,6 +109,13 @@ public class CollectionScreen : MonoBehaviour
 
         // 🔹 Get cards based on current filter (ALL or OWNED)
         List<CardData> filteredCards = GetFilteredCards(currentFilters, filterText, filterValue);
+        if (currentFilters.Contains(Filter.Mana))
+        {
+            filteredCards = filteredCards
+                .OrderBy(card => card.manaCost)
+                .ToList();
+        }
+
         if (isDeck)
         {
             filteredCards.Clear();
@@ -221,30 +246,14 @@ public class CollectionScreen : MonoBehaviour
                     continue;
             }
 
-            // -------------------------
-            // MANA FILTER
-            // -------------------------
-            if (filterTypes.Contains(Filter.Mana))
+            if (filterTypes.Contains(Filter.Minion))
             {
-                if (card.manaCost != value || (card.manaCost < value) && value >= 9) // "equality" logic and 9+ logic
+                if (card.cardType.ToLower() != "minion")
                     continue;
             }
-
-            // -------------------------
-            // ATTACK FILTER
-            // -------------------------
-            if (filterTypes.Contains(Filter.Attack))
+            if (filterTypes.Contains(Filter.Spell))
             {
-                if (card.atkValue != value)
-                    continue;
-            }
-
-            // -------------------------
-            // HEALTH FILTER
-            // -------------------------
-            if (filterTypes.Contains(Filter.Health))
-            {
-                if (card.hpValue != value)
+                if (card.cardType.ToLower() != "spell")
                     continue;
             }
 
@@ -333,52 +342,25 @@ public class CollectionScreen : MonoBehaviour
         NormalizeFilters();
         ShowPage(0);
     }
+    public void ToggleSpellFilter()
+    {
+        ToggleFilter(Filter.Spell);
+    }
     public void ToggleManaFilter()
     {
-        if (filterValue < 0)
-        {
-            currentFilters.Remove(Filter.Mana);
-            NormalizeFilters();
-            currentPage = 0;
-            ShowPage(0);
-            return;
-        }
-        if (!currentFilters.Contains(Filter.Mana)) { currentFilters.Add(Filter.Mana); }
-        else { currentFilters.Remove(Filter.Mana); filterValue = -1; }
-
-        NormalizeFilters();
-        currentPage = 0;
-        ShowPage(0);
+        ToggleFilter(Filter.Mana);
     }
-    public void ToggleAttackFilter()
-    {
-        if (filterValue < 0)
-        {
-            currentFilters.Remove(Filter.Attack);
-            NormalizeFilters();
-            currentPage = 0;
-            ShowPage(0);
-            return;
-        }
-        if (!currentFilters.Contains(Filter.Attack)) { currentFilters.Add(Filter.Attack); }
-        else { currentFilters.Remove(Filter.Attack); filterValue = -1; }
 
-        NormalizeFilters();
-        currentPage = 0;
-        ShowPage(0);
-    }
-    public void ToggleHealthFilter()
+    public void ToggleMinionFilter()
     {
-        if (filterValue < 0)
-        {
-            currentFilters.Remove(Filter.Health);
-            NormalizeFilters();
-            currentPage = 0;
-            ShowPage(0);
-            return;
-        }
-        if (!currentFilters.Contains(Filter.Health)) { currentFilters.Add(Filter.Health); }
-        else { currentFilters.Remove(Filter.Health); filterValue = -1; }
+        ToggleFilter(Filter.Minion);
+    }
+    private void ToggleFilter(Filter filter)
+    {
+        if (currentFilters.Contains(filter))
+            currentFilters.Remove(filter);
+        else
+            currentFilters.Add(filter);
 
         NormalizeFilters();
         currentPage = 0;

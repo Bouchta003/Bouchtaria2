@@ -1254,6 +1254,67 @@ public class GameManager : MonoBehaviour
         //Call Discover
         OnDiscover?.Invoke(owner);
     }
+    public void DiscoverEffect(string effect1, string effect2, string effect3, PlayerOwner owner)
+    {
+        List<CardData> options1 = CardDatabase.Instance.GetCardsByEffect(effect1 + "*");
+        List<CardData> options2 = CardDatabase.Instance.GetCardsByEffect(effect2 + "*");
+        List<CardData> options3 = CardDatabase.Instance.GetCardsByEffect(effect3 + "*");
+        if (options1.Count <= 0) return;
+        if (owner == PlayerOwner.Enemy)
+        {
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
+            {
+                int numb = UnityEngine.Random.Range(0, 3);
+                switch (numb)
+                {
+                    case 0:
+                        AddCardToHand(PlayerOwner.Enemy, options1[UnityEngine.Random.Range(0, options1.Count)].id, -1);
+                        if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner); return;
+                    case 1:
+                        AddCardToHand(PlayerOwner.Enemy, options2[UnityEngine.Random.Range(0, options2.Count)].id, -1);
+                        if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner); return;
+                    case 2:
+                        AddCardToHand(PlayerOwner.Enemy, options3[UnityEngine.Random.Range(0, options3.Count)].id, -1);
+                        if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner); return;
+
+                }
+            }
+            else
+            {
+                int numb = UnityEngine.Random.Range(0, 3);
+                switch (numb)
+                {
+                    case 0:
+                        AddCardToHand(PlayerOwner.Enemy, options1[UnityEngine.Random.Range(0, options1.Count)].id, -1);
+                        if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner); return;
+                    case 1:
+                        AddCardToHand(PlayerOwner.Enemy, options2[UnityEngine.Random.Range(0, options2.Count)].id, -1);
+                        if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner); return;
+                    case 2:
+                        AddCardToHand(PlayerOwner.Enemy, options3[UnityEngine.Random.Range(0, options3.Count)].id, -1);
+                        if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner); return;
+
+                }
+            }
+            return;
+        }
+        isDiscovering = true;
+        discoverDisplay.SetActive(true);
+        CardData data1 = options1[UnityEngine.Random.Range(0, options1.Count)];
+        CardInstance dataInst1 = CardFactory.Instance.CreateCardInPosition(data1, PlayerOwner.Player, Vector3.zero, new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst1.IsDisplay = true;
+        dataInst1.GetComponent<SortingGroup>().sortingOrder = 201;
+        CardData data2 = options2[UnityEngine.Random.Range(0, options2.Count)];
+        CardInstance dataInst2 = CardFactory.Instance.CreateCardInPosition(data2, PlayerOwner.Player, new Vector3(5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst2.IsDisplay = true;
+        dataInst2.GetComponent<SortingGroup>().sortingOrder = 201;
+        CardData data3 = options3[UnityEngine.Random.Range(0, options3.Count)];
+        CardInstance dataInst3 = CardFactory.Instance.CreateCardInPosition(data3, PlayerOwner.Player, new Vector3(-5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst3.IsDisplay = true;
+        dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;
+        //Call Discover
+        OnDiscover?.Invoke(owner);
+    }
     public void DiscoverEffect(string effect, PlayerOwner owner)
     {
         List<CardData> options = CardDatabase.Instance.GetCardsByEffect(effect+"*");

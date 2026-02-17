@@ -24,7 +24,7 @@ public static class EnemyDecks
                 104, 104, 119, 119, 153, 153, 154, 154, 3, 3
                 }
             },
-            { 3, new List<int>
+             { 3, new List<int>
                 {
                 // Faith value engine with draw, armor and sustain
                 // Core card preview: Hijabi (packable).
@@ -48,7 +48,7 @@ public static class EnemyDecks
                 // Core card preview: Seeker of Ilm (packable).
                 109, 109, 126, 126, 110, 110, 128, 128, 111, 111,
                 129, 129, 145, 145, 130, 130, 162, 162, 132, 132,
-                58, 58, 133, 133, 60, 60, 157, 157, 127, 88
+                58, 58, 133, 133, 60, 60, 157, 157, 126, 88
                 }
             },
             { 6, new List<int>
@@ -66,7 +66,7 @@ public static class EnemyDecks
                 // Core card preview: Rocket Raccoon (packable); extra draw from Frog, Palico and Trapwire.
                 161, 161, 95, 95, 51, 51, 131, 131, 90, 90,
                 1, 1, 92, 92, 69, 69, 160, 160, 71, 71,
-                89, 89, 3, 3, 98, 98, 99, 99, 94, 96
+                89, 89, 3, 3, 98, 98, 99, 99, 97, 95
 
 
                 }
@@ -86,7 +86,7 @@ public static class EnemyDecks
                 // Core card preview: Darkrai (packable); legendaries Dialga + Palkia are unpackable bosses.
                 55, 55, 54, 54, 56, 56, 57, 57, 87, 87,
                 112, 112, 115, 115, 117, 117, 120, 120, 133, 133,
-                144, 144, 146, 146, 27, 27, 28, 28, 52, 52
+                144, 144, 146, 146, 52, 52, 55, 55, 52, 52
                 }
             },
             { 10, new List<int>
