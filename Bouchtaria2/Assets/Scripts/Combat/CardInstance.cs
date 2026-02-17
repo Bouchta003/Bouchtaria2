@@ -2430,14 +2430,17 @@ public class CardInstance : MonoBehaviour, IAttackable
         string runtimeAddedEffects = ExtractRuntimeAddedEffects(CurrentEffect, Data.effect);
         string runtimeAddedEffectText = ExtractRuntimeAddedEffectText(CurrentEffectText, Data.effectText);
 
-        int currentDamage = Data.hpValue - CurrentHealth;
+        // Preserve temporary stat gains (buffs) relative to the original base card.
+        int bonusAttack = Mathf.Max(0, CurrentAttack - Data.atkValue);
+        int bonusMaxHealth = Mathf.Max(0, CurrentMaxHealth - Data.hpValue);
+        int currentDamage = Mathf.Max(0, CurrentMaxHealth - CurrentHealth);
 
         // Swap data
         Data = newData;
 
-        CurrentHealth = Mathf.Max(CurrentHealth, Data.hpValue - currentDamage);
-        CurrentMaxHealth = newData.hpValue;
-        CurrentAttack = newData.atkValue;
+        CurrentAttack = newData.atkValue + bonusAttack;
+        CurrentMaxHealth = newData.hpValue + bonusMaxHealth;
+        CurrentHealth = Mathf.Max(1, CurrentMaxHealth - currentDamage);
         BaseManaCost = newData.manaCost;
 
         CurrentEffect = string.IsNullOrWhiteSpace(runtimeAddedEffects)
