@@ -91,6 +91,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public CardView cardView { get; set; }
     public bool DeployPending { get; set; }
     public event System.Action<CardInstance> OnDeployResolved;
+    public event System.Action<CardInstance> OnSpellResolved;
     //Progression
     public int ProgressionCounter { get; set; }
     public int ProgressionCap { get; set; }
@@ -714,14 +715,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             _ => EffectTarget.None
         };
     }
-    public void ResolveSpell(IAttackable target)
+
+    private void FinalizeSpellResolution()
     {
-        gameManager.NotifySpellPlayed(this);
-        gameManager.UseMana(CurrentManaCost, Owner);
+        OnSpellResolved?.Invoke(this);
 
-        ExecuteSpellEffects(target);
-
-        // NOW remove from hand
         HandManager hand = Owner == PlayerOwner.Player
             ? gameManager.allyHand
             : gameManager.enemyHand;
@@ -730,6 +728,15 @@ public class CardInstance : MonoBehaviour, IAttackable
         hand.UpdateCardPositions();
 
         Destroy(gameObject);
+    }
+
+    public void ResolveSpell(IAttackable target)
+    {
+        gameManager.NotifySpellPlayed(this);
+        gameManager.UseMana(CurrentManaCost, Owner);
+
+        ExecuteSpellEffects(target);
+        FinalizeSpellResolution();
     }
 
     private void ResolveSpell()
@@ -742,14 +749,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             gameManager.EnemyRandomCount++;
         }
-        HandManager hand = Owner == PlayerOwner.Player
-            ? gameManager.allyHand
-            : gameManager.enemyHand;
-
-        hand.handCards.Remove(gameObject);
-        hand.UpdateCardPositions();
-
-        Destroy(gameObject);
+        FinalizeSpellResolution();
     }
     private void ExecuteSpellEffects(IAttackable target)
     {
