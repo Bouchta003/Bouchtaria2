@@ -42,6 +42,7 @@ public class ShopManager : MonoBehaviour
     [SerializeField] Image pokemonGlow;
     [SerializeField] Image faithGlow;
     [SerializeField] Image avatarGlow;
+    [SerializeField] Image fighterGlow;
     [SerializeField] Image speedsterGlow;
     [SerializeField] Image healerGlow;
     [SerializeField] Image neutralGlow;
@@ -782,6 +783,10 @@ public class ShopManager : MonoBehaviour
         {
             EnableRainbowGlow(pokemonGlow);
         }
+        else if (selectedTrait == "Fighter")
+        {
+            EnableRainbowGlow(fighterGlow);
+        }
         else if (selectedTrait == "Chaos")
         {
             EnableRainbowGlow(chaosGlow);
@@ -820,6 +825,7 @@ public class ShopManager : MonoBehaviour
         DisableGlow(healerGlow);
         DisableGlow(faithGlow);
         DisableGlow(avatarGlow);
+        DisableGlow(fighterGlow);
         DisableGlow(neutralGlow);
         DisableGlow(speedsterGlow);
     }
