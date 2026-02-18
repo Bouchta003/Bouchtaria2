@@ -540,6 +540,7 @@ public class ComboProgression : ITraitProgression
                     UnlockTier3();
             }
         }
+        cardsPlayedThisTurn++;
     }
 
     private void UnlockTier1()
@@ -557,8 +558,6 @@ public class ComboProgression : ITraitProgression
         CurrentTier = 2;
         OnProgressUpdated?.Invoke(Trait, tier3TurnsCompleted, GetCurrentCap(), Owner);
 
-        traitSystem.DeactivateLowerTiers(CardData.Trait.Combo, 2);
-
         DeckManager deckManager = Object.FindFirstObjectByType<DeckManager>();
         traitSystem.ActivateEffect(new ComboTier2Effect(Owner, deckManager));
 
@@ -568,8 +567,6 @@ public class ComboProgression : ITraitProgression
     private void UnlockTier3()
     {
         CurrentTier = 3;
-
-        traitSystem.DeactivateLowerTiers(CardData.Trait.Combo, 3);
 
         DeckManager deckManager = Object.FindFirstObjectByType<DeckManager>();
         traitSystem.ActivateEffect(new ComboTier3Effect(Owner, deckManager));
@@ -613,7 +610,7 @@ public class ComboTier1Effect : IDeckTraitEffect
             deckManager.OnCardDrawn += OnCardDrawn;
 
         enemyAIController = Object.FindFirstObjectByType<EnemyAIController>();
-        if (enemyAIController != null)
+        if (enemyAIController != null && owner==PlayerOwner.Enemy)
             enemyAIController.OnCardPlayed += OnEnemyAICardPlayed;
 
         TurnManager.Instance.OnTurnStarted += OnTurnStarted;
