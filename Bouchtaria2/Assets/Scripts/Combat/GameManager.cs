@@ -125,10 +125,27 @@ public class GameManager : MonoBehaviour
     public event System.Action<PlayerOwner> OnPraise;
     public event System.Action<PlayerOwner> OnDamageCard;
     public event System.Action<CardInstance> OnSpellPlayed;
+    public event System.Action<CardInstance> OnCardPlayed;
+
+    private sealed class PendingHandReturn
+    {
+        public PlayerOwner Owner;
+        public int CardId;
+        public int TurnsRemaining;
+        public int ManaModifier;
+        public int AttackBonus;
+        public int HealthBonus;
+    }
+
+    private readonly List<PendingHandReturn> pendingHandReturns = new();
 
     public void NotifySpellPlayed(CardInstance spell)
     {
         OnSpellPlayed?.Invoke(spell);
+    }
+    public void NotifyCardPlayed(CardInstance card)
+    {
+        OnCardPlayed?.Invoke(card);
     }
 
     //Camera shake
@@ -213,6 +230,116 @@ public class GameManager : MonoBehaviour
             progression.ResetProgression();
             progression.PushInitialState();
         }
+
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted += HandleTurnStartedForPendingHandReturns;
+    }
+
+    private void HandleTurnStartedForPendingHandReturns(PlayerOwner owner)
+    {
+        if (pendingHandReturns.Count == 0)
+            return;
+
+        List<PendingHandReturn> dueReturns = new();
+
+        for (int i = pendingHandReturns.Count - 1; i >= 0; i--)
+        {
+            PendingHandReturn pending = pendingHandReturns[i];
+            if (pending.Owner != owner)
+                continue;
+
+            pending.TurnsRemaining--;
+            if (pending.TurnsRemaining > 0)
+                continue;
+
+            dueReturns.Add(pending);
+            pendingHandReturns.RemoveAt(i);
+        }
+
+        foreach (PendingHandReturn pending in dueReturns)
+        {
+            AddCardToHandWithBonuses(
+                pending.Owner,
+                pending.CardId,
+                pending.ManaModifier,
+                pending.AttackBonus,
+                pending.HealthBonus
+            );
+        }
+    }
+
+    public int DiscardCardsFromHandWithDeferredReturn(
+        PlayerOwner owner,
+        Func<CardInstance, bool> discardPredicate,
+        int turnsUntilReturn,
+        int manaModifier,
+        int attackBonus,
+        int healthBonus
+    )
+    {
+        HandManager hand = owner == PlayerOwner.Player ? allyHand : enemyHand;
+        if (hand == null)
+            return 0;
+
+        int discardedCount = 0;
+        List<GameObject> handSnapshot = new(hand.handCards);
+
+        foreach (GameObject go in handSnapshot)
+        {
+            if (go == null)
+                continue;
+
+            CardInstance card = go.GetComponent<CardInstance>();
+            if (card == null || !discardPredicate(card))
+                continue;
+
+            pendingHandReturns.Add(new PendingHandReturn
+            {
+                Owner = owner,
+                CardId = card.Data.id,
+                TurnsRemaining = turnsUntilReturn,
+                ManaModifier = manaModifier,
+                AttackBonus = attackBonus,
+                HealthBonus = healthBonus
+            });
+
+            hand.RemoveCardFromHand(go);
+            Destroy(go);
+            discardedCount++;
+        }
+
+        hand.UpdateCardPositions();
+        return discardedCount;
+    }
+
+    public CardInstance AddCardToHandWithBonuses(
+        PlayerOwner owner,
+        int id,
+        int manaModifier,
+        int attackBonus,
+        int healthBonus
+    )
+    {
+        HandManager hand = owner == PlayerOwner.Player ? allyHand : enemyHand;
+        if (hand == null || hand.handCards.Count >= hand.maxHandSize)
+            return null;
+
+        CardData data = CardDatabase.Instance.GetCardById(id);
+        if (data == null)
+            return null;
+
+        CardInstance card = CardFactory.Instance.CreateCard(data, owner);
+        card.SetZone(CardZone.Hand);
+
+        if (manaModifier != 0)
+            card.AddTemporaryManaModifier(manaModifier);
+
+        if (attackBonus != 0 || healthBonus != 0)
+            card.ModifyStats(attackBonus, healthBonus);
+
+        hand.AddCard(card.gameObject);
+        hand.UpdateCardPositions();
+        return card;
     }
     public void BuffAllAllies(int atk, int hp, PlayerOwner owner)
     {
@@ -278,7 +405,10 @@ public class GameManager : MonoBehaviour
     private void OnDestroy()
     {
         if (TurnManager.Instance != null)
+        {
             TurnManager.Instance.OnTurnStarted -= HandleTurnStart;
+            TurnManager.Instance.OnTurnStarted -= HandleTurnStartedForPendingHandReturns;
+        }
     }
     // Update is called once per frame
     void Update()
