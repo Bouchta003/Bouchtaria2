@@ -132,6 +132,8 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
             return;
 
         cardInst.OnSpellResolved -= HandleSpellResolved;
+        if (gm != null)
+            gm.NotifyCardPlayed(cardInst);
         OnCardPlayed?.Invoke(cardInst);
     }
     private void HandleCardDeployResolved(CardInstance cardInst)
@@ -140,6 +142,8 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
             return;
 
         cardInst.OnDeployResolved -= HandleCardDeployResolved;
+        if (gm != null)
+            gm.NotifyCardPlayed(cardInst);
         OnCardPlayed?.Invoke(cardInst);
     }
     public void AddSummonedCard(CardInstance cardInst)

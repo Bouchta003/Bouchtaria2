@@ -41,6 +41,10 @@ public enum EffectTarget
 }
 public class CardInstance : MonoBehaviour, IAttackable
 {
+    private const int OmriCardId = 192;
+    private const int InvestmentCardId = 196;
+    private const int GamblersInvestmentCardId = 197;
+
     GameManager gameManager;
     DeckManager deckManager;
     public Transform Transform { get; private set; }
@@ -809,6 +813,9 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void ExecuteSpellEffects(IAttackable target)
     {
+        if (TryExecuteIntrinsicSpellEffect())
+            return;
+
         if (string.IsNullOrWhiteSpace(CurrentEffect))
             return;
         // Same idea as minions: split by space
@@ -920,6 +927,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (WasPlayed)
         {
             forceRandomTargetingForCurrentDeploy = forceRandomTarget;
+            bool hasDeployEffects = parsedEffects.TryGetValue(EffectTrigger.Deploy, out var deployEffects)
+                                   && deployEffects != null
+                                   && deployEffects.Count > 0;
+            if (!hasDeployEffects)
+                TryExecuteIntrinsicDeployEffect(string.Empty);
+
             TriggerEffects(EffectTrigger.Deploy);
             forceRandomTargetingForCurrentDeploy = false;
 

@@ -91,10 +91,14 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
             return;
 
         cardInst.OnDeployResolved -= HandleCardDeployResolved;
+        if (gm != null)
+            gm.NotifyCardPlayed(cardInst);
         OnCardPlayed?.Invoke(cardInst);
     }
     public void CardPlayed(CardInstance cardInst)
     {
+        if (gm != null)
+            gm.NotifyCardPlayed(cardInst);
         OnCardPlayed?.Invoke(cardInst);
     }
     public List<GameObject> GetCards()

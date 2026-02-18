@@ -126,6 +126,19 @@ public class GameManager : MonoBehaviour
     public event System.Action<PlayerOwner> OnPraise;
     public event System.Action<PlayerOwner> OnDamageCard;
     public event System.Action<CardInstance> OnSpellPlayed;
+    public event System.Action<CardInstance> OnCardPlayed;
+
+    private sealed class PendingHandReturn
+    {
+        public PlayerOwner Owner;
+        public int CardId;
+        public int TurnsRemaining;
+        public int ManaModifier;
+        public int AttackBonus;
+        public int HealthBonus;
+    }
+
+    private readonly List<PendingHandReturn> pendingHandReturns = new();
 
     private sealed class PendingHandReturn
     {
@@ -142,6 +155,10 @@ public class GameManager : MonoBehaviour
     public void NotifySpellPlayed(CardInstance spell)
     {
         OnSpellPlayed?.Invoke(spell);
+    }
+    public void NotifyCardPlayed(CardInstance card)
+    {
+        OnCardPlayed?.Invoke(card);
     }
 
     //Camera shake
