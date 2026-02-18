@@ -744,12 +744,21 @@ public class GameManager : MonoBehaviour
     }
     private void RefillMana(PlayerOwner owner)
     {
-        if (owner == PlayerOwner.Player)
-            AllyCurrentMana = AllyCurrentMaxMana;
-        else
-            EnemyCurrentMana = EnemyCurrentMaxMana;
-    }
+        int gained;
 
+        if (owner == PlayerOwner.Player)
+        {
+            gained = Mathf.Max(0, AllyCurrentMaxMana - AllyCurrentMana);
+            AllyCurrentMana = AllyCurrentMaxMana;
+        }
+        else
+        {
+            gained = Mathf.Max(0, EnemyCurrentMaxMana - EnemyCurrentMana);
+            EnemyCurrentMana = EnemyCurrentMaxMana;
+        }
+
+        NotifyManaGained(owner, gained);
+    }
     #endregion
 
     #region Effects

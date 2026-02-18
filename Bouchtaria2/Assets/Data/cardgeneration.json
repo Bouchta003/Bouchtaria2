@@ -3248,7 +3248,7 @@
       "artPath": "CardArt/machoke",
       "relatedCards": [ 200 ],
       "artCompactPath": "CardArt/machoke_compact",
-      "packable": true,
+      "packable": false,
       "token": false,
       "signature": false
     },
@@ -3264,6 +3264,22 @@
       "effectText": "Look at them muscles mashaallah",
       "artPath": "CardArt/machamp",
       "artCompactPath": "CardArt/machamp_compact",
+      "packable": false,
+      "token": false,
+      "signature": false
+    },
+    "201": {
+      "id": 201,
+      "name": "PayDay",
+      "cardType": "spell",
+      "manaCost": 2,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "Combo", "Neutral" ],
+      "effect": "addcard(62) addcard(62)",
+      "effectText": "Add two coins to your hand",
+      "artPath": "CardArt/payday",
+      "artCompactPath": "CardArt/payday_compact",
       "packable": true,
       "token": false,
       "signature": false
