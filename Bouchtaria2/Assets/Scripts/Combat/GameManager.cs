@@ -363,7 +363,7 @@ public class GameManager : MonoBehaviour
                 CardData.Trait.Blizzard => throw new System.NotImplementedException(),
                 CardData.Trait.Hater => throw new System.NotImplementedException(),
                 CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
-                CardData.Trait.Combo => throw new System.NotImplementedException(),
+                CardData.Trait.Combo => new ComboProgression(owner, maxTier, traitSystem),
                 _ => throw new System.NotImplementedException(),
             };
 

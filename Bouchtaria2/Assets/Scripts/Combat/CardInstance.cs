@@ -968,7 +968,10 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         if (effect.StartsWith("giratina"))
         {
-            gameManager.DistortionWorld = true;
+            if(!Data.name.Contains("Origin"))
+                gameManager.DistortionWorld = true;
+            else
+                gameManager.DistortionWorld = false;
             gameManager.CheckGlow();return false;
         }
         if (effect.StartsWith("ideal"))
