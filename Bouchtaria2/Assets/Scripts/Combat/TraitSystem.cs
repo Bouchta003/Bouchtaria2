@@ -378,6 +378,7 @@ public class ComboProgression : ITraitProgression
     private bool reachedTwoCardsThisTurn;
     private bool reachedThreeCardsThisTurn;
     private bool reachedFourCardsThisTurn;
+    private EnemyAIController enemyAIController;
 
     public int CurrentProgress => CurrentTier switch
     {
@@ -424,7 +425,13 @@ public class ComboProgression : ITraitProgression
 
         allyBoard.OnCardPlayed += OnCardPlayed;
         enemyBoard.OnCardPlayed += OnCardPlayed;
+
+        enemyAIController = Object.FindFirstObjectByType<EnemyAIController>();
+        if (enemyAIController != null)
+            enemyAIController.OnCardPlayed += OnEnemyAICardPlayed;
+
         TurnManager.Instance.OnTurnStarted += OnTurnStarted;
+        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
 
         OnProgressUpdated?.Invoke(Trait, CurrentProgress, GetCurrentCap(), Owner);
     }
@@ -436,8 +443,14 @@ public class ComboProgression : ITraitProgression
         allyBoard.OnCardPlayed -= OnCardPlayed;
         enemyBoard.OnCardPlayed -= OnCardPlayed;
 
+        if (enemyAIController != null)
+            enemyAIController.OnCardPlayed -= OnEnemyAICardPlayed;
+
         if (TurnManager.Instance != null)
+        {
             TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
+            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+        }
     }
 
     private int GetCurrentCap()
@@ -446,7 +459,7 @@ public class ComboProgression : ITraitProgression
         {
             0 => 3,
             1 => 3,
-            2 => 2,
+            2 => 3,
             _ => 999
         };
     }
@@ -468,41 +481,58 @@ public class ComboProgression : ITraitProgression
             return;
 
         cardsPlayedThisTurn++;
+    }
+
+    private void OnEnemyAICardPlayed(CardInstance card)
+    {
+        if (Owner != PlayerOwner.Enemy)
+            return;
+
+        OnCardPlayed(card);
+    }
+
+    private void OnTurnEnded(PlayerOwner turnOwner)
+    {
+        if (turnOwner != Owner)
+            return;
 
         if (!reachedTwoCardsThisTurn && cardsPlayedThisTurn >= 2)
         {
             reachedTwoCardsThisTurn = true;
-            tier1TurnsCompleted++;
-
             if (CurrentTier == 0)
+            {
+                tier1TurnsCompleted++;
                 OnProgressUpdated?.Invoke(Trait, tier1TurnsCompleted, GetCurrentCap(), Owner);
 
-            if (tier1TurnsCompleted >= 3 && CurrentTier < 1 && maxTier >= 1)
-                UnlockTier1();
+                if (tier1TurnsCompleted >= 3 && CurrentTier < 1 && maxTier >= 1)
+                    UnlockTier1();
+            }
         }
 
         if (!reachedThreeCardsThisTurn && cardsPlayedThisTurn >= 3)
         {
             reachedThreeCardsThisTurn = true;
-            tier2TurnsCompleted++;
-
             if (CurrentTier == 1)
+            {
+                tier2TurnsCompleted++;
                 OnProgressUpdated?.Invoke(Trait, tier2TurnsCompleted, GetCurrentCap(), Owner);
 
-            if (tier2TurnsCompleted >= 3 && CurrentTier < 2 && maxTier >= 2)
-                UnlockTier2();
+                if (tier2TurnsCompleted >= 3 && CurrentTier < 2 && maxTier >= 2)
+                    UnlockTier2();
+            }
         }
 
         if (!reachedFourCardsThisTurn && cardsPlayedThisTurn >= 4)
         {
             reachedFourCardsThisTurn = true;
-            tier3TurnsCompleted++;
-
             if (CurrentTier == 2)
+            {
+                tier3TurnsCompleted++;
                 OnProgressUpdated?.Invoke(Trait, tier3TurnsCompleted, GetCurrentCap(), Owner);
 
-            if (tier3TurnsCompleted >= 2 && CurrentTier < 3 && maxTier >= 3)
-                UnlockTier3();
+                if (tier3TurnsCompleted >= 3 && CurrentTier < 3 && maxTier >= 3)
+                    UnlockTier3();
+            }
         }
     }
 
@@ -553,6 +583,8 @@ public class ComboTier1Effect : IDeckTraitEffect
     private bool waitingForSecondCard;
     private bool secondCardPlayed;
     private int cardsPlayedThisTurn;
+    private readonly List<CardInstance> discountedCards = new();
+    private EnemyAIController enemyAIController;
 
     public ComboTier1Effect(PlayerOwner owner)
     {
@@ -574,6 +606,10 @@ public class ComboTier1Effect : IDeckTraitEffect
         if (deckManager != null)
             deckManager.OnCardDrawn += OnCardDrawn;
 
+        enemyAIController = Object.FindFirstObjectByType<EnemyAIController>();
+        if (enemyAIController != null)
+            enemyAIController.OnCardPlayed += OnEnemyAICardPlayed;
+
         TurnManager.Instance.OnTurnStarted += OnTurnStarted;
         TurnManager.Instance.OnTurnEnded += OnTurnEnded;
     }
@@ -591,6 +627,9 @@ public class ComboTier1Effect : IDeckTraitEffect
 
         if (deckManager != null)
             deckManager.OnCardDrawn -= OnCardDrawn;
+
+        if (enemyAIController != null)
+            enemyAIController.OnCardPlayed -= OnEnemyAICardPlayed;
 
         if (TurnManager.Instance != null)
         {
@@ -640,6 +679,14 @@ public class ComboTier1Effect : IDeckTraitEffect
         }
     }
 
+    private void OnEnemyAICardPlayed(CardInstance card)
+    {
+        if (owner != PlayerOwner.Enemy)
+            return;
+
+        OnCardPlayed(card);
+    }
+
     private void OnCardDrawn(CardInstance card)
     {
         if (!waitingForSecondCard || secondCardPlayed)
@@ -649,18 +696,36 @@ public class ComboTier1Effect : IDeckTraitEffect
             return;
 
         card.AddTemporaryManaModifier(-1);
+        discountedCards.Add(card);
     }
 
     private void ApplySecondCardDiscountToHand()
     {
         foreach (var card in GetHand(owner))
+        {
             card.AddTemporaryManaModifier(-1);
+            discountedCards.Add(card);
+        }
     }
 
     private void RemoveSecondCardDiscountFromHand()
     {
-        foreach (var card in GetHand(owner))
-            card.ClearTemporaryManaModifiers();
+        for (int i = discountedCards.Count - 1; i >= 0; i--)
+        {
+            CardInstance discountedCard = discountedCards[i];
+            if (discountedCard == null)
+            {
+                discountedCards.RemoveAt(i);
+                continue;
+            }
+
+            if (discountedCard.CurrentZone == CardZone.Hand)
+                discountedCard.AddTemporaryManaModifier(1);
+
+            discountedCards.RemoveAt(i);
+        }
+
+        waitingForSecondCard = false;
     }
 
     private IEnumerable<CardInstance> GetHand(PlayerOwner handOwner)
@@ -688,6 +753,7 @@ public class ComboTier2Effect : IDeckTraitEffect
     private readonly DeckManager deckManager;
     private int cardsPlayedThisTurn;
     private bool triggeredThisTurn;
+    private EnemyAIController enemyAIController;
 
     public ComboTier2Effect(PlayerOwner owner, DeckManager deckManager)
     {
@@ -706,6 +772,10 @@ public class ComboTier2Effect : IDeckTraitEffect
         if (enemyBoard != null)
             enemyBoard.OnCardPlayed += OnCardPlayed;
 
+        enemyAIController = Object.FindFirstObjectByType<EnemyAIController>();
+        if (enemyAIController != null)
+            enemyAIController.OnCardPlayed += OnEnemyAICardPlayed;
+
         TurnManager.Instance.OnTurnStarted += OnTurnStarted;
     }
 
@@ -719,6 +789,9 @@ public class ComboTier2Effect : IDeckTraitEffect
 
         if (enemyBoard != null)
             enemyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (enemyAIController != null)
+            enemyAIController.OnCardPlayed -= OnEnemyAICardPlayed;
 
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
@@ -745,6 +818,14 @@ public class ComboTier2Effect : IDeckTraitEffect
 
         triggeredThisTurn = true;
         TryIncreaseEnemyHandCardCost();
+    }
+
+    private void OnEnemyAICardPlayed(CardInstance card)
+    {
+        if (owner != PlayerOwner.Enemy)
+            return;
+
+        OnCardPlayed(card);
     }
 
     private void TryIncreaseEnemyHandCardCost()
@@ -779,6 +860,7 @@ public class ComboTier3Effect : IDeckTraitEffect
     private readonly DeckManager deckManager;
     private bool hasTriggeredThisGame;
     private int cardsPlayedThisTurn;
+    private EnemyAIController enemyAIController;
 
     public ComboTier3Effect(PlayerOwner owner, DeckManager deckManager)
     {
@@ -797,6 +879,10 @@ public class ComboTier3Effect : IDeckTraitEffect
         if (enemyBoard != null)
             enemyBoard.OnCardPlayed += OnCardPlayed;
 
+        enemyAIController = Object.FindFirstObjectByType<EnemyAIController>();
+        if (enemyAIController != null)
+            enemyAIController.OnCardPlayed += OnEnemyAICardPlayed;
+
         TurnManager.Instance.OnTurnStarted += OnTurnStarted;
     }
 
@@ -810,6 +896,9 @@ public class ComboTier3Effect : IDeckTraitEffect
 
         if (enemyBoard != null)
             enemyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (enemyAIController != null)
+            enemyAIController.OnCardPlayed -= OnEnemyAICardPlayed;
 
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
@@ -840,6 +929,14 @@ public class ComboTier3Effect : IDeckTraitEffect
             GameManager.Instance.StartCoroutine(deckManager.Draw(2, owner));
 
         Debug.Log($"[Combo T3] {owner} played 4 cards in a turn and drew 2 cards.");
+    }
+
+    private void OnEnemyAICardPlayed(CardInstance card)
+    {
+        if (owner != PlayerOwner.Enemy)
+            return;
+
+        OnCardPlayed(card);
     }
 }
 #endregion
