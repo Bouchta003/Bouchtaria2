@@ -72,8 +72,8 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Fighter, new[] { 4, 8, 15 } },
             { CardData.Trait.Gunner, new[] { 4,8,12 } },
             { CardData.Trait.Faith, new[] { 4,8,10 } },
-            { CardData.Trait.Avatar, new[] { 5,8,15 } },//Make it later 5, 8, 15
-            { CardData.Trait.Combo, new[] { 5, 8 } },
+            { CardData.Trait.Avatar, new[] { 5,8,15 } },
+            { CardData.Trait.Combo, new[] { 4, 8,14 } },
             { CardData.Trait.Healer, new[] { 6, 9, 14 } },
             { CardData.Trait.Chaos, new[] { 4, 8, 12 } },
             { CardData.Trait.Inazuma, new[] { 11 } },

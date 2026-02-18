@@ -1267,11 +1267,21 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteGear(effect, CurrentEffectText, null);
             gameManager.CheckGlow();return false;
         }
-
+        if (effect.StartsWith("maxmanagain"))
+        {
+            TryExecuteAllyMaxManaGain(effect);
+            gameManager.CheckGlow(); return false;
+        }
         if (effect.StartsWith("managain"))
         {
             TryExecuteManaGain(effect);
             gameManager.CheckGlow();return false;
+        }
+
+        if (effect.StartsWith("enemymanaloss"))
+        {
+            TryExecuteEnemyManaLoss(effect);
+            gameManager.CheckGlow(); return false;
         }
         Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
         return false;
@@ -1880,7 +1890,20 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         return results;
     }
-
+    private void TryExecuteEnemyManaLoss(string effect)
+    {
+        if (!TryParseIntEffect(effect, "enemymanaloss", out int mana))
+            return;
+        else
+            gameManager.EnemyMaxManaLoss(mana, Owner);
+    }
+    private void TryExecuteAllyMaxManaGain(string effect)
+    {
+        if (!TryParseIntEffect(effect, "maxmanagain", out int mana))
+            return;
+        else
+            gameManager.GainMaxMana(mana, Owner);
+    }
     private void TryExecuteManaGain(string effect)
     {
         if (!TryParseIntEffect(effect, "managain", out int mana))

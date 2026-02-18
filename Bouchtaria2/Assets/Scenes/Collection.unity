@@ -1485,8 +1485,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Gunner Trait :\nUnlockable with 4 8 or 12 cards in deck\nDeal non-combat
     damage multiple times (3/6/10 damage) with your cards: \nTier 1 : End of turn
-    : Deal 1 damage to a random unit.\nTier 2 : Also deal 1 damage to the enemy core.\nTier
-    3 : Gun effect triggers thrice."
+    : Deal 1 damage to a random enemy unit.\nTier 2 : Also deal 1 damage to the enemy
+    core.\nTier 3 : Gun effect triggers thrice."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
   m_sharedMaterial: {fileID: -1779797437514033207, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}

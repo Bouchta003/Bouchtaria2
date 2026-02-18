@@ -541,6 +541,13 @@ public class GameManager : MonoBehaviour
         else
             EnemyCurrentMana += mana;
     }
+    public void EnemyMaxManaLoss(int mana, PlayerOwner owner)
+    {
+        if (owner == PlayerOwner.Enemy) 
+        { AllyCurrentMaxMana -= mana; AllyCurrentMana -= mana; }
+
+        else { EnemyCurrentMaxMana -= mana; EnemyCurrentMana -= mana; }
+    }
     public void GainMaxMana(int mana, PlayerOwner owner)
     {
         if (owner == PlayerOwner.Player) { AllyCurrentMaxMana += mana;AllyCurrentMana += mana; }

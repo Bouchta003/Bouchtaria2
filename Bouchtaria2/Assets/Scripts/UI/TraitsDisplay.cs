@@ -154,12 +154,12 @@ public class TraitsDisplay : MonoBehaviour
                          "\nTier 3 : Gun trait effect triggers thrice.";
                 break;
             case CardData.Trait.Combo:
-                display += $"Play cards in the same turn to unlock : {Progression}/{CurrentCap}" +
-                    "\nTier 1 : Play 2 cards in one turn (3 times).\nTier 1 Effect : Your second card each turn costs 1 less.";
+                display += $"Play 2/3/4 cards in the same turn for three turns to unlock: {Progression}/{CurrentCap}" +
+                    "\nTier 1 Effect : Your second card each turn costs 1 less.";
                 if (tier > 1) display +=
-                        "\nTier 2 : Play 3 cards in one turn (3 times).\nTier 2 Effect : Your third card each turn increases the cost of a card in the enemy hand by 1.";
+                        "\nTier 2 Effect : Your third card each turn increases the cost of a card in the enemy hand by 1.";
                 if (tier > 2) display +=
-                         "\nTier 3 : Play 4 cards in one turn (2 times).\nTier 3 Effect : The first time you play 4 cards in a turn, draw 2.";
+                         "\nTier 3 Effect : The first time you play 4 cards in a turn, draw 2.";
                 break;
             default:
                 display += "Need to define this trait's tier logic";
