@@ -29,6 +29,7 @@ public enum EffectTrigger
     SpellCast,      // spell
     EndOfTurn,      //eot
     StartOfTurn,    //sot
+    ManaGain,       // mana
     ProgressComplete,
 }
 public enum EffectTarget
@@ -280,6 +281,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             SyncHealSubscription();
             SyncSpellSubscription();
+            SyncManaGainSubscription();
             return;
         }
 
@@ -328,6 +330,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         SyncHealSubscription();
         SyncSpellSubscription();
+        SyncManaGainSubscription();
     }
 
     private void CheckProgressCompletion()
@@ -364,6 +367,9 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (gameManager != null)
             gameManager.OnSpellPlayed -= OnSpellPlayed;
+
+        if (gameManager != null)
+            gameManager.OnOwnerManaGain -= OnManaGained;
     }
     private void SyncHealSubscription()
     {
@@ -396,6 +402,20 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (hasSpellTrigger || hasProgressSpell)
             gameManager.OnSpellPlayed += OnSpellPlayed;
+    }
+    private void SyncManaGainSubscription()
+    {
+        if (gameManager == null)
+            return;
+
+        gameManager.OnOwnerManaGain -= OnManaGained;
+
+        bool hasManaGainTrigger = parsedEffects.TryGetValue(EffectTrigger.ManaGain, out var manaEffects)
+                                  && manaEffects != null
+                                  && manaEffects.Count > 0;
+
+        if (hasManaGainTrigger)
+            gameManager.OnOwnerManaGain += OnManaGained;
     }
     private bool TryParseProgress(
     string keyword,
@@ -560,6 +580,17 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
         CheckProgressCompletion();
+    }
+
+    private void OnManaGained(PlayerOwner owner, int amount)
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+
+        if (owner != Owner || amount <= 0)
+            return;
+
+        TriggerEffects(EffectTrigger.ManaGain);
     }
 
     private void UpdateBuffProgressCounter()
@@ -960,6 +991,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         effect = effect.ToLowerInvariant();
         Debug.Log($"[DEPLOY] Executing effect: {effect}");
+
         if (effect.Contains(",target") && !effect.StartsWith("gear"))
         {
             DeployPending = (CurrentZone == CardZone.Board);
@@ -1285,6 +1317,21 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteEnemyManaLoss(effect);
             gameManager.CheckGlow(); return false;
         }
+        if (effect.StartsWith("markethandshift"))
+        {
+            ApplyMarketCrasherHandShift();
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("investmentspells"))
+        {
+            ExecuteInvestmentSpellReturn();
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("investmentunits"))
+        {
+            ExecuteGamblersInvestmentReturn();
+            gameManager.CheckGlow(); return false;
+        }
         Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
         return false;
     }
@@ -1436,6 +1483,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         SyncHealSubscription();
         SyncSpellSubscription();
+        SyncManaGainSubscription();
     }
     private bool TryParseTrigger(string str, out EffectTrigger trigger)
     {
@@ -1451,7 +1499,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "eot": trigger = EffectTrigger.EndOfTurn; return true;
             case "sot": trigger = EffectTrigger.StartOfTurn; return true;
             case "spell": trigger = EffectTrigger.SpellCast; return true;
-
+            case "mana": trigger = EffectTrigger.ManaGain; return true;
 
             // ✅ Progress triggers (parameterized)
             case "progressdraw":
@@ -1460,6 +1508,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "progressdamage":
             case "progresskazuyacombo":
             case "progresseot":
+            case "progressbuff":
                 trigger = EffectTrigger.ProgressComplete;
                 return true;
 
@@ -1647,6 +1696,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
 
     #endregion
+
     #region Effects
     void GainExtraTurn()
     {
@@ -1658,6 +1708,50 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (Owner == PlayerOwner.Player) TurnManager.Instance.EnemySkipsNextDraw = true;
         else TurnManager.Instance.PlayerSkipsNextDraw = true;
+    }
+
+    private void ApplyMarketCrasherHandShift()
+    {
+        HandManager friendlyHand = Owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
+        HandManager enemyHand = Owner == PlayerOwner.Player ? gameManager.enemyHand : gameManager.allyHand;
+
+        foreach (GameObject go in friendlyHand.handCards)
+        {
+            CardInstance card = go.GetComponent<CardInstance>();
+            if (card != null)
+                card.AddTemporaryManaModifier(-1);
+        }
+
+        foreach (GameObject go in enemyHand.handCards)
+        {
+            CardInstance card = go.GetComponent<CardInstance>();
+            if (card != null)
+                card.AddTemporaryManaModifier(1);
+        }
+    }
+
+    private void ExecuteInvestmentSpellReturn()
+    {
+        gameManager.DiscardCardsFromHandWithDeferredReturn(
+            owner: Owner,
+            discardPredicate: card => card.Data != null && card.Data.cardType == "spell",
+            turnsUntilReturn: 2,
+            manaModifier: -3,
+            attackBonus: 0,
+            healthBonus: 0
+        );
+    }
+
+    private void ExecuteGamblersInvestmentReturn()
+    {
+        gameManager.DiscardCardsFromHandWithDeferredReturn(
+            owner: Owner,
+            discardPredicate: card => card.Data != null && card.Data.cardType == "minion",
+            turnsUntilReturn: 2,
+            manaModifier: 0,
+            attackBonus: 4,
+            healthBonus: 4
+        );
     }
     // Add this helper near other TryExecuteXxx methods
     private void TryExecuteSelfBuff(string effect)
@@ -2855,6 +2949,9 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (gameManager != null)
             gameManager.OnCardAttack -= OnAttack;
+
+        if (gameManager != null)
+            gameManager.OnOwnerManaGain -= OnManaGained;
 
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnEnded -= OnEndTurn;
