@@ -75,8 +75,6 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         {
             gm.EnemyRandomCount++;
         }
-        if (!cardInst.DeployPending)
-            HandleCardDeployResolved(cardInst);
 
         // Switch to compact board view
         card.GetComponent<CardView>().UpdateMode();

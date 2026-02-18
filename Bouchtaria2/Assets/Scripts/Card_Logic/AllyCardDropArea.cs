@@ -115,9 +115,6 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         // Deploy logic
         cardInst.OnDeployResolved += HandleCardDeployResolved;
         cardInst.OnEnterBoard();
-
-        if (!cardInst.DeployPending)
-            HandleCardDeployResolved(cardInst);
         
         //UpdateView to board mode
         card.gameObject.GetComponent<CardView>().UpdateMode();
