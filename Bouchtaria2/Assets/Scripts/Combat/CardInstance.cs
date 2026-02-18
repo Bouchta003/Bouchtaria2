@@ -29,6 +29,7 @@ public enum EffectTrigger
     SpellCast,      // spell
     EndOfTurn,      //eot
     StartOfTurn,    //sot
+    ManaGain,       // mana
     ProgressComplete,
 }
 public enum EffectTarget
@@ -284,7 +285,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             SyncHealSubscription();
             SyncSpellSubscription();
-            SyncCardPlayedSubscription();
+            SyncManaGainSubscription();
             return;
         }
 
@@ -333,7 +334,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         SyncHealSubscription();
         SyncSpellSubscription();
-        SyncCardPlayedSubscription();
+        SyncManaGainSubscription();
     }
 
     private void CheckProgressCompletion()
@@ -372,7 +373,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.OnSpellPlayed -= OnSpellPlayed;
 
         if (gameManager != null)
-            gameManager.OnCardPlayed -= OnFriendlyCardPlayed;
+            gameManager.OnOwnerManaGain -= OnManaGained;
     }
     private void SyncHealSubscription()
     {
@@ -406,15 +407,19 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (hasSpellTrigger || hasProgressSpell)
             gameManager.OnSpellPlayed += OnSpellPlayed;
     }
-    private void SyncCardPlayedSubscription()
+    private void SyncManaGainSubscription()
     {
         if (gameManager == null)
             return;
 
-        gameManager.OnCardPlayed -= OnFriendlyCardPlayed;
+        gameManager.OnOwnerManaGain -= OnManaGained;
 
-        if (Data != null && Data.id == OmriCardId)
-            gameManager.OnCardPlayed += OnFriendlyCardPlayed;
+        bool hasManaGainTrigger = parsedEffects.TryGetValue(EffectTrigger.ManaGain, out var manaEffects)
+                                  && manaEffects != null
+                                  && manaEffects.Count > 0;
+
+        if (hasManaGainTrigger)
+            gameManager.OnOwnerManaGain += OnManaGained;
     }
     private bool TryParseProgress(
     string keyword,
@@ -581,18 +586,15 @@ public class CardInstance : MonoBehaviour, IAttackable
         CheckProgressCompletion();
     }
 
-    private void OnFriendlyCardPlayed(CardInstance playedCard)
+    private void OnManaGained(PlayerOwner owner, int amount)
     {
-        if (playedCard == null)
+        if (CurrentZone != CardZone.Board)
             return;
 
-        if (CurrentZone != CardZone.Board || Owner != playedCard.Owner)
+        if (owner != Owner || amount <= 0)
             return;
 
-        if (Data == null || Data.id != OmriCardId)
-            return;
-
-        ModifyStats(1, 1);
+        TriggerEffects(EffectTrigger.ManaGain);
     }
 
     private void UpdateBuffProgressCounter()
@@ -1002,12 +1004,6 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         effect = effect.ToLowerInvariant();
         Debug.Log($"[DEPLOY] Executing effect: {effect}");
-
-        if (TryExecuteIntrinsicDeployEffect(effect))
-        {
-            gameManager.CheckGlow();
-            return false;
-        }
 
         if (effect.Contains(",target") && !effect.StartsWith("gear"))
         {
@@ -1500,7 +1496,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         SyncHealSubscription();
         SyncSpellSubscription();
-        SyncCardPlayedSubscription();
+        SyncManaGainSubscription();
     }
     private bool TryParseTrigger(string str, out EffectTrigger trigger)
     {
@@ -1516,7 +1512,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "eot": trigger = EffectTrigger.EndOfTurn; return true;
             case "sot": trigger = EffectTrigger.StartOfTurn; return true;
             case "spell": trigger = EffectTrigger.SpellCast; return true;
-
+            case "mana": trigger = EffectTrigger.ManaGain; return true;
 
             // ✅ Progress triggers (parameterized)
             case "progressdraw":
@@ -1713,40 +1709,6 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
 
     #endregion
-
-    private bool TryExecuteIntrinsicSpellEffect()
-    {
-        if (Data == null)
-            return false;
-
-        if (Data.id == InvestmentCardId)
-        {
-            ExecuteInvestmentSpellReturn();
-            return true;
-        }
-
-        if (Data.id == GamblersInvestmentCardId)
-        {
-            ExecuteGamblersInvestmentReturn();
-            return true;
-        }
-
-        return false;
-    }
-
-    private bool TryExecuteIntrinsicDeployEffect(string effect)
-    {
-        if (Data == null)
-            return false;
-
-        if (Data.id == 193 && (string.IsNullOrWhiteSpace(effect) || effect == "marketcrasher"))
-        {
-            ApplyMarketCrasherHandShift();
-            return true;
-        }
-
-        return false;
-    }
 
     #region Effects
     void GainExtraTurn()
@@ -3002,7 +2964,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.OnCardAttack -= OnAttack;
 
         if (gameManager != null)
-            gameManager.OnCardPlayed -= OnFriendlyCardPlayed;
+            gameManager.OnOwnerManaGain -= OnManaGained;
 
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnEnded -= OnEndTurn;

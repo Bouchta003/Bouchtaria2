@@ -121,11 +121,24 @@ public class GameManager : MonoBehaviour
     public event System.Action<CardInstance> OnCardKiller;
     public event System.Action<PlayerOwner, int> OnOwnerHeal;
     public event System.Action<PlayerOwner, int> OnOwnerDamage;
+    public event System.Action<PlayerOwner, int> OnOwnerManaGain;
     public event System.Action<PlayerOwner> OnDiscover;
     public event System.Action<PlayerOwner> OnPraise;
     public event System.Action<PlayerOwner> OnDamageCard;
     public event System.Action<CardInstance> OnSpellPlayed;
     public event System.Action<CardInstance> OnCardPlayed;
+
+    private sealed class PendingHandReturn
+    {
+        public PlayerOwner Owner;
+        public int CardId;
+        public int TurnsRemaining;
+        public int ManaModifier;
+        public int AttackBonus;
+        public int HealthBonus;
+    }
+
+    private readonly List<PendingHandReturn> pendingHandReturns = new();
 
     private sealed class PendingHandReturn
     {
@@ -653,9 +666,17 @@ public class GameManager : MonoBehaviour
     public void RefreshMaxMana(PlayerOwner owner)
     {
         if (owner == PlayerOwner.Player)
+        {
+            int gained = Mathf.Max(0, AllyCurrentMaxMana - AllyCurrentMana);
             AllyCurrentMana = AllyCurrentMaxMana;
+            NotifyManaGained(owner, gained);
+        }
         else
+        {
+            int gained = Mathf.Max(0, EnemyCurrentMaxMana - EnemyCurrentMana);
             EnemyCurrentMana = EnemyCurrentMaxMana;
+            NotifyManaGained(owner, gained);
+        }
     }
     public void UseMana(int mana, PlayerOwner owner)
     {
@@ -666,10 +687,15 @@ public class GameManager : MonoBehaviour
     }
     public void GainMana(int mana, PlayerOwner owner)
     {
+        if (mana <= 0)
+            return;
+
         if (owner == PlayerOwner.Player)
             AllyCurrentMana += mana;
         else
             EnemyCurrentMana += mana;
+
+        NotifyManaGained(owner, mana);
     }
     public void EnemyMaxManaLoss(int mana, PlayerOwner owner)
     {
@@ -680,9 +706,14 @@ public class GameManager : MonoBehaviour
     }
     public void GainMaxMana(int mana, PlayerOwner owner)
     {
-        if (owner == PlayerOwner.Player) { AllyCurrentMaxMana += mana;AllyCurrentMana += mana; }
+        if (mana <= 0)
+            return;
+
+        if (owner == PlayerOwner.Player) { AllyCurrentMaxMana += mana; AllyCurrentMana += mana; }
 
         else { EnemyCurrentMaxMana += mana; EnemyCurrentMana += mana; }
+
+        NotifyManaGained(owner, mana);
     }
     public int GainMaxManaCapped(int mana, PlayerOwner owner)
     {
@@ -1950,6 +1981,13 @@ public class GameManager : MonoBehaviour
     public void NotifyDamage(PlayerOwner owner, int amount)
     {
         OnOwnerDamage?.Invoke(owner, amount);
+    }
+    public void NotifyManaGained(PlayerOwner owner, int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        OnOwnerManaGain?.Invoke(owner, amount);
     }
     public void CancelCurrentTargeting()
     {
