@@ -813,9 +813,6 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void ExecuteSpellEffects(IAttackable target)
     {
-        if (TryExecuteIntrinsicSpellEffect())
-            return;
-
         if (string.IsNullOrWhiteSpace(CurrentEffect))
             return;
         // Same idea as minions: split by space
@@ -930,8 +927,6 @@ public class CardInstance : MonoBehaviour, IAttackable
             bool hasDeployEffects = parsedEffects.TryGetValue(EffectTrigger.Deploy, out var deployEffects)
                                    && deployEffects != null
                                    && deployEffects.Count > 0;
-            if (!hasDeployEffects)
-                TryExecuteIntrinsicDeployEffect(string.Empty);
 
             TriggerEffects(EffectTrigger.Deploy);
             forceRandomTargetingForCurrentDeploy = false;
@@ -1732,7 +1727,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             CardInstance card = go.GetComponent<CardInstance>();
             if (card != null)
-                card.AddTemporaryManaModifier(-1);
+                card.AddTemporaryManaModifier(1);
         }
 
         foreach (GameObject go in enemyHand.handCards)

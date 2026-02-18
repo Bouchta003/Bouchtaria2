@@ -140,18 +140,6 @@ public class GameManager : MonoBehaviour
 
     private readonly List<PendingHandReturn> pendingHandReturns = new();
 
-    private sealed class PendingHandReturn
-    {
-        public PlayerOwner Owner;
-        public int CardId;
-        public int TurnsRemaining;
-        public int ManaModifier;
-        public int AttackBonus;
-        public int HealthBonus;
-    }
-
-    private readonly List<PendingHandReturn> pendingHandReturns = new();
-
     public void NotifySpellPlayed(CardInstance spell)
     {
         OnSpellPlayed?.Invoke(spell);
