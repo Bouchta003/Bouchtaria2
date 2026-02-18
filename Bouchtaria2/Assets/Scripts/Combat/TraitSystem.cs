@@ -375,6 +375,7 @@ public class ComboProgression : ITraitProgression
     private int tier2TurnsCompleted;
     private int tier3TurnsCompleted;
     private int cardsPlayedThisTurn;
+    private readonly HashSet<int> countedCardIdsThisTurn = new();
     private bool reachedTwoCardsThisTurn;
     private bool reachedThreeCardsThisTurn;
     private bool reachedFourCardsThisTurn;
@@ -409,6 +410,7 @@ public class ComboProgression : ITraitProgression
         tier2TurnsCompleted = 0;
         tier3TurnsCompleted = 0;
         cardsPlayedThisTurn = 0;
+        countedCardIdsThisTurn.Clear();
         reachedTwoCardsThisTurn = false;
         reachedThreeCardsThisTurn = false;
         reachedFourCardsThisTurn = false;
@@ -470,6 +472,7 @@ public class ComboProgression : ITraitProgression
             return;
 
         cardsPlayedThisTurn = 0;
+        countedCardIdsThisTurn.Clear();
         reachedTwoCardsThisTurn = false;
         reachedThreeCardsThisTurn = false;
         reachedFourCardsThisTurn = false;
@@ -478,6 +481,9 @@ public class ComboProgression : ITraitProgression
     private void OnCardPlayed(CardInstance card)
     {
         if (card.Owner != Owner)
+            return;
+
+        if (!countedCardIdsThisTurn.Add(card.GetInstanceID()))
             return;
 
         cardsPlayedThisTurn++;
