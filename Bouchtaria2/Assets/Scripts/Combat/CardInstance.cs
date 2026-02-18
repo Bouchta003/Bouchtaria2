@@ -40,6 +40,10 @@ public enum EffectTarget
 }
 public class CardInstance : MonoBehaviour, IAttackable
 {
+    private const int OmriCardId = 192;
+    private const int InvestmentCardId = 196;
+    private const int GamblersInvestmentCardId = 197;
+
     GameManager gameManager;
     DeckManager deckManager;
     public Transform Transform { get; private set; }
@@ -280,6 +284,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             SyncHealSubscription();
             SyncSpellSubscription();
+            SyncCardPlayedSubscription();
             return;
         }
 
@@ -328,6 +333,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         SyncHealSubscription();
         SyncSpellSubscription();
+        SyncCardPlayedSubscription();
     }
 
     private void CheckProgressCompletion()
@@ -364,6 +370,9 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (gameManager != null)
             gameManager.OnSpellPlayed -= OnSpellPlayed;
+
+        if (gameManager != null)
+            gameManager.OnCardPlayed -= OnFriendlyCardPlayed;
     }
     private void SyncHealSubscription()
     {
@@ -396,6 +405,16 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (hasSpellTrigger || hasProgressSpell)
             gameManager.OnSpellPlayed += OnSpellPlayed;
+    }
+    private void SyncCardPlayedSubscription()
+    {
+        if (gameManager == null)
+            return;
+
+        gameManager.OnCardPlayed -= OnFriendlyCardPlayed;
+
+        if (Data != null && Data.id == OmriCardId)
+            gameManager.OnCardPlayed += OnFriendlyCardPlayed;
     }
     private bool TryParseProgress(
     string keyword,
@@ -560,6 +579,20 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
         CheckProgressCompletion();
+    }
+
+    private void OnFriendlyCardPlayed(CardInstance playedCard)
+    {
+        if (playedCard == null)
+            return;
+
+        if (CurrentZone != CardZone.Board || Owner != playedCard.Owner)
+            return;
+
+        if (Data == null || Data.id != OmriCardId)
+            return;
+
+        ModifyStats(1, 1);
     }
 
     private void UpdateBuffProgressCounter()
@@ -778,6 +811,9 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void ExecuteSpellEffects(IAttackable target)
     {
+        if (TryExecuteIntrinsicSpellEffect())
+            return;
+
         if (string.IsNullOrWhiteSpace(CurrentEffect))
             return;
         // Same idea as minions: split by space
@@ -889,6 +925,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (WasPlayed)
         {
             forceRandomTargetingForCurrentDeploy = forceRandomTarget;
+            bool hasDeployEffects = parsedEffects.TryGetValue(EffectTrigger.Deploy, out var deployEffects)
+                                   && deployEffects != null
+                                   && deployEffects.Count > 0;
+            if (!hasDeployEffects)
+                TryExecuteIntrinsicDeployEffect(string.Empty);
+
             TriggerEffects(EffectTrigger.Deploy);
             forceRandomTargetingForCurrentDeploy = false;
 
@@ -960,6 +1002,13 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         effect = effect.ToLowerInvariant();
         Debug.Log($"[DEPLOY] Executing effect: {effect}");
+
+        if (TryExecuteIntrinsicDeployEffect(effect))
+        {
+            gameManager.CheckGlow();
+            return false;
+        }
+
         if (effect.Contains(",target") && !effect.StartsWith("gear"))
         {
             DeployPending = (CurrentZone == CardZone.Board);
@@ -1285,6 +1334,21 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteEnemyManaLoss(effect);
             gameManager.CheckGlow(); return false;
         }
+        if (effect.StartsWith("markethandshift"))
+        {
+            ApplyMarketCrasherHandShift();
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("investmentspells"))
+        {
+            ExecuteInvestmentSpellReturn();
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("investmentunits"))
+        {
+            ExecuteGamblersInvestmentReturn();
+            gameManager.CheckGlow(); return false;
+        }
         Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
         return false;
     }
@@ -1436,6 +1500,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         SyncHealSubscription();
         SyncSpellSubscription();
+        SyncCardPlayedSubscription();
     }
     private bool TryParseTrigger(string str, out EffectTrigger trigger)
     {
@@ -1460,6 +1525,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "progressdamage":
             case "progresskazuyacombo":
             case "progresseot":
+            case "progressbuff":
                 trigger = EffectTrigger.ProgressComplete;
                 return true;
 
@@ -1647,6 +1713,41 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
 
     #endregion
+
+    private bool TryExecuteIntrinsicSpellEffect()
+    {
+        if (Data == null)
+            return false;
+
+        if (Data.id == InvestmentCardId)
+        {
+            ExecuteInvestmentSpellReturn();
+            return true;
+        }
+
+        if (Data.id == GamblersInvestmentCardId)
+        {
+            ExecuteGamblersInvestmentReturn();
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryExecuteIntrinsicDeployEffect(string effect)
+    {
+        if (Data == null)
+            return false;
+
+        if (Data.id == 193 && (string.IsNullOrWhiteSpace(effect) || effect == "marketcrasher"))
+        {
+            ApplyMarketCrasherHandShift();
+            return true;
+        }
+
+        return false;
+    }
+
     #region Effects
     void GainExtraTurn()
     {
@@ -1658,6 +1759,50 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (Owner == PlayerOwner.Player) TurnManager.Instance.EnemySkipsNextDraw = true;
         else TurnManager.Instance.PlayerSkipsNextDraw = true;
+    }
+
+    private void ApplyMarketCrasherHandShift()
+    {
+        HandManager friendlyHand = Owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
+        HandManager enemyHand = Owner == PlayerOwner.Player ? gameManager.enemyHand : gameManager.allyHand;
+
+        foreach (GameObject go in friendlyHand.handCards)
+        {
+            CardInstance card = go.GetComponent<CardInstance>();
+            if (card != null)
+                card.AddTemporaryManaModifier(-1);
+        }
+
+        foreach (GameObject go in enemyHand.handCards)
+        {
+            CardInstance card = go.GetComponent<CardInstance>();
+            if (card != null)
+                card.AddTemporaryManaModifier(1);
+        }
+    }
+
+    private void ExecuteInvestmentSpellReturn()
+    {
+        gameManager.DiscardCardsFromHandWithDeferredReturn(
+            owner: Owner,
+            discardPredicate: card => card.Data != null && card.Data.cardType == "spell",
+            turnsUntilReturn: 2,
+            manaModifier: -3,
+            attackBonus: 0,
+            healthBonus: 0
+        );
+    }
+
+    private void ExecuteGamblersInvestmentReturn()
+    {
+        gameManager.DiscardCardsFromHandWithDeferredReturn(
+            owner: Owner,
+            discardPredicate: card => card.Data != null && card.Data.cardType == "minion",
+            turnsUntilReturn: 2,
+            manaModifier: 0,
+            attackBonus: 4,
+            healthBonus: 4
+        );
     }
     // Add this helper near other TryExecuteXxx methods
     private void TryExecuteSelfBuff(string effect)
@@ -2855,6 +3000,9 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (gameManager != null)
             gameManager.OnCardAttack -= OnAttack;
+
+        if (gameManager != null)
+            gameManager.OnCardPlayed -= OnFriendlyCardPlayed;
 
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnEnded -= OnEndTurn;
