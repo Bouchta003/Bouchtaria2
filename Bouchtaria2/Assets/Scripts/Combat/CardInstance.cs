@@ -317,6 +317,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.OnSpellPlayed += OnSpellPlayed;
             cardView.ShowProgress(ProgressionCounter, ProgressionCap);
         }
+        else if (HasKeyword("progressbuff") &&
+          TryParseProgress("progressbuff", out int buffCap))
+        {
+            ProgressionCap = buffCap;
+            UpdateBuffProgressCounter();
+        }
 
         SyncHealSubscription();
         SyncSpellSubscription();
@@ -551,6 +557,23 @@ public class CardInstance : MonoBehaviour, IAttackable
             ProgressionCounter = 0;
 
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+        CheckProgressCompletion();
+    }
+
+    private void UpdateBuffProgressCounter()
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+
+        if (!HasKeyword("progressbuff") || ProgressionCap <= 0)
+            return;
+
+        int atkGain = Mathf.Max(0, CurrentAttack - Data.atkValue);
+        int hpGain = Mathf.Max(0, CurrentMaxHealth - Data.hpValue);
+
+        ProgressionCounter = atkGain + hpGain;
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+
         CheckProgressCompletion();
     }
 
@@ -2791,6 +2814,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         view.UpdateMode();
         UpdateStatsColor();
+        UpdateBuffProgressCounter();
     }
     public void Die()
     {

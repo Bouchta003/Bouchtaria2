@@ -371,9 +371,21 @@ public class ComboProgression : ITraitProgression
     public int CurrentTier { get; private set; }
 
     private readonly int maxTier;
-    private int comboPlayed = 0;
+    private int tier1TurnsCompleted;
+    private int tier2TurnsCompleted;
+    private int tier3TurnsCompleted;
+    private int cardsPlayedThisTurn;
+    private bool reachedTwoCardsThisTurn;
+    private bool reachedThreeCardsThisTurn;
+    private bool reachedFourCardsThisTurn;
 
-    public int CurrentProgress => comboPlayed;
+    public int CurrentProgress => CurrentTier switch
+    {
+        0 => tier1TurnsCompleted,
+        1 => tier2TurnsCompleted,
+        2 => tier3TurnsCompleted,
+        _ => 9999
+    };
 
     public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
 
@@ -389,41 +401,65 @@ public class ComboProgression : ITraitProgression
         allyBoard = GameManager.Instance.allyDropArea;
         enemyBoard = GameManager.Instance.enemyDropArea;
     }
+
     public void ResetProgression()
     {
-        comboPlayed = 0;
+        tier1TurnsCompleted = 0;
+        tier2TurnsCompleted = 0;
+        tier3TurnsCompleted = 0;
+        cardsPlayedThisTurn = 0;
+        reachedTwoCardsThisTurn = false;
+        reachedThreeCardsThisTurn = false;
+        reachedFourCardsThisTurn = false;
     }
+
     public void PushInitialState()
     {
-        int cap = GetCurrentCap();
-        OnProgressUpdated?.Invoke(Trait, comboPlayed, cap, Owner);
+        OnProgressUpdated?.Invoke(Trait, CurrentProgress, GetCurrentCap(), Owner);
     }
 
     public void Register()
     {
-        Debug.Log($"[comboProgression] Register for {Owner}");
+        Debug.Log($"[ComboProgression] Register for {Owner}");
 
         allyBoard.OnCardPlayed += OnCardPlayed;
         enemyBoard.OnCardPlayed += OnCardPlayed;
+        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
 
-        OnProgressUpdated?.Invoke(Trait, comboPlayed, GetCurrentCap(), Owner);
+        OnProgressUpdated?.Invoke(Trait, CurrentProgress, GetCurrentCap(), Owner);
     }
+
     public void Unregister()
     {
-        Debug.Log($"[comboProgression] Unregister for {Owner}");
+        Debug.Log($"[ComboProgression] Unregister for {Owner}");
 
         allyBoard.OnCardPlayed -= OnCardPlayed;
         enemyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
     }
+
     private int GetCurrentCap()
     {
         return CurrentTier switch
         {
             0 => 3,
-            1 => 6,
-            2 => 12,
+            1 => 3,
+            2 => 2,
             _ => 999
         };
+    }
+
+    private void OnTurnStarted(PlayerOwner turnOwner)
+    {
+        if (turnOwner != Owner)
+            return;
+
+        cardsPlayedThisTurn = 0;
+        reachedTwoCardsThisTurn = false;
+        reachedThreeCardsThisTurn = false;
+        reachedFourCardsThisTurn = false;
     }
 
     private void OnCardPlayed(CardInstance card)
@@ -431,71 +467,234 @@ public class ComboProgression : ITraitProgression
         if (card.Owner != Owner)
             return;
 
-        if (!card.HasTrait("combo"))
-            return;
-        comboPlayed++;
-        OnProgressUpdated?.Invoke(Trait, comboPlayed, GetCurrentCap(), Owner);
+        cardsPlayedThisTurn++;
 
-        if (comboPlayed >= 3 && CurrentTier < 1 && maxTier >= 1)
+        if (!reachedTwoCardsThisTurn && cardsPlayedThisTurn >= 2)
         {
-            UnlockTier1();
+            reachedTwoCardsThisTurn = true;
+            tier1TurnsCompleted++;
+
+            if (CurrentTier == 0)
+                OnProgressUpdated?.Invoke(Trait, tier1TurnsCompleted, GetCurrentCap(), Owner);
+
+            if (tier1TurnsCompleted >= 3 && CurrentTier < 1 && maxTier >= 1)
+                UnlockTier1();
         }
 
-        if (comboPlayed >= 6 && CurrentTier < 2 && maxTier >= 2)
+        if (!reachedThreeCardsThisTurn && cardsPlayedThisTurn >= 3)
         {
-            UnlockTier2();
+            reachedThreeCardsThisTurn = true;
+            tier2TurnsCompleted++;
+
+            if (CurrentTier == 1)
+                OnProgressUpdated?.Invoke(Trait, tier2TurnsCompleted, GetCurrentCap(), Owner);
+
+            if (tier2TurnsCompleted >= 3 && CurrentTier < 2 && maxTier >= 2)
+                UnlockTier2();
         }
 
-        if (comboPlayed >= 12 && CurrentTier < 3 && maxTier >= 3)
+        if (!reachedFourCardsThisTurn && cardsPlayedThisTurn >= 4)
         {
-            UnlockTier3();
+            reachedFourCardsThisTurn = true;
+            tier3TurnsCompleted++;
+
+            if (CurrentTier == 2)
+                OnProgressUpdated?.Invoke(Trait, tier3TurnsCompleted, GetCurrentCap(), Owner);
+
+            if (tier3TurnsCompleted >= 2 && CurrentTier < 3 && maxTier >= 3)
+                UnlockTier3();
         }
     }
 
     private void UnlockTier1()
     {
         CurrentTier = 1;
+        OnProgressUpdated?.Invoke(Trait, tier2TurnsCompleted, GetCurrentCap(), Owner);
 
-        traitSystem.ActivateEffect(
-            new comboTier1Effect(Owner)
-        );
+        traitSystem.ActivateEffect(new ComboTier1Effect(Owner));
 
-        Debug.Log($"{Owner} unlocked combo Tier 1");
+        Debug.Log($"{Owner} unlocked Combo Tier 1");
     }
+
     private void UnlockTier2()
     {
         CurrentTier = 2;
-        DeckManager deckManager = Object.FindFirstObjectByType<DeckManager>();
-        traitSystem.ActivateEffect(
-            new comboTier2Effect(Owner, deckManager)
-        );
+        OnProgressUpdated?.Invoke(Trait, tier3TurnsCompleted, GetCurrentCap(), Owner);
 
-        Debug.Log($"{Owner} unlocked combo Tier 2");
+        traitSystem.DeactivateLowerTiers(CardData.Trait.Combo, 2);
+
+        DeckManager deckManager = Object.FindFirstObjectByType<DeckManager>();
+        traitSystem.ActivateEffect(new ComboTier2Effect(Owner, deckManager));
+
+        Debug.Log($"{Owner} unlocked Combo Tier 2");
     }
+
     private void UnlockTier3()
     {
         CurrentTier = 3;
+
+        traitSystem.DeactivateLowerTiers(CardData.Trait.Combo, 3);
+
         DeckManager deckManager = Object.FindFirstObjectByType<DeckManager>();
-        traitSystem.ActivateEffect(
-            new comboTier3Effect(Owner, deckManager)
-        );
+        traitSystem.ActivateEffect(new ComboTier3Effect(Owner, deckManager));
 
-        Debug.Log($"{Owner} unlocked combo Tier 3");
+        Debug.Log($"{Owner} unlocked Combo Tier 3");
     }
-
 }
-public class comboTier1Effect : IDeckTraitEffect
+
+public class ComboTier1Effect : IDeckTraitEffect
 {
     public CardData.Trait Trait => CardData.Trait.Combo;
     public int Tier => 1;
 
     private readonly PlayerOwner owner;
-    private bool used;
+    private readonly DeckManager deckManager;
 
-    public comboTier1Effect(PlayerOwner owner)
+    private bool waitingForSecondCard;
+    private bool secondCardPlayed;
+    private int cardsPlayedThisTurn;
+
+    public ComboTier1Effect(PlayerOwner owner)
     {
         this.owner = owner;
+        deckManager = Object.FindFirstObjectByType<DeckManager>();
     }
+
+    public void OnRegister()
+    {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed += OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed += OnCardPlayed;
+
+        if (deckManager != null)
+            deckManager.OnCardDrawn += OnCardDrawn;
+
+        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
+        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
+    }
+
+    public void OnUnregister()
+    {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (deckManager != null)
+            deckManager.OnCardDrawn -= OnCardDrawn;
+
+        if (TurnManager.Instance != null)
+        {
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
+            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+        }
+
+        RemoveSecondCardDiscountFromHand();
+    }
+
+    private void OnTurnStarted(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        cardsPlayedThisTurn = 0;
+        waitingForSecondCard = false;
+        secondCardPlayed = false;
+    }
+
+    private void OnTurnEnded(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        RemoveSecondCardDiscountFromHand();
+    }
+
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (card.Owner != owner)
+            return;
+
+        cardsPlayedThisTurn++;
+
+        if (!waitingForSecondCard && cardsPlayedThisTurn == 1)
+        {
+            waitingForSecondCard = true;
+            ApplySecondCardDiscountToHand();
+            return;
+        }
+
+        if (waitingForSecondCard && !secondCardPlayed && cardsPlayedThisTurn == 2)
+        {
+            secondCardPlayed = true;
+            RemoveSecondCardDiscountFromHand();
+        }
+    }
+
+    private void OnCardDrawn(CardInstance card)
+    {
+        if (!waitingForSecondCard || secondCardPlayed)
+            return;
+
+        if (card.Owner != owner)
+            return;
+
+        card.AddTemporaryManaModifier(-1);
+    }
+
+    private void ApplySecondCardDiscountToHand()
+    {
+        foreach (var card in GetHand(owner))
+            card.AddTemporaryManaModifier(-1);
+    }
+
+    private void RemoveSecondCardDiscountFromHand()
+    {
+        foreach (var card in GetHand(owner))
+            card.ClearTemporaryManaModifiers();
+    }
+
+    private IEnumerable<CardInstance> GetHand(PlayerOwner handOwner)
+    {
+        DeckManager deck = Object.FindFirstObjectByType<DeckManager>();
+        if (deck == null)
+            yield break;
+
+        HandManager hand =
+            handOwner == PlayerOwner.Player
+                ? deck.handManager
+                : deck.handManagerEnemy;
+
+        foreach (var go in hand.handCards)
+            yield return go.GetComponent<CardInstance>();
+    }
+}
+
+public class ComboTier2Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Combo;
+    public int Tier => 2;
+
+    private readonly PlayerOwner owner;
+    private readonly DeckManager deckManager;
+    private int cardsPlayedThisTurn;
+    private bool triggeredThisTurn;
+
+    public ComboTier2Effect(PlayerOwner owner, DeckManager deckManager)
+    {
+        this.owner = owner;
+        this.deckManager = deckManager;
+    }
+
     public void OnRegister()
     {
         var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
@@ -509,6 +708,7 @@ public class comboTier1Effect : IDeckTraitEffect
 
         TurnManager.Instance.OnTurnStarted += OnTurnStarted;
     }
+
     public void OnUnregister()
     {
         var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
@@ -529,113 +729,58 @@ public class comboTier1Effect : IDeckTraitEffect
         if (turnOwner != owner)
             return;
 
-        used = false;
+        cardsPlayedThisTurn = 0;
+        triggeredThisTurn = false;
     }
 
     private void OnCardPlayed(CardInstance card)
     {
-        if (used)
-            return;
-
         if (card.Owner != owner)
             return;
 
-        if (card.Data.cardType != "minion")
-            return;
-        card.ModifyStats(0, 2);
-        used = true;
-    }
-}
-public class comboTier2Effect : IDeckTraitEffect
-{
-    public CardData.Trait Trait => CardData.Trait.Combo;
-    public int Tier => 2;
+        cardsPlayedThisTurn++;
 
-    private readonly PlayerOwner owner;
-    private bool usedThisTurn;
-
-    private readonly DeckManager deckManager;
-
-    public comboTier2Effect(PlayerOwner owner, DeckManager deckManager)
-    {
-        this.owner = owner;
-        this.deckManager = deckManager;
-    }
-
-    public void OnRegister()
-    {
-        deckManager.OnCardDrawn += OnCardDrawn;
-        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
-        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
-    }
-
-    public void OnUnregister()
-    {
-        deckManager.OnCardDrawn -= OnCardDrawn;
-
-        if (TurnManager.Instance != null)
-        {
-            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
-            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
-        }
-    }
-
-    private void OnTurnStarted(PlayerOwner turnOwner)
-    {
-        if (turnOwner == owner)
-            usedThisTurn = false;
-    }
-
-    private void OnTurnEnded(PlayerOwner turnOwner)
-    {
-        if (turnOwner != owner)
+        if (triggeredThisTurn || cardsPlayedThisTurn < 3)
             return;
 
-        // Clear temporary cost reductions at end of turn
-        foreach (var card in GetHand(owner))
-        {
-            card.ClearTemporaryManaModifiers();
-        }
+        triggeredThisTurn = true;
+        TryIncreaseEnemyHandCardCost();
     }
 
-    private void OnCardDrawn(CardInstance card)
+    private void TryIncreaseEnemyHandCardCost()
     {
-        if (usedThisTurn)
+        if (deckManager == null)
             return;
 
-        if (card.Owner != owner)
-            return;
-
-        if (card.CurrentManaCost < 2)
-            return;
-
-        card.AddTemporaryManaModifier(-1);
-        usedThisTurn = true;
-
-        Debug.Log($"[combo T2] Reduced cost of {card.name} for {owner}");
-    }
-
-    private IEnumerable<CardInstance> GetHand(PlayerOwner owner)
-    {
-        HandManager hand =
+        HandManager enemyHand =
             owner == PlayerOwner.Player
-                ? Object.FindFirstObjectByType<DeckManager>().handManager
-                : Object.FindFirstObjectByType<DeckManager>().handManagerEnemy;
+                ? deckManager.handManagerEnemy
+                : deckManager.handManager;
 
-        foreach (var go in hand.handCards)
-            yield return go.GetComponent<CardInstance>();
+        if (enemyHand == null || enemyHand.handCards.Count == 0)
+            return;
+
+        int index = Random.Range(0, enemyHand.handCards.Count);
+        CardInstance target = enemyHand.handCards[index].GetComponent<CardInstance>();
+        if (target == null)
+            return;
+
+        target.AddTemporaryManaModifier(1);
+        Debug.Log($"[Combo T2] Increased cost of {target.name} for {target.Owner}");
     }
 }
-public class comboTier3Effect : IDeckTraitEffect
+
+public class ComboTier3Effect : IDeckTraitEffect
 {
     public CardData.Trait Trait => CardData.Trait.Combo;
     public int Tier => 3;
 
     private readonly PlayerOwner owner;
-
     private readonly DeckManager deckManager;
+    private bool hasTriggeredThisGame;
+    private int cardsPlayedThisTurn;
 
-    public comboTier3Effect(PlayerOwner owner, DeckManager deckManager)
+    public ComboTier3Effect(PlayerOwner owner, DeckManager deckManager)
     {
         this.owner = owner;
         this.deckManager = deckManager;
@@ -643,12 +788,58 @@ public class comboTier3Effect : IDeckTraitEffect
 
     public void OnRegister()
     {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
 
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed += OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed += OnCardPlayed;
+
+        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
     }
 
     public void OnUnregister()
     {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
 
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
+    }
+
+    private void OnTurnStarted(PlayerOwner turnOwner)
+    {
+        if (turnOwner == owner)
+            cardsPlayedThisTurn = 0;
+    }
+
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (hasTriggeredThisGame)
+            return;
+
+        if (card.Owner != owner)
+            return;
+
+        cardsPlayedThisTurn++;
+
+        if (cardsPlayedThisTurn < 4)
+            return;
+
+        hasTriggeredThisGame = true;
+
+        if (deckManager != null)
+            GameManager.Instance.StartCoroutine(deckManager.Draw(2, owner));
+
+        Debug.Log($"[Combo T3] {owner} played 4 cards in a turn and drew 2 cards.");
     }
 }
 #endregion
