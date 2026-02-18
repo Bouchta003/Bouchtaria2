@@ -59,7 +59,9 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             // If no temporary modifier, return the base cost exactly
             if (temporaryManaModifier == 0)
+            {
                 return BaseManaCost;
+            }
 
             // Otherwise apply modifier and clamp to [1,10]
             int raw = BaseManaCost + temporaryManaModifier;
