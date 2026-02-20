@@ -2085,7 +2085,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 return;
             }
 
-            string discoveryeffect = parts[0]+'*';
+            string discoveryeffect = parts[0];
 
             if (!int.TryParse(parts[1], out int discount))
             {
@@ -2301,10 +2301,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
             gameManager.AddCardToHand(Owner, cardInst.Data.id);
             Kill(cardInst);
-            if (gameManager.OwnerHasTrait(Owner, CardData.Trait.Pokemon))
-            {
-                gameManager.AddPokemonTraitProgress(Owner, 1);
-            }
+            gameManager.AddPokemonTraitProgress(Owner, 1);
         }
 
     }

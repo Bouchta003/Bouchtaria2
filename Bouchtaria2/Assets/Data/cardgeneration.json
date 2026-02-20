@@ -3407,7 +3407,7 @@
       "atkValue": 0,
       "hpValue": 0,
       "traits": [ "Fighter" ],
-      "effect": "discovereffectdiscount(aminemain,-2) fighterartifact*",
+      "effect": "discovereffectdiscount(aminemain,2) fighterartifact*",
       "effectText": "Discover one of the Amine mains and reduce its cost by 2.",
       "artPath": "CardArt/mainchoice",
       "artCompactPath": "CardArt/mainchoice_compact",

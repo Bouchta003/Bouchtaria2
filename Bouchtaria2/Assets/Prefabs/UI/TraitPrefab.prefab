@@ -484,7 +484,7 @@ MonoBehaviour:
   popupScale: 1.2
   bronzeTraitSprite: {fileID: -6010929213923133215, guid: 02a177bca3f384c478d9973ce9463d61, type: 3}
   silverTraitSprite: {fileID: -4152392360078947382, guid: 02a177bca3f384c478d9973ce9463d61, type: 3}
-  goldenTraitSprite: {fileID: -8088853566183019042, guid: 02a177bca3f384c478d9973ce9463d61, type: 3}
+  goldenTraitSprite: {fileID: 1418918719476417537, guid: 34afb20bd0e85b348a9aa167509eebab, type: 3}
   thisTrait: 0
   tier: 0
   Progression: 0

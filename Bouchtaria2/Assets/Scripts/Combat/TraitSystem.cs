@@ -1146,7 +1146,7 @@ public class FighterTier2Effect : IDeckTraitEffect
     }
     void DiscoverFighterArtifact()
     {
-        GameManager.Instance.DiscoverEffectDiscount("fighterartifact", owner,-3);
+        GameManager.Instance.DiscoverEffectDiscount("fighterartifact", owner,3);
     }
 }
 public class FighterTier3Effect : IDeckTraitEffect
