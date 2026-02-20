@@ -70,7 +70,7 @@ public class DungeonShop : MonoBehaviour
         switch (itemIndex)
         {
             case -1:
-                message = "Wanna gamble for a random item ? Don't worry the ones you can get are 50 coins or higher. Feeling lucky ?";
+                message = "Wanna gamble for a random item ? You can get Health, Mana or even Extra Card Draw. Feeling lucky ?";
                 break;
             case -2:
                 message = "Ya deck too tiny ? With this you'll get three more slots. On the colonel !";

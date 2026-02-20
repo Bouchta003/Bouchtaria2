@@ -49,6 +49,7 @@ public class DungeonManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI HPAugmentCount;
     [SerializeField] TextMeshProUGUI ManaAugmentCount;
     [SerializeField] TextMeshProUGUI DrawAugmentCount;
+    [SerializeField] TextMeshProUGUI ExtraLifeAugmentCount;
     public DungeonRunData CurrentRun;
 
     private const string StreakField = "streak";
@@ -58,6 +59,13 @@ public class DungeonManager : MonoBehaviour
     private const string AugmentsField = "dungeonaugments";
     private const string DungeonCombatActiveField = "dungeoncombatactive";
     private int currentBestStreak;
+
+    int CurrentEvent = -1;
+    [SerializeField] GameObject EventWindow;
+    [SerializeField] TextMeshProUGUI EventText;
+    [SerializeField] Image EventImage;
+    [SerializeField] List<Sprite> EventImageList;
+    [SerializeField] GameObject EventChoiceWindow;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
     {
@@ -126,7 +134,51 @@ public class DungeonManager : MonoBehaviour
             ManaAugmentCount = GameObject.Find("ManaAugmentCount")?.GetComponent<TextMeshProUGUI>();
 
         if (DrawAugmentCount == null)
-            DrawAugmentCount = GameObject.Find("DrawAugmentCount")?.GetComponent<TextMeshProUGUI>();
+            DrawAugmentCount = GameObject.Find("DrawAugmentCount")?.GetComponent<TextMeshProUGUI>(); 
+        
+        if (ExtraLifeAugmentCount == null)
+            ExtraLifeAugmentCount = GameObject.Find("ReviveAugmentCount")?.GetComponent<TextMeshProUGUI>();
+    }
+    /// <summary>
+    /// When the user reaches a streak that is a mutliple of 5 he gets a random bonus effect amongst these. 
+    /// Depending on the current event, the image and text of the event should change, image should be based on the eventimagelist.
+    /// It displays the event window, the contents of that window will vary depending on the current event chosen at random
+    /// Once the random event is triggered, and the window closes, it counts as used for that floor and cannot be reused.
+    /// If the user leaves the game and comes back, if he has used the augment it should still count as used. and not reset on scene load.
+    /// </summary>
+    public void TriggerRandomEvent()
+    {
+        //display event window
+        switch (CurrentEvent)
+        {
+            case < 0:
+                //hide window
+                return;
+            case 1:
+                //Gain a bonus of +100 coins to the run
+                break;
+            case 2: 
+                //Gain a bonus of +15 HP to the run (three times the HP augment)
+                break;
+            case 3:
+                //Display the event choice window which will have buttons. Button will recquire input from user.
+                break;
+            default:return;
+        }
+    }
+    public void ClickEventAnswer(bool answer)
+    {
+        //display event choice window
+        switch (CurrentEvent)
+        {
+            case < 3:
+                //hide choice window because no need ot make a choice
+            case 3:
+                //Display the event choice window which will have buttons. Button will recquire input from user. Switch between true add a false,
+                //if true, reduce the owner's gold by a max of 100 and grand him that same amount in coin, if false return and debug log chosen false.
+                break;
+            default: return;
+        }
     }
     public void RefreshAugmentCount()
     {
@@ -136,6 +188,9 @@ public class DungeonManager : MonoBehaviour
 
         if (ManaAugmentCount != null)
             ManaAugmentCount.text = "0";
+        
+        if (ExtraLifeAugmentCount != null)
+            ExtraLifeAugmentCount.text = "0";
 
         if (DrawAugmentCount != null)
             DrawAugmentCount.text = "0";
@@ -160,7 +215,14 @@ public class DungeonManager : MonoBehaviour
                 if (ManaAugmentCount != null)
                     ManaAugmentCount.text = pair.Value.ToString();
             }
+            if (pair.Key == DungeonShop.Augment.ExtraLife && pair.Value > 0)
+            {
+                if (ExtraLifeAugmentCount != null)
+                    ExtraLifeAugmentCount.text = pair.Value.ToString();
 
+                if (ExtraLifeAugmentCount.text == "0") ExtraLifeAugmentCount.gameObject.SetActive(false);
+                else ExtraLifeAugmentCount.gameObject.SetActive(true);
+            }
             if (pair.Key == DungeonShop.Augment.StartDraw && pair.Value > 0)
             {
                 if (DrawAugmentCount != null)
