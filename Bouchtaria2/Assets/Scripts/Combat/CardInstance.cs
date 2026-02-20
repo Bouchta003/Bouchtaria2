@@ -2783,6 +2783,34 @@ public class CardInstance : MonoBehaviour, IAttackable
             ci.view.UpdateMode();
         }
     }
+    private string ExtractParenthesizedArgs(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return string.Empty;
+
+        int start = input.IndexOf('(');
+        if (start < 0)
+            return string.Empty;
+
+        int depth = 0;
+
+        for (int i = start; i < input.Length; i++)
+        {
+            if (input[i] == '(')
+                depth++;
+            else if (input[i] == ')')
+            {
+                depth--;
+                if (depth == 0)
+                {
+                    // Return content inside the outermost parentheses
+                    return input.Substring(start + 1, i - start - 1).Trim();
+                }
+            }
+        }
+
+        return string.Empty; // no matching closing parenthesis
+    }
     private void TryExecuteSleep(CardInstance target)
     {
         if (target == null)
@@ -3280,7 +3308,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
             {
                 CardInstance inst = ally.GetComponent<CardInstance>();
-                inst.Silence();
+                inst.Silence();inst.UpdateStatsColor();
             }
         }
         else

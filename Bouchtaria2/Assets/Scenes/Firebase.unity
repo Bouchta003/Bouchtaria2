@@ -2761,7 +2761,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: V 0.3.4
+  m_text: V 0.3.5
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 382e32f9b5c3b3044af5a78bf8a86c95, type: 2}
   m_sharedMaterial: {fileID: -6690465110090245793, guid: 382e32f9b5c3b3044af5a78bf8a86c95, type: 2}
@@ -4731,6 +4731,10 @@ MonoBehaviour:
   sceneMusic:
   - sceneName: Firebase
     music: {fileID: 8300000, guid: 28132a168e69e95458cc8ac593b1f66b, type: 3}
+  - sceneName: Firebase
+    music: {fileID: 8300000, guid: 89d0eeeef19534749959f7f3e1bd63cc, type: 3}
+  - sceneName: Firebase
+    music: {fileID: 8300000, guid: 26437b32d4a75814f848b8ac0fcba8a4, type: 3}
   - sceneName: Shop
     music: {fileID: 8300000, guid: 76aaa73f61459fe458645c45385324ce, type: 3}
   - sceneName: Collection
@@ -4745,6 +4749,8 @@ MonoBehaviour:
     music: {fileID: 8300000, guid: 2bd3766dd754c0a43be2465a31eec1e1, type: 3}
   - sceneName: Combat
     music: {fileID: 8300000, guid: c0674d0458a5dfc4ca2addeedea5bdf2, type: 3}
+  - sceneName: Combat
+    music: {fileID: 8300000, guid: c977bc3bf27217f40a719c6a6b1b02b9, type: 3}
   defaultFadeTime: 1.5
   defaultMusic: {fileID: 8300000, guid: 28132a168e69e95458cc8ac593b1f66b, type: 3}
 --- !u!1 &1067415198

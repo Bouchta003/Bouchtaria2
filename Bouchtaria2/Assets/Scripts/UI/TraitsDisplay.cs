@@ -74,7 +74,7 @@ public class TraitsDisplay : MonoBehaviour
         switch (thisTrait)
         {
             case CardData.Trait.Pokemon:
-                display += $"Kill enemies to activate : {Progression}/{CurrentCap}" +
+                display += $"Kill or catch enemies to activate : {Progression}/{CurrentCap}" +
                     "\nTier 1 : The next Pokemon you play evolves instantly.";
                 if (tier > 1) display +=
                         "\nTier 2 : The next Pokemon you play evolves instantly and gains +2/+2.";
@@ -123,11 +123,11 @@ public class TraitsDisplay : MonoBehaviour
                 break;
             case CardData.Trait.Speedster:
                 display += $"Attack with allies to unlock : {Progression}/{CurrentCap}" +
-                    "\nTier 1 : Your speedsters have +1 ATK.";
+                    "\nTier 1 : From now on your summonned speedsters have +1 ATK.";
                 if (tier > 1) display +=
-                        "\nTier 2 : Your speedsters also have quickstrike.";
+                        "\nTier 2 : From now on your summonned speedsters also have quickstrike.";
                 if (tier > 2) display +=
-                         "\nTier 3 : All your units have quickstrike and +2 ATK.";
+                         "\nTier 3 : From now on all your summonned units have quickstrike and +2 ATK.";
                 break;
             case CardData.Trait.MonsterHunter:
                 display += $"Colossal Monsters have died : {Progression}/{CurrentCap}" +
@@ -154,7 +154,7 @@ public class TraitsDisplay : MonoBehaviour
                          "\nTier 3 : Gun trait effect triggers thrice.";
                 break;
             case CardData.Trait.Combo:
-                display += $"Play 2/3/4 cards in the same turn for three turns to unlock: {Progression}/{CurrentCap}" +
+                display += $"Play 2/3/4 cards in the same turn during three different turns to unlock: {Progression}/{CurrentCap}" +
                     "\nTier 1 Effect : Your second card each turn costs 1 less.";
                 if (tier > 1) display +=
                         "\nTier 2 Effect : Your third card each turn increases the cost of a card in the enemy hand by 1.";
