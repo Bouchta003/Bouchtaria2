@@ -1026,7 +1026,7 @@
       "effect": "managain(1)",
       "effectText": "Gain 1 mana for this turn",
       "artPath": "CardArt/coin",
-      "artCompactPath": "CardArtcoin_compact",
+      "artCompactPath": "CardArt/coin_compact",
       "packable": false,
       "token": false,
       "signature": false

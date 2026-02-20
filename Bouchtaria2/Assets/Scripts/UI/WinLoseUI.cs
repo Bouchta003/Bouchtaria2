@@ -36,8 +36,19 @@ public class WinLoseUI : MonoBehaviour
     public void ShowLose()
     {
         if (GameRunContext.IsDungeonRun)
-        { DungeonManager.Instance.ResetStreak(); restartBtn.SetActive(false); }
-
+        {
+            if (GameRunContext.DungeonData.augments.Contains(DungeonShop.Augment.ExtraLife))
+            {
+                DungeonManager.Instance.CurrentRun.augments.Remove(DungeonShop.Augment.ExtraLife);
+                DungeonManager.Instance.SaveRunData();
+                Setup("DEFEAT", Color.red, "Your Core Was Destroyed, your extra life keeps you alive for one more chance !");
+                restartBtn.SetActive(false);
+                return;
+            }
+            else
+                DungeonManager.Instance.ResetStreak(); 
+            restartBtn.SetActive(false); 
+        }
         Setup("DEFEAT", Color.red, "Your Core Was Destroyed, you earned 20 Gold as compensation");
     }
     public void LeaveToMenu()

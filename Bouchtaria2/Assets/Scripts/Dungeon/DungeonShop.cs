@@ -29,7 +29,7 @@ public class DungeonShop : MonoBehaviour
 
     public enum Augment
     {
-        MaxHP, StartMana, StartDraw, DeckSizeUp3, DeckSizeDown3
+        MaxHP, StartMana, StartDraw, DeckSizeUp3, DeckSizeDown3, ExtraLife,
     }
     private void Awake()
     {
@@ -86,6 +86,9 @@ public class DungeonShop : MonoBehaviour
                 break;
             case 2:
                 message = "Ya buy this one, ya draw one more card at each fight !";
+                break;
+            case 3:
+                message = "Legends never die ! With this you'll revive once upon defeat.";
                 break;
             default:
                 message = "Hummmm... I am not sure about this one, maybe in another patch I'll have some more info to share for this.";
@@ -267,9 +270,21 @@ public class DungeonShop : MonoBehaviour
                     ShouldPay = true; break;
                 }
 
-                if(ShouldPay)ModifyUserCoin(-100);
-                if(ShouldPay)DungeonManager.Instance.CurrentRun.coins -= 100;
+                if (ShouldPay) ModifyUserCoin(-100);
+                if (ShouldPay) DungeonManager.Instance.CurrentRun.coins -= 100;
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.StartDraw);
+                DungeonManager.Instance.SaveRunData();
+                ShouldPay = true; break;
+            case 3:
+                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 200)
+                {
+                    ErrorPopup.Show("Not enough dungeon coins.");
+                    ShouldPay = true; break;
+                }
+
+                if (ShouldPay) ModifyUserCoin(-200);
+                if (ShouldPay) DungeonManager.Instance.CurrentRun.coins -= 200;
+                DungeonManager.Instance.CurrentRun.augments.Add(Augment.ExtraLife);
                 DungeonManager.Instance.SaveRunData();
                 ShouldPay = true; break;
             default:
