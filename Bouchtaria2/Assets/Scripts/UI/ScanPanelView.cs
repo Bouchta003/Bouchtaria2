@@ -277,6 +277,15 @@ public class ScanPanelView : MonoBehaviour
             keyDescription.text =
                 "Fully heals at the end of your turn.";
         }
+        if (effectText.ToLower().Contains(("consume").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Consume";
+            keyDescription.text =
+                "Devour a unit to get their current stats and their current effect.";
+        }
         if (effectText.ToLower().Contains(("is bleeding").ToLower()))
         {
             GameObject entry = Instantiate(keywordPrefab, keywordContainer);

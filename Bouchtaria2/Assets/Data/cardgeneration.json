@@ -3693,6 +3693,38 @@
       "packable": false,
       "token": false,
       "signature": false
+    },
+    "227": {
+      "id": 227,
+      "name": "Bowser",
+      "cardType": "minion",
+      "manaCost": 8,
+      "atkValue": 10,
+      "hpValue": 7,
+      "traits": [ "Pokemon" ],
+      "effect": "r[killlow]",
+      "effectText": "Requiem : Kill the weakest enemy unit",
+      "artPath": "CardArt/bowser",
+      "artCompactPath": "CardArt/bowser_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
+    },
+    "228": {
+      "id": 228,
+      "name": "Nergigante",
+      "cardType": "minion",
+      "manaCost": 9,
+      "atkValue": 6,
+      "hpValue": 6,
+      "traits": [ "MonsterHunter" ],
+      "effect": "tier2monster* eot[consume(monster*)]",
+      "effectText": "End of turn : Consume a MONSTER on board.",
+      "artPath": "CardArt/nergigante",
+      "artCompactPath": "CardArt/nergigante_compact",
+      "packable": false,
+      "token": false,
+      "signature": false
     }
   }
 }
