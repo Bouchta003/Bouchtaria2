@@ -3725,6 +3725,38 @@
       "packable": false,
       "token": false,
       "signature": false
+    },
+    "229": {
+      "id": 229,
+      "name": "Ramadan",
+      "cardType": "spell",
+      "manaCost": 10,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "Faith" ],
+      "effect": "healall(50) grantall(blessed,Blessed)",
+      "effectText": "Heal ally units and your core by 50 HP and grant all allies blessed.",
+      "artPath": "CardArt/ramadan",
+      "artCompactPath": "CardArt/ramadan_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
+    },
+    "230": {
+      "id": 230,
+      "name": "Tailwind",
+      "cardType": "spell",
+      "manaCost": 2,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "Pokemon","Combo" ],
+      "effect": "grantall(quickstrike,Quickstrike)",
+      "effectText": "Grand all allies quickstrike.",
+      "artPath": "CardArt/tailwind",
+      "artCompactPath": "CardArt/tailwind_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
     }
   }
 }

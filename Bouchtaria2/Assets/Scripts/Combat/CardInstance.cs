@@ -919,6 +919,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (effect.StartsWith("damageaoe"))
             {
                 TryExecuteDamageAoe(effect);
+                gameManager.CheckGlow();
+                continue;
+            }if (effect.StartsWith("grantall"))
+            {
+                TryExecuteGrantAll(effect);
+                gameManager.CheckGlow();
                 continue;
             }
             // Targeted spell effects
@@ -1381,6 +1387,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             TryExecuteDamageAoe(effect);
             gameManager.CheckGlow();return false;
+        }
+        if (effect.StartsWith("grantall"))
+        {
+            TryExecuteGrantAll(effect);
+            gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("damagerandomenemy"))
         {
@@ -2741,7 +2752,35 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         gameManager.OnDamageWithCard(Owner);
     }
+    private void TryExecuteGrantAll(string completeeffect)
+    {
+        string[] effects = completeeffect.Split(',');
+        if (effects.Length < 2 ) return;
+        string effect = effects[0];
+        string effectText = effects[1];
+        if (Owner != PlayerOwner.Player)
+        {
+            foreach (GameObject enemyGO in gameManager.enemyDropArea.enemyPrefabCards)
+            {
+                if (enemyGO == null) continue;
 
+                CardInstance ci = enemyGO.GetComponent<CardInstance>();
+                ci.CurrentEffect += " "+effect;
+                ci.CurrentEffectText += "\n"+effectText;
+            }
+        }
+        else
+        {
+            foreach (GameObject allyGO in gameManager.allyDropArea.allyPrefabCards)
+            {
+                if (allyGO == null) continue;
+
+                CardInstance ci = allyGO.GetComponent<CardInstance>();
+                ci.CurrentEffect += " " + effect;
+                ci.CurrentEffectText += "\n" + effectText;
+            }
+        }
+    }
     private void TryExecuteSleep(CardInstance target)
     {
         if (target == null)
