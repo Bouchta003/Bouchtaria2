@@ -70,6 +70,7 @@ public class DungeonManager : MonoBehaviour
     [SerializeField] Image EventImage;
     [SerializeField] List<Sprite> EventImageList;
     [SerializeField] GameObject EventChoiceWindow;
+    [SerializeField] GameObject EventAcceptWindow;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
     {
@@ -145,6 +146,10 @@ public class DungeonManager : MonoBehaviour
         
         if (ExtraLifeAugmentCount == null)
             ExtraLifeAugmentCount = GameObject.Find("ReviveAugmentCount")?.GetComponent<TextMeshProUGUI>();
+    }
+    public void ToggleEventWindow()
+    {
+        EventWindow.SetActive(!EventWindow.activeSelf);
     }
     /// <summary>
     /// When the user reaches a streak that is a mutliple of 5 he gets a random bonus effect amongst these. 
@@ -225,6 +230,8 @@ public class DungeonManager : MonoBehaviour
 
         if (EventChoiceWindow != null)
             EventChoiceWindow.SetActive(CurrentEvent == 3);
+        else
+            EventAcceptWindow.SetActive(true);
 
         if (EventImage != null && EventImageList != null && EventImageList.Count >= CurrentEvent)
             EventImage.sprite = EventImageList[Mathf.Max(0, CurrentEvent - 1)];
@@ -266,7 +273,10 @@ public class DungeonManager : MonoBehaviour
             EventWindow.SetActive(false);
 
         if (EventChoiceWindow != null)
-            EventChoiceWindow.SetActive(false);
+            EventChoiceWindow.SetActive(false); 
+        
+        if (EventAcceptWindow != null)
+            EventAcceptWindow.SetActive(false);
     }
     public void RefreshAugmentCount()
     {

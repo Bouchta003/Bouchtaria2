@@ -4793,12 +4793,20 @@ MonoBehaviour:
   HPAugmentCount: {fileID: 1234146118}
   ManaAugmentCount: {fileID: 969439287}
   DrawAugmentCount: {fileID: 65030674}
+  ExtraLifeAugmentCount: {fileID: 1847651336}
   CurrentRun:
     floor: 0
     coins: 0
     augments: 
     dungeonDeck: 
     currentDeckSize: 0
+  EventWindow: {fileID: 0}
+  EventText: {fileID: 0}
+  EventImage: {fileID: 0}
+  EventImageList: []
+  EventChoiceWindow: {fileID: 0}
+  EventAcceptWindow: {fileID: 0}
+  EventButton: {fileID: 0}
 --- !u!4 &1525587506
 Transform:
   m_ObjectHideFlags: 0
