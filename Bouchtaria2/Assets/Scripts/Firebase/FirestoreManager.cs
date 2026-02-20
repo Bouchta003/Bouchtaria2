@@ -82,6 +82,7 @@ public class FirestoreManager : MonoBehaviour
                     { "dungeoncombatactive", false },
                     { "dungeoneventfloors", new System.Collections.Generic.List<int>() },
                     { "dungeonpendingevent", -1 },
+                    { "dungeonpendingeventfloor", -1 },
                 })
                 .ContinueWithOnMainThread(setTask =>
                 {
@@ -132,6 +133,9 @@ public class FirestoreManager : MonoBehaviour
 
                 if (!snapshot.ContainsField("dungeonpendingevent"))
                     updates["dungeonpendingevent"] = -1;
+
+                if (!snapshot.ContainsField("dungeonpendingeventfloor"))
+                    updates["dungeonpendingeventfloor"] = -1;
 
                 if (updates.Count > 0)
                 {
