@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class EnemyAIController : MonoBehaviour
@@ -497,6 +498,10 @@ public class EnemyAIController : MonoBehaviour
         if (effect.Contains("refreshattack") && !HasRefreshAttackTarget())
             return false;
 
+        // Never cast resurrect effects without a dead target in graveyard.
+        if (effect.Contains("resurrect") && !HasResurrectTarget())
+            return false;
+
         // Don't spend heal if every valid friendly heal target is already at full health.
         if (effect.Contains("heal") && effect.Contains("targetunit") && !effect.Contains("autoheal") && !HasDamagedFriendlyUnit())
             return false;
@@ -612,6 +617,13 @@ public class EnemyAIController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private bool HasResurrectTarget()
+    {
+        return gameManager != null
+            && gameManager.EnemyGraveyard != null
+            && gameManager.EnemyGraveyard.Cards.Count > 0;
     }
 
     private bool HasDamagedFriendlyUnit()
@@ -866,14 +878,34 @@ public class EnemyAIController : MonoBehaviour
         if (attackers.Count == 0)
             yield break;
 
-        // Strongest first (optional)
-        attackers.Sort((a, b) => b.CurrentAttack.CompareTo(a.CurrentAttack));
+        bool lethalThisTurn = HasLethalThisTurn();
+
+        // Weakest first helps force low-value actions (like popping blessed) onto low-value units.
+        attackers.Sort((a, b) => a.CurrentAttack.CompareTo(b.CurrentAttack));
+
+        // If any accessible enemy target has blessed, force weakest possible attacker into it first.
+        CardInstance weakestBlessedAttacker = attackers
+            .FirstOrDefault(a => CanAttackerAct(a, lethalThisTurn) &&
+                                 gameManager.GetValidTargets(a).Any(t => t is CardInstance u && u.HasKeyword("blessed")));
+
+        if (weakestBlessedAttacker != null)
+        {
+            IAttackable blessedTarget = gameManager.GetValidTargets(weakestBlessedAttacker)
+                .Where(t => t is CardInstance u && u.HasKeyword("blessed"))
+                .OrderByDescending(t => (t as CardInstance).CurrentAttack + (t as CardInstance).CurrentHealth)
+                .FirstOrDefault();
+
+            if (blessedTarget != null)
+            {
+                gameManager.QueueAttack(weakestBlessedAttacker, blessedTarget);
+                yield return new WaitUntil(() => !gameManager.IsResolvingAttackQueue());
+                yield return new WaitForSeconds(0.25f);
+            }
+        }
 
         foreach (CardInstance attacker in attackers)
         {
-            if (attacker == null || attacker.IsAsleep || (attacker.HasAttackedThisTurn && !attacker.HasKeyword("haste")) ||
-            (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn)
-                || attacker.CurrentAttack<=0)
+            if (!CanAttackerAct(attacker, lethalThisTurn))
                 continue;
 
             var targets = gameManager.GetValidTargets(attacker);
@@ -894,12 +926,56 @@ public class EnemyAIController : MonoBehaviour
             yield return new WaitForSeconds(0.25f);
         }
     }
+
+    private bool CanAttackerAct(CardInstance attacker, bool lethalThisTurn)
+    {
+        if (attacker == null || attacker.IsAsleep || attacker.CurrentAttack <= 0)
+            return false;
+
+        if (attacker.HasAttackedThisTurn && !attacker.HasKeyword("haste"))
+            return false;
+
+        if (attacker.HasAttackedThisTurn && attacker.HasKeyword("haste") && attacker.HasAttackedTwiceThisTurn)
+            return false;
+
+        // Keep "starter" units defensive unless this turn is lethal.
+        if (!lethalThisTurn && (attacker.CurrentEffect ?? string.Empty).ToLowerInvariant().Contains("starter"))
+            return false;
+
+        return true;
+    }
+
+    private bool HasMajorThreatOnDefendingBoard()
+    {
+        foreach (GameObject go in allyBoard.allyPrefabCards)
+        {
+            if (go == null)
+                continue;
+
+            CardInstance unit = go.GetComponent<CardInstance>();
+            if (unit == null || unit.IsDead)
+                continue;
+
+            if (unit.CurrentAttack >= 4 ||
+                unit.HasKeyword("protect") ||
+                unit.HasKeyword("quickstrike") ||
+                unit.HasKeyword("haste") ||
+                unit.HasKeyword("blessed"))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private IAttackable ChooseBestAttackTarget(CardInstance attacker)
     {
         var targets = gameManager.GetValidTargets(attacker);
 
         IAttackable best = null;
         int bestScore = int.MinValue;
+        bool hasMajorThreat = HasMajorThreatOnDefendingBoard();
 
         foreach (var target in targets)
         {
@@ -920,6 +996,10 @@ public class EnemyAIController : MonoBehaviour
             {
                 score += 45;
 
+                // If there is no major threat to answer, push face damage.
+                if (!hasMajorThreat)
+                    score += 180;
+
                 // If this exact hit is lethal, prioritize it heavily.
                 if (attacker.CurrentAttack >= gameManager.PlayerCore.CurrentHealth)
                     score += 10000;
@@ -930,11 +1010,13 @@ public class EnemyAIController : MonoBehaviour
             // UNIT
             else if (target is CardInstance unit)
             {
-                // Prefer clean trades and removing high-value keywords.
-                if (attacker.CurrentAttack >= unit.CurrentHealth)
-                    score += 60;
+                // Prefer exact value trades (atk == hp), then normal favorable trades.
+                if (attacker.CurrentAttack == unit.CurrentHealth)
+                    score += 220;
+                else if (attacker.CurrentAttack > unit.CurrentHealth)
+                    score += 80;
                 else
-                    score -= 20;
+                    score -= 30;
 
                 if (unit.HasKeyword("protect"))
                     score += 30;

@@ -1613,42 +1613,134 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else
         {
-            // Enemy auto-target
-            if (CurrentEffect.Contains("gear") || CurrentEffect.Contains("heal") || CurrentEffect.Contains("buff"))
-            {
-                IAttackable target =
-                  gameManager.ChooseEnemyEffectTarget(type, false, false);
-                OnEffectTargetChosen(target);
-            }
-            else if (pendingTargetedEffect.StartsWith("morphto"))
-            {
-                List<CardInstance> candidates = new();
-
-                candidates.AddRange(gameManager.allyDropArea.GetCards()
-                    .Select(go => go.GetComponent<CardInstance>())
-                    .Where(ci => ci != null && !ci.IsDead && ci != this));
-
-                candidates.AddRange(gameManager.enemyDropArea.GetCards()
-                    .Select(go => go.GetComponent<CardInstance>())
-                    .Where(ci => ci != null && !ci.IsDead && ci != this));
-
-                if (candidates.Count == 0)
-                    return;
-
-                // Pick strongest (atk + hp)
-                CardInstance best = candidates
-                    .OrderByDescending(ci => ci.CurrentAttack + ci.CurrentHealth)
-                    .First();
-
-                OnEffectTargetChosen(best);
-            }
-            else
-            {
-                IAttackable target =
-               gameManager.ChooseEnemyEffectTarget(type, true, false);
-                OnEffectTargetChosen(target);
-            }
+            IAttackable target = ChooseBestEnemyEffectTarget(type);
+            OnEffectTargetChosen(target);
         }
+    }
+
+    private IAttackable ChooseBestEnemyEffectTarget(EffectTarget type)
+    {
+        string effect = pendingTargetedEffect?.ToLowerInvariant() ?? string.Empty;
+
+        if (effect.StartsWith("morphto"))
+            return ChooseBestDittoTarget();
+
+        if (effect.StartsWith("sleep"))
+            return ChooseSleepTarget();
+
+        if (effect.StartsWith("silence"))
+            return ChooseSilenceTarget();
+
+        if (effect.StartsWith("damage"))
+            return ChooseDamageTarget(type);
+
+        if (effect.StartsWith("gear"))
+            return ChooseBestFriendlyUnitTargetForGear();
+
+        if (effect.StartsWith("heal") || effect.StartsWith("buff") || effect.StartsWith("refreshattack"))
+            return gameManager.ChooseEnemyEffectTarget(type, false, false);
+
+        return gameManager.ChooseEnemyEffectTarget(type, true, false);
+    }
+
+    private CardInstance ChooseBestDittoTarget()
+    {
+        List<CardInstance> candidates = new();
+
+        candidates.AddRange(gameManager.allyDropArea.GetCards()
+            .Select(go => go.GetComponent<CardInstance>())
+            .Where(ci => ci != null && !ci.IsDead && ci != this));
+
+        candidates.AddRange(gameManager.enemyDropArea.GetCards()
+            .Select(go => go.GetComponent<CardInstance>())
+            .Where(ci => ci != null && !ci.IsDead && ci != this));
+
+        if (candidates.Count == 0)
+            return null;
+
+        return candidates
+            .OrderByDescending(ci => ci.CurrentAttack + ci.CurrentHealth)
+            .ThenByDescending(ci => (ci.CurrentEffect ?? string.Empty).Length)
+            .FirstOrDefault();
+    }
+
+    private CardInstance ChooseSleepTarget()
+    {
+        return gameManager.GetValidTargets(PlayerOwner.Player)
+            .OfType<CardInstance>()
+            .Where(ci => !ci.IsAsleep && !ci.IsDead)
+            .OrderByDescending(ci => ci.CurrentAttack)
+            .ThenByDescending(ci => ci.CurrentHealth)
+            .FirstOrDefault();
+    }
+
+    private CardInstance ChooseSilenceTarget()
+    {
+        return gameManager.GetValidTargets(PlayerOwner.Player)
+            .OfType<CardInstance>()
+            .Where(ci => !ci.IsDead)
+            .OrderByDescending(ci => (ci.CurrentEffect ?? string.Empty).Length)
+            .ThenByDescending(ci => ci.CurrentAttack + ci.CurrentHealth)
+            .FirstOrDefault();
+    }
+
+    private IAttackable ChooseDamageTarget(EffectTarget type)
+    {
+        List<IAttackable> validTargets = gameManager.GetValidTargets(PlayerOwner.Player);
+        List<CardInstance> enemyUnits = validTargets.OfType<CardInstance>().Where(ci => !ci.IsDead).ToList();
+
+        int damageAmount = GetSingleIntFromEffect(pendingTargetedEffect);
+        if (damageAmount > 0)
+        {
+            CardInstance perfectKill = enemyUnits
+                .Where(ci => ci.CurrentHealth == damageAmount)
+                .OrderByDescending(ci => ci.CurrentAttack)
+                .ThenByDescending(ci => ci.CurrentHealth)
+                .FirstOrDefault();
+
+            if (perfectKill != null)
+                return perfectKill;
+        }
+
+        CardInstance strongestEnemy = enemyUnits
+            .OrderByDescending(ci => ci.CurrentAttack + ci.CurrentHealth)
+            .ThenByDescending(ci => ci.CurrentAttack)
+            .FirstOrDefault();
+
+        if (strongestEnemy != null)
+            return strongestEnemy;
+
+        if (type == EffectTarget.Any || type == EffectTarget.Core)
+            return gameManager.PlayerCore;
+
+        return null;
+    }
+
+    private CardInstance ChooseBestFriendlyUnitTargetForGear()
+    {
+        List<CardInstance> friendlyUnits = gameManager.GetValidTargets(PlayerOwner.Enemy)
+            .OfType<CardInstance>()
+            .Where(ci => !ci.IsDead)
+            .ToList();
+
+        if (friendlyUnits.Count == 0)
+            return null;
+
+        string effect = pendingTargetedEffect?.ToLowerInvariant() ?? string.Empty;
+        string[] gatedKeywords = { "protect", "quickstrike", "charge", "haste", "thorns", "blessed" };
+        List<string> grantedKeywords = gatedKeywords.Where(k => effect.Contains(k)).ToList();
+
+        IEnumerable<CardInstance> candidates = friendlyUnits;
+        if (grantedKeywords.Count > 0)
+        {
+            candidates = friendlyUnits.Where(unit =>
+                grantedKeywords.Any(keyword => !unit.HasKeyword(keyword))
+            );
+        }
+
+        return candidates
+            .OrderByDescending(ci => ci.CurrentAttack + ci.CurrentHealth)
+            .FirstOrDefault() ?? friendlyUnits.OrderByDescending(ci => ci.CurrentAttack + ci.CurrentHealth).FirstOrDefault();
     }
     public bool OnEffectTargetChosen(IAttackable target)
     {
