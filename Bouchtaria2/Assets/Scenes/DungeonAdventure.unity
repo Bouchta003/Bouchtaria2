@@ -3196,10 +3196,12 @@ MonoBehaviour:
   EventWindow: {fileID: 1715854694}
   EventText: {fileID: 780634680}
   EventImage: {fileID: 1921342980}
-  EventImageList: []
+  EventImageList:
+  - {fileID: 8614875131679050543, guid: 7b7b34cd56fafe843a12f9235ef785c6, type: 3}
+  - {fileID: 21300000, guid: fc8c2f22910600d409fbd7662d9d7a85, type: 3}
+  - {fileID: 2630107354086667377, guid: 44b3c9f2cbc069442aa95d686d1be39b, type: 3}
   EventChoiceWindow: {fileID: 1264744209}
   EventAcceptWindow: {fileID: 1822172097}
-  EventButton: {fileID: 0}
 --- !u!4 &1525587506
 Transform:
   m_ObjectHideFlags: 0
@@ -3996,8 +3998,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 180, y: 21}
-  m_SizeDelta: {x: 800, y: 1300}
+  m_AnchoredPosition: {x: -50, y: 134}
+  m_SizeDelta: {x: 700, y: 700}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1921342980
 MonoBehaviour:
@@ -4019,7 +4021,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 6250623130576744490, guid: fc8c2f22910600d409fbd7662d9d7a85, type: 3}
+  m_Sprite: {fileID: 21300000, guid: fc8c2f22910600d409fbd7662d9d7a85, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

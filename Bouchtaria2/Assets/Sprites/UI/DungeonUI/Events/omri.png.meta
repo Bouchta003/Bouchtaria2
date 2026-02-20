@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: fc8c2f22910600d409fbd7662d9d7a85
+guid: 7b7b34cd56fafe843a12f9235ef785c6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6250623130576744490
-    second: drbens_0
+      213: 8614875131679050543
+    second: omri_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: drbens_0
+      name: omri_0
       rect:
         serializedVersion: 2
-        x: 2
+        x: 0
         y: 0
-        width: 1022
-        height: 1536
+        width: 1024
+        height: 1024
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a20fddabe9caeb650800000000000000
-      internalID: 6250623130576744490
+      spriteID: f2b8318e94f2e8770800000000000000
+      internalID: 8614875131679050543
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      drbens_0: 6250623130576744490
+      omri_0: 8614875131679050543
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

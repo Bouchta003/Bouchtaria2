@@ -211,15 +211,14 @@ public class DungeonManager : MonoBehaviour
         switch (CurrentEvent)
         {
             case 1:
-                CurrentRun.coins += 100;
-                Debug.Log("Dungeon event: +100 dungeon coins.");
+                CurrentRun.coins += 50;
+                Debug.Log("Dungeon event: +50 dungeon coins.");
                 CompleteCurrentEvent();
                 break;
             case 2:
                 CurrentRun.augments.Add(DungeonShop.Augment.MaxHP);
                 CurrentRun.augments.Add(DungeonShop.Augment.MaxHP);
-                CurrentRun.augments.Add(DungeonShop.Augment.MaxHP);
-                Debug.Log("Dungeon event: +15 HP equivalent granted.");
+                Debug.Log("Dungeon event: +10 HP equivalent granted.");
                 CompleteCurrentEvent();
                 break;
             case 3:
@@ -232,7 +231,7 @@ public class DungeonManager : MonoBehaviour
 
                 GetUserGold(gold =>
                 {
-                    int transferAmount = Mathf.Clamp(gold, 0, 100);
+                    int transferAmount = Mathf.Clamp(gold, 0, 300);
                     if (transferAmount <= 0)
                     {
                         Debug.Log("Dungeon event: no gold available to convert.");
@@ -240,7 +239,7 @@ public class DungeonManager : MonoBehaviour
                         return;
                     }
 
-                    CurrentRun.coins += transferAmount;
+                    CurrentRun.coins += transferAmount/3;
                     ModifyUserGold(-transferAmount, () =>
                     {
                         Debug.Log($"Dungeon event: converted {transferAmount} gold into dungeon coins.");
@@ -281,13 +280,13 @@ public class DungeonManager : MonoBehaviour
         switch (CurrentEvent)
         {
             case 1:
-                EventText.text = "Lucky find! Accept to gain +100 dungeon coins.";
+                EventText.text = "I got too much money Alhamdulillah, here are 50 coins if you want.";
                 break;
             case 2:
-                EventText.text = "Ancient blessing! Accept to gain +15 Max HP for this run.";
+                EventText.text = "Doctor Bensalmia here, would you like some more health ? Belive me it's free !";
                 break;
             case 3:
-                EventText.text = "Greedy merchant: convert up to 100 of your account gold into dungeon coins?";
+                EventText.text = "Okay so I negociated with the guy and he said you could trade of 300 golds for 100 coins, are you interested ? ";
                 break;
             default:
                 EventText.text = "";
