@@ -475,6 +475,30 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         return false;
     }
+
+    private string GetProgressPlayKeywordFilter()
+    {
+        if (string.IsNullOrWhiteSpace(CurrentEffect))
+            return string.Empty;
+
+        string[] tokens = CurrentEffect.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (string token in tokens)
+        {
+            if (!token.StartsWith("progressplay"))
+                continue;
+
+            string suffix = token.Substring("progressplay".Length);
+            int delimiter = suffix.IndexOfAny(new[] { '(', '[' });
+
+            if (delimiter >= 0)
+                suffix = suffix.Substring(0, delimiter);
+
+            return suffix;
+        }
+
+        return string.Empty;
+    }
     void OnHeal(PlayerOwner owner, int healamount)
     {
         if (CurrentZone != CardZone.Board)
@@ -563,6 +587,14 @@ public class CardInstance : MonoBehaviour, IAttackable
         
         if (ReferenceEquals(card, this))
             return;
+
+        string progressPlayFilter = GetProgressPlayKeywordFilter();
+        if (!string.IsNullOrWhiteSpace(progressPlayFilter))
+        {
+            string playedCardEffectText = card.CurrentEffectText ?? string.Empty;
+            if (playedCardEffectText.IndexOf(progressPlayFilter, StringComparison.OrdinalIgnoreCase) < 0)
+                return;
+        }
 
         ProgressionCounter++;
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
@@ -1559,9 +1591,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "progressattack":
             case "progressdamage":
             case "progresskazuyacombo":
-            case "progressplay":
             case "progresseot":
             case "progressbuff":
+                trigger = EffectTrigger.ProgressComplete;
+                return true;
+
+            case string progressPlayTrigger when progressPlayTrigger.StartsWith("progressplay"):
                 trigger = EffectTrigger.ProgressComplete;
                 return true;
 
