@@ -1247,6 +1247,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteAbsorb(effect, null);
             gameManager.CheckGlow();return false;
         }
+        if (effect.StartsWith("consume"))
+        {
+            TryExecuteConsume(effect);
+            gameManager.CheckGlow(); return false;
+        }
 
         if (effect.StartsWith("draw"))
         {
@@ -1380,6 +1385,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("damagerandomenemy"))
         {
             TryExecuteDamageRandomEnemy(effect);
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("killrandom") || effect.StartsWith("killlow") || effect.StartsWith("killhigh"))
+        {
+            TryExecuteKill(effect, null);
             gameManager.CheckGlow(); return false;
         }
         else if (effect.StartsWith("damage"))
@@ -2460,6 +2470,47 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TryExecuteKill(string effect, IAttackable target)
     {
+        if (effect.StartsWith("killrandom"))
+        {
+            if (!TryParseIntEffect(effect, "killrandom", out int killCount))
+                return;
+
+            if (killCount <= 0)
+                return;
+
+            List<CardInstance> enemyUnits = GetLivingUnitsOnBoard(Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player);
+            killCount = Mathf.Min(killCount, enemyUnits.Count);
+
+            for (int i = 0; i < killCount; i++)
+            {
+                if (enemyUnits.Count == 0)
+                    break;
+
+                int randomIndex = UnityEngine.Random.Range(0, enemyUnits.Count);
+                CardInstance randomTarget = enemyUnits[randomIndex];
+                enemyUnits.RemoveAt(randomIndex);
+
+                if (randomTarget != null && !randomTarget.IsDead)
+                    Kill(randomTarget);
+            }
+            return;
+        }
+
+        if (effect.StartsWith("killlow") || effect.StartsWith("killhigh"))
+        {
+            List<CardInstance> enemyUnits = GetLivingUnitsOnBoard(Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player);
+            if (enemyUnits.Count == 0)
+                return;
+
+            CardInstance selectedTarget = effect.StartsWith("killlow")
+                ? enemyUnits.OrderBy(ci => ci.CurrentAttack + ci.CurrentHealth).ThenBy(ci => ci.CurrentHealth).FirstOrDefault()
+                : enemyUnits.OrderByDescending(ci => ci.CurrentAttack + ci.CurrentHealth).ThenByDescending(ci => ci.CurrentAttack).FirstOrDefault();
+
+            if (selectedTarget != null && !selectedTarget.IsDead)
+                Kill(selectedTarget);
+            return;
+        }
+
         if (target == null ||target is not CardInstance inst)
         {
             Debug.LogError($"Kill effect requires a target on {Data.name}");
@@ -2542,6 +2593,115 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
         //Buff self
+    }
+    private void TryExecuteConsume(string effect)
+    {
+        List<CardInstance> candidates;
+
+        if (effect.StartsWith("consumeany"))
+        {
+            candidates = GetLivingUnitsOnBoard(null, excludeSelf: true);
+        }
+        else if (effect.StartsWith("consumetrait"))
+        {
+            string trait = GetStringValueFromEffect(effect, "consumetrait");
+            if (string.IsNullOrWhiteSpace(trait))
+                return;
+
+            candidates = GetLivingUnitsOnBoard(null, excludeSelf: true)
+                .Where(ci => ci.HasTrait(trait))
+                .ToList();
+        }
+        else if (effect.StartsWith("consume"))
+        {
+            string requiredEffect = GetStringValueFromEffect(effect, "consume");
+            if (string.IsNullOrWhiteSpace(requiredEffect))
+                return;
+
+            candidates = GetLivingUnitsOnBoard(null, excludeSelf: true)
+                .Where(ci => !string.IsNullOrWhiteSpace(ci.CurrentEffect)
+                             && ci.CurrentEffect.IndexOf(requiredEffect, StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
+        }
+        else
+        {
+            return;
+        }
+
+        if (candidates.Count == 0)
+            return;
+
+        CardInstance consumed = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+        if (consumed == null || consumed.IsDead)
+            return;
+
+        int gainedAtk = consumed.CurrentAttack;
+        int gainedHp = consumed.CurrentHealth;
+        string gainedEffect = consumed.CurrentEffect;
+        string gainedEffectText = consumed.CurrentEffectText;
+
+        Kill(consumed);
+
+        if (!IsDead)
+        {
+            ModifyStats(gainedAtk, gainedHp);
+            CurrentEffect = AppendToken(CurrentEffect, gainedEffect);
+            CurrentEffectText = AppendToken(CurrentEffectText, gainedEffectText, separator: "\n");
+            ParseEffects();
+            view.UpdateMode();
+        }
+    }
+
+    private List<CardInstance> GetLivingUnitsOnBoard(PlayerOwner? ownerFilter = null, bool excludeSelf = false)
+    {
+        List<CardInstance> result = new();
+
+        IEnumerable<GameObject> allCards = gameManager.allyDropArea.GetCards().Concat(gameManager.enemyDropArea.GetCards());
+        foreach (GameObject go in allCards)
+        {
+            if (go == null)
+                continue;
+
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci == null || ci.IsDead)
+                continue;
+            if (excludeSelf && ci == this)
+                continue;
+            if (ownerFilter.HasValue && ci.Owner != ownerFilter.Value)
+                continue;
+
+            result.Add(ci);
+        }
+
+        return result;
+    }
+
+    private string GetStringValueFromEffect(string effect, string effectName)
+    {
+        if (!effect.StartsWith(effectName))
+            return string.Empty;
+
+        int start = effect.IndexOf('(');
+        int end = effect.LastIndexOf(')');
+        if (start < 0 || end <= start)
+            return string.Empty;
+
+        return effect.Substring(start + 1, end - start - 1).Trim();
+    }
+
+    private static string AppendToken(string current, string addition, string separator = " ")
+    {
+        if (string.IsNullOrWhiteSpace(addition))
+            return current ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(current))
+            return addition.Trim();
+
+        string trimmedCurrent = current.Trim();
+        string trimmedAddition = addition.Trim();
+        if (trimmedCurrent.IndexOf(trimmedAddition, StringComparison.OrdinalIgnoreCase) >= 0)
+            return trimmedCurrent;
+
+        return $"{trimmedCurrent}{separator}{trimmedAddition}";
     }
     private void TryExecuteDamageAoe(string effect)
     {
