@@ -60,6 +60,7 @@ public class DungeonManager : MonoBehaviour
     private const string DungeonCombatActiveField = "dungeoncombatactive";
     private const string DungeonEventFloorsField = "dungeoneventfloors";
     private const string DungeonPendingEventField = "dungeonpendingevent";
+    private const string DungeonPendingEventFloorField = "dungeonpendingeventfloor";
     private int currentBestStreak;
     private readonly HashSet<int> usedEventFloors = new HashSet<int>();
     private int pendingEventFloor = -1;
@@ -162,17 +163,47 @@ public class DungeonManager : MonoBehaviour
     {
         EnsureCurrentRunInitialized();
 
-        if (CurrentRun.floor < 5 || CurrentRun.floor % 5 != 0)
+        if (CurrentEvent >= 1 && CurrentEvent <= 3)
+        {
+            if (pendingEventFloor <= 0)
+                pendingEventFloor = CurrentRun.floor;
+
+            bool resumed = ShowEventForCurrentState();
+            LogEventTrigger(CurrentRun.floor, CurrentEvent, resumed, resumed
+                ? "Resumed pending event after scene load/relogin."
+                : "Pending event could not be displayed (UI references missing)."
+            );
+            SaveRunData();
             return;
+        }
+
+        if (CurrentRun.floor < 5)
+        {
+            LogEventTrigger(CurrentRun.floor, -1, false, "Floor is below 5.");
+            return;
+        }
+
+        if (CurrentRun.floor % 5 != 0)
+        {
+            LogEventTrigger(CurrentRun.floor, -1, false, "Floor is not divisible by 5.");
+            return;
+        }
 
         if (usedEventFloors.Contains(CurrentRun.floor))
+        {
+            LogEventTrigger(CurrentRun.floor, -1, false, "Event already used on this floor.");
             return;
+        }
 
         pendingEventFloor = CurrentRun.floor;
         if (CurrentEvent < 1 || CurrentEvent > 3)
             CurrentEvent = UnityEngine.Random.Range(1, 4);
 
-        ConfigureCurrentEventUI();
+        bool triggered = ShowEventForCurrentState();
+        LogEventTrigger(CurrentRun.floor, CurrentEvent, triggered, triggered
+            ? "New event rolled on floor multiple of 5."
+            : "Event roll happened but UI could not be shown."
+        );
         SaveRunData();
     }
     public void ClickEventAnswer(bool answer)
@@ -223,6 +254,13 @@ public class DungeonManager : MonoBehaviour
         }
     }
 
+    private bool ShowEventForCurrentState()
+    {
+        bool hasMainWindow = EventWindow != null;
+        ConfigureCurrentEventUI();
+        return hasMainWindow;
+    }
+
     private void ConfigureCurrentEventUI()
     {
         if (EventWindow != null)
@@ -230,8 +268,9 @@ public class DungeonManager : MonoBehaviour
 
         if (EventChoiceWindow != null)
             EventChoiceWindow.SetActive(CurrentEvent == 3);
-        else
-            EventAcceptWindow.SetActive(true);
+
+        if (EventAcceptWindow != null)
+            EventAcceptWindow.SetActive(CurrentEvent != 3);
 
         if (EventImage != null && EventImageList != null && EventImageList.Count >= CurrentEvent)
             EventImage.sprite = EventImageList[Mathf.Max(0, CurrentEvent - 1)];
@@ -265,6 +304,11 @@ public class DungeonManager : MonoBehaviour
         CurrentEvent = -1;
         HideEventWindows();
         SaveRunData();
+    }
+
+    private void LogEventTrigger(int floor, int eventValue, bool didTrigger, string reason)
+    {
+        Debug.Log($"[DungeonEvent] floor={floor}, eventValue={eventValue}, triggered={didTrigger}, reason={reason}");
     }
 
     private void HideEventWindows()
@@ -400,7 +444,9 @@ public class DungeonManager : MonoBehaviour
                 CurrentEvent = snapshot.ContainsField(DungeonPendingEventField)
                     ? task.Result.GetValue<int>(DungeonPendingEventField)
                     : -1;
-                pendingEventFloor = CurrentEvent > 0 ? CurrentRun.floor : -1;
+                pendingEventFloor = snapshot.ContainsField(DungeonPendingEventFloorField)
+                    ? Mathf.Max(1, task.Result.GetValue<int>(DungeonPendingEventFloorField))
+                    : (CurrentEvent > 0 ? CurrentRun.floor : -1);
                 currentBestStreak = snapshot.ContainsField(BestStreakField) ? task.Result.GetValue<int>(BestStreakField) : 0;
 
 
@@ -465,7 +511,8 @@ public class DungeonManager : MonoBehaviour
             { DeckField,  CurrentRun.dungeonDeck},
             { DungeonCombatActiveField, false },
             { DungeonEventFloorsField, usedEventFloors.ToList() },
-            { DungeonPendingEventField, CurrentEvent }
+            { DungeonPendingEventField, CurrentEvent },
+            { DungeonPendingEventFloorField, pendingEventFloor }
         };
 
         if (resetStreak)
@@ -474,6 +521,7 @@ public class DungeonManager : MonoBehaviour
             updates[DeckField] = new List<int>();
             updates[DungeonEventFloorsField] = new List<int>();
             updates[DungeonPendingEventField] = -1;
+            updates[DungeonPendingEventFloorField] = -1;
         }
 
         db.Collection("users")
