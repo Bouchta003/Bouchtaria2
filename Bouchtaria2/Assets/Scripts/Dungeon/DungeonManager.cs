@@ -58,7 +58,11 @@ public class DungeonManager : MonoBehaviour
     private const string DeckField = "dungeondeck";
     private const string AugmentsField = "dungeonaugments";
     private const string DungeonCombatActiveField = "dungeoncombatactive";
+    private const string DungeonEventFloorsField = "dungeoneventfloors";
+    private const string DungeonPendingEventField = "dungeonpendingevent";
     private int currentBestStreak;
+    private readonly HashSet<int> usedEventFloors = new HashSet<int>();
+    private int pendingEventFloor = -1;
 
     int CurrentEvent = -1;
     [SerializeField] GameObject EventWindow;
@@ -92,6 +96,9 @@ public class DungeonManager : MonoBehaviour
     {
         RebindSceneUIReferences();
         ApplyRunToUI();
+
+        if (CurrentEvent > 0 || (CurrentRun != null && CurrentRun.floor >= 5))
+            TriggerRandomEvent();
     }
 
     private void EnsureCurrentRunInitialized()
@@ -148,37 +155,118 @@ public class DungeonManager : MonoBehaviour
     /// </summary>
     public void TriggerRandomEvent()
     {
-        //display event window
-        switch (CurrentEvent)
-        {
-            case < 0:
-                //hide window
-                return;
-            case 1:
-                //Gain a bonus of +100 coins to the run
-                break;
-            case 2: 
-                //Gain a bonus of +15 HP to the run (three times the HP augment)
-                break;
-            case 3:
-                //Display the event choice window which will have buttons. Button will recquire input from user.
-                break;
-            default:return;
-        }
+        EnsureCurrentRunInitialized();
+
+        if (CurrentRun.floor < 5 || CurrentRun.floor % 5 != 0)
+            return;
+
+        if (usedEventFloors.Contains(CurrentRun.floor))
+            return;
+
+        pendingEventFloor = CurrentRun.floor;
+        if (CurrentEvent < 1 || CurrentEvent > 3)
+            CurrentEvent = UnityEngine.Random.Range(1, 4);
+
+        ConfigureCurrentEventUI();
+        SaveRunData();
     }
     public void ClickEventAnswer(bool answer)
     {
-        //display event choice window
         switch (CurrentEvent)
         {
-            case < 3:
-                //hide choice window because no need ot make a choice
-            case 3:
-                //Display the event choice window which will have buttons. Button will recquire input from user. Switch between true add a false,
-                //if true, reduce the owner's gold by a max of 100 and grand him that same amount in coin, if false return and debug log chosen false.
+            case 1:
+                CurrentRun.coins += 100;
+                Debug.Log("Dungeon event: +100 dungeon coins.");
+                CompleteCurrentEvent();
                 break;
-            default: return;
+            case 2:
+                CurrentRun.augments.Add(DungeonShop.Augment.MaxHP);
+                CurrentRun.augments.Add(DungeonShop.Augment.MaxHP);
+                CurrentRun.augments.Add(DungeonShop.Augment.MaxHP);
+                Debug.Log("Dungeon event: +15 HP equivalent granted.");
+                CompleteCurrentEvent();
+                break;
+            case 3:
+                if (!answer)
+                {
+                    Debug.Log("Dungeon event choice declined by player.");
+                    CompleteCurrentEvent();
+                    return;
+                }
+
+                GetUserGold(gold =>
+                {
+                    int transferAmount = Mathf.Clamp(gold, 0, 100);
+                    if (transferAmount <= 0)
+                    {
+                        Debug.Log("Dungeon event: no gold available to convert.");
+                        CompleteCurrentEvent();
+                        return;
+                    }
+
+                    CurrentRun.coins += transferAmount;
+                    ModifyUserGold(-transferAmount, () =>
+                    {
+                        Debug.Log($"Dungeon event: converted {transferAmount} gold into dungeon coins.");
+                        CompleteCurrentEvent();
+                    });
+                });
+                break;
+            default:
+                HideEventWindows();
+                return;
         }
+    }
+
+    private void ConfigureCurrentEventUI()
+    {
+        if (EventWindow != null)
+            EventWindow.SetActive(true);
+
+        if (EventChoiceWindow != null)
+            EventChoiceWindow.SetActive(CurrentEvent == 3);
+
+        if (EventImage != null && EventImageList != null && EventImageList.Count >= CurrentEvent)
+            EventImage.sprite = EventImageList[Mathf.Max(0, CurrentEvent - 1)];
+
+        if (EventText == null)
+            return;
+
+        switch (CurrentEvent)
+        {
+            case 1:
+                EventText.text = "Lucky find! Accept to gain +100 dungeon coins.";
+                break;
+            case 2:
+                EventText.text = "Ancient blessing! Accept to gain +15 Max HP for this run.";
+                break;
+            case 3:
+                EventText.text = "Greedy merchant: convert up to 100 of your account gold into dungeon coins?";
+                break;
+            default:
+                EventText.text = "";
+                break;
+        }
+    }
+
+    private void CompleteCurrentEvent()
+    {
+        if (pendingEventFloor > 0)
+            usedEventFloors.Add(pendingEventFloor);
+
+        pendingEventFloor = -1;
+        CurrentEvent = -1;
+        HideEventWindows();
+        SaveRunData();
+    }
+
+    private void HideEventWindows()
+    {
+        if (EventWindow != null)
+            EventWindow.SetActive(false);
+
+        if (EventChoiceWindow != null)
+            EventChoiceWindow.SetActive(false);
     }
     public void RefreshAugmentCount()
     {
@@ -296,6 +384,13 @@ public class DungeonManager : MonoBehaviour
                     augments = ParseAugments(snapshot, AugmentsField),
                     dungeonDeck = ParseDeck(snapshot, DeckField)
                 }; CalculateDeckSize();
+                usedEventFloors.Clear();
+                foreach (var floor in ParseIntList(snapshot, DungeonEventFloorsField))
+                    usedEventFloors.Add(Mathf.Max(1, floor));
+                CurrentEvent = snapshot.ContainsField(DungeonPendingEventField)
+                    ? task.Result.GetValue<int>(DungeonPendingEventField)
+                    : -1;
+                pendingEventFloor = CurrentEvent > 0 ? CurrentRun.floor : -1;
                 currentBestStreak = snapshot.ContainsField(BestStreakField) ? task.Result.GetValue<int>(BestStreakField) : 0;
 
 
@@ -308,6 +403,7 @@ public class DungeonManager : MonoBehaviour
 
                 Debug.Log("User streak: " + CurrentRun.floor);
                 ApplyRunToUI();
+                TriggerRandomEvent();
 
                 if (hasNoRunData)
                 {
@@ -331,6 +427,9 @@ public class DungeonManager : MonoBehaviour
             augments = new List<DungeonShop.Augment>(),
             dungeonDeck = new List<int>()
         }; 
+        usedEventFloors.Clear();
+        pendingEventFloor = -1;
+        CurrentEvent = -1;
         CalculateDeckSize();
         currentBestStreak = 0;
 
@@ -354,13 +453,17 @@ public class DungeonManager : MonoBehaviour
             { CoinField, CurrentRun.coins },
             { AugmentsField, SerializeAugments(CurrentRun.augments) },
             { DeckField,  CurrentRun.dungeonDeck},
-            { DungeonCombatActiveField, false }
+            { DungeonCombatActiveField, false },
+            { DungeonEventFloorsField, usedEventFloors.ToList() },
+            { DungeonPendingEventField, CurrentEvent }
         };
 
         if (resetStreak)
         { 
             updates[StreakField] = 1;
             updates[DeckField] = new List<int>();
+            updates[DungeonEventFloorsField] = new List<int>();
+            updates[DungeonPendingEventField] = -1;
         }
 
         db.Collection("users")
@@ -401,6 +504,7 @@ public class DungeonManager : MonoBehaviour
                     Debug.Log("User streak: " + streak);
                     TryUpdateBestStreak(CurrentRun.floor);
                     ApplyRunToUI();
+                    TriggerRandomEvent();
                     SaveRunData();
                 });
             });
@@ -457,6 +561,9 @@ public class DungeonManager : MonoBehaviour
             EnsureCurrentRunInitialized();
             CurrentRun.Reset();
             CurrentRun.coins = 30;
+            usedEventFloors.Clear();
+            pendingEventFloor = -1;
+            CurrentEvent = -1;
             SaveRunData(resetStreak: true);
 
             if (GameRunContext.DungeonData != null)
@@ -585,6 +692,74 @@ public class DungeonManager : MonoBehaviour
             return ints.ToList();
 
         return new List<int>();
+    }
+
+    private static List<int> ParseIntList(DocumentSnapshot snapshot, string field)
+    {
+        if (!snapshot.ContainsField(field))
+            return new List<int>();
+
+        object raw = snapshot.GetValue<object>(field);
+        if (raw is IEnumerable<object> enumerable)
+            return enumerable.Select(x => Convert.ToInt32(x)).ToList();
+
+        if (raw is IEnumerable<int> ints)
+            return ints.ToList();
+
+        return new List<int>();
+    }
+
+    private void GetUserGold(Action<int> onResult)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            onResult?.Invoke(0);
+            return;
+        }
+
+        FirebaseFirestore.DefaultInstance
+            .Collection("users")
+            .Document(user.UserId)
+            .GetSnapshotAsync()
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted || !task.Result.Exists)
+                {
+                    Debug.LogError("Failed to fetch user gold.");
+                    onResult?.Invoke(0);
+                    return;
+                }
+
+                int gold = task.Result.ContainsField("gold")
+                    ? task.Result.GetValue<int>("gold")
+                    : 0;
+                onResult?.Invoke(Mathf.Max(0, gold));
+            });
+    }
+
+    private void ModifyUserGold(int delta, Action onComplete = null)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+        {
+            Debug.LogError("No authenticated user.");
+            onComplete?.Invoke();
+            return;
+        }
+
+        FirebaseFirestore.DefaultInstance
+            .Collection("users")
+            .Document(user.UserId)
+            .UpdateAsync("gold", FieldValue.Increment(delta))
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsFaulted)
+                    Debug.LogError("Failed to modify gold.");
+
+                onComplete?.Invoke();
+            });
     }
 
     public void LeaveToMenu()
