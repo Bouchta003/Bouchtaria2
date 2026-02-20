@@ -2754,31 +2754,33 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TryExecuteGrantAll(string completeeffect)
     {
-        string[] effects = completeeffect.Split(',');
-        if (effects.Length < 2 ) return;
-        string effect = effects[0];
-        string effectText = effects[1];
-        if (Owner != PlayerOwner.Player)
-        {
-            foreach (GameObject enemyGO in gameManager.enemyDropArea.enemyPrefabCards)
-            {
-                if (enemyGO == null) continue;
+        string args = ExtractParenthesizedArgs(completeeffect);
+        if (string.IsNullOrWhiteSpace(args))
+            return;
 
-                CardInstance ci = enemyGO.GetComponent<CardInstance>();
-                ci.CurrentEffect += " "+effect;
-                ci.CurrentEffectText += "\n"+effectText;
-            }
-        }
-        else
-        {
-            foreach (GameObject allyGO in gameManager.allyDropArea.allyPrefabCards)
-            {
-                if (allyGO == null) continue;
+        string[] parts = args.Split(',');
+        if (parts.Length < 2)
+            return;
 
-                CardInstance ci = allyGO.GetComponent<CardInstance>();
-                ci.CurrentEffect += " " + effect;
-                ci.CurrentEffectText += "\n" + effectText;
-            }
+        string effect = parts[0].Trim();
+        string effectText = parts[1].Trim();
+        if (string.IsNullOrWhiteSpace(effect))
+            return;
+
+        List<GameObject> board = Owner != PlayerOwner.Player
+            ? gameManager.enemyDropArea.enemyPrefabCards
+            : gameManager.allyDropArea.allyPrefabCards;
+
+        foreach (GameObject unitGO in board)
+        {
+            if (unitGO == null) continue;
+
+            CardInstance ci = unitGO.GetComponent<CardInstance>();
+            if (ci == null || ci.IsDead) continue;
+
+            ci.CurrentEffect = AppendToken(ci.CurrentEffect, effect);
+            ci.CurrentEffectText = AppendToken(ci.CurrentEffectText, effectText, "\n");
+            ci.view.UpdateMode();
         }
     }
     private void TryExecuteSleep(CardInstance target)
