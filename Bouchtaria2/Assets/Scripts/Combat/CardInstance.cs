@@ -880,6 +880,11 @@ public class CardInstance : MonoBehaviour, IAttackable
                 TryExecuteDamage(effect, target);
                 continue;
             }
+            if (effect.StartsWith("kill"))
+            {
+                TryExecuteKill(effect, target);
+                continue;
+            }
             if (effect.StartsWith("catch"))
             {
                 TryExecuteCatch(effect, target);
@@ -1634,6 +1639,9 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("damage"))
             return ChooseDamageTarget(type);
 
+        if (effect.StartsWith("kill"))
+            return ChooseKillTarget(type);
+
         if (effect.StartsWith("gear"))
             return ChooseBestFriendlyUnitTargetForGear();
 
@@ -1684,6 +1692,21 @@ public class CardInstance : MonoBehaviour, IAttackable
             .FirstOrDefault();
     }
 
+    private IAttackable ChooseKillTarget(EffectTarget type)
+    {
+        List<IAttackable> validTargets = gameManager.GetValidTargets(PlayerOwner.Player);
+        List<CardInstance> enemyUnits = validTargets.OfType<CardInstance>().Where(ci => !ci.IsDead).ToList();
+
+        CardInstance strongestEnemy = enemyUnits
+            .OrderByDescending(ci => ci.CurrentAttack + ci.CurrentHealth)
+            .ThenByDescending(ci => ci.CurrentAttack)
+            .FirstOrDefault();
+
+        if (strongestEnemy != null)
+            return strongestEnemy;
+
+        return null;
+    }
     private IAttackable ChooseDamageTarget(EffectTarget type)
     {
         List<IAttackable> validTargets = gameManager.GetValidTargets(PlayerOwner.Player);
@@ -1776,6 +1799,14 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (target != null)
             {
                 TryExecuteDamage(pendingTargetedEffect, target);
+                executed = true;
+            }
+        }
+        else if (pendingTargetedEffect.StartsWith("kill"))
+        {
+            if (target != null)
+            {
+                TryExecuteKill(pendingTargetedEffect, target);
                 executed = true;
             }
         }
@@ -2375,6 +2406,16 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         target.TakeDamage(amount);
         gameManager.OnDamageWithCard(Owner);
+    }
+    private void TryExecuteKill(string effect, IAttackable target)
+    {
+        if (target == null ||target is not CardInstance inst)
+        {
+            Debug.LogError($"Kill effect requires a target on {Data.name}");
+            return;
+        }
+
+        Kill(inst);
     }
     private void TryExecuteCatch(string effect, IAttackable target)
     {
