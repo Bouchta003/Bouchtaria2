@@ -332,6 +332,13 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.OnSpellPlayed += OnSpellPlayed;
             cardView.ShowProgress(ProgressionCounter, ProgressionCap);
         }
+        else if (HasKeyword("progressspel") &&
+         TryParseProgress("progressspel", out int spellcap))
+        {
+            ProgressionCap = spellcap;
+            gameManager.OnSpellPlayed += OnSpellPlayed;
+            cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+        }
         else if (HasKeyword("progressbuff") &&
           TryParseProgress("progressbuff", out int buffCap))
         {
@@ -412,7 +419,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                               && spellEffects != null
                               && spellEffects.Count > 0;
 
-        bool hasProgressSpell = HasKeyword("progresskazuyacombo") && ProgressionCap > 0;
+        bool hasProgressSpell = (HasKeyword("progresskazuyacombo")|| HasKeyword("progressspell")) && ProgressionCap > 0;
 
         if (hasSpellTrigger || hasProgressSpell)
             gameManager.OnSpellPlayed += OnSpellPlayed;
@@ -616,6 +623,14 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (hasSpellTrigger)
             TriggerEffects(EffectTrigger.SpellCast);
+
+        if (HasKeyword("progressspell"))
+        {
+            ProgressionCounter++;
+            cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+            CheckProgressCompletion();
+            return;
+        }
 
         if (!HasKeyword("progresskazuyacombo") || ProgressionCap <= 0)
             return;
@@ -1591,6 +1606,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "progressattack":
             case "progressdamage":
             case "progresskazuyacombo":
+            case "progressspell":
             case "progresseot":
             case "progressbuff":
                 trigger = EffectTrigger.ProgressComplete;
@@ -2469,7 +2485,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
             gameManager.AddCardToHand(Owner, cardInst.Data.id);
             Kill(cardInst);
-            gameManager.AddPokemonTraitProgress(Owner, 1);
+            //gameManager.AddPokemonTraitProgress(Owner, 1);
         }
 
     }
@@ -3160,6 +3176,8 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         target.IsDying = true;
         target.Die();
+        if(HasTrait("Pokemon"))
+            gameManager.AddPokemonTraitProgress(Owner, 1);
         return;
     }
     public void Heal(int amount)
