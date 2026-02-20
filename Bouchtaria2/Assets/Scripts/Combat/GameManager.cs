@@ -533,6 +533,21 @@ public class GameManager : MonoBehaviour
         return system.HasTraitAtTier(trait, minTier);
     }
 
+    public void AddPokemonTraitProgress(PlayerOwner owner, int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        foreach (var progression in activeProgressions)
+        {
+            if (progression is PokemonProgression pokemonProgression && pokemonProgression.Owner == owner)
+            {
+                pokemonProgression.AddCatchProgress(amount);
+                return;
+            }
+        }
+    }
+
     private void OnAllyTraitActivated(CardData.Trait trait, int tier)
     {
         allyTraitUI.ActivateTrait(trait, tier);

@@ -1722,10 +1722,24 @@ public class PokemonProgression : ITraitProgression
 
         if (!card.HasTrait("Pokemon"))
             return;
-        pokemonKills++;
+
+        AddProgress(1, "kill");
+    }
+
+    public void AddCatchProgress(int amount)
+    {
+        AddProgress(amount, "catch");
+    }
+
+    private void AddProgress(int amount, string source)
+    {
+        if (amount <= 0)
+            return;
+
+        pokemonKills += amount;
         OnProgressUpdated?.Invoke(Trait, pokemonKills, GetCurrentCap(), Owner);
 
-        Debug.Log($"Pokemon card kill for :{Owner}, count is now {pokemonKills}");
+        Debug.Log($"Pokemon progression for {Owner} via {source}, count is now {pokemonKills}");
 
         if (pokemonKills >= 3 && CurrentTier < 1 && maxTier >= 1)
         {
@@ -1740,7 +1754,6 @@ public class PokemonProgression : ITraitProgression
         {
             UnlockTier3();
         }
-
     }
     private void UnlockTier1()
     {

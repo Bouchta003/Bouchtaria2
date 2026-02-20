@@ -313,6 +313,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             ProgressionCap = attackCap;
             gameManager.OnCardAttack += OnAttack;
         }
+        else if (HasKeyword("progressplay") &&
+          TryParseProgress("progressplay", out int playCap))
+        {
+            ProgressionCap = playCap;
+            gameManager.OnCardPlayed += OnCardPlayed;
+        }
         else if (HasKeyword("progresseot") &&
           TryParseProgress("progresseot", out int turnCap))
         {
@@ -366,6 +372,9 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (deckManager != null)
             gameManager.OnCardAttack -= OnAttack;
+
+        if (gameManager != null)
+            gameManager.OnCardPlayed -= OnCardPlayed;
 
         if (deckManager != null)
             TurnManager.Instance.OnTurnEnded -= OnEndTurn;
@@ -540,6 +549,20 @@ public class CardInstance : MonoBehaviour, IAttackable
         ProgressionCounter++;
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
         Debug.Log($"[PROGRESS] {Data.name} draw {ProgressionCounter}/{ProgressionCap}");
+
+        CheckProgressCompletion();
+    }
+
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+
+        if (card == null || card.Owner != Owner)
+            return;
+
+        ProgressionCounter++;
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
 
         CheckProgressCompletion();
     }
@@ -1528,6 +1551,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "progressattack":
             case "progressdamage":
             case "progresskazuyacombo":
+            case "progressplay":
             case "progresseot":
             case "progressbuff":
                 trigger = EffectTrigger.ProgressComplete;
@@ -2241,7 +2265,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             Kill(cardInst);
             if (gameManager.OwnerHasTrait(Owner, CardData.Trait.Pokemon))
             {
-                //Add progression for pokemon trait
+                gameManager.AddPokemonTraitProgress(Owner, 1);
             }
         }
 
@@ -2986,6 +3010,9 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (gameManager != null)
             gameManager.OnCardAttack -= OnAttack;
+
+        if (gameManager != null)
+            gameManager.OnCardPlayed -= OnCardPlayed;
 
         if (gameManager != null)
             gameManager.OnOwnerManaGain -= OnManaGained;
