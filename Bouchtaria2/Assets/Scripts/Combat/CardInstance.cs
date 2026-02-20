@@ -560,6 +560,9 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (card == null || card.Owner != Owner)
             return;
+        
+        if (ReferenceEquals(card, this))
+            return;
 
         ProgressionCounter++;
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
@@ -2061,8 +2064,43 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
 
+        // ✅ NEW: discovereffectdiscount(effectName,discount)
+        if (effect.StartsWith("discovereffectdiscount"))
+        {
+            int startp = effect.IndexOf('(');
+            int endp = effect.IndexOf(')');
+
+            if (startp < 0 || endp < 0 || endp <= startp + 1)
+            {
+                Debug.LogError($"Malformed {effect} effect on card {Data.name}");
+                return;
+            }
+
+            string valueStr = effect.Substring(startp + 1, endp - startp - 1);
+            string[] parts = valueStr.Split(',');
+
+            if (parts.Length != 2)
+            {
+                Debug.LogError($"Malformed {effect} effect on card {Data.name}");
+                return;
+            }
+
+            string discoveryeffect = parts[0]+'*';
+
+            if (!int.TryParse(parts[1], out int discount))
+            {
+                Debug.LogError($"Invalid discount in {effect} on card {Data.name}");
+                return;
+            }
+
+            GameManager.Instance.DiscoverEffectDiscount(discoveryeffect, Owner, discount);
+            return;
+        }
+
         int start = effect.IndexOf('(');
         int end = effect.IndexOf(')');
+
+
         if (!effect.StartsWith("discoverownertrait"))
         {
             if ((start < 0 || end < 0 || end <= start + 1))
@@ -2084,7 +2122,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             {
                 //Test for three different effects ? 
                 (string e1, string e2, string e3) = GetThreeStringsFromEffect(effect);
-                if(e1 == "" || e2 == "" || e3 == "")
+                if (e1 == "" || e2 == "" || e3 == "")
                     gameManager.DiscoverEffect(valueStr, Owner); 
                 else
                     gameManager.DiscoverEffect(e1,e2,e3, Owner);

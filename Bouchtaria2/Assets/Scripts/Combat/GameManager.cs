@@ -523,7 +523,7 @@ public class GameManager : MonoBehaviour
         display.Progression = progress;
         display.ShowProgress(progress, currentCap);
     }
-    public bool OwnerHasTrait(PlayerOwner owner, CardData.Trait trait, int minTier = 1)
+    public bool OwnerHasTrait(PlayerOwner owner, CardData.Trait trait, int minTier = 0)
     {
         TraitSystem system =
             owner == PlayerOwner.Player
