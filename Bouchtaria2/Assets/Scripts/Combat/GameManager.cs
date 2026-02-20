@@ -1839,6 +1839,33 @@ public class GameManager : MonoBehaviour
 
         return card;
     }
+    public CardInstance AddRandomCardToHandTrait(PlayerOwner owner, string trait, int prohibitedId)
+    {
+        HandManager hand = owner == PlayerOwner.Player
+            ? allyHand
+            : enemyHand;
+
+        if (hand.handCards.Count >= hand.maxHandSize)
+        {
+            Debug.Log($"{owner} hand is full.");
+            return null;
+        }
+        List<CardData> options =
+       new List<CardData>(CardDatabase.Instance.GetCardsByTraitPackable(trait));
+        options = options.FindAll(card => card.id != prohibitedId);
+
+        if (options.Count == 0)
+            return null;
+        CardData data = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance card =
+            CardFactory.Instance.CreateCard(data, owner);
+
+        card.SetZone(CardZone.Hand);
+        hand.AddCard(card.gameObject);
+        hand.UpdateCardPositions();
+
+        return card;
+    }
     public CardInstance AddCardToHand(PlayerOwner owner, int id, int discount)
     {
         HandManager hand = owner == PlayerOwner.Player
@@ -2053,7 +2080,29 @@ public class GameManager : MonoBehaviour
         // Reset glows
         CheckGlow();
     }
+    public bool BoardHasCard(PlayerOwner owner, int id)
+    {
+        if(owner == PlayerOwner.Player)
+        {
+            foreach(GameObject cardGO in allyDropArea.allyPrefabCards)
+            {
+                CardInstance inst = cardGO.GetComponent<CardInstance>();
 
+                if (inst.Data.id == id) return true;
+            }
+        }
+        else
+        {
+            foreach (GameObject cardGO in enemyDropArea.enemyPrefabCards)
+            {
+                CardInstance inst = cardGO.GetComponent<CardInstance>();
+
+                if (inst.Data.id == id) return true;
+            }
+        }
+
+        return false;
+    }
     public void ShakeCameraForDamage(int damage)
     {
         float strength = 0f;
@@ -2417,11 +2466,11 @@ public class GameManager : MonoBehaviour
             //Only Take damage if not blessed, remove effect if damaged
             if (!attacker.HasKeyword("blessed")) { 
                 attacker.TakeDamage(defenderDmg+thornDamage);}
-            else attacker.RemoveEffect("blessed");
+            else if(defenderDmg + thornDamage>0) attacker.RemoveEffect("blessed");
 
             if(!targetUnit.HasKeyword("blessed"))
                 targetUnit.TakeDamage(attackerDmg);
-            else targetUnit.RemoveEffect("blessed");
+            else if(attackerDmg > 0) targetUnit.RemoveEffect("blessed");
 
             return;
         }

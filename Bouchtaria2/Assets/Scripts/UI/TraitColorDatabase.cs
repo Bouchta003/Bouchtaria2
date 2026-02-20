@@ -8,7 +8,7 @@ public static class TraitColorDatabase
     {
         { CardData.Trait.Speedster, new Color(0.10f, 0.60f, 1.00f) },
         { CardData.Trait.Gunner,    new Color(1.0f, 0.4f, 0.0f) },
-        { CardData.Trait.Combo,     new Color(1.00f, 0.55f, 0.15f) },
+        { CardData.Trait.Combo,     new Color(0f, 0.9f, 0.8f) },
 
         { CardData.Trait.SpellFocus,new Color(0.65f, 0.30f, 0.95f) },
         { CardData.Trait.Faith,     new Color(0.95f, 0.95f, 0.80f) },

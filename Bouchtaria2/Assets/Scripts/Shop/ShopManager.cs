@@ -47,6 +47,7 @@ public class ShopManager : MonoBehaviour
     [SerializeField] Image healerGlow;
     [SerializeField] Image neutralGlow;
     [SerializeField] Image chaosGlow;
+    [SerializeField] Image comboGlow;
     [SerializeField] Image gunnerGlow;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -790,7 +791,12 @@ public class ShopManager : MonoBehaviour
         else if (selectedTrait == "Chaos")
         {
             EnableRainbowGlow(chaosGlow);
-        }else if (selectedTrait == "Gunner")
+        }
+        else if (selectedTrait == "Combo")
+        {
+            EnableRainbowGlow(comboGlow);
+        }
+        else if (selectedTrait == "Gunner")
         {
             EnableRainbowGlow(gunnerGlow);
         }
@@ -822,6 +828,7 @@ public class ShopManager : MonoBehaviour
         DisableGlow(pokemonGlow);
         DisableGlow(gunnerGlow);
         DisableGlow(chaosGlow);
+        DisableGlow(comboGlow);
         DisableGlow(healerGlow);
         DisableGlow(faithGlow);
         DisableGlow(avatarGlow);

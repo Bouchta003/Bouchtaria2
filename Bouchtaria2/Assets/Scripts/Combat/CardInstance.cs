@@ -41,10 +41,6 @@ public enum EffectTarget
 }
 public class CardInstance : MonoBehaviour, IAttackable
 {
-    private const int OmriCardId = 192;
-    private const int InvestmentCardId = 196;
-    private const int GamblersInvestmentCardId = 197;
-
     GameManager gameManager;
     DeckManager deckManager;
     public Transform Transform { get; private set; }
@@ -294,6 +290,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             ProgressionCap = healCap;
         }
+        if (HasKeyword("progressmana") &&
+           TryParseProgress("progressmana", out int mana))
+        {
+            ProgressionCap = mana;
+        }
         else if (HasKeyword("progressdamage") &&
             TryParseProgress("progressdamage", out int dmgCap))
         {
@@ -417,8 +418,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         bool hasManaGainTrigger = parsedEffects.TryGetValue(EffectTrigger.ManaGain, out var manaEffects)
                                   && manaEffects != null
                                   && manaEffects.Count > 0;
-
-        if (hasManaGainTrigger)
+        bool hasProgressMana = HasKeyword("progressmana") && ProgressionCap > 0;
+        if (hasManaGainTrigger ||hasProgressMana)
             gameManager.OnOwnerManaGain += OnManaGained;
     }
     private bool TryParseProgress(
@@ -464,10 +465,6 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         return false;
-    }
-    void OnSummon()
-    {
-
     }
     void OnHeal(PlayerOwner owner, int healamount)
     {
@@ -595,6 +592,14 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
 
         TriggerEffects(EffectTrigger.ManaGain);
+
+        if (!HasKeyword("progressmana") || ProgressionCap <= 0)
+            return;
+
+        ProgressionCounter ++;
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+
+        CheckProgressCompletion();
     }
 
     private void UpdateBuffProgressCounter()
@@ -612,6 +617,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
 
         CheckProgressCompletion();
+
     }
 
     #endregion
@@ -639,7 +645,14 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (CurrentZone == CardZone.Board)
         {
             Bleed();
-            if (IsAsleep) IsAsleep = false;
+            if (IsAsleep) { 
+                IsAsleep = false; 
+                if(gameManager.BoardHasCard(OtherPlayer(Owner), 55))//If enmy owns a darkrai
+                {
+                    TakeDamage(3);
+                }
+            
+            }
             view.UpdateMode();
             TriggerEffects(EffectTrigger.EndOfTurn);
             if (HasKeyword("regeneration"))
@@ -764,7 +777,6 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
     }
-
     private EffectTarget ConvertSpellTargetType(CardData.SpellTargetType type)
     {
         return type switch
@@ -1512,6 +1524,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             // ✅ Progress triggers (parameterized)
             case "progressdraw":
             case "progressheal":
+            case "progressmana":
             case "progressattack":
             case "progressdamage":
             case "progresskazuyacombo":
@@ -2090,6 +2103,22 @@ public class CardInstance : MonoBehaviour, IAttackable
             string valueStr = effect.Substring(start + 1, end - start - 1);
             Debug.Log("Added random card with the following text : " + valueStr);
             gameManager.AddRandomCardToHandText(Owner, valueStr, Data.id);
+            return;
+        }
+        if (effect.StartsWith("addcardrandomtrait"))
+        {
+            int start = effect.IndexOf('(');
+            int end = effect.IndexOf(')');
+
+            if ((start < 0 || end < 0 || end <= start + 1))
+            {
+                Debug.LogError($"Malformed {effect} addcardrandomtrait on card {Data.name}");
+                return;
+            }
+
+            string valueStr = effect.Substring(start + 1, end - start - 1);
+            Debug.Log("Added random card with the following text : " + valueStr);
+            gameManager.AddRandomCardToHandTrait(Owner, valueStr, Data.id);
             return;
         }
 
