@@ -1541,7 +1541,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("ally?"))
         {
             TryExecuteAllyConditional(effect);
-            gameManager.CheckGlow();return false;
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("enemy?"))
+        {
+            TryExecuteEnemyConditional(effect);
+            gameManager.CheckGlow(); return false;
         }
         // near other effect.StartsWith checks in ExecuteEffect:
         if (effect.StartsWith("selfbuff"))
@@ -2331,6 +2336,60 @@ public class CardInstance : MonoBehaviour, IAttackable
         return chosen.Trim() + targetSuffix;
     }
 
+    private void TryExecuteEnemyConditional(string effect)
+    {
+        // Preserve targeting suffix (e.g. ,targetunit)
+        string targetSuffix = "";
+        int targetIndex = effect.IndexOf(",target");
+        if (targetIndex >= 0)
+        {
+            targetSuffix = effect.Substring(targetIndex);
+            effect = effect.Substring(0, targetIndex);
+        }
+
+        // Format: enemy?(19:buff(2,2);buff(1,1))
+
+        int open = effect.IndexOf('(');
+        int close = effect.LastIndexOf(')');
+
+        if (open < 0 || close <= open)
+        {
+            Debug.LogError($"Malformed enemy? effect '{effect}'");
+            return;
+        }
+
+        string inner = effect.Substring(open + 1, close - open - 1);
+        string[] parts = inner.Split(':');
+
+        if (parts.Length != 2)
+        {
+            Debug.LogError($"Malformed enemy? condition '{effect}'");
+            return;
+        }
+
+        if (!int.TryParse(parts[0], out int enemyId))
+        {
+            Debug.LogError($"Invalid enemy id in '{effect}'");
+            return;
+        }
+
+        string[] outcomes = parts[1].Split(';');
+        if (outcomes.Length != 2)
+        {
+            Debug.LogError($"enemy? requires two outcomes '{effect}'");
+            return;
+        }
+
+        bool enemyExists = gameManager.BoardHasCard(OtherPlayer(Owner), enemyId);
+
+        string chosenEffect = enemyExists ? outcomes[0] : outcomes[1];
+
+        string finalEffect = chosenEffect.Trim() + targetSuffix;
+
+        ExecuteEffect(finalEffect);
+
+        return;
+    }
     private void TryExecuteAllyConditional(string effect)
     {
         // Preserve targeting suffix (e.g. ,targetunit)
