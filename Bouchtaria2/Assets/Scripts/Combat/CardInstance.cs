@@ -875,8 +875,144 @@ public class CardInstance : MonoBehaviour, IAttackable
         Destroy(gameObject);
     }
 
+    private bool TryExecutePolymerizationSpell(bool isSuperPolymerization)
+    {
+        HandManager ownerHand = Owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
+        HandManager enemyHand = Owner == PlayerOwner.Player ? gameManager.enemyHand : gameManager.allyHand;
+
+        if (ownerHand == null)
+            return false;
+
+        List<CardInstance> components = new();
+
+        if (isSuperPolymerization)
+        {
+            CardInstance fromOwner = ownerHand.handCards
+                .Select(go => go != null ? go.GetComponent<CardInstance>() : null)
+                .FirstOrDefault(card => card != null && card != this);
+
+            CardInstance fromEnemy = enemyHand?.handCards
+                .Select(go => go != null ? go.GetComponent<CardInstance>() : null)
+                .FirstOrDefault(card => card != null);
+
+            if (fromOwner == null || fromEnemy == null)
+                return false;
+
+            components.Add(fromOwner);
+            components.Add(fromEnemy);
+        }
+        else
+        {
+            components = ownerHand.handCards
+                .Select(go => go != null ? go.GetComponent<CardInstance>() : null)
+                .Where(card => card != null
+                    && card != this
+                    && card.Data != null
+                    && card.Data.cardType.Equals("minion", StringComparison.OrdinalIgnoreCase))
+                .Take(2)
+                .ToList();
+
+            if (components.Count < 2)
+                return false;
+        }
+
+        CardData cardA = components[0].Data;
+        CardData cardB = components[1].Data;
+
+        List<string> combinedTraits = new();
+        string firstTrait = cardA?.traits?.FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(firstTrait))
+            combinedTraits.Add(firstTrait);
+
+        string secondTrait = cardB?.traits?.FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(secondTrait) && !combinedTraits.Contains(secondTrait, StringComparer.OrdinalIgnoreCase))
+            combinedTraits.Add(secondTrait);
+
+        if (combinedTraits.Count < 2)
+        {
+            IEnumerable<string> fallbackTraits = (cardA?.traits ?? new List<string>())
+                .Concat(cardB?.traits ?? new List<string>());
+
+            foreach (string trait in fallbackTraits)
+            {
+                if (string.IsNullOrWhiteSpace(trait))
+                    continue;
+
+                if (combinedTraits.Contains(trait, StringComparer.OrdinalIgnoreCase))
+                    continue;
+
+                combinedTraits.Add(trait);
+                if (combinedTraits.Count >= 2)
+                    break;
+            }
+        }
+
+        List<int> relatedCards = (cardA?.relatedCards ?? new List<int>())
+            .Concat(cardB?.relatedCards ?? new List<int>())
+            .Distinct()
+            .ToList();
+
+        foreach (CardInstance component in components)
+        {
+            HandManager hand = component.Owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
+            if (hand == null)
+                continue;
+
+            hand.RemoveCardFromHand(component.gameObject);
+            Destroy(component.gameObject);
+        }
+
+        CardInstance amalgam = gameManager.AddCardToHand(Owner, 235);
+        if (amalgam == null)
+            return false;
+
+        CardData amalgamData = new CardData
+        {
+            id = amalgam.Data.id,
+            name = amalgam.Data.name,
+            cardType = "minion",
+            manaCost = 10,
+            atkValue = amalgam.Data.atkValue,
+            hpValue = amalgam.Data.hpValue,
+            traits = combinedTraits,
+            relatedCards = relatedCards,
+            effect = string.Join(" ", new[] { cardA?.effect, cardB?.effect }.Where(s => !string.IsNullOrWhiteSpace(s))),
+            effectText = string.Join(" ", new[] { cardA?.effectText, cardB?.effectText }.Where(s => !string.IsNullOrWhiteSpace(s))),
+            artPath = amalgam.Data.artPath,
+            artCompactPath = amalgam.Data.artCompactPath,
+            packable = amalgam.Data.packable,
+            token = amalgam.Data.token,
+            signature = amalgam.Data.signature,
+            spellTargetType = CardData.SpellTargetType.None,
+        };
+
+        amalgam.Initialize(amalgamData, Owner);
+        amalgam.SetZone(CardZone.Hand);
+        amalgam.ParseEffects();
+        amalgam.CurrentCastEffect = amalgam.CurrentEffect;
+        amalgam.BaseManaCost = 10;
+        amalgam.GetComponent<CardView>()?.UpdateMode();
+
+        ownerHand.UpdateCardPositions();
+        enemyHand?.UpdateCardPositions();
+        return true;
+    }
+
     public void ResolveSpell(IAttackable target)
     {
+        if (CurrentEffect.IndexOf("polymerization", StringComparison.OrdinalIgnoreCase) >= 0
+            && CurrentEffect.IndexOf("superpolymerization", StringComparison.OrdinalIgnoreCase) < 0
+            && !TryExecutePolymerizationSpell(isSuperPolymerization: false))
+        {
+            return;
+        }
+
+        if (CurrentEffect.IndexOf("superpolymerization", StringComparison.OrdinalIgnoreCase) >= 0
+            && !TryExecutePolymerizationSpell(isSuperPolymerization: true))
+        {
+            return;
+        }
+
         gameManager.NotifySpellPlayed(this);
         gameManager.UseMana(CurrentManaCost, Owner);
 
@@ -886,6 +1022,19 @@ public class CardInstance : MonoBehaviour, IAttackable
 
     private void ResolveSpell()
     {
+        if (CurrentEffect.IndexOf("polymerization", StringComparison.OrdinalIgnoreCase) >= 0
+            && CurrentEffect.IndexOf("superpolymerization", StringComparison.OrdinalIgnoreCase) < 0
+            && !TryExecutePolymerizationSpell(isSuperPolymerization: false))
+        {
+            return;
+        }
+
+        if (CurrentEffect.IndexOf("superpolymerization", StringComparison.OrdinalIgnoreCase) >= 0
+            && !TryExecutePolymerizationSpell(isSuperPolymerization: true))
+        {
+            return;
+        }
+
         gameManager.NotifySpellPlayed(this);
         gameManager.UseMana(CurrentManaCost, Owner);
         ExecuteSpellEffects(null);
@@ -995,6 +1144,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (effect.StartsWith("praise"))
             {
                 gameManager.Praise(Owner);
+                continue;
+            }
+
+            if (effect.StartsWith("polymerization") || effect.StartsWith("superpolymerization"))
+            {
                 continue;
             }
             // Non-target spell effects (summon, draw, etc.)
