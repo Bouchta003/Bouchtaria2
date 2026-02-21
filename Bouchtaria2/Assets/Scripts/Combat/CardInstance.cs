@@ -314,6 +314,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             ProgressionCap = attackCap;
             gameManager.OnCardAttack += OnAttack;
         }
+        else if (HasKeyword("progresskill") &&
+          TryParseProgress("progresskill", out int killCap))
+        {
+            ProgressionCap = killCap;
+            gameManager.OnCardKilled += OnCardKilledForProgress;
+        }
         else if (HasKeyword("progressplay") &&
           TryParseProgress("progressplay", out int playCap))
         {
@@ -389,6 +395,9 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (gameManager != null)
             gameManager.OnSpellPlayed -= OnSpellPlayed;
+
+        if (gameManager != null)
+            gameManager.OnCardKilled -= OnCardKilledForProgress;
 
         if (gameManager != null)
             gameManager.OnOwnerManaGain -= OnManaGained;
@@ -581,6 +590,23 @@ public class CardInstance : MonoBehaviour, IAttackable
         ProgressionCounter++;
         cardView.ShowProgress(ProgressionCounter, ProgressionCap);
         Debug.Log($"[PROGRESS] {Data.name} draw {ProgressionCounter}/{ProgressionCap}");
+
+        CheckProgressCompletion();
+    }
+
+    private void OnCardKilledForProgress(CardInstance deadCard)
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+
+        if (deadCard == null || deadCard.Owner == Owner)
+            return;
+
+        if (!string.Equals(deadCard.Data?.cardType, "minion", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        ProgressionCounter++;
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
 
         CheckProgressCompletion();
     }
@@ -1855,6 +1881,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "progressheal":
             case "progressmana":
             case "progressattack":
+            case "progresskill":
             case "progressdamage":
             case "progresskazuyacombo":
             case "progressspell":
@@ -3753,6 +3780,9 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (gameManager != null)
             gameManager.OnOwnerManaGain -= OnManaGained;
+
+        if (gameManager != null)
+            gameManager.OnCardKilled -= OnCardKilledForProgress;
 
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnEnded -= OnEndTurn;
