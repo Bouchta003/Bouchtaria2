@@ -111,6 +111,107 @@ public class DeckManager : MonoBehaviour
         DrawNextCardWithEffect(owner, effect+"*");
         yield return new WaitForSeconds(0.2f);
     }
+
+    public bool TrySummonRandomMinionFromDeck(PlayerOwner owner)
+    {
+        return TrySummonRandomMinionFromDeck(owner, card => true);
+    }
+
+    public bool TrySummonRandomMinionFromDeckByMaxMana(PlayerOwner owner, int maxMana)
+    {
+        return TrySummonRandomMinionFromDeck(owner, card => card.manaCost <= maxMana);
+    }
+
+    public bool TrySummonRandomMinionFromDeckByEffect(PlayerOwner owner, string effectSearch)
+    {
+        if (string.IsNullOrWhiteSpace(effectSearch))
+            return false;
+
+        return TrySummonRandomMinionFromDeck(owner, card =>
+            !string.IsNullOrEmpty(card.effect)
+            && card.effect.IndexOf(effectSearch, StringComparison.OrdinalIgnoreCase) >= 0);
+    }
+
+    public bool TrySummonRandomMinionFromDeckByTrait(PlayerOwner owner, string traitSearch)
+    {
+        if (string.IsNullOrWhiteSpace(traitSearch))
+            return false;
+
+        return TrySummonRandomMinionFromDeck(owner, card =>
+        {
+            if (card.traits == null)
+                return false;
+
+            for (int i = 0; i < card.traits.Count; i++)
+            {
+                if (string.Equals(card.traits[i], traitSearch, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        });
+    }
+
+    private bool TrySummonRandomMinionFromDeck(PlayerOwner owner, Func<CardData, bool> extraPredicate)
+    {
+        if (!decks.TryGetValue(owner, out Queue<CardData> deck))
+        {
+            Debug.LogError($"Tried to summon from deck for {owner}, but no deck is initialized.");
+            return false;
+        }
+
+        if (deck.Count == 0)
+            return false;
+
+        List<CardData> deckSnapshot = new List<CardData>(deck);
+        List<CardData> candidates = new List<CardData>();
+
+        for (int i = 0; i < deckSnapshot.Count; i++)
+        {
+            CardData card = deckSnapshot[i];
+
+            if (card == null || card.cardType != "minion")
+                continue;
+
+            if (extraPredicate != null && !extraPredicate(card))
+                continue;
+
+            candidates.Add(card);
+        }
+
+        if (candidates.Count == 0)
+            return false;
+
+        CardData selected = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+        if (selected == null)
+            return false;
+
+        Queue<CardData> rebuiltDeck = new Queue<CardData>(deckSnapshot.Count);
+        bool removed = false;
+
+        for (int i = 0; i < deckSnapshot.Count; i++)
+        {
+            CardData card = deckSnapshot[i];
+
+            if (!removed && card == selected)
+            {
+                removed = true;
+                continue;
+            }
+
+            rebuiltDeck.Enqueue(card);
+        }
+
+        if (!removed)
+            return false;
+
+        if (!GameManager.Instance.TrySummonForOwnerSafe(owner, selected.id))
+            return false;
+
+        decks[owner] = rebuiltDeck;
+        return true;
+    }
+
     private void DrawNextCardWithEffect(PlayerOwner owner, string effectSearch)
     {
         if (!decks.TryGetValue(owner, out Queue<CardData> deck))

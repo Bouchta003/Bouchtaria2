@@ -1528,6 +1528,30 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.TrySummonForOwnerManaCost(Owner, GetSingleIntFromEffect(effect));
             gameManager.CheckGlow(); return false;
         }
+        if (effect.StartsWith("summondeckmaxman"))
+        {
+            if (TryParseIntEffect(effect, "summondeckmaxman", out int maxMana))
+                deckManager.TrySummonRandomMinionFromDeckByMaxMana(Owner, maxMana);
+
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("summondeckeffect"))
+        {
+            string effectSearch = ExtractParenthesizedArgs(effect);
+            deckManager.TrySummonRandomMinionFromDeckByEffect(Owner, effectSearch);
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("summondecktrait"))
+        {
+            string traitSearch = ExtractParenthesizedArgs(effect);
+            deckManager.TrySummonRandomMinionFromDeckByTrait(Owner, traitSearch);
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("summondeck"))
+        {
+            deckManager.TrySummonRandomMinionFromDeck(Owner);
+            gameManager.CheckGlow(); return false;
+        }
         if (effect.StartsWith("summon"))
         {
             TryExecuteSummon(effect);
@@ -1711,7 +1735,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 continue;
 
             // Count only summons that go to this card's owner board.
-            if (effect.StartsWith("summon(") && !effect.StartsWith("summonforother("))
+            if (IsOwnerBoardSummonEffect(effect))
                 count++;
         }
 
@@ -1720,6 +1744,17 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void TriggerStrike()
     {
         TriggerEffects(EffectTrigger.Strike);
+    }
+    private bool IsOwnerBoardSummonEffect(string effect)
+    {
+        if (string.IsNullOrWhiteSpace(effect))
+            return false;
+
+        if (effect.StartsWith("summon(") && !effect.StartsWith("summonforother("))
+            return true;
+
+        return effect.StartsWith("summonrandomcost")
+            || effect.StartsWith("summondeck");
     }
     private bool TryParseIntEffect(string effect, string effectName, out int value)
     {
