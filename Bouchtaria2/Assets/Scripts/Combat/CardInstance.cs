@@ -1528,9 +1528,9 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.TrySummonForOwnerManaCost(Owner, GetSingleIntFromEffect(effect));
             gameManager.CheckGlow(); return false;
         }
-        if (effect.StartsWith("summondeckmaxman"))
+        if (effect.StartsWith("summondeckmaxmana"))
         {
-            if (TryParseIntEffect(effect, "summondeckmaxman", out int maxMana))
+            if (TryParseIntEffect(effect, "summondeckmaxmana", out int maxMana))
                 deckManager.TrySummonRandomMinionFromDeckByMaxMana(Owner, maxMana);
 
             gameManager.CheckGlow(); return false;
@@ -1549,7 +1549,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         if (effect.StartsWith("summondeck"))
         {
-            deckManager.TrySummonRandomMinionFromDeck(Owner);
+            deckManager.TrySummonRandomMinionFromDeck(Owner, GetStringValueFromEffect(effect, "summondeck") == "deploy");
             gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("summon"))

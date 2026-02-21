@@ -112,9 +112,9 @@ public class DeckManager : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
     }
 
-    public bool TrySummonRandomMinionFromDeck(PlayerOwner owner)
+    public bool TrySummonRandomMinionFromDeck(PlayerOwner owner, bool isDeploy = false)
     {
-        return TrySummonRandomMinionFromDeck(owner, card => true);
+        return TrySummonRandomMinionFromDeck(owner, card => true,isDeploy);
     }
 
     public bool TrySummonRandomMinionFromDeckByMaxMana(PlayerOwner owner, int maxMana)
@@ -152,7 +152,7 @@ public class DeckManager : MonoBehaviour
         });
     }
 
-    private bool TrySummonRandomMinionFromDeck(PlayerOwner owner, Func<CardData, bool> extraPredicate)
+    private bool TrySummonRandomMinionFromDeck(PlayerOwner owner, Func<CardData, bool> extraPredicate, bool isDeploy = false)
     {
         if (!decks.TryGetValue(owner, out Queue<CardData> deck))
         {
@@ -205,7 +205,7 @@ public class DeckManager : MonoBehaviour
         if (!removed)
             return false;
 
-        if (!GameManager.Instance.TrySummonForOwnerSafe(owner, selected.id))
+        if (!GameManager.Instance.TrySummonForOwnerSafe(owner, selected.id, isDeploy))
             return false;
 
         decks[owner] = rebuiltDeck;
