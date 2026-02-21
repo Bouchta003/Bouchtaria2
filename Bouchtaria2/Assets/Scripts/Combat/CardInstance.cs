@@ -992,20 +992,26 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (amalgam == null)
             return false;
 
+        int combinedManaCost = Mathf.Clamp((cardA?.manaCost ?? 0) + (cardB?.manaCost ?? 0), 0, 10);
+        int combinedAttack = (cardA?.atkValue ?? 0) + (cardB?.atkValue ?? 0);
+        int combinedHealth = (cardA?.hpValue ?? 0) + (cardB?.hpValue ?? 0);
+
         CardData amalgamData = new CardData
         {
             id = amalgam.Data.id,
             name = amalgam.Data.name,
             cardType = "minion",
-            manaCost = 10,
-            atkValue = amalgam.Data.atkValue,
-            hpValue = amalgam.Data.hpValue,
+            manaCost = combinedManaCost,
+            atkValue = combinedAttack,
+            hpValue = combinedHealth,
             traits = combinedTraits,
             relatedCards = relatedCards,
             effect = string.Join(" ", new[] { cardA?.effect, cardB?.effect }.Where(s => !string.IsNullOrWhiteSpace(s))),
             effectText = string.Join(" ", new[] { cardA?.effectText, cardB?.effectText }.Where(s => !string.IsNullOrWhiteSpace(s))),
             artPath = amalgam.Data.artPath,
             artCompactPath = amalgam.Data.artCompactPath,
+            artSprite = amalgam.Data.artSprite,
+            artSpriteCompact = amalgam.Data.artSpriteCompact,
             packable = amalgam.Data.packable,
             token = amalgam.Data.token,
             signature = amalgam.Data.signature,
@@ -1016,7 +1022,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         amalgam.SetZone(CardZone.Hand);
         amalgam.ParseEffects();
         amalgam.CurrentCastEffect = amalgam.CurrentEffect;
-        amalgam.BaseManaCost = 10;
+        amalgam.BaseManaCost = combinedManaCost;
         amalgam.GetComponent<CardView>()?.UpdateMode();
 
         ownerHand.UpdateCardPositions();
