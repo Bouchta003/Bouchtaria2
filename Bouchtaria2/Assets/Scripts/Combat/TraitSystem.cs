@@ -263,8 +263,6 @@ public class NeutralTier2Effect : IDeckTraitEffect
     public int Tier => 2;
 
     private readonly PlayerOwner owner;
-    private bool usedThisTurn;
-
     private readonly DeckManager deckManager;
 
     public NeutralTier2Effect(PlayerOwner owner, DeckManager deckManager)
@@ -275,26 +273,15 @@ public class NeutralTier2Effect : IDeckTraitEffect
 
     public void OnRegister()
     {
-        deckManager.OnCardDrawn += OnCardDrawn;
-        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
         TurnManager.Instance.OnTurnEnded += OnTurnEnded;
     }
 
     public void OnUnregister()
     {
-        deckManager.OnCardDrawn -= OnCardDrawn;
-
         if (TurnManager.Instance != null)
         {
-            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
             TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
         }
-    }
-
-    private void OnTurnStarted(PlayerOwner turnOwner)
-    {
-        if (turnOwner == owner)
-            usedThisTurn = false;
     }
 
     private void OnTurnEnded(PlayerOwner turnOwner)
@@ -302,39 +289,41 @@ public class NeutralTier2Effect : IDeckTraitEffect
         if (turnOwner != owner)
             return;
 
-        // Clear temporary cost reductions at end of turn
-        foreach (var card in GetHand(owner))
-        {
-            card.ClearTemporaryManaModifiers();
-        }
+        TryDiscountRandomCardInHand("end");
     }
 
-    private void OnCardDrawn(CardInstance card)
+    private void TryDiscountRandomCardInHand(string timing)
     {
-        if (usedThisTurn)
+        if (deckManager == null)
             return;
 
-        if (card.Owner != owner)
+        List<CardInstance> handCards = new();
+        foreach (CardInstance handCard in GetHand(owner))
+            if (handCard != null)
+                handCards.Add(handCard);
+        if (handCards.Count == 0)
             return;
 
-        if (card.CurrentManaCost < 2)
+        CardInstance card = handCards[Random.Range(0, handCards.Count)];
+        if (card == null)
             return;
 
         card.AddTemporaryManaModifier(-1);
-        usedThisTurn = true;
-
-        Debug.Log($"[Neutral T2] Reduced cost of {card.name} for {owner}");
+        Debug.Log($"[Neutral T2] Reduced cost of {card.name} for {owner} at {timing} of turn");
     }
 
-    private IEnumerable<CardInstance> GetHand(PlayerOwner owner)
+    private IEnumerable<CardInstance> GetHand(PlayerOwner handOwner)
     {
-        HandManager hand =
-            owner == PlayerOwner.Player
-                ? Object.FindFirstObjectByType<DeckManager>().handManager
-                : Object.FindFirstObjectByType<DeckManager>().handManagerEnemy;
+        if (deckManager == null)
+            yield break;
+
+        HandManager hand = handOwner == PlayerOwner.Player ? deckManager.handManager : deckManager.handManagerEnemy;
+        if (hand == null)
+            yield break;
 
         foreach (var go in hand.handCards)
-            yield return go.GetComponent<CardInstance>();
+            if (go != null)
+                yield return go.GetComponent<CardInstance>();
     }
 }
 public class NeutralTier3Effect : IDeckTraitEffect
@@ -345,6 +334,7 @@ public class NeutralTier3Effect : IDeckTraitEffect
     private readonly PlayerOwner owner;
 
     private readonly DeckManager deckManager;
+    private bool buffUsedThisTurn;
 
     public NeutralTier3Effect(PlayerOwner owner, DeckManager deckManager)
     {
@@ -354,11 +344,75 @@ public class NeutralTier3Effect : IDeckTraitEffect
 
     public void OnRegister()
     {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed += OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed += OnCardPlayed;
+
+        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
 
     }
 
     public void OnUnregister()
     {
+        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
+        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
+
+        if (allyBoard != null)
+            allyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (enemyBoard != null)
+            enemyBoard.OnCardPlayed -= OnCardPlayed;
+
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
+
+    }
+
+    private void OnTurnStarted(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        buffUsedThisTurn = false;
+        TryDiscountRandomCardInHand();
+    }
+
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (buffUsedThisTurn)
+            return;
+
+        if (card.Owner != owner)
+            return;
+
+        if (card.Data.cardType != "minion")
+            return;
+
+        card.ModifyStats(2, 0);
+        buffUsedThisTurn = true;
+    }
+
+    private void TryDiscountRandomCardInHand()
+    {
+        if (deckManager == null)
+            return;
+
+        HandManager hand = owner == PlayerOwner.Player ? deckManager.handManager : deckManager.handManagerEnemy;
+        if (hand == null || hand.handCards.Count == 0)
+            return;
+
+        int index = Random.Range(0, hand.handCards.Count);
+        CardInstance card = hand.handCards[index]?.GetComponent<CardInstance>();
+        if (card == null)
+            return;
+
+        card.AddTemporaryManaModifier(-1);
+        Debug.Log($"[Neutral T3] Reduced cost of {card.name} for {owner} at start of turn");
 
     }
 }
