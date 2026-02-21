@@ -130,9 +130,9 @@ public class NeutralProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 3,
-            1 => 6,
-            2 => 12,
+            0 => 5,
+            1 => 10,
+            2 => 15,
             _ => 999
         };
     }
@@ -147,17 +147,17 @@ public class NeutralProgression : ITraitProgression
         neutralPlayed++;
         OnProgressUpdated?.Invoke(Trait, neutralPlayed, GetCurrentCap(), Owner);
 
-        if (neutralPlayed >= 3 && CurrentTier < 1 && maxTier >= 1)
+        if (neutralPlayed >= 5 && CurrentTier < 1 && maxTier >= 1)
         {
             UnlockTier1();
         }
 
-        if (neutralPlayed >= 6 && CurrentTier < 2 && maxTier >= 2)
+        if (neutralPlayed >= 10 && CurrentTier < 2 && maxTier >= 2)
         {
             UnlockTier2();
         }
 
-        if (neutralPlayed >= 12 && CurrentTier < 3 && maxTier >= 3)
+        if (neutralPlayed >= 15 && CurrentTier < 3 && maxTier >= 3)
         {
             UnlockTier3();
         }

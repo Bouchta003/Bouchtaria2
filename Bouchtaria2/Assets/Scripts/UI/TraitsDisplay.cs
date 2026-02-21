@@ -93,9 +93,9 @@ public class TraitsDisplay : MonoBehaviour
                 display += $"Play neutral cards to unlock. Currently played : {Progression}/{CurrentCap}" +
                     "\nTier 1 : The first unit you play each turn has +2 HP.";
                 if (tier > 1) display +=
-                        "\nTier 2 : The first card you draw that costs 3 mana or more each turn costs 1 less.";
+                        "\nTier 2 : End of turn, discount the cost of a random card in your hand by 1.";
                 if (tier > 2) display +=
-                         "\nTier 3 : You draw one more at the start of your turn.";
+                         "\nTier 3 : The first unit you play also has +2 ATK.\nStart of turn, discount a random card in your hand by 1.";
                 break;
             case CardData.Trait.Fighter:
                 display += $"Play fighter units to unlock. Currently played : {Progression}/{CurrentCap}" +
