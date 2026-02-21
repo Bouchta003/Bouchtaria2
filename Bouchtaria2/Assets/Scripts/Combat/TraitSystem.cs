@@ -2342,7 +2342,7 @@ public class HealerTier1Effect : IDeckTraitEffect
     public int Tier => 1;
 
     private readonly PlayerOwner owner;
-    private bool used;
+    private bool usedThisTurn;
 
     public HealerTier1Effect(PlayerOwner owner)
     {
@@ -2351,22 +2351,38 @@ public class HealerTier1Effect : IDeckTraitEffect
 
     public void OnRegister()
     {
-        if (used) return;
-
-         
-        if(owner==PlayerOwner.Player)
-        {
-            GameManager.Instance.PlayerHealBonus += 2;
-        }
-        else
-        {
-            GameManager.Instance.EnemyHealBonus += 2;
-        }
-        used = true;
+        GameManager.Instance.OnOwnerHealResolved += OnOwnerHealResolved;
+        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
     }
 
-    public void OnUnregister() { }
+    public void OnUnregister()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnOwnerHealResolved -= OnOwnerHealResolved;
 
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
+    }
+
+    private void OnTurnStarted(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        usedThisTurn = false;
+    }
+
+    private void OnOwnerHealResolved(PlayerOwner healedOwner, IAttackable target, int healedAmount, int overhealAmount)
+    {
+        if (usedThisTurn || healedOwner != owner || healedAmount <= 0)
+            return;
+
+        DeckManager deckManager = Object.FindFirstObjectByType<DeckManager>();
+        if (deckManager != null)
+            deckManager.StartCoroutine(deckManager.Draw(1, owner));
+
+        usedThisTurn = true;
+    }
 }
 public class HealerTier2Effect : IDeckTraitEffect
 {
@@ -2374,7 +2390,6 @@ public class HealerTier2Effect : IDeckTraitEffect
     public int Tier => 2;
 
     private readonly PlayerOwner owner;
-    private bool used;
 
     public HealerTier2Effect(PlayerOwner owner)
     {
@@ -2383,22 +2398,29 @@ public class HealerTier2Effect : IDeckTraitEffect
 
     public void OnRegister()
     {
-        if (used) return;
-
-         
-        if (owner == PlayerOwner.Player)
-        {
-            GameManager.Instance.PlayerHealBonus += 3;
-        }
-        else
-        {
-            GameManager.Instance.EnemyHealBonus += 3;
-        }
-        used = true;
+        GameManager.Instance.OnOwnerHealResolved += OnOwnerHealResolved;
     }
 
-    public void OnUnregister() { }
+    public void OnUnregister()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnOwnerHealResolved -= OnOwnerHealResolved;
+    }
 
+    private void OnOwnerHealResolved(PlayerOwner healedOwner, IAttackable target, int healedAmount, int overhealAmount)
+    {
+        if (healedOwner != owner || overhealAmount <= 0 || target == null)
+            return;
+
+        if (target is CoreInstance core)
+        {
+            core.AddShield(overhealAmount);
+            return;
+        }
+
+        if (target is CardInstance unit)
+            unit.ModifyStats(0, overhealAmount);
+    }
 }
 public class HealerTier3Effect : IDeckTraitEffect
 {
@@ -2406,7 +2428,6 @@ public class HealerTier3Effect : IDeckTraitEffect
     public int Tier => 3;
 
     private readonly PlayerOwner owner;
-    private bool used;
 
     public HealerTier3Effect(PlayerOwner owner)
     {
@@ -2415,22 +2436,26 @@ public class HealerTier3Effect : IDeckTraitEffect
 
     public void OnRegister()
     {
-        if (used) return;
-
-         
-        if (owner == PlayerOwner.Player)
-        {
-            GameManager.Instance.PlayerDarkHeal=true;
-        }
-        else
-        {
-            GameManager.Instance.EnemyDarkHeal = true; ;
-        }
-        used = true;
+        GameManager.Instance.OnOwnerHealResolved += OnOwnerHealResolved;
     }
 
-    public void OnUnregister() { }
+    public void OnUnregister()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnOwnerHealResolved -= OnOwnerHealResolved;
+    }
 
+    private void OnOwnerHealResolved(PlayerOwner healedOwner, IAttackable target, int healedAmount, int overhealAmount)
+    {
+        if (healedOwner != owner || healedAmount <= 0)
+            return;
+
+        int darkHealDamage = healedAmount / 2;
+        if (darkHealDamage <= 0)
+            return;
+
+        GameManager.Instance.DamageRandomEnemyAmount(darkHealDamage, owner);
+    }
 }
 #endregion
 #region Faith

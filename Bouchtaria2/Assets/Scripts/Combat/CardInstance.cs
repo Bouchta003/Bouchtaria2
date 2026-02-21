@@ -2863,12 +2863,6 @@ public class CardInstance : MonoBehaviour, IAttackable
             Debug.LogError($"Heal effect requires a target on {Data.name}");
             return;
         }
-        if (target.Owner != Owner)
-        {
-            if (Owner == PlayerOwner.Player && gameManager.PlayerDarkHeal) { target.TakeDamage(amount); return; }
-            if (Owner != PlayerOwner.Player && gameManager.EnemyDarkHeal) { target.TakeDamage(amount); return; }
-
-        }
         target.Heal(amount);
     }
     private void TryExecuteHealAll(string effect)
@@ -3412,19 +3406,23 @@ public class CardInstance : MonoBehaviour, IAttackable
     public void Heal(int amount)
     {
         if (amount <= 0) return;
-        int bonus = 0; int preHeal = CurrentHealth;
+        int bonus = 0;
+        int preHeal = CurrentHealth;
 
         SFXManager.Instance.PlaySFXClip(gameManager.healSFX, transform, 1f);
         //ApplyBonus
         if (Owner == PlayerOwner.Player) bonus = gameManager.PlayerHealBonus;
         else bonus = gameManager.EnemyHealBonus;
-        CurrentHealth = Mathf.Min(CurrentHealth += amount + bonus, CurrentMaxHealth);
+        int totalHeal = amount + bonus;
+        CurrentHealth = Mathf.Min(CurrentHealth + totalHeal, CurrentMaxHealth);
         int differenceHp = CurrentHealth - preHeal;
+        int overhealAmount = Mathf.Max(0, totalHeal - differenceHp);
 
         view.hpTextBoard.text = CurrentHealth.ToString();
         UpdateStatsColor();
 
         gameManager.NotifyHealed(Owner, differenceHp);
+        gameManager.NotifyHealResolved(Owner, this, differenceHp, overhealAmount);
 
         if(CurrentHealth==CurrentMaxHealth && CurrentEffect.ToLower().Contains("deathlessused"))
         {

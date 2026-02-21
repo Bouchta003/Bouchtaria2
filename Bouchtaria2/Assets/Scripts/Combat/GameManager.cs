@@ -120,6 +120,7 @@ public class GameManager : MonoBehaviour
     public event System.Action<CardInstance> OnCardAttack;
     public event System.Action<CardInstance> OnCardKiller;
     public event System.Action<PlayerOwner, int> OnOwnerHeal;
+    public event System.Action<PlayerOwner, IAttackable, int, int> OnOwnerHealResolved;
     public event System.Action<PlayerOwner, int> OnOwnerDamage;
     public event System.Action<PlayerOwner, int> OnOwnerManaGain;
     public event System.Action<PlayerOwner> OnDiscover;
@@ -2015,6 +2016,10 @@ public class GameManager : MonoBehaviour
     public void NotifyHealed(PlayerOwner owner, int amount)
     {
         OnOwnerHeal?.Invoke(owner, amount);
+    }
+    public void NotifyHealResolved(PlayerOwner owner, IAttackable target, int healedAmount, int overhealAmount)
+    {
+        OnOwnerHealResolved?.Invoke(owner, target, healedAmount, overhealAmount);
     }
     public void NotifyDamage(PlayerOwner owner, int amount)
     {
