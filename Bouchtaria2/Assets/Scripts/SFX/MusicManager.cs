@@ -83,7 +83,8 @@ public class MusicManager : MonoBehaviour
         // Use default music if scene not found
         if (newClip == null)
         {
-            newClip = defaultMusic;
+            //If some music is playing do not do anything, or else play a random firebase one
+            //newClip = defaultMusic;
         }
 
         if (newClip != null)

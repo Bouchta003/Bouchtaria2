@@ -3954,6 +3954,56 @@
       "packable": true,
       "token": false,
       "signature": false
+    },
+    "243": {
+      "id": 243,
+      "name": "Gible",
+      "cardType": "minion",
+      "manaCost": 2,
+      "atkValue": 3,
+      "hpValue": 1,
+      "traits": [ "Pokemon" ],
+      "effect": "progresskill(2)[morphto(244)]",
+      "effectText": "hidden Evolves into Gabite when killing two units.\n(Gible doesn't necessarily need to take the kill)",
+      "relatedCards": [ 244, 245 ],
+      "artPath": "CardArt/gible",
+      "artCompactPath": "CardArt/gible_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
+    },
+    "244": {
+      "id": 244,
+      "name": "Metang",
+      "cardType": "minion",
+      "manaCost": 5,
+      "atkValue": 4,
+      "hpValue": 3,
+      "traits": [ "Pokemon" ],
+      "effect": "progresskill(5)[morphto(245)]",
+      "effectText": "Evolves into Garchomp when killing 5 more units.\n(Gabite doesn't necessarily need to take the kill)",
+      "relatedCards": [ 245 ],
+      "artPath": "CardArt/gabite",
+      "artCompactPath": "CardArt/gabite_compact",
+      "packable": false,
+      "token": false,
+      "signature": false
+    },
+    "245": {
+      "id": 245,
+      "name": "Garchomp",
+      "cardType": "minion",
+      "manaCost": 10,
+      "atkValue": 8,
+      "hpValue": 7,
+      "traits": [ "Pokemon" ],
+      "effect": "haste thorns(3) quickstrike",
+      "effectText": "Quickstrike Thorns(3) and Haste",
+      "artPath": "CardArt/garchomp",
+      "artCompactPath": "CardArt/garchomp_compact",
+      "packable": false,
+      "token": false,
+      "signature": false
     }
   }
 }
