@@ -3805,6 +3805,22 @@
       "packable": true,
       "token": false,
       "signature": false
+    },
+    "235": {
+      "id": 235,
+      "name": "Amalgam",
+      "cardType": "minion",
+      "manaCost": 5,
+      "atkValue": 5,
+      "hpValue": 5,
+      "traits": [ "Neutral" ],
+      "effect": "",
+      "effectText": "",
+      "artPath": "CardArt/amalgam",
+      "artCompactPath": "CardArt/amalgam_compact",
+      "packable": false,
+      "token": false,
+      "signature": false
     }
   }
 }
