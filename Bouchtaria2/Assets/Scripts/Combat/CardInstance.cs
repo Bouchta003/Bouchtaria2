@@ -168,8 +168,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
 
         // Pick atk directly (cleaner)
-        int newAtk = UnityEngine.Random.Range(0, total + 1);
-        int newHp = total - newAtk;
+        int newHp = UnityEngine.Random.Range(1, total + 1);
+        int newAtk = total - newHp;
 
         // Enforce minimums
         if (newHp <= 0)
