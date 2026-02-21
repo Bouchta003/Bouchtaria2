@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using DG.Tweening;
 using UnityEngine;
 
 public enum CardZone
@@ -875,6 +876,21 @@ public class CardInstance : MonoBehaviour, IAttackable
         Destroy(gameObject);
     }
 
+    private void CancelSpellCastAndReturnToHand()
+    {
+        HandManager hand = Owner == PlayerOwner.Player
+            ? gameManager.allyHand
+            : gameManager.enemyHand;
+
+        if (hand == null)
+            return;
+
+        if (!hand.handCards.Contains(gameObject))
+            hand.AddCard(gameObject);
+
+        hand.UpdateCardPositions();
+    }
+
     private bool TryExecutePolymerizationSpell(bool isSuperPolymerization)
     {
         HandManager ownerHand = Owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
@@ -889,11 +905,16 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             CardInstance fromOwner = ownerHand.handCards
                 .Select(go => go != null ? go.GetComponent<CardInstance>() : null)
-                .FirstOrDefault(card => card != null && card != this);
+                .FirstOrDefault(card => card != null
+                    && card != this
+                    && card.Data != null
+                    && card.Data.cardType.Equals("minion", StringComparison.OrdinalIgnoreCase));
 
             CardInstance fromEnemy = enemyHand?.handCards
                 .Select(go => go != null ? go.GetComponent<CardInstance>() : null)
-                .FirstOrDefault(card => card != null);
+                .FirstOrDefault(card => card != null
+                    && card.Data != null
+                    && card.Data.cardType.Equals("minion", StringComparison.OrdinalIgnoreCase));
 
             if (fromOwner == null || fromEnemy == null)
                 return false;
@@ -952,12 +973,16 @@ public class CardInstance : MonoBehaviour, IAttackable
             .Distinct()
             .ToList();
 
+        if (ownerHand.handCards.Count >= ownerHand.maxHandSize)
+            return false;
+
         foreach (CardInstance component in components)
         {
             HandManager hand = component.Owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
             if (hand == null)
                 continue;
 
+            component.transform.DOKill();
             hand.RemoveCardFromHand(component.gameObject);
             Destroy(component.gameObject);
         }
@@ -1004,12 +1029,14 @@ public class CardInstance : MonoBehaviour, IAttackable
             && CurrentEffect.IndexOf("superpolymerization", StringComparison.OrdinalIgnoreCase) < 0
             && !TryExecutePolymerizationSpell(isSuperPolymerization: false))
         {
+            CancelSpellCastAndReturnToHand();
             return;
         }
 
         if (CurrentEffect.IndexOf("superpolymerization", StringComparison.OrdinalIgnoreCase) >= 0
             && !TryExecutePolymerizationSpell(isSuperPolymerization: true))
         {
+            CancelSpellCastAndReturnToHand();
             return;
         }
 
@@ -1026,12 +1053,14 @@ public class CardInstance : MonoBehaviour, IAttackable
             && CurrentEffect.IndexOf("superpolymerization", StringComparison.OrdinalIgnoreCase) < 0
             && !TryExecutePolymerizationSpell(isSuperPolymerization: false))
         {
+            CancelSpellCastAndReturnToHand();
             return;
         }
 
         if (CurrentEffect.IndexOf("superpolymerization", StringComparison.OrdinalIgnoreCase) >= 0
             && !TryExecutePolymerizationSpell(isSuperPolymerization: true))
         {
+            CancelSpellCastAndReturnToHand();
             return;
         }
 
