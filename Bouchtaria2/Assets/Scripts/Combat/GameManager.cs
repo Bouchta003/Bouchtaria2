@@ -1743,7 +1743,6 @@ public class GameManager : MonoBehaviour
 
         OnDiscover?.Invoke(owner);
     }
-
     public void ShuffleInDeck(int id, PlayerOwner owner)
     {
         CardData shuffledCard = CardDatabase.Instance.GetCardById(id);

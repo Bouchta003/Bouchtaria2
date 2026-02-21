@@ -96,7 +96,7 @@ public class Card : MonoBehaviour
                 gameManager.isDiscovering = false; // lock FIRST
 
                 if (gameManager.OwnerHasTrait(thisInstance.Owner, CardData.Trait.Faith, 2))
-                    gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id, -(1- gameManager.DiscoverDiscount));
+                    gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id, -(1+ gameManager.DiscoverDiscount));
                 else
                     gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id, -gameManager.DiscoverDiscount);
 

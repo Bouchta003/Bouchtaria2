@@ -66,12 +66,18 @@ public class DeckManager : MonoBehaviour
 
         Debug.Log($"{owner} deck initialized with {deck.Count} cards.");
     }
-
     private void OnEnable()
     {
-        TurnManager.Instance.OnTurnStarted += HandleTurnStart;
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted += HandleTurnStart;
     }
-    private void HandleTurnStart(PlayerOwner owner)
+
+    private void OnDisable()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= HandleTurnStart;
+    }
+        private void HandleTurnStart(PlayerOwner owner)
     {
         //Normal start of turn card draw
         if ((owner == PlayerOwner.Player && !TurnManager.Instance.PlayerSkipsNextDraw) || (owner != PlayerOwner.Player && !TurnManager.Instance.EnemySkipsNextDraw))
