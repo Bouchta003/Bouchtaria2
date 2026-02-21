@@ -1007,7 +1007,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             traits = combinedTraits,
             relatedCards = relatedCards,
             effect = string.Join(" ", new[] { cardA?.effect, cardB?.effect }.Where(s => !string.IsNullOrWhiteSpace(s))),
-            effectText = string.Join(" ", new[] { cardA?.effectText, cardB?.effectText }.Where(s => !string.IsNullOrWhiteSpace(s))),
+            effectText = string.Join("\n", new[] { cardA?.effectText, cardB?.effectText }.Where(s => !string.IsNullOrWhiteSpace(s))),
             artPath = amalgam.Data.artPath,
             artCompactPath = amalgam.Data.artCompactPath,
             artSprite = amalgam.Data.artSprite,
