@@ -2378,6 +2378,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.AddRandomCardToHandTrait(Owner, valueStr, Data.id);
             return;
         }
+        (int id, int discount) = GetTwoIntsFromEffect(effect);
+        if ( id>=0 && discount > 0 && effect.Contains("addcarddiscount"))
+        {
+            gameManager.AddCardToHand(Owner, id, -discount);
+        }
 
         // now try to parse addcard(<id>)
         if (!TryParseIntEffect(effect, "addcard", out int cardId))

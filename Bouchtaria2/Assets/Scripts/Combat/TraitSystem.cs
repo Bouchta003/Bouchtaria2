@@ -2414,12 +2414,12 @@ public class HealerTier2Effect : IDeckTraitEffect
 
         if (target is CoreInstance core)
         {
-            core.AddShield(overhealAmount);
+            core.AddShield(overhealAmount/2);
             return;
         }
 
         if (target is CardInstance unit)
-            unit.ModifyStats(0, overhealAmount);
+            unit.ModifyStats(0, overhealAmount/2);
     }
 }
 public class HealerTier3Effect : IDeckTraitEffect

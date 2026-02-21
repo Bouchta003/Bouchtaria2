@@ -4752,7 +4752,7 @@ MonoBehaviour:
   - sceneName: Combat
     music: {fileID: 8300000, guid: c977bc3bf27217f40a719c6a6b1b02b9, type: 3}
   defaultFadeTime: 1.5
-  defaultMusic: {fileID: 8300000, guid: 28132a168e69e95458cc8ac593b1f66b, type: 3}
+  defaultMusic: {fileID: 8300000, guid: 26437b32d4a75814f848b8ac0fcba8a4, type: 3}
 --- !u!1 &1067415198
 GameObject:
   m_ObjectHideFlags: 0

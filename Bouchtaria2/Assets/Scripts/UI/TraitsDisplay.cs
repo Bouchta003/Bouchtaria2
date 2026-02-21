@@ -107,11 +107,11 @@ public class TraitsDisplay : MonoBehaviour
                 break;
             case CardData.Trait.Healer:
                 display += $"Heal ally units or core to unlock : {Progression}/{CurrentCap}" +
-                    "\nTier 1 : Your heals heal 2 more HP for the rest of the game.";
+                    "\nTier 1 : You draw 1 card during your first heal of each turn.";
                 if (tier > 1) display +=
-                        "\nTier 2 : Your heals heal 3 more HP for the rest of the game.";
+                        "\nTier 2 : Give extra health to units and armor to your core equal to half your overhealings.";
                 if (tier > 2) display +=
-                         "\nTier 3 : Your heals deal damage when targetting enemies this game.";
+                         "\nTier 3 : Deal damage to a random enemy equal to half your heals.";
                 break;
             case CardData.Trait.Faith:
                 display += $"Discover Cards to unlock : {Progression}/{CurrentCap}" +

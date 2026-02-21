@@ -502,8 +502,8 @@ public class EnemyAIController : MonoBehaviour
         if (effect.Contains("resurrect") && !HasResurrectTarget())
             return false;
 
-        // Don't spend heal if every valid friendly heal target is already at full health.
-        if (effect.Contains("heal") && effect.Contains("targetunit") && !effect.Contains("autoheal") && !HasDamagedFriendlyUnit())
+        // Don't spend heal if every valid friendly heal target is already at full health unless he has autheal logic.
+        if (effect.Contains("heal") && effect.Contains("targetunit") && !effect.Contains("autoheal") && !HasDamagedFriendlyUnit() && !gameManager.OwnerHasTrait(PlayerOwner.Enemy, CardData.Trait.Healer, 2))
             return false;
 
         // Buff / Gear / non-auto Heal → requires enemy board
