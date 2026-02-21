@@ -87,15 +87,25 @@ public class CoreInstance : MonoBehaviour, IAttackable
     }
     public void Heal(int amount)
     {
+        if (amount <= 0)
+            return;
+
         GameManager gm = FindFirstObjectByType<GameManager>();
-        int bonus = 0;int preHeal = CurrentHealth;
+        int bonus = 0;
+        int preHeal = CurrentHealth;
+
         SFXManager.Instance.PlaySFXClip(gm.healSFX, transform, 1f);
         if (Owner == PlayerOwner.Player) bonus = gm.PlayerHealBonus;
         else bonus = gm.EnemyHealBonus;
-        CurrentHealth = Mathf.Min(CurrentHealth += amount+bonus, MaxHealth);
+
+        int totalHeal = amount + bonus;
+        CurrentHealth = Mathf.Min(CurrentHealth + totalHeal, MaxHealth);
         int differenceHp = CurrentHealth - preHeal;
+        int overhealAmount = Mathf.Max(0, totalHeal - differenceHp);
+
         OnCoreChanged?.Invoke();
-        gm.NotifyHealed(Owner,differenceHp);
+        gm.NotifyHealed(Owner, differenceHp);
+        gm.NotifyHealResolved(Owner, this, differenceHp, overhealAmount);
     }
     private void Die()
     {

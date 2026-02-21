@@ -4375,16 +4375,16 @@ MonoBehaviour:
     Unlockable with 6 9 or 14 cards in deck
 
     Tiers
-    unlock when healing allies (overheal doesn''t count) (5,10,20 hp)
+    unlock when healing allies (8,16,25 hp)
 
     Tier 1
-    : Your heals heal 2 more HP for the rest of the game.
+    : Medic Instinct - The first time you heal each turn, draw 1.
 
-    Tier 2 : Your heals
-    heal 3 more HP for the rest of the game.
+    Tier 2 : Overflow
+    - Overhealing grants that much Armor to the core or that much extra HP to the healed unit.
 
-    Tier 3 : Your heals deal damage
-    when targetting enemies this game.'
+    Tier 3 : Dark Heal
+    - When you heal (not overheal), also deal half that amount to a random enemy.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
   m_sharedMaterial: {fileID: -1779797437514033207, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
