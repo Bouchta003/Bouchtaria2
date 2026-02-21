@@ -893,6 +893,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
     private bool TryExecutePolymerizationSpell(bool isSuperPolymerization)
     {
+        Debug.Log("poly exec");
         HandManager ownerHand = Owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
         HandManager enemyHand = Owner == PlayerOwner.Player ? gameManager.enemyHand : gameManager.allyHand;
 
@@ -1768,7 +1769,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
             if (!TryParseTrigger(triggerStr, out EffectTrigger trigger))
             {
-                Debug.LogError($"Unknown trigger '{triggerStr}' on card {Data.name}");
+                //Debug.LogError($"Unknown trigger '{triggerStr}' on card {Data.name}");
                 continue;
             }
 

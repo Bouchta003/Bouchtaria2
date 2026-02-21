@@ -75,7 +75,7 @@ public class ScanPanelView : MonoBehaviour
 
         if (slideRoutine != null)
             StopCoroutine(slideRoutine);
-        Debug.Log("Sliiiding"+show);
+        //Debug.Log("Sliiiding"+show);
         slideRoutine = StartCoroutine(SlideRoutine(show));
     }
 
