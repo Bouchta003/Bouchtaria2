@@ -2739,7 +2739,7 @@ public class AvatarProgression : ITraitProgression
     private void UnlockTier1()
     {
         CurrentTier = 1;
-        traitSystem.ActivateEffect(new AvatarTier1Effect(Owner, praiseCount));
+        traitSystem.ActivateEffect(new AvatarTier1Effect(Owner, () => praiseCount));
     }
     private void UnlockTier2()
     {
@@ -2771,11 +2771,12 @@ public class AvatarTier1Effect : IDeckTraitEffect
 
     private readonly PlayerOwner owner;
     private bool used;
-    int praiseCount;
-    public AvatarTier1Effect(PlayerOwner owner, int praiseCount)
+    private readonly System.Func<int> getPraiseCount;
+
+    public AvatarTier1Effect(PlayerOwner owner, System.Func<int> getPraiseCount)
     {
         this.owner = owner;
-        this.praiseCount = praiseCount;
+        this.getPraiseCount = getPraiseCount;
     }
 
     public void OnRegister()
@@ -2814,10 +2815,12 @@ public class AvatarTier1Effect : IDeckTraitEffect
         if (card.Owner != owner)
             return;
 
+        int praiseCount = getPraiseCount();
+
         if (card.HasKeyword("avatar2"))
-            card.ModifyStats(2*praiseCount,2*praiseCount);
-        else if (card.HasKeyword("avatar"))
             card.ModifyStats(praiseCount, praiseCount);
+        else if (card.HasKeyword("avatar"))
+            card.ModifyStats(praiseCount / 2, praiseCount / 2);
     }
 
 }
