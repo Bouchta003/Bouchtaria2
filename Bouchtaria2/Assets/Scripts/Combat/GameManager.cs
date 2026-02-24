@@ -1032,6 +1032,81 @@ public class GameManager : MonoBehaviour
             StartCoroutine(DelayedDeploy(cardInst, forceRandomTarget: true));
         }
     }
+    public void TrySummonForOwnerNergi(PlayerOwner owner)
+    {
+        var board = GetBoardForOwner(owner);
+        if (board == null) return;
+
+        // compute effective occupied slots including pending reservations
+        int effectiveCount = board.GetCards().Count + GetPendingSummons(owner);
+        if (effectiveCount >= (owner == PlayerOwner.Player ? allyDropArea.maxBoardSize : enemyDropArea.maxBoardSize))
+            return;
+
+        // Reserve a slot immediately to prevent other concurrent summons from oversubscribing.
+        IncPendingSummons(owner);
+
+        CardData data = CardDatabase.Instance.GetCardById(228);
+        if (data == null)
+        {
+            DecPendingSummons(owner);
+            return;
+        }
+
+        ICardDropArea parent = owner == PlayerOwner.Player ? allyDropArea : enemyDropArea;
+
+        // create the card (this instantiates a GameObject)
+        CardInstance cardInst = CardFactory.Instance.CreateCard(data, owner, parent.CardContainer);
+
+        if (cardInst == null)
+        {
+            DecPendingSummons(owner);
+            return;
+        }
+
+        // attempt to add to board
+        if (owner == PlayerOwner.Player)
+        {
+            cardInst.GetComponent<SortingGroup>().sortingOrder = 1;
+            cardInst.SetZone(CardZone.Board);
+            cardInst.IsSummoningSick = true;
+            Card card = cardInst.GetComponent<Card>();
+            card.gameObject.GetComponent<CardView>().UpdateMode();
+            cardInst.Owner = PlayerOwner.Player;
+            allyDropArea.AddSummonedCard(cardInst);
+            allyDropArea.UpdateAllyCardPositions();
+            cardInst.ModifyStats(2, 2);
+            cardInst.CurrentEffect += " protect quickstrike regeneration";
+            cardInst.CurrentEffectText += "\nProtect Quickstrike and Regeneration";
+        }
+        else
+        {
+            cardInst.GetComponent<SortingGroup>().sortingOrder = 3;
+            cardInst.SetZone(CardZone.Board);
+            cardInst.IsSummoningSick = true;
+            cardInst.Owner = PlayerOwner.Enemy;
+            Card card = cardInst.GetComponent<Card>();
+            card.gameObject.GetComponent<CardView>().UpdateMode();
+            enemyDropArea.AddSummonedCard(cardInst);
+            enemyDropArea.UpdateEnemyCardPositions();
+            cardInst.ModifyStats(2, 2);
+            cardInst.CurrentEffect += " protect quickstrike regeneration";
+            cardInst.CurrentEffectText += "\nProtect Quickstrike and Regeneration";
+        }
+
+        // Verify the card was actually added to board list (AddSummonedCard may early-return when full)
+        bool actuallyAdded = parent.GetCards().Contains(cardInst.gameObject);
+
+        if (!actuallyAdded)
+        {
+            // board might have filled up in-between, destroy created GameObject and free reservation
+            Destroy(cardInst.gameObject);
+            DecPendingSummons(owner);
+            return;
+        }
+
+        // successful add -> release reservation
+        DecPendingSummons(owner);
+    }
 
     public void TrySummonForOwnerManaCost(PlayerOwner owner, int manaCost, bool isTrait = false)
     {

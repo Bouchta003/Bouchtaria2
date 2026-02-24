@@ -1578,6 +1578,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             deckManager.TrySummonRandomMinionFromDeck(Owner, GetStringValueFromEffect(effect, "summondeck") == "deploy");
             gameManager.CheckGlow(); return false;
         }
+        if (effect.StartsWith("summonextinctiondragon"))
+        {
+            gameManager.TrySummonForOwnerNergi(Owner);
+            gameManager.CheckGlow();return false;
+        }
         if (effect.StartsWith("summon"))
         {
             TryExecuteSummon(effect);
