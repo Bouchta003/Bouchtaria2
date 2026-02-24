@@ -1827,6 +1827,34 @@ public class GameManager : MonoBehaviour
 
         return card;
     }
+    public CardInstance AddRandomCardToHandEffect(PlayerOwner owner, string text, int prohibitedId)
+    {
+        HandManager hand = owner == PlayerOwner.Player
+            ? allyHand
+            : enemyHand;
+
+        if (hand.handCards.Count >= hand.maxHandSize)
+        {
+            Debug.Log($"{owner} hand is full.");
+            return null;
+        }
+
+        List<CardData> options = CardDatabase.Instance.GetCardsByEffect(text);
+        options = options.FindAll(card => card.id != prohibitedId && card.packable);
+        if(text.Contains("gear"))
+            options = options.FindAll(card => card.cardType == "spell");
+        if (options.Count == 0)
+            return null;
+        CardData data = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance card =
+            CardFactory.Instance.CreateCard(data, owner);
+
+        card.SetZone(CardZone.Hand);
+        hand.AddCard(card.gameObject);
+        hand.UpdateCardPositions();
+
+        return card;
+    }
     public CardInstance AddRandomCardToHandText(PlayerOwner owner, string text, int prohibitedId)
     {
         HandManager hand = owner == PlayerOwner.Player

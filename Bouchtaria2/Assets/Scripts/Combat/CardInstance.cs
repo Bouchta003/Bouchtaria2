@@ -2656,7 +2656,22 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.AddRandomCardToHandType(Owner, "minion", Data.id);
             return;
         }
+        if (effect.StartsWith("addcardrandomeffect"))
+        {
+            int start = effect.IndexOf('(');
+            int end = effect.IndexOf(')');
 
+            if ((start < 0 || end < 0 || end <= start + 1))
+            {
+                Debug.LogError($"Malformed {effect} addcardrandomtext on card {Data.name}");
+                return;
+            }
+
+            string valueStr = effect.Substring(start + 1, end - start - 1);
+            Debug.Log("Added random card with the following effect : " + valueStr);
+            gameManager.AddRandomCardToHandEffect(Owner, valueStr, Data.id);
+            return;
+        }
         if (effect.StartsWith("addcardrandomtext"))
         {
             int start = effect.IndexOf('(');

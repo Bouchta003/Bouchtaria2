@@ -2112,7 +2112,7 @@
       "atkValue": 0,
       "hpValue": 0,
       "traits": [ "Chaos" ],
-      "effect": "addcardrandomtext(gear) addcardrandomtext(gear)",
+      "effect": "addcardrandomeffect(gear) addcardrandomeffect(gear)",
       "effectText": "Add to your hand two random packable gear pieces.",
       "artPath": "CardArt/thiefgloves",
       "artCompactPath": "CardArt/thiefgloves_compact",
