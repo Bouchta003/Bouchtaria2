@@ -2884,12 +2884,22 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TryExecuteDamageRandomEnemy(string effect)
     {
+        IAttackable ChooseFreshRandomEnemyTarget(bool canTargetCore)
+        {
+            PlayerOwner enemyOwnerLocal = Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player;
+            IAttackable randomTarget = gameManager.ChooseRandomEffectTarget(enemyOwnerLocal, EffectTarget.Any, canTargetCore: canTargetCore);
+
+            if (randomTarget is CardInstance deadTarget && deadTarget.IsDead)
+                randomTarget = gameManager.ChooseRandomEffectTarget(enemyOwnerLocal, EffectTarget.Any, canTargetCore: canTargetCore);
+
+            return randomTarget;
+        }
+
         if (!TryParseIntEffect(effect, "damagerandomenemy", out int amount))
         {
             if (effect.Contains("atk"))
             {
-                PlayerOwner enemyOwneratk = Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player;
-                IAttackable targetatk = gameManager.ChooseRandomEffectTarget(enemyOwneratk, EffectTarget.Any, canTargetCore: true);
+                IAttackable targetatk = ChooseFreshRandomEnemyTarget(canTargetCore: true);
                 if (targetatk == null)
                     return;
                 targetatk.TakeDamage(CurrentAttack);
@@ -2898,8 +2908,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             }
             else return;
         }
-        PlayerOwner enemyOwner = Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player;
-        IAttackable target = gameManager.ChooseRandomEffectTarget(enemyOwner, EffectTarget.Any, canTargetCore: true);
+        IAttackable target = ChooseFreshRandomEnemyTarget(canTargetCore: true);
         if (target == null)
             return;
 
@@ -2912,9 +2921,14 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         if (target == null)
         {
-            List<GameObject> enemies = gameManager.GetBoardForOther(Owner).GetCards();
-            if (enemies.Count <= 0) return;
-            CardInstance targetinst = enemies[UnityEngine.Random.Range(0, enemies.Count)].GetComponent<CardInstance>();
+            List<CardInstance> enemies = GetLivingUnitsOnBoard(Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player);
+            if (enemies.Count <= 0)
+                return;
+
+            CardInstance targetinst = enemies[UnityEngine.Random.Range(0, enemies.Count)];
+            if (targetinst == null || targetinst.IsDead)
+                return;
+
             int hpDiff = Mathf.Min(targetinst.CurrentHealth, amount);
             int atkDiff = Mathf.Min(targetinst.CurrentAttack, amount);
             targetinst.ModifyStats(-amount, -amount);
