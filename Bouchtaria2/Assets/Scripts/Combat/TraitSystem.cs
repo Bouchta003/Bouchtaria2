@@ -2504,7 +2504,7 @@ public class HealerTier3Effect : IDeckTraitEffect
         if (healedOwner != owner || healedAmount <= 0)
             return;
 
-        int darkHealDamage = healedAmount / 2;
+        int darkHealDamage = healedAmount;
         if (darkHealDamage <= 0)
             return;
 

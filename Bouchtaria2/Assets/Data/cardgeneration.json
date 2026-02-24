@@ -3963,7 +3963,7 @@
       "atkValue": 3,
       "hpValue": 1,
       "traits": [ "Pokemon" ],
-      "effect": "progresskill(2)[morphto(244)]",
+      "effect": "hidden progresskill(2)[morphto(244)]",
       "effectText": "hidden Evolves into Gabite when killing or catching two units.\n(Gible doesn't necessarily need to take the kill)",
       "relatedCards": [ 244, 245 ],
       "artPath": "CardArt/gible",

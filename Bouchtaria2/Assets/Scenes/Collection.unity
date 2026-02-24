@@ -4377,14 +4377,15 @@ MonoBehaviour:
     Tiers
     unlock when healing allies (8,16,25 hp)
 
-    Tier 1
-    : Medic Instinct - The first time you heal each turn, draw 1.
+    Tier 1 : Medic Instinct - The first
+    time you heal each turn, draw 1.
 
-    Tier 2 : Overflow
-    - Overhealing grants that much Armor to the core or that much extra HP to the healed unit.
+    Tier 2 : Overflow - Overhealing grants
+    that much Armor to the core or that much extra HP to the healed unit.
 
-    Tier 3 : Dark Heal
-    - When you heal (not overheal), also deal half that amount to a random enemy.'
+    Tier
+    3 : Dark Heal - When you heal (not overheal), also deal half that amount to a
+    random enemy.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
   m_sharedMaterial: {fileID: -1779797437514033207, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
@@ -6512,19 +6513,19 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Neutral Trait :
 
-    Unlockable with 4 8 or 12 cards in deck
+    Unlockable with 4,8,12 cards in deck
 
-    Tiers
-    unlock when playing neutral cards 3/6/12 times during the game
+    Tiers unlock
+    when playing neutral cards 5 10 or 15 times during the game
 
-    First tier
-    grants the first played neutral unit each turn +1 hp
+    Tier 1 : The
+    first played card each turn gains +2 hp
 
-    Second tier makes the
-    first drawn neutral card cost 1 less if it cost 3 or more
+    Tier 2 : End of turn discount a
+    card by 1
 
-    Third tier draw
-    an extra card on turn start'
+    Tier 3 : The first unit you play also has +2 ATK. Start of turn,
+    discount a random card in your hand by 1'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
   m_sharedMaterial: {fileID: -1779797437514033207, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}

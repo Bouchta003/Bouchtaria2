@@ -2193,7 +2193,10 @@ public class GameManager : MonoBehaviour
                 IAttackable target =
                     targets[UnityEngine.Random.Range(0, targets.Count)];
 
-                target.TakeDamage(damage);
+                if (target is CoreInstance core)
+                    core.TakeDamage(2);
+                else
+                    target.TakeDamage(damage);
 
                 yield return new WaitForSeconds(0.5f);
             }
