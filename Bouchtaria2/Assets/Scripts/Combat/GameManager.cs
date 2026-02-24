@@ -2853,10 +2853,19 @@ public class GameManager : MonoBehaviour
         if (targets.Count == 0)
             return null;
 
-        // Simple AI: UnityEngine.Random valid target
-        IAttackable choice = targets[UnityEngine.Random.Range(0, targets.Count)];
-        Debug.Log($"Enemy triggered effect on " + choice.ToString() + " ");
-        return choice;
+        while (targets.Count > 0)
+        {
+            IAttackable choice = targets[UnityEngine.Random.Range(0, targets.Count)];
+            if (IsTargetUsableForRandomEffects(choice))
+            {
+                Debug.Log($"Enemy triggered effect on " + choice.ToString() + " ");
+                return choice;
+            }
+
+            targets.Remove(choice);
+        }
+
+        return null;
     }
 
     public IAttackable ChooseRandomEffectTarget(PlayerOwner targetOwner, EffectTarget type, bool canTargetCore = true, bool excludeSleepingUnits = false)
@@ -2883,10 +2892,27 @@ public class GameManager : MonoBehaviour
             return true;
         }).ToList();
 
-        if (targets.Count == 0)
-            return null;
+        while (targets.Count > 0)
+        {
+            IAttackable choice = targets[UnityEngine.Random.Range(0, targets.Count)];
+            if (IsTargetUsableForRandomEffects(choice))
+                return choice;
 
-        return targets[UnityEngine.Random.Range(0, targets.Count)];
+            targets.Remove(choice);
+        }
+
+        return null;
+    }
+
+    private bool IsTargetUsableForRandomEffects(IAttackable target)
+    {
+        if (target == null)
+            return false;
+
+        if (target is CardInstance ci)
+            return !ci.IsDead && ci.gameObject != null && ci.gameObject.activeInHierarchy;
+
+        return true;
     }
     public void HandleTargetClick(IAttackable target)
     {
