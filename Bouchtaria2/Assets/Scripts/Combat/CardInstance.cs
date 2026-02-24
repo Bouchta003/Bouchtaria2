@@ -186,11 +186,11 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private int GetThornDamage()
     {
-        int value = -1;
+        int value = 0;
 
         if (!CurrentEffect.Contains("thorns"))
         {
-            return -1;
+            return 0;
         }
 
         int startEffect = CurrentEffect.IndexOf("thorns");
@@ -202,7 +202,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (startDmg < 0 || endDmg < 0 || endDmg <= startDmg + 1)
         {
-            return -1;
+            return 0;
         }
 
         string valueStr = thornsEffect.Substring(startDmg + 1, endDmg - startDmg - 1);
@@ -211,7 +211,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             return value;
         }
-        else return -1;
+        else return 0;
     }
     public void RemoveEffect(string effect)
     {
@@ -3290,7 +3290,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 return;
 
             // Check if target already has thorns
-            int currentThorns = target.ThornsDamage;
+            int currentThorns = Mathf.Max(target.ThornsDamage, 0);
             int newThornsValue = currentThorns + addedValue;
 
             // Update runtime value
