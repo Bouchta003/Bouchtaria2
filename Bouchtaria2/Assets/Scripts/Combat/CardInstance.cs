@@ -757,7 +757,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             TriggerEffects(EffectTrigger.EndOfTurn);
             if (HasKeyword("regeneration"))
             {
-                Heal(999);
+                HealToFull(ignoreOverheal: true);
             }
         }
     }
@@ -3760,6 +3760,35 @@ public class CardInstance : MonoBehaviour, IAttackable
             //Refresh deathless
             CurrentEffect = CurrentEffect.Replace("deathlessused", "deathless");
         }
+    }
+
+    public void HealToFull(bool ignoreOverheal = false)
+    {
+        if (CurrentHealth >= CurrentMaxHealth)
+            return;
+
+        int missingHealth = CurrentMaxHealth - CurrentHealth;
+        if (ignoreOverheal)
+        {
+            int preHeal = CurrentHealth;
+
+            SFXManager.Instance.PlaySFXClip(gameManager.healSFX, transform, 1f);
+            CurrentHealth = CurrentMaxHealth;
+
+            int healedAmount = CurrentHealth - preHeal;
+            view.hpTextBoard.text = CurrentHealth.ToString();
+            UpdateStatsColor();
+
+            gameManager.NotifyHealed(Owner, healedAmount);
+            gameManager.NotifyHealResolved(Owner, this, healedAmount, 0);
+
+            if (CurrentEffect.ToLower().Contains("deathlessused"))
+                CurrentEffect = CurrentEffect.Replace("deathlessused", "deathless");
+
+            return;
+        }
+
+        Heal(missingHealth);
     }
     internal void ModifyStats(int atk, int hp)
     {
