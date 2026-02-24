@@ -2485,32 +2485,8 @@ public class GameManager : MonoBehaviour
             {
                 OnCardKiller?.Invoke(attacker);
             }
-            bool attackerBlessed = attacker.HasKeyword("blessed");
-            bool defenderBlessed = targetUnit.HasKeyword("blessed");
-
-            // Blessed collision rule: if two blessed units collide, both lose blessed immediately.
-            if (attackerBlessed && defenderBlessed)
-            {
-                attacker.RemoveEffect("blessed");
-                targetUnit.RemoveEffect("blessed");
-                attackerBlessed = false;
-                defenderBlessed = false;
-            }
-
-            //Only Take damage if not blessed, remove effect if damaged
-            if (!attackerBlessed)
-            {
-                attacker.TakeDamage(defenderDmg + thornDamage);
-            }
-            else if (defenderDmg + thornDamage > 0)
-            {
-                attacker.RemoveEffect("blessed");
-            }
-
-            if (!defenderBlessed)
-                targetUnit.TakeDamage(attackerDmg);
-            else if (attackerDmg > 0)
-                targetUnit.RemoveEffect("blessed");
+            attacker.TakeDamage(defenderDmg + thornDamage);
+            targetUnit.TakeDamage(attackerDmg);
 
             return;
         }

@@ -12,10 +12,11 @@ public class DeckSelectionController : MonoBehaviour
     private Dictionary<string, List<int>> userDecks;
 
     List<int> enemyDeck0 = new List<int>
-    {
+    {/*
         58, 58, 60, 60, 61, 61, 63, 63, 64, 64,
         65, 65, 66, 66, 67, 67, 68, 68, 106, 106,
-        107, 107, 108, 108, 109, 109, 110, 110, 111, 111
+        107, 107, 108, 108, 109, 109, 110, 110, 111, 111*/
+       63,63,63,63,63
     };
     List<int> enemyDeck1 = new List<int>
     {
