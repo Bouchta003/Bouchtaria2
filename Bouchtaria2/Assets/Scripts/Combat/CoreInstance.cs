@@ -17,6 +17,15 @@ public class CoreInstance : MonoBehaviour, IAttackable
     [SerializeField] private GameObject bleedUI;
     public string CurrentEffect { get; set; }
     public Transform AttackProxy => attackProxy;
+
+    private GameManager ResolveGameManager()
+    {
+        if (GameManager.Instance != null)
+            return GameManager.Instance;
+
+        return FindFirstObjectByType<GameManager>();
+    }
+
     private void Update()
     {
         bleedUI.SetActive(IsBleeding);
@@ -37,9 +46,12 @@ public class CoreInstance : MonoBehaviour, IAttackable
     {
         if (amount <= 0) return;
 
-        GameManager gm = FindFirstObjectByType<GameManager>();
-        gm.NotifyDamage(Owner, amount);
-        SFXManager.Instance.PlaySFXClip(gm.dmgSFX, transform, 1f);
+        GameManager gm = ResolveGameManager();
+        gm?.NotifyDamage(Owner, amount);
+
+        if (gm != null && SFXManager.Instance != null)
+            SFXManager.Instance.PlaySFXClip(gm.dmgSFX, transform, 1f);
+
         int remaining = amount; GetComponentInParent<DamageFeedback>()?.Play();
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position);
         if(Owner==PlayerOwner.Player)
@@ -90,13 +102,18 @@ public class CoreInstance : MonoBehaviour, IAttackable
         if (amount <= 0)
             return;
 
-        GameManager gm = FindFirstObjectByType<GameManager>();
+        GameManager gm = ResolveGameManager();
         int bonus = 0;
         int preHeal = CurrentHealth;
 
-        SFXManager.Instance.PlaySFXClip(gm.healSFX, transform, 1f);
-        if (Owner == PlayerOwner.Player) bonus = gm.PlayerHealBonus;
-        else bonus = gm.EnemyHealBonus;
+        if (gm != null && SFXManager.Instance != null)
+            SFXManager.Instance.PlaySFXClip(gm.healSFX, transform, 1f);
+
+        if (gm != null)
+        {
+            if (Owner == PlayerOwner.Player) bonus = gm.PlayerHealBonus;
+            else bonus = gm.EnemyHealBonus;
+        }
 
         int totalHeal = amount + bonus;
         CurrentHealth = Mathf.Min(CurrentHealth + totalHeal, MaxHealth);
@@ -104,13 +121,19 @@ public class CoreInstance : MonoBehaviour, IAttackable
         int overhealAmount = Mathf.Max(0, totalHeal - differenceHp);
 
         OnCoreChanged?.Invoke();
-        gm.NotifyHealed(Owner, differenceHp);
-        gm.NotifyHealResolved(Owner, this, differenceHp, overhealAmount);
+        gm?.NotifyHealed(Owner, differenceHp);
+        gm?.NotifyHealResolved(Owner, this, differenceHp, overhealAmount);
     }
     private void Die()
     {
-        FindFirstObjectByType<GameManager>()
-            .OnCoreDestroyed(Owner);
+        GameManager gm = ResolveGameManager();
+        if (gm == null)
+        {
+            Debug.LogError("Core died but no GameManager instance was found.");
+            return;
+        }
+
+        gm.OnCoreDestroyed(Owner);
     }
     public IEnumerator PlayHitReaction()
     {
