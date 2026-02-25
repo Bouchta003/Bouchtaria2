@@ -90,6 +90,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private WinLoseUI winLoseUI;
     private readonly Queue<Action> deferredActions = new();
 
+    [Header("Tension Gauge")]
+    [Range(0, 100)]
+    public int fillingAlly = 0; // percentage (0–100)
+    public int fillingEnemy = 0; // percentage (0–100)
+
+    [SerializeField] private Image fillImageAlly;
+    [SerializeField] private Image fillImageEnemy;
+
     [Header("Camera Shake")]
     [SerializeField] private Camera mainCamera;
 
@@ -202,6 +210,7 @@ public class GameManager : MonoBehaviour
             Debug.LogError("TurnManager missing!");
             return;
         }
+        SetFill(0, PlayerOwner.Player);
 
         //Setup cores mana and deck before the turn logic
         boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[UnityEngine.Random.Range(0, boards.Count)];
@@ -418,7 +427,9 @@ public class GameManager : MonoBehaviour
         manacounterAlly.text = $"{AllyCurrentMana}/{AllyCurrentMaxMana}";
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
-        //if (Input.GetKeyDown(KeyCode.G)) EnemyCore.TakeDamage(99);
+        if (Input.GetKeyDown(KeyCode.G)) SetFill(50, PlayerOwner.Player) ;
+        if (Input.GetKeyDown(KeyCode.T)) SetFill(75, PlayerOwner.Player) ;
+        if (Input.GetKeyDown(KeyCode.S)) SetFill(100, PlayerOwner.Player) ;
         if (DistortionWorld && boardDesign.GetComponentInChildren<SpriteRenderer>().sprite != distortionBoard)
         {
             boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = distortionBoard;
@@ -429,6 +440,24 @@ public class GameManager : MonoBehaviour
         }
     }
     #region Turn Logic
+
+    public void SetFill(int value, PlayerOwner owner)
+    {
+        if(owner==PlayerOwner.Player)
+            fillingAlly = Mathf.Clamp(value, 0, 100);
+        else
+            fillingEnemy = Mathf.Clamp(value, 0, 100);
+        UpdateFill();
+    }
+
+    private void UpdateFill()
+    {
+        if (fillImageAlly == null && fillImageEnemy == null) return;
+
+        // Image.fillAmount expects 0–1
+        fillImageAlly.fillAmount = fillingAlly / 100f;
+        fillImageEnemy.fillAmount = fillingEnemy / 100f;
+    }
     private void HandleTurnStart(PlayerOwner owner)
     {
         IncreaseMaxMana(owner);
