@@ -770,6 +770,8 @@ MonoBehaviour:
   spawnEnemyCore: {fileID: 2137164847}
   healSFX: {fileID: 8300000, guid: 4ab00a34eb83c29499c3b8658d31df6c, type: 3}
   dmgSFX: {fileID: 8300000, guid: dd4aa2160f049ff4bbf23a13e998b4a9, type: 3}
+  fahSFX: {fileID: 8300000, guid: b00b378052de39b42a332aa85785812a, type: 3}
+  winSFX: {fileID: 0}
   deckManager: {fileID: 752328686}
   allyDropArea: {fileID: 1531594430}
   enemyDropArea: {fileID: 1449377217}

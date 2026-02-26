@@ -2642,8 +2642,13 @@ public class CardInstance : MonoBehaviour, IAttackable
             {
                 //Test for three different effects ? 
                 (string e1, string e2, string e3) = GetThreeStringsFromEffect(effect);
+                (string f1, string f2) = GetTwoStringsFromEffect(effect);
                 if (e1 == "" || e2 == "" || e3 == "")
-                    gameManager.DiscoverEffect(valueStr, Owner); 
+                    gameManager.DiscoverEffect(valueStr, Owner);
+                else if(f1 == "" || f2 == "")
+                {
+                    gameManager.DiscoverEffectSelective(f1,f2, Owner);
+                }
                 else
                     gameManager.DiscoverEffect(e1,e2,e3, Owner);
             }
@@ -2675,9 +2680,17 @@ public class CardInstance : MonoBehaviour, IAttackable
             int start = effect.IndexOf('(');
             int end = effect.IndexOf(')');
 
+
             if ((start < 0 || end < 0 || end <= start + 1))
             {
                 Debug.LogError($"Malformed {effect} addcardrandomtext on card {Data.name}");
+                return;
+            }
+
+            (string f1, string f2) = GetTwoStringsFromEffect(effect);
+            if (f1 == "" || f2 == "")
+            {
+                gameManager.AddRandomCardToHandEffectSelective(Owner, f1,f2, Data.id);
                 return;
             }
 
@@ -3387,6 +3400,19 @@ public class CardInstance : MonoBehaviour, IAttackable
         int.TryParse(parts[0], out int a);
         int.TryParse(parts[1], out int b);
         return (a, b);
+    }
+    private (string, string) GetTwoStringsFromEffect(string effect)
+    {
+        int start = effect.IndexOf('(');
+        int end = effect.IndexOf(')');
+        if (start < 0 || end <= start + 1)
+            return ("", "");
+
+        string[] parts = effect.Substring(start + 1, end - start - 1).Split(',');
+        if (parts.Length != 2)
+            return ("", "");
+
+        return (parts[0], parts[1]);
     }
     private (string, string, string) GetThreeStringsFromEffect(string effect)
     {

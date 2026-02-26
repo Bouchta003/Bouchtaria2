@@ -42,6 +42,7 @@ public class WinLoseUI : MonoBehaviour
                 DungeonManager.Instance.CurrentRun.augments.Remove(DungeonShop.Augment.ExtraLife);
                 DungeonManager.Instance.SaveRunData();
                 Setup("DEFEAT", Color.red, "Your Core Was Destroyed, your extra life keeps you alive for one more chance !");
+                SFXManager.Instance.PlaySFXClip(GameManager.Instance.fahSFX, transform, 1f);
                 restartBtn.SetActive(false);
                 return;
             }
@@ -50,6 +51,7 @@ public class WinLoseUI : MonoBehaviour
             restartBtn.SetActive(false); 
         }
         Setup("DEFEAT", Color.red, "Your Core Was Destroyed, you earned 20 Gold as compensation");
+        SFXManager.Instance.PlaySFXClip(GameManager.Instance.fahSFX, transform, 1f);
     }
     public void LeaveToMenu()
     {

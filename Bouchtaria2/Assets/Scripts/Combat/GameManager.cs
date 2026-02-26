@@ -47,6 +47,8 @@ public class GameManager : MonoBehaviour
     [Header("SFX")]
     [SerializeField] public AudioClip healSFX;
     [SerializeField] public AudioClip dmgSFX;
+    [SerializeField] public AudioClip fahSFX;
+    [SerializeField] public AudioClip winSFX;
     public GameState CurrentGameState { get; private set; } = GameState.Playing;
     private int startingPlayerCoreHealth = 50;
     private int startingEnemyCoreHealth = 50;
@@ -1820,6 +1822,49 @@ public class GameManager : MonoBehaviour
         //Call Discover
         OnDiscover?.Invoke(owner);
     }
+    public void DiscoverEffectSelective(string effect,string banned, PlayerOwner owner)
+    {
+        List<CardData> options = CardDatabase.Instance.GetCardsByEffect(effect + "*");
+        options = options.Where(t => !t.effect.ToLower().Contains(banned.ToLower())).ToList();
+        Debug.Log(effect + "*");
+        string res = "options :";
+        foreach (CardData option in options)
+        {
+            res += option.name + " ";
+        }
+        if (options.Count <= 0) return;
+        if (owner == PlayerOwner.Enemy)
+        {
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
+            {
+                AddCardToHand(PlayerOwner.Enemy, options[UnityEngine.Random.Range(0, options.Count)].id, -1);
+                if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
+                return;
+            }
+            AddCardToHand(PlayerOwner.Enemy, options[UnityEngine.Random.Range(0, options.Count)].id);
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
+            return;
+        }
+        isDiscovering = true;
+        discoverDisplay.SetActive(true);
+        CardData data1 = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance dataInst1 = CardFactory.Instance.CreateCardInPosition(data1, PlayerOwner.Player, Vector3.zero, new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst1.IsDisplay = true;
+        dataInst1.GetComponent<SortingGroup>().sortingOrder = 201;
+        options.Remove(data1);
+        CardData data2 = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance dataInst2 = CardFactory.Instance.CreateCardInPosition(data2, PlayerOwner.Player, new Vector3(5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst2.IsDisplay = true;
+        dataInst2.GetComponent<SortingGroup>().sortingOrder = 201;
+        options.Remove(data2);
+        CardData data3 = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance dataInst3 = CardFactory.Instance.CreateCardInPosition(data3, PlayerOwner.Player, new Vector3(-5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst3.IsDisplay = true;
+        dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;
+        options.Remove(data3);
+        //Call Discover
+        OnDiscover?.Invoke(owner);
+    }
     public void DiscoverAura(PlayerOwner owner)
     {
         List<CardData> options = CardDatabase.Instance.GetCardsByTextPackable("aura*");
@@ -2137,6 +2182,34 @@ public class GameManager : MonoBehaviour
         options = options.FindAll(card => card.id != prohibitedId);
         options = options.FindAll(card => card.id != 39);
 
+        if (options.Count == 0)
+            return null;
+        CardData data = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance card =
+            CardFactory.Instance.CreateCard(data, owner);
+
+        card.SetZone(CardZone.Hand);
+        hand.AddCard(card.gameObject);
+        hand.UpdateCardPositions();
+
+        return card;
+    }
+    public CardInstance AddRandomCardToHandEffectSelective(PlayerOwner owner, string text, string banned, int prohibitedId)
+    {
+        HandManager hand = owner == PlayerOwner.Player
+            ? allyHand
+            : enemyHand;
+
+        if (hand.handCards.Count >= hand.maxHandSize)
+        {
+            Debug.Log($"{owner} hand is full.");
+            return null;
+        }
+
+        List<CardData> options = CardDatabase.Instance.GetCardsByEffect(text);
+        options = options.FindAll(card => card.id != prohibitedId && card.packable && !card.effect.ToLower().Contains(banned.ToLower()));
+        if (text.Contains("gear"))
+            options = options.FindAll(card => card.cardType == "spell");
         if (options.Count == 0)
             return null;
         CardData data = options[UnityEngine.Random.Range(0, options.Count)];
