@@ -1802,6 +1802,46 @@ public class GameManager : MonoBehaviour
         //Call Discover
         OnDiscover?.Invoke(owner);
     }
+    public void DiscoverAura(PlayerOwner owner)
+    {
+        List<CardData> options = CardDatabase.Instance.GetCardsByTextPackable("aura*");
+        if (options == null || options.Count < 3)
+            return;
+
+        if (owner == PlayerOwner.Enemy)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, options.Count);
+            int discount = OwnerHasTrait(owner, CardData.Trait.Faith, 2) ? -1 : 0;
+            AddCardToHand(PlayerOwner.Enemy, options[randomIndex].id, discount);
+
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 3))
+                GainMana(1, owner);
+
+            return;
+        }
+
+        isDiscovering = true;
+        discoverDisplay.SetActive(true);
+
+        CardData data1 = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance dataInst1 = CardFactory.Instance.CreateCardInPosition(data1, PlayerOwner.Player, Vector3.zero, new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst1.IsDisplay = true;
+        dataInst1.GetComponent<SortingGroup>().sortingOrder = 201;
+        options.Remove(data1);
+
+        CardData data2 = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance dataInst2 = CardFactory.Instance.CreateCardInPosition(data2, PlayerOwner.Player, new Vector3(5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst2.IsDisplay = true;
+        dataInst2.GetComponent<SortingGroup>().sortingOrder = 201;
+        options.Remove(data2);
+
+        CardData data3 = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance dataInst3 = CardFactory.Instance.CreateCardInPosition(data3, PlayerOwner.Player, new Vector3(-5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst3.IsDisplay = true;
+        dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;
+
+        OnDiscover?.Invoke(owner);
+    }
     public void DiscoverEffectDiscount(string effect, PlayerOwner owner, int manaDiscount)
     {
         DiscoverDiscount = manaDiscount;

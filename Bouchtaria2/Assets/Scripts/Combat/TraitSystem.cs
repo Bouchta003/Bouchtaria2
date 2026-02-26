@@ -2945,14 +2945,17 @@ public class AvatarTier3Effect : IDeckTraitEffect
 #region Inazuma
 public class InazumaProgression : ITraitProgression
 {
+    private const int Tier3CycleCap = 5;
+
     public CardData.Trait Trait => CardData.Trait.Inazuma;
     public PlayerOwner Owner { get; }
     public int CurrentTier { get; private set; }
 
     private readonly int maxTier;
     private int hissatsuCount;
+    private int tier3CycleProgress;
 
-    public int CurrentProgress => hissatsuCount;
+    public int CurrentProgress => CurrentTier >= 3 ? tier3CycleProgress : hissatsuCount;
 
     public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
 
@@ -2983,6 +2986,7 @@ public class InazumaProgression : ITraitProgression
     public void ResetProgression()
     {
         hissatsuCount = 0;
+        tier3CycleProgress = 0;
     }
 
     public void PushInitialState()
@@ -2996,7 +3000,8 @@ public class InazumaProgression : ITraitProgression
             return;
 
         hissatsuCount++;
-        OnProgressUpdated?.Invoke(Trait, hissatsuCount, GetCurrentCap(), Owner);
+        bool unlockedTier3ThisHissatsu = false;
+
         if (hissatsuCount >= 1 && CurrentTier < 1 && maxTier >= 1)
             UnlockTier1();
 
@@ -3004,7 +3009,15 @@ public class InazumaProgression : ITraitProgression
             UnlockTier2();
 
         if (hissatsuCount >= 10 && CurrentTier < 3 && maxTier >= 3)
+        {
             UnlockTier3();
+            unlockedTier3ThisHissatsu = true;
+        }
+
+        if (CurrentTier >= 3 && !unlockedTier3ThisHissatsu)
+            tier3CycleProgress = (tier3CycleProgress + 1) % Tier3CycleCap;
+
+        OnProgressUpdated?.Invoke(Trait, CurrentProgress, GetCurrentCap(), Owner);
     }
     private void UnlockTier1()
     {
@@ -3019,6 +3032,7 @@ public class InazumaProgression : ITraitProgression
     private void UnlockTier3()
     {
         CurrentTier = 3;
+        tier3CycleProgress = 0;
         traitSystem.ActivateEffect(new InazumaTier3Effect(Owner));
     }
     private int GetCurrentCap()
@@ -3028,7 +3042,7 @@ public class InazumaProgression : ITraitProgression
             0 => 1,
             1 => 2,
             2 => 10,
-            3 => 9999,
+            3 => Tier3CycleCap,
             _ => 9999,
         };
     }
@@ -3294,10 +3308,13 @@ public class InazumaTier2Effect : IDeckTraitEffect
 }
 public class InazumaTier3Effect : IDeckTraitEffect
 {
+    private const int HissatsuForAuraDiscovery = 5;
+
     public CardData.Trait Trait => CardData.Trait.Inazuma;
     public int Tier => 3;
 
     private readonly PlayerOwner owner;
+    private int tier3HissatsuCount;
 
     public InazumaTier3Effect(PlayerOwner owner)
     {
@@ -3306,19 +3323,26 @@ public class InazumaTier3Effect : IDeckTraitEffect
 
     public void OnRegister()
     {
-        var deckManager = Object.FindFirstObjectByType<DeckManager>();
-
-        deckManager.ReplaceCardsEverywhere(
-            owner,
-            new Dictionary<int, int>
-            {
-            { 74, 75 },
-            { 78, 79 },
-            { 178, 179 },
-            }
-        );
+        GameManager.Instance.OnHissatsuPlayed += OnHissatsuPlayed;
     }
-    public void OnUnregister() { }
+
+    public void OnUnregister()
+    {
+        GameManager.Instance.OnHissatsuPlayed -= OnHissatsuPlayed;
+    }
+
+    private void OnHissatsuPlayed(PlayerOwner playedOwner)
+    {
+        if (playedOwner != owner)
+            return;
+
+        tier3HissatsuCount++;
+        if (tier3HissatsuCount < HissatsuForAuraDiscovery)
+            return;
+
+        tier3HissatsuCount = 0;
+        GameManager.Instance.DiscoverAura(owner);
+    }
 }
 
 #endregion
