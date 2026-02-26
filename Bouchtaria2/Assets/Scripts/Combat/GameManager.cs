@@ -523,41 +523,45 @@ public class GameManager : MonoBehaviour
         if (textComp == null) return;
         StartCoroutine(QuickNotifyRoutine(textComp, value));
     }
-
     private IEnumerator QuickNotifyRoutine(TextMeshProUGUI textComp, int value)
     {
-        GameObject go = textComp.gameObject;
+        if (textComp == null) yield break;
+
+        GameObject root = textComp.transform.parent.gameObject;
+
+        // Ensure CanvasGroup exists
+        CanvasGroup cg = root.GetComponent<CanvasGroup>();
+        if (cg == null)
+            cg = root.AddComponent<CanvasGroup>();
 
         // Set text
         textComp.text = value.ToString();
 
-        // Random Z rotation between -5 and 5
+        // Random Z rotation
         float zRot = UnityEngine.Random.Range(-5f, 5f);
-        go.transform.localRotation = Quaternion.Euler(0f, 0f, zRot);
+        root.transform.localRotation = Quaternion.Euler(0f, 0f, zRot);
+        root.SetActive(true);
 
-        // Ensure visible
-        go.SetActive(true);
 
-        // Prepare color
-        Color c = textComp.color;
-        c.a = 0f;
-        textComp.color = c;
-
+        // ✨ scale punch
+        StartCoroutine(ScalePunch(root.transform));
         float fadeInTime = 0.15f;
         float visibleTime = 0.35f;
         float fadeOutTime = 0.2f;
+
+        cg.alpha = 0f;
 
         // ----- Fade In -----
         float t = 0f;
         while (t < fadeInTime)
         {
             t += Time.deltaTime;
-            c.a = Mathf.Lerp(0f, 1f, t / fadeInTime);
-            textComp.color = c;
+            cg.alpha = Mathf.SmoothStep(0f, 1f, t / fadeInTime);
             yield return null;
         }
+        cg.alpha = 1f;
 
-        // Hold briefly
+        // Hold
         yield return new WaitForSeconds(visibleTime);
 
         // ----- Fade Out -----
@@ -565,13 +569,27 @@ public class GameManager : MonoBehaviour
         while (t < fadeOutTime)
         {
             t += Time.deltaTime;
-            c.a = Mathf.Lerp(1f, 0f, t / fadeOutTime);
-            textComp.color = c;
+            cg.alpha = Mathf.SmoothStep(1f, 0f, t / fadeOutTime);
             yield return null;
         }
+        cg.alpha = 0f;
 
-        // Hide object
-        go.SetActive(false);
+        root.SetActive(false);
+    }
+    private IEnumerator ScalePunch(Transform t)
+    {
+        float d = 0.12f;
+        float time = 0f;
+        Vector3 start = t.localScale;
+        Vector3 end = Vector3.one;
+
+        while (time < d)
+        {
+            time += Time.deltaTime;
+            t.localScale = Vector3.Lerp(start, end, time / d);
+            yield return null;
+        }
+        t.localScale = end;
     }
     public bool CanAffordCardCost(CardInstance card)
     {

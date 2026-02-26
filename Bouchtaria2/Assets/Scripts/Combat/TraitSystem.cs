@@ -3002,13 +3002,13 @@ public class InazumaProgression : ITraitProgression
         hissatsuCount++;
         bool unlockedTier3ThisHissatsu = false;
 
-        if (hissatsuCount >= 1 && CurrentTier < 1 && maxTier >= 1)
+        if (hissatsuCount >= 3 && CurrentTier < 1 && maxTier >= 1)
             UnlockTier1();
 
-        if (hissatsuCount >= 2 && CurrentTier < 2 && maxTier >= 2)
+        if (hissatsuCount >= 7 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2();
 
-        if (hissatsuCount >= 10 && CurrentTier < 3 && maxTier >= 3)
+        if (hissatsuCount >= 15 && CurrentTier < 3 && maxTier >= 3)
         {
             UnlockTier3();
             unlockedTier3ThisHissatsu = true;
@@ -3039,9 +3039,9 @@ public class InazumaProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 1,
-            1 => 2,
-            2 => 10,
+            0 => 3,
+            1 => 7,
+            2 => 15,
             3 => Tier3CycleCap,
             _ => 9999,
         };
@@ -3341,7 +3341,7 @@ public class InazumaTier3Effect : IDeckTraitEffect
             return;
 
         tier3HissatsuCount = 0;
-        GameManager.Instance.DiscoverAura(owner);
+        GameManager.Instance.DiscoverEffect("aura", "aura", "aura", owner);
     }
 }
 

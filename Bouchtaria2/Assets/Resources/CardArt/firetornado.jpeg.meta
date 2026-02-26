@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 517b004daee7d9c448c685ea75b634b0
+guid: 1092f7e9fd8fc6746b7fd5c9a10f9800
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9090088057953762227
-    second: dribble_0
+      213: -4608649372064272624
+    second: firetornado_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: dribble_0
+      name: firetornado_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 510
-        height: 516
+        width: 550
+        height: 825
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3bbba576dea762e70800000000000000
-      internalID: 9090088057953762227
+      spriteID: 01f28c350d9ca00c0800000000000000
+      internalID: -4608649372064272624
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      dribble_0: 9090088057953762227
+      firetornado_0: -4608649372064272624
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

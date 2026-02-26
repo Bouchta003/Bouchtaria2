@@ -67,7 +67,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
             // Otherwise apply modifier and clamp to [1,10]
             int raw = BaseManaCost + temporaryManaModifier;
-            return Mathf.Clamp(raw, 1, 10);
+            return Mathf.Clamp(raw, 0, 10);
         }
     }
     public int CurrentTotalStats { get { return CurrentAttack + CurrentHealth; } }
