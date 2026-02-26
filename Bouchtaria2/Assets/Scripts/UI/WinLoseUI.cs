@@ -21,6 +21,8 @@ public class WinLoseUI : MonoBehaviour
 
     public void ShowWin()
     {
+            int i = Random.Range(0,GameManager.Instance.winSFX.Count);
+            SFXManager.Instance.PlaySFXClip(GameManager.Instance.winSFX[i], transform, 1f);
         if (GameRunContext.IsDungeonRun)
         {
             DungeonManager.Instance.IncrementStreak();
@@ -31,6 +33,7 @@ public class WinLoseUI : MonoBehaviour
         }
 
         Setup("VICTORY", Color.green, "Enemy Core Destroyed, you earned 100 Gold");
+        SFXManager.Instance.PlaySFXClip(GameManager.Instance.winSFX[i], transform, 1f);
     }
 
     public void ShowLose()

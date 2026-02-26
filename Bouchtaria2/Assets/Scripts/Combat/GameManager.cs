@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] public AudioClip healSFX;
     [SerializeField] public AudioClip dmgSFX;
     [SerializeField] public AudioClip fahSFX;
-    [SerializeField] public AudioClip winSFX;
+    [SerializeField] public List<AudioClip> winSFX;
     public GameState CurrentGameState { get; private set; } = GameState.Playing;
     private int startingPlayerCoreHealth = 50;
     private int startingEnemyCoreHealth = 50;
