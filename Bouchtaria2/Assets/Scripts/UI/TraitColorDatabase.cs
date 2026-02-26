@@ -8,20 +8,20 @@ public static class TraitColorDatabase
     {
         { CardData.Trait.Fighter,       new Color(0.85f, 0.12f, 0.12f) }, // strong crimson
         { CardData.Trait.Gunner,        new Color(0.95f, 0.55f, 0.10f) }, // muzzle-flash orange
-        { CardData.Trait.Combo, new Color(0.00f, 0.55f, 0.50f) }, // rogue teal (cunning/combo/thief)
+        { CardData.Trait.Combo,     new Color(0.00f, 0.55f, 0.50f) }, // rogue teal (cunning/combo/thief)
 
-        { CardData.Trait.SpellFocus,new Color(0.65f, 0.30f, 0.95f) },
+        { CardData.Trait.SpellFocus,    new Color(0.65f, 0.30f, 0.95f) },
         { CardData.Trait.Faith,     new Color(0.95f, 0.95f, 0.80f) },
         { CardData.Trait.Avatar,        new Color(0.75f, 0.20f, 0.85f) }, // divine magenta
 
-        { CardData.Trait.Healer,        new Color(0.20f, 0.85f, 0.45f) }, // vivid healing green
+        { CardData.Trait.Healer,    new Color(0.20f, 0.85f, 0.45f) }, // vivid healing green
         { CardData.Trait.Speedster,     new Color(0.10f, 0.60f, 1.00f) }, // electric blue
 
         { CardData.Trait.Chaos,   new Color(0.62f, 0.12f, 0.94f) },
         { CardData.Trait.Neutral,   new Color(0.58f, 0.58f, 0.58f) },
 
         { CardData.Trait.Inazuma,   new Color(1, 0.90f, 0.10f) },
-        { CardData.Trait.MonsterHunter,   new Color(0.6f, 0.35f, 0.10f) },
+        { CardData.Trait.MonsterHunter,   new Color(0.5f, 0.65f, 0.40f) },
         { CardData.Trait.Pokemon,   new Color(0.90f, 0.4f, 0.4f) }
     };
 
