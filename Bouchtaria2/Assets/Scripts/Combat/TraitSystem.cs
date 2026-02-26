@@ -3082,6 +3082,14 @@ public class InazumaTier2Effect : IDeckTraitEffect
     private readonly HashSet<int> playedThisTurnID = new();
     private readonly HashSet<string> grantedCombinesThisTurn = new();
     private int hissatsuPowerBonusThisTurn;
+    private readonly Dictionary<int, HissatsuSnapshot> hissatsuSnapshots = new();
+
+    private sealed class HissatsuSnapshot
+    {
+        public CardInstance Card;
+        public string BaseEffect;
+        public string BaseEffectText;
+    }
 
     public InazumaTier2Effect(PlayerOwner owner)
     {
@@ -3096,9 +3104,11 @@ public class InazumaTier2Effect : IDeckTraitEffect
     }
     public void TurnEnd(PlayerOwner turnOwner)
     {
+        RestoreTrackedHissatsuCards();
         playedThisTurnID.Clear();
         grantedCombinesThisTurn.Clear();
         hissatsuPowerBonusThisTurn = 0;
+        hissatsuSnapshots.Clear();
     }
     public void OnUnregister()
     {
@@ -3116,6 +3126,7 @@ public class InazumaTier2Effect : IDeckTraitEffect
             ApplyTemporaryHissatsuBonus(spell, hissatsuPowerBonusThisTurn);
 
         hissatsuPowerBonusThisTurn++;
+        RefreshOwnerHissatsuCards(spell);
     }
 
     private void OnCardPlayed(CardInstance card)
@@ -3175,6 +3186,87 @@ public class InazumaTier2Effect : IDeckTraitEffect
         CardView cardView = card.GetComponent<CardView>();
         if (cardView != null)
             cardView.Refresh();
+    }
+
+    private void RefreshOwnerHissatsuCards(CardInstance ignoredCard)
+    {
+        if (hissatsuPowerBonusThisTurn <= 0)
+            return;
+
+        foreach (CardInstance card in EnumerateOwnedHissatsuCards())
+        {
+            if (card == null || ReferenceEquals(card, ignoredCard))
+                continue;
+
+            int key = card.GetInstanceID();
+            if (!hissatsuSnapshots.TryGetValue(key, out HissatsuSnapshot snapshot))
+            {
+                snapshot = new HissatsuSnapshot
+                {
+                    Card = card,
+                    BaseEffect = card.CurrentEffect,
+                    BaseEffectText = card.CurrentEffectText,
+                };
+                hissatsuSnapshots[key] = snapshot;
+            }
+
+            card.CurrentEffect = IncreaseNumbersOutsideProtectedPatterns(snapshot.BaseEffect, hissatsuPowerBonusThisTurn);
+            card.CurrentEffectText = IncreaseNumbersOutsideProtectedPatterns(snapshot.BaseEffectText, hissatsuPowerBonusThisTurn);
+            card.ParseEffects();
+            card.GetComponent<CardView>()?.Refresh();
+        }
+    }
+
+    private IEnumerable<CardInstance> EnumerateOwnedHissatsuCards()
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null)
+            yield break;
+
+        HandManager hand = owner == PlayerOwner.Player ? gm.allyHand : gm.enemyHand;
+        if (hand != null)
+        {
+            foreach (GameObject go in hand.handCards)
+            {
+                if (go == null)
+                    continue;
+
+                CardInstance card = go.GetComponent<CardInstance>();
+                if (card != null && card.Owner == owner && card.HasKeyword("hissatsu*"))
+                    yield return card;
+            }
+        }
+
+        IEnumerable<GameObject> boardCards = owner == PlayerOwner.Player
+            ? gm.allyDropArea?.GetCards()
+            : gm.enemyDropArea?.GetCards();
+
+        if (boardCards == null)
+            yield break;
+
+        foreach (GameObject go in boardCards)
+        {
+            if (go == null)
+                continue;
+
+            CardInstance card = go.GetComponent<CardInstance>();
+            if (card != null && card.Owner == owner && card.HasKeyword("hissatsu*"))
+                yield return card;
+        }
+    }
+
+    private void RestoreTrackedHissatsuCards()
+    {
+        foreach (HissatsuSnapshot snapshot in hissatsuSnapshots.Values)
+        {
+            if (snapshot?.Card == null)
+                continue;
+
+            snapshot.Card.CurrentEffect = snapshot.BaseEffect;
+            snapshot.Card.CurrentEffectText = snapshot.BaseEffectText;
+            snapshot.Card.ParseEffects();
+            snapshot.Card.GetComponent<CardView>()?.Refresh();
+        }
     }
 
     private static string IncreaseNumbersOutsideProtectedPatterns(string source, int amount)
