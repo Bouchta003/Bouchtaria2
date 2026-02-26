@@ -852,11 +852,16 @@ public class CardInstance : MonoBehaviour, IAttackable
                 return;
             }
 
-            if (CurrentEffect.Contains("gear") || (CurrentEffect.Contains("heal") && !CurrentEffect.Contains("autoheal")) || CurrentEffect.Contains("buff") || CurrentEffect.Contains("damagenheal"))
+            bool targetsFriendlyUnit =
+                CurrentEffect.Contains("gear")
+                || (CurrentEffect.Contains("heal") && !CurrentEffect.Contains("autoheal"))
+                || CurrentEffect.Contains("buff")
+                || CurrentEffect.Contains("damagenheal")
+                || CurrentEffect.Contains("ally?");
+
+            if (targetsFriendlyUnit)
             {
-                IAttackable target =
-                    gameManager.ChooseEnemyEffectTarget(
-                        EffectTarget.Unit, false, false);
+                IAttackable target = ChooseBestEnemyEffectTarget(EffectTarget.Unit);
 
                 if (target == null)
                 {
@@ -1928,7 +1933,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             pendingTargetedEffect.StartsWith("gear")
             || pendingTargetedEffect.StartsWith("heal")
             || pendingTargetedEffect.StartsWith("buff")
-            || pendingTargetedEffect.StartsWith("refreshattack");
+            || pendingTargetedEffect.StartsWith("refreshattack")
+            || pendingTargetedEffect.StartsWith("ally?");
 
         if (forceRandomTarget)
         {
@@ -1988,7 +1994,20 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("gear"))
             return ChooseBestFriendlyUnitTargetForGear();
 
-        if (effect.StartsWith("heal") || effect.StartsWith("buff") || effect.StartsWith("refreshattack"))
+        if (effect.StartsWith("heal"))
+            return ChooseBestFriendlyUnitTargetForHeal();
+
+        if (effect.StartsWith("ally?"))
+        {
+            string resolved = ResolveAllyConditionalForSelection(effect);
+            if (resolved.StartsWith("heal"))
+                return ChooseBestFriendlyUnitTargetForHeal();
+
+            if (resolved.StartsWith("buff") || resolved.StartsWith("refreshattack") || resolved.StartsWith("gear"))
+                return ChooseBestFriendlyUnitTargetForGear();
+        }
+
+        if (effect.StartsWith("buff") || effect.StartsWith("refreshattack"))
             return gameManager.ChooseEnemyEffectTarget(type, false, false);
 
         return gameManager.ChooseEnemyEffectTarget(type, true, false);
@@ -2080,6 +2099,59 @@ public class CardInstance : MonoBehaviour, IAttackable
             return gameManager.PlayerCore;
 
         return null;
+    }
+
+    private string ResolveAllyConditionalForSelection(string effect)
+    {
+        if (string.IsNullOrWhiteSpace(effect) || !effect.StartsWith("ally?"))
+            return string.Empty;
+
+        string trimmed = effect;
+        int targetIndex = trimmed.IndexOf(",target", System.StringComparison.Ordinal);
+        if (targetIndex >= 0)
+            trimmed = trimmed.Substring(0, targetIndex);
+
+        int open = trimmed.IndexOf('(');
+        int close = trimmed.LastIndexOf(')');
+        if (open < 0 || close <= open)
+            return string.Empty;
+
+        string inner = trimmed.Substring(open + 1, close - open - 1);
+        string[] parts = inner.Split(':');
+        if (parts.Length != 2 || !int.TryParse(parts[0], out int allyId))
+            return string.Empty;
+
+        string[] outcomes = parts[1].Split(';');
+        if (outcomes.Length != 2)
+            return string.Empty;
+
+        bool allyExists = GetOwnerBoardCards().Any(ci => ci.Data != null && ci.Data.id == allyId);
+        return (allyExists ? outcomes[0] : outcomes[1]).Trim().ToLowerInvariant();
+    }
+
+    private CardInstance ChooseBestFriendlyUnitTargetForHeal()
+    {
+        bool canOverheal = gameManager.OwnerHasTrait(Owner, CardData.Trait.Healer, 2);
+
+        List<CardInstance> friendlyUnits = gameManager.GetValidTargets(Owner)
+            .OfType<CardInstance>()
+            .Where(ci => ci != null && !ci.IsDead)
+            .ToList();
+
+        if (friendlyUnits.Count == 0)
+            return null;
+
+        IEnumerable<CardInstance> preferred = friendlyUnits.Where(ci => ci.CurrentHealth < ci.CurrentMaxHealth);
+        if (!preferred.Any() && canOverheal)
+            preferred = friendlyUnits;
+
+        if (!preferred.Any())
+            return null;
+
+        return preferred
+            .OrderByDescending(ci => ci.CurrentAttack)
+            .ThenByDescending(ci => ci.CurrentMaxHealth - ci.CurrentHealth)
+            .FirstOrDefault();
     }
 
     private CardInstance ChooseBestFriendlyUnitTargetForGear()
