@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 public interface IDeckTraitEffect
 {
@@ -3077,8 +3079,18 @@ public class InazumaTier2Effect : IDeckTraitEffect
     public int Tier => 2;
 
     private readonly PlayerOwner owner;
-    List<int> playedThisTurnID = new List<int>();
-    DeckManager deckManager = GameManager.Instance.deckManager;
+    private readonly HashSet<int> playedThisTurnID = new();
+    private readonly HashSet<string> grantedCombinesThisTurn = new();
+    private int hissatsuPowerBonusThisTurn;
+    private readonly Dictionary<int, HissatsuSnapshot> hissatsuSnapshots = new();
+
+    private sealed class HissatsuSnapshot
+    {
+        public CardInstance Card;
+        public string BaseEffect;
+        public string BaseEffectText;
+    }
+
     public InazumaTier2Effect(PlayerOwner owner)
     {
         this.owner = owner;
@@ -3086,24 +3098,197 @@ public class InazumaTier2Effect : IDeckTraitEffect
 
     public void OnRegister()
     {
+        GameManager.Instance.OnCardPlayed += OnCardPlayed;
+        GameManager.Instance.OnSpellPlayed += OnSpellPlayed;
         TurnManager.Instance.OnTurnEnded += TurnEnd;
     }
     public void TurnEnd(PlayerOwner turnOwner)
     {
+        RestoreTrackedHissatsuCards();
         playedThisTurnID.Clear();
+        grantedCombinesThisTurn.Clear();
+        hissatsuPowerBonusThisTurn = 0;
+        hissatsuSnapshots.Clear();
     }
     public void OnUnregister()
     {
+        GameManager.Instance.OnCardPlayed -= OnCardPlayed;
+        GameManager.Instance.OnSpellPlayed -= OnSpellPlayed;
         TurnManager.Instance.OnTurnEnded -= TurnEnd;
+    }
+
+    private void OnSpellPlayed(CardInstance spell)
+    {
+        if (spell == null || spell.Owner != owner || !spell.HasKeyword("hissatsu*"))
+            return;
+
+        if (hissatsuPowerBonusThisTurn > 0)
+            ApplyTemporaryHissatsuBonus(spell, hissatsuPowerBonusThisTurn);
+
+        hissatsuPowerBonusThisTurn++;
+        RefreshOwnerHissatsuCards(spell);
     }
 
     private void OnCardPlayed(CardInstance card)
     {
-        if (!card.HasKeyword("hissatsu*"))
-        {
+        if (card == null || card.Owner != owner || !card.HasKeyword("hissatsu*"))
             return;
-        }
+
         playedThisTurnID.Add(card.Data.id);
+        TryGrantCombinationHissatsu();
+    }
+
+    private void TryGrantCombinationHissatsu()
+    {
+        foreach (int hissatsuId in playedThisTurnID)
+        {
+            CardData hissatsuData = CardDatabase.Instance.GetCardById(hissatsuId);
+            if (hissatsuData == null)
+                continue;
+
+            List<int> required = hissatsuData.relatedCards ?? new List<int>();
+            if (required.Count == 0 || !required.All(id => playedThisTurnID.Contains(id)))
+                continue;
+
+            foreach (int combineId in ParseCombineIds(hissatsuData.effect))
+            {
+                string key = $"{hissatsuId}:{combineId}";
+                if (!grantedCombinesThisTurn.Add(key))
+                    continue;
+
+                GameManager.Instance.AddCardToHand(owner, combineId);
+            }
+        }
+    }
+
+    private static IEnumerable<int> ParseCombineIds(string effect)
+    {
+        if (string.IsNullOrWhiteSpace(effect))
+            yield break;
+
+        MatchCollection matches = Regex.Matches(effect, @"combine\((\d+)\)", RegexOptions.IgnoreCase);
+        foreach (Match match in matches)
+        {
+            if (int.TryParse(match.Groups[1].Value, out int combineId))
+                yield return combineId;
+        }
+    }
+
+    private static void ApplyTemporaryHissatsuBonus(CardInstance card, int amount)
+    {
+        if (amount <= 0 || card == null)
+            return;
+
+        card.CurrentEffect = IncreaseNumbersOutsideProtectedPatterns(card.CurrentEffect, amount);
+        card.CurrentEffectText = IncreaseNumbersOutsideProtectedPatterns(card.CurrentEffectText, amount);
+        card.ParseEffects();
+
+        CardView cardView = card.GetComponent<CardView>();
+        if (cardView != null)
+            cardView.Refresh();
+    }
+
+    private void RefreshOwnerHissatsuCards(CardInstance ignoredCard)
+    {
+        if (hissatsuPowerBonusThisTurn <= 0)
+            return;
+
+        foreach (CardInstance card in EnumerateOwnedHissatsuCards())
+        {
+            if (card == null || ReferenceEquals(card, ignoredCard))
+                continue;
+
+            int key = card.GetInstanceID();
+            if (!hissatsuSnapshots.TryGetValue(key, out HissatsuSnapshot snapshot))
+            {
+                snapshot = new HissatsuSnapshot
+                {
+                    Card = card,
+                    BaseEffect = card.CurrentEffect,
+                    BaseEffectText = card.CurrentEffectText,
+                };
+                hissatsuSnapshots[key] = snapshot;
+            }
+
+            card.CurrentEffect = IncreaseNumbersOutsideProtectedPatterns(snapshot.BaseEffect, hissatsuPowerBonusThisTurn);
+            card.CurrentEffectText = IncreaseNumbersOutsideProtectedPatterns(snapshot.BaseEffectText, hissatsuPowerBonusThisTurn);
+            card.ParseEffects();
+            card.GetComponent<CardView>()?.Refresh();
+        }
+    }
+
+    private IEnumerable<CardInstance> EnumerateOwnedHissatsuCards()
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null)
+            yield break;
+
+        HandManager hand = owner == PlayerOwner.Player ? gm.allyHand : gm.enemyHand;
+        if (hand != null)
+        {
+            foreach (GameObject go in hand.handCards)
+            {
+                if (go == null)
+                    continue;
+
+                CardInstance card = go.GetComponent<CardInstance>();
+                if (card != null && card.Owner == owner && card.HasKeyword("hissatsu*"))
+                    yield return card;
+            }
+        }
+
+        IEnumerable<GameObject> boardCards = owner == PlayerOwner.Player
+            ? gm.allyDropArea?.GetCards()
+            : gm.enemyDropArea?.GetCards();
+
+        if (boardCards == null)
+            yield break;
+
+        foreach (GameObject go in boardCards)
+        {
+            if (go == null)
+                continue;
+
+            CardInstance card = go.GetComponent<CardInstance>();
+            if (card != null && card.Owner == owner && card.HasKeyword("hissatsu*"))
+                yield return card;
+        }
+    }
+
+    private void RestoreTrackedHissatsuCards()
+    {
+        foreach (HissatsuSnapshot snapshot in hissatsuSnapshots.Values)
+        {
+            if (snapshot?.Card == null)
+                continue;
+
+            snapshot.Card.CurrentEffect = snapshot.BaseEffect;
+            snapshot.Card.CurrentEffectText = snapshot.BaseEffectText;
+            snapshot.Card.ParseEffects();
+            snapshot.Card.GetComponent<CardView>()?.Refresh();
+        }
+    }
+
+    private static string IncreaseNumbersOutsideProtectedPatterns(string source, int amount)
+    {
+        if (string.IsNullOrWhiteSpace(source) || amount <= 0)
+            return source;
+
+        List<(int Start, int End)> protectedRanges = new();
+        foreach (Match protectedMatch in Regex.Matches(source, @"hissatsu\*\(\d+\)|combine\(\d+\)", RegexOptions.IgnoreCase))
+            protectedRanges.Add((protectedMatch.Index, protectedMatch.Index + protectedMatch.Length));
+
+        return Regex.Replace(source, @"\d+", m =>
+        {
+            int matchIndex = m.Index;
+            bool isProtected = protectedRanges.Any(range => matchIndex >= range.Start && matchIndex < range.End);
+            if (isProtected)
+                return m.Value;
+
+            return int.TryParse(m.Value, out int parsed)
+                ? (parsed + amount).ToString()
+                : m.Value;
+        });
     }
 
 }
