@@ -95,8 +95,8 @@ public class GameManager : MonoBehaviour
     public int fillingAlly = 0; // percentage (0–100)
     public int fillingEnemy = 0; // percentage (0–100)
 
-    [SerializeField] private Image fillImageAlly;
-    [SerializeField] private Image fillImageEnemy;
+    [SerializeField] public Image fillImageAlly;
+    [SerializeField] public Image fillImageEnemy;
 
     [Header("Camera Shake")]
     [SerializeField] private Camera mainCamera;
@@ -133,6 +133,7 @@ public class GameManager : MonoBehaviour
     public event System.Action<PlayerOwner, int> OnOwnerManaGain;
     public event System.Action<PlayerOwner> OnDiscover;
     public event System.Action<PlayerOwner> OnPraise;
+    public event System.Action<PlayerOwner> OnHissatsuPlayed;
     public event System.Action<PlayerOwner> OnDamageCard;
     public event System.Action<CardInstance> OnSpellPlayed;
     public event System.Action<CardInstance> OnCardPlayed;
@@ -211,7 +212,9 @@ public class GameManager : MonoBehaviour
             return;
         }
         SetFill(0, PlayerOwner.Player);
-
+        SetFill(0, PlayerOwner.Enemy);
+        fillImageAlly.transform.parent.gameObject.SetActive(false);
+        fillImageEnemy.transform.parent.gameObject.SetActive(false);
         //Setup cores mana and deck before the turn logic
         boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[UnityEngine.Random.Range(0, boards.Count)];
         if (GameRunContext.IsDungeonRun) boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[0];
@@ -427,9 +430,7 @@ public class GameManager : MonoBehaviour
         manacounterAlly.text = $"{AllyCurrentMana}/{AllyCurrentMaxMana}";
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
-        if (Input.GetKeyDown(KeyCode.G)) SetFill(50, PlayerOwner.Player) ;
-        if (Input.GetKeyDown(KeyCode.T)) SetFill(75, PlayerOwner.Player) ;
-        if (Input.GetKeyDown(KeyCode.S)) SetFill(100, PlayerOwner.Player) ;
+        //if (Input.GetKeyDown(KeyCode.G)) SetFill(50, PlayerOwner.Player) ;
         if (DistortionWorld && boardDesign.GetComponentInChildren<SpriteRenderer>().sprite != distortionBoard)
         {
             boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = distortionBoard;
@@ -449,7 +450,22 @@ public class GameManager : MonoBehaviour
             fillingEnemy = Mathf.Clamp(value, 0, 100);
         UpdateFill();
     }
-
+    public void IncreaseFill(int value, PlayerOwner owner)
+    {
+        if (owner == PlayerOwner.Player)
+            fillImageAlly.fillAmount += value / 100;
+        else
+            fillImageEnemy.fillAmount += value / 100f;
+        UpdateFill();
+    }
+    public void ReduceFill(int value, PlayerOwner owner)
+    {
+        if (owner == PlayerOwner.Player)
+            fillImageAlly.fillAmount -= value / 100;
+        else
+            fillImageEnemy.fillAmount -= value / 100f;
+        UpdateFill();
+    }
     private void UpdateFill()
     {
         if (fillImageAlly == null && fillImageEnemy == null) return;

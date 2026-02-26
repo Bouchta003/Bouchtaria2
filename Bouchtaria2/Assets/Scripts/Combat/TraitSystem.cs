@@ -2940,6 +2940,188 @@ public class AvatarTier3Effect : IDeckTraitEffect
 }
 
 #endregion
+#region Inazuma
+public class InazumaProgression : ITraitProgression
+{
+    public CardData.Trait Trait => CardData.Trait.Inazuma;
+    public PlayerOwner Owner { get; }
+    public int CurrentTier { get; private set; }
+
+    private readonly int maxTier;
+    private int hissatsuCount;
+
+    public int CurrentProgress => hissatsuCount;
+
+    public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
+
+    private readonly TraitSystem traitSystem;
+
+    public InazumaProgression(
+        PlayerOwner owner,
+        int maxTier,
+        TraitSystem traitSystem)
+    {
+        Owner = owner;
+        this.maxTier = maxTier;
+        this.traitSystem = traitSystem;
+    }
+
+    public void Register()
+    {
+        Debug.Log($"[Inazuma] Register for {Owner}");
+        GameManager.Instance.OnHissatsuPlayed += OnAllyhissatsu;
+        PushInitialState();
+    }
+
+    public void Unregister()
+    {
+        GameManager.Instance.OnHissatsuPlayed -= OnAllyhissatsu;
+    }
+
+    public void ResetProgression()
+    {
+        hissatsuCount = 0;
+    }
+
+    public void PushInitialState()
+    {
+        OnProgressUpdated?.Invoke(Trait, hissatsuCount, GetCurrentCap(), Owner);
+    }
+    public void OnAllyhissatsu(PlayerOwner owner)
+    {
+        // 1. Must be ally
+        if (owner != Owner)
+            return;
+
+        hissatsuCount++;
+        OnProgressUpdated?.Invoke(Trait, hissatsuCount, GetCurrentCap(), Owner);
+        if (hissatsuCount >= 2 && CurrentTier < 1 && maxTier >= 1)
+            UnlockTier1();
+
+        if (hissatsuCount >= 5 && CurrentTier < 2 && maxTier >= 2)
+            UnlockTier2();
+
+        if (hissatsuCount >= 10 && CurrentTier < 3 && maxTier >= 3)
+            UnlockTier3();
+    }
+    private void UnlockTier1()
+    {
+        CurrentTier = 1;
+        traitSystem.ActivateEffect(new InazumaTier1Effect(Owner));
+    }
+    private void UnlockTier2()
+    {
+        CurrentTier = 2;
+        traitSystem.ActivateEffect(new InazumaTier2Effect(Owner));
+    }
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+        traitSystem.ActivateEffect(new InazumaTier3Effect(Owner));
+    }
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 4,
+            1 => 8,
+            2 => 15,
+            3 => 9999,
+            _ => 9999,
+        };
+    }
+}
+
+public class InazumaTier1Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Inazuma;
+    public int Tier => 1;
+
+    private readonly PlayerOwner owner;
+
+    public InazumaTier1Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        GameManager.Instance.fillImageAlly.transform.parent.gameObject.SetActive(true);
+        GameManager.Instance.fillImageEnemy.transform.parent.gameObject.SetActive(true);
+    }
+
+    public void OnUnregister()
+    {
+        GameManager.Instance.fillImageAlly.transform.parent.gameObject.SetActive(false);
+        GameManager.Instance.fillImageEnemy.transform.parent.gameObject.SetActive(false);
+    }
+}
+public class InazumaTier2Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Inazuma;
+    public int Tier => 2;
+
+    private readonly PlayerOwner owner;
+    List<int> playedThisTurnID = new List<int>();
+    DeckManager deckManager = GameManager.Instance.deckManager;
+    public InazumaTier2Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        TurnManager.Instance.OnTurnEnded += TurnEnd;
+    }
+    public void TurnEnd(PlayerOwner turnOwner)
+    {
+        playedThisTurnID.Clear();
+    }
+    public void OnUnregister()
+    {
+        TurnManager.Instance.OnTurnEnded -= TurnEnd;
+    }
+
+    private void OnCardPlayed(CardInstance card)
+    {
+        if (!card.HasKeyword("hissatsu*"))
+        {
+            return;
+        }
+        playedThisTurnID.Add(card.Data.id);
+    }
+
+}
+public class InazumaTier3Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Inazuma;
+    public int Tier => 3;
+
+    private readonly PlayerOwner owner;
+
+    public InazumaTier3Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        var deckManager = Object.FindFirstObjectByType<DeckManager>();
+
+        deckManager.ReplaceCardsEverywhere(
+            owner,
+            new Dictionary<int, int>
+            {
+            { 74, 75 },
+            { 78, 79 },
+            { 178, 179 },
+            }
+        );
+    }
+    public void OnUnregister() { }
+}
+
+#endregion
 #region Gunner
 public class GunnerProgression : ITraitProgression
 {
