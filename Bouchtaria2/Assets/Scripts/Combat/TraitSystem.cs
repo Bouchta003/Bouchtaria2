@@ -3023,9 +3023,9 @@ public class InazumaProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 4,
-            1 => 8,
-            2 => 15,
+            0 => 2,
+            1 => 5,
+            2 => 10,
             3 => 9999,
             _ => 9999,
         };

@@ -81,6 +81,14 @@ public class TraitsDisplay : MonoBehaviour
                 if (tier > 2) display +=
                          "\nTier 3 : Discover a LEGENDARY Pokemon.";
                 break;
+            case CardData.Trait.Inazuma:
+                display += $"Use Hissatsus to activate : {Progression}/{CurrentCap}" +
+                    "\nTier 1 : Unlock tension gauge to use your hissatsu instead of mana.";
+                if (tier > 1) display +=
+                        "\nTier 2 : Unlock combined hissatsus and hissatsus gain power when chaining them.";
+                if (tier > 2) display +=
+                         "\nTier 3 : Every 5 hissatsus you cast gain 1 aura discovery.";
+                break;
             case CardData.Trait.Chaos:
                 display += $"Play cards with the 'random' Keyword to activate : {Progression}/{CurrentCap}" +
                     "\nTier 1 : Turn start: summon a random 2 cost unit (5 cost if you have at least 10 mana.";

@@ -4036,6 +4036,54 @@
       "packable": false,
       "token": false,
       "signature": false
+    },
+    "248": {
+      "id": 248,
+      "name": "Fire Tornado",
+      "cardType": "spell",
+      "manaCost": 3,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "Inazuma" ],
+      "effect": "hissatsu*(2) damage(4),targetany",
+      "effectText": "Hissatsu, Deal 4 damage to anything",
+      "artPath": "CardArt/firetornado",
+      "artCompactPath": "CardArt/firetornado_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
+    },
+    "249": {
+      "id": 249,
+      "name": "Illusion Ball",
+      "cardType": "spell",
+      "manaCost": 3,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "Inazuma" ],
+      "effect": "hissatsu*(2) draw(2)",
+      "effectText": "Hissatsu, Draw 2 cards",
+      "artPath": "CardArt/illusionball",
+      "artCompactPath": "CardArt/illusionball_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
+    },
+    "250": {
+      "id": 250,
+      "name": "Goddo Hando",
+      "cardType": "spell",
+      "manaCost": 3,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "Inazuma" ],
+      "effect": "hissatsu*(2) autoshield(10)",
+      "effectText": "Hissatsu, your core gets 10 armor ",
+      "artPath": "CardArt/goddohando",
+      "artCompactPath": "CardArt/goddohando_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
     }
   }
 }

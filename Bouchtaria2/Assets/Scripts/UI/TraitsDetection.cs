@@ -76,7 +76,7 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Combo, new[] { 4, 8,14 } },
             { CardData.Trait.Healer, new[] { 6, 9, 14 } },
             { CardData.Trait.Chaos, new[] { 4, 8, 12 } },
-            { CardData.Trait.Inazuma, new[] { 11 } },
+            { CardData.Trait.Inazuma, new[] {1,2,3} },
             { CardData.Trait.Pokemon, new[] { 4,8,12 } },
             { CardData.Trait.MonsterHunter, new[] { 5, 10, 15 } },
             { CardData.Trait.Neutral, new[] { 4,8,12 } },

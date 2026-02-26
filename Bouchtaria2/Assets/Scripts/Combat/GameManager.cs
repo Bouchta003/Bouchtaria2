@@ -622,7 +622,7 @@ public class GameManager : MonoBehaviour
                 CardData.Trait.Healer => new HealerProgression(owner, maxTier, traitSystem),
                 CardData.Trait.Chaos => new ChaosProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
                 CardData.Trait.Fighter => new FighterProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
-                CardData.Trait.Inazuma => throw new System.NotImplementedException(),
+                CardData.Trait.Inazuma => new InazumaProgression(owner, maxTier, traitSystem),
                 CardData.Trait.Blizzard => throw new System.NotImplementedException(),
                 CardData.Trait.Hater => throw new System.NotImplementedException(),
                 CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
@@ -1478,6 +1478,10 @@ public class GameManager : MonoBehaviour
     public void Praise(PlayerOwner owner)
     {
         OnPraise?.Invoke(owner);
+    }
+    public void Hissatsu(PlayerOwner owner)
+    {
+        OnHissatsuPlayed?.Invoke(owner);
     }
     public void DamageRandomEnemyAmount(int amount, PlayerOwner owner)
     {

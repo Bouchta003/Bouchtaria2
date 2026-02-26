@@ -1208,7 +1208,11 @@ public class CardInstance : MonoBehaviour, IAttackable
                 gameManager.Praise(Owner);
                 continue;
             }
-
+            if (effect.StartsWith("hissatsu*"))
+            {
+                gameManager.Hissatsu(Owner);
+                continue;
+            }
             if (effect.StartsWith("polymerization") || effect.StartsWith("superpolymerization"))
             {
                 continue;
@@ -1508,6 +1512,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             gameManager.Praise(Owner);
             gameManager.CheckGlow();return false;
+        }
+        if (effect.StartsWith("hissatsu*"))
+        {
+            gameManager.Hissatsu(Owner);
+            gameManager.CheckGlow(); return false;
         }
 
         if (effect.StartsWith("autodmg"))
