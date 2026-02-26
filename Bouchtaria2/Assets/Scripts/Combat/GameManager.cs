@@ -697,7 +697,6 @@ public class GameManager : MonoBehaviour
                 CardData.Trait.Chaos => new ChaosProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
                 CardData.Trait.Fighter => new FighterProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
                 CardData.Trait.Inazuma => new InazumaProgression(owner, maxTier, traitSystem),
-                CardData.Trait.Hater => throw new System.NotImplementedException(),
                 CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
                 CardData.Trait.Combo => new ComboProgression(owner, maxTier, traitSystem),
                 _ => throw new System.NotImplementedException(),

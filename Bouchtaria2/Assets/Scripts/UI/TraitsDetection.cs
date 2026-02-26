@@ -80,7 +80,6 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Pokemon, new[] { 4,8,12 } },
             { CardData.Trait.MonsterHunter, new[] { 5, 10, 15 } },
             { CardData.Trait.Neutral, new[] { 4,8,12 } },
-            { CardData.Trait.Hater, new[] { 6, 9 } },
             { CardData.Trait.SpellFocus, new[] { 6, 9, 12 } },
         };
 
@@ -153,9 +152,6 @@ public class TraitsDetection : MonoBehaviour
                         break;
                     case CardData.Trait.Faith:
                         traitDisplay.iconSlot.sprite = traitDisplay.faithIcon;
-                        break;
-                    case CardData.Trait.Hater:
-                        traitDisplay.iconSlot.sprite = traitDisplay.haterIcon;
                         break;
                     case CardData.Trait.Combo:
                         traitDisplay.iconSlot.sprite = traitDisplay.comboIcon;
