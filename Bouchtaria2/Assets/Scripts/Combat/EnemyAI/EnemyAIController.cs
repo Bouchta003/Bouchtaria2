@@ -55,6 +55,8 @@ public class EnemyAIController : MonoBehaviour
 
         if (HasLethalThisTurn())
         {
+            yield return StartCoroutine(PlayBestMainPhaseSequence());
+            yield return StartCoroutine(WaitForEffectsToSettle());
             yield return StartCoroutine(TryAttack());
             yield return StartCoroutine(WaitForEffectsToSettle());
             EndEnemyTurn();
@@ -97,6 +99,15 @@ public class EnemyAIController : MonoBehaviour
 
         if (effect.Contains("buff"))
             score += enemyBoard.enemyPrefabCards.Count * 10;
+
+        if (effect.Contains("grantall"))
+        {
+            score += enemyBoard.enemyPrefabCards.Count * 18;
+            int attackersReady = enemyBoard.enemyPrefabCards
+                .Select(go => go != null ? go.GetComponent<CardInstance>() : null)
+                .Count(ci => ci != null && ci.CurrentAttack > 0 && !ci.IsAsleep && !ci.HasAttackedThisTurn);
+            score += attackersReady * 12;
+        }
 
         if (effect.Contains("heal"))
             score += 20;
@@ -498,6 +509,10 @@ public class EnemyAIController : MonoBehaviour
         if (effect.Contains("refreshattack") && !HasRefreshAttackTarget())
             return false;
 
+        // Don't cast temporary mana gain unless that mana unlocks a real follow-up play.
+        if (ContainsTopLevelEffect(effect, "managain") && !CanUseTemporaryManaFrom(spell))
+            return false;
+
         // Never cast resurrect effects without a dead target in graveyard.
         if (effect.Contains("resurrect") && !HasResurrectTarget())
             return false;
@@ -529,6 +544,8 @@ public class EnemyAIController : MonoBehaviour
             else
             {
                 bool needsEnemyUnits = effect.Contains("heal") || effect.Contains("buff") || effect.Contains("gear");
+                if (effect.StartsWith("ally?"))
+                    needsEnemyUnits = true;
                 PlayerOwner targetOwner = needsEnemyUnits ? PlayerOwner.Enemy : PlayerOwner.Player;
 
                 List<IAttackable> validTargets = gameManager.GetValidTargets(targetOwner);
@@ -642,6 +659,81 @@ public class EnemyAIController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private bool ContainsTopLevelEffect(string effect, string effectName)
+    {
+        if (string.IsNullOrWhiteSpace(effect) || string.IsNullOrWhiteSpace(effectName))
+            return false;
+
+        foreach (string token in effect.Split(' '))
+        {
+            if (token.StartsWith(effectName + "("))
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool CanUseTemporaryManaFrom(CardInstance sourceSpell)
+    {
+        if (sourceSpell == null)
+            return false;
+
+        int tempGain = GetSingleIntFromEffectByPrefix(sourceSpell.CurrentEffect, "managain");
+        if (tempGain <= 0)
+            return false;
+
+        int futureMana = gameManager.EnemyCurrentMana - sourceSpell.CurrentManaCost + tempGain;
+
+        foreach (GameObject cardGO in enemyHand.handCards)
+        {
+            if (cardGO == null)
+                continue;
+
+            CardInstance candidate = cardGO.GetComponent<CardInstance>();
+            if (candidate == null || candidate == sourceSpell)
+                continue;
+
+            if (candidate.CurrentManaCost > futureMana)
+                continue;
+
+            string cardType = candidate.Data.cardType.ToLowerInvariant();
+            if (cardType == "spell" && !CanEnemyActuallyCastSpell(candidate))
+                continue;
+
+            if (cardType == "minion" && !CanEnemyPlayMinion(candidate))
+                continue;
+
+            if (cardType == "minion" && enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
+                continue;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private int GetSingleIntFromEffectByPrefix(string fullEffect, string prefix)
+    {
+        if (string.IsNullOrWhiteSpace(fullEffect) || string.IsNullOrWhiteSpace(prefix))
+            return -1;
+
+        foreach (string token in fullEffect.ToLowerInvariant().Split(' '))
+        {
+            if (!token.StartsWith(prefix + "("))
+                continue;
+
+            int start = token.IndexOf('(');
+            int end = token.IndexOf(')');
+            if (start < 0 || end <= start + 1)
+                continue;
+
+            if (int.TryParse(token.Substring(start + 1, end - start - 1), out int value))
+                return value;
+        }
+
+        return -1;
     }
 
     private bool HasRefreshAttackTarget()
