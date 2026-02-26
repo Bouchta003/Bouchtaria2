@@ -3046,14 +3046,29 @@ public class InazumaTier1Effect : IDeckTraitEffect
 
     public void OnRegister()
     {
-        GameManager.Instance.fillImageAlly.transform.parent.gameObject.SetActive(true);
-        GameManager.Instance.fillImageEnemy.transform.parent.gameObject.SetActive(true);
+        GameManager.Instance.UnlockTensionBar(owner);
+        GameManager.Instance.OnCardAttack += HandleCardAttack;
     }
 
     public void OnUnregister()
     {
-        GameManager.Instance.fillImageAlly.transform.parent.gameObject.SetActive(false);
-        GameManager.Instance.fillImageEnemy.transform.parent.gameObject.SetActive(false);
+        GameManager.Instance.OnCardAttack -= HandleCardAttack;
+
+        if (owner == PlayerOwner.Player)
+            GameManager.Instance.fillImageAlly.transform.parent.gameObject.SetActive(false);
+        else
+            GameManager.Instance.fillImageEnemy.transform.parent.gameObject.SetActive(false);
+    }
+
+    private void HandleCardAttack(CardInstance attacker)
+    {
+        if (attacker == null || attacker.Owner != owner)
+            return;
+
+        if (!GameManager.Instance.IsTensionBarVisible(owner))
+            return;
+
+        GameManager.Instance.IncreaseFill(10, owner);
     }
 }
 public class InazumaTier2Effect : IDeckTraitEffect

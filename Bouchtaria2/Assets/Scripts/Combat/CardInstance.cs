@@ -1074,7 +1074,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         gameManager.NotifySpellPlayed(this);
-        gameManager.UseMana(CurrentManaCost, Owner);
+        gameManager.SpendCardCost(this);
 
         ExecuteSpellEffects(target);
         FinalizeSpellResolution();
@@ -1098,7 +1098,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         gameManager.NotifySpellPlayed(this);
-        gameManager.UseMana(CurrentManaCost, Owner);
+        gameManager.SpendCardCost(this);
         ExecuteSpellEffects(null);
 
         if (HasText("random") && Owner == PlayerOwner.Enemy)

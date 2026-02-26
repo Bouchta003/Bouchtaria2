@@ -7,6 +7,7 @@ using DG.Tweening;
 using System.Linq;
 using UnityEngine.Rendering;
 using System;
+using System.Text.RegularExpressions;
 using Firebase.Auth;
 using Firebase.Firestore;
 using Firebase.Extensions;
@@ -453,18 +454,103 @@ public class GameManager : MonoBehaviour
     public void IncreaseFill(int value, PlayerOwner owner)
     {
         if (owner == PlayerOwner.Player)
-            fillImageAlly.fillAmount += value / 100;
+            fillingAlly = Mathf.Clamp(fillingAlly + value, 0, 100);
         else
-            fillImageEnemy.fillAmount += value / 100f;
+            fillingEnemy = Mathf.Clamp(fillingEnemy + value, 0, 100);
         UpdateFill();
     }
     public void ReduceFill(int value, PlayerOwner owner)
     {
         if (owner == PlayerOwner.Player)
-            fillImageAlly.fillAmount -= value / 100;
+            fillingAlly = Mathf.Clamp(fillingAlly - value, 0, 100);
         else
-            fillImageEnemy.fillAmount -= value / 100f;
+            fillingEnemy = Mathf.Clamp(fillingEnemy - value, 0, 100);
         UpdateFill();
+    }
+
+    public bool IsTensionBarVisible(PlayerOwner owner)
+    {
+        Image fillImage = owner == PlayerOwner.Player ? fillImageAlly : fillImageEnemy;
+        if (fillImage == null || fillImage.transform.parent == null)
+            return false;
+
+        return fillImage.transform.parent.gameObject.activeSelf;
+    }
+
+    public void UnlockTensionBar(PlayerOwner owner)
+    {
+        Image fillImage = owner == PlayerOwner.Player ? fillImageAlly : fillImageEnemy;
+        if (fillImage == null || fillImage.transform.parent == null)
+            return;
+
+        fillImage.transform.parent.gameObject.SetActive(true);
+        SetFill(0, owner);
+    }
+
+    public int GetTension(PlayerOwner owner)
+    {
+        int filling = owner == PlayerOwner.Player ? fillingAlly : fillingEnemy;
+        return Mathf.Clamp(filling / 10, 0, 10);
+    }
+
+    public bool TryConsumeTension(int tensionCost, PlayerOwner owner)
+    {
+        if (tensionCost <= 0 || !IsTensionBarVisible(owner))
+            return false;
+
+        int requiredFill = tensionCost * 10;
+        int currentFill = owner == PlayerOwner.Player ? fillingAlly : fillingEnemy;
+        if (currentFill < requiredFill)
+            return false;
+
+        ReduceFill(requiredFill, owner);
+        return true;
+    }
+
+    public int GetHissatsuTensionCost(CardInstance card)
+    {
+        if (card == null || string.IsNullOrWhiteSpace(card.CurrentEffect))
+            return 0;
+
+        Match match = Regex.Match(card.CurrentEffect, @"tension\*\((\d+)\)", RegexOptions.IgnoreCase);
+        if (!match.Success)
+            return 0;
+
+        return int.TryParse(match.Groups[1].Value, out int cost) ? Mathf.Max(0, cost) : 0;
+    }
+
+    public bool CanAffordCardCost(CardInstance card)
+    {
+        if (card == null)
+            return false;
+
+        bool isHissatsu = card.HasKeyword("hissatsu*");
+        int tensionCost = GetHissatsuTensionCost(card);
+
+        if (isHissatsu && IsTensionBarVisible(card.Owner) && tensionCost > 0)
+        {
+            int currentFill = card.Owner == PlayerOwner.Player ? fillingAlly : fillingEnemy;
+            if (currentFill >= tensionCost * 10)
+                return true;
+        }
+
+        return card.Owner == PlayerOwner.Player
+            ? card.CurrentManaCost <= AllyCurrentMana
+            : card.CurrentManaCost <= EnemyCurrentMana;
+    }
+
+    public void SpendCardCost(CardInstance card)
+    {
+        if (card == null)
+            return;
+
+        bool isHissatsu = card.HasKeyword("hissatsu*");
+        int tensionCost = GetHissatsuTensionCost(card);
+
+        if (isHissatsu && tensionCost > 0 && TryConsumeTension(tensionCost, card.Owner))
+            return;
+
+        UseMana(card.CurrentManaCost, card.Owner);
     }
     private void UpdateFill()
     {

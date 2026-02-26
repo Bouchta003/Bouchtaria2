@@ -37,7 +37,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         }
 
         // Mana / legality
-        if (cardInst.CurrentManaCost > gm.EnemyCurrentMana || cardInst.Owner==PlayerOwner.Player)
+        if (!gm.CanAffordCardCost(cardInst) || cardInst.Owner==PlayerOwner.Player)
         {
             card.ResetCard();
             return;
@@ -60,7 +60,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         handManager.RemoveCardFromHand(card.gameObject);
 
         // Use mana
-        gm.UseMana(cardInst.CurrentManaCost, PlayerOwner.Enemy);
+        gm.SpendCardCost(cardInst);
 
         // Board setup
         cardInst.SetZone(CardZone.Board);
