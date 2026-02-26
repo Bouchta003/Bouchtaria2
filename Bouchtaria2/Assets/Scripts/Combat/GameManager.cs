@@ -512,7 +512,7 @@ public class GameManager : MonoBehaviour
         if (card == null || string.IsNullOrWhiteSpace(card.CurrentEffect))
             return 0;
 
-        Match match = Regex.Match(card.CurrentEffect, @"tension\*\((\d+)\)", RegexOptions.IgnoreCase);
+        Match match = Regex.Match(card.CurrentEffect, @"hissatsu\*\((\d+)\)", RegexOptions.IgnoreCase);
         if (!match.Success)
             return 0;
 
