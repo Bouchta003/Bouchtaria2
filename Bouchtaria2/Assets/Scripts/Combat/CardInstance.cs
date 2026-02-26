@@ -2634,7 +2634,6 @@ public class CardInstance : MonoBehaviour, IAttackable
                 .Select(part => part.Trim())
                 .Where(part => !string.IsNullOrEmpty(part))
                 .ToArray();
-
             //Discover specific cards
             if (discoversCards.Length == 3
                 && int.TryParse(discoversCards[0], out int id)

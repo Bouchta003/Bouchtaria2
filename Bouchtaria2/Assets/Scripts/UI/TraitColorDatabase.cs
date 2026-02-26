@@ -23,8 +23,7 @@ public static class TraitColorDatabase
 
         { CardData.Trait.Inazuma,   new Color(0.70f, 1.00f, 0.20f) },
         { CardData.Trait.MonsterHunter,   new Color(1f, 0.85f, 0.20f) },
-        { CardData.Trait.Pokemon,   new Color(0.20f, 0.35f, 0.95f) },
-        { CardData.Trait.Blizzard,  new Color(0.65f, 0.90f, 1.00f) }
+        { CardData.Trait.Pokemon,   new Color(0.20f, 0.35f, 0.95f) }
     };
 
     public static Color Get(CardData.Trait trait)

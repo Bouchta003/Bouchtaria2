@@ -10,7 +10,6 @@ public class TraitsDisplay : MonoBehaviour
     [SerializeField] public Sprite inazumaIcon;//
     [SerializeField] public Sprite monsterhunterIcon;//
     [SerializeField] public Sprite healIcon;//
-    [SerializeField] public Sprite blizzardIcon;//
     [SerializeField] public Sprite gunnerIcon;
     [SerializeField] public Sprite FighterIcon;//
     [SerializeField] public Sprite faithIcon;//

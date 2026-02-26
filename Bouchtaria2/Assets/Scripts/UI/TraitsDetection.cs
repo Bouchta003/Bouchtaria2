@@ -73,14 +73,13 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Gunner, new[] { 4,8,12 } },
             { CardData.Trait.Faith, new[] { 4,8,10 } },
             { CardData.Trait.Avatar, new[] { 5,8,15 } },
-            { CardData.Trait.Combo, new[] { 4, 8,14 } },
+            { CardData.Trait.Combo, new[] { 4, 8,12 } },
             { CardData.Trait.Healer, new[] { 6, 9, 14 } },
             { CardData.Trait.Chaos, new[] { 4, 8, 12 } },
-            { CardData.Trait.Inazuma, new[] {1,2,3} },
+            { CardData.Trait.Inazuma, new[] {4,8,12} },
             { CardData.Trait.Pokemon, new[] { 4,8,12 } },
             { CardData.Trait.MonsterHunter, new[] { 5, 10, 15 } },
             { CardData.Trait.Neutral, new[] { 4,8,12 } },
-            { CardData.Trait.Blizzard, new[] { 5, 10 } },
             { CardData.Trait.Hater, new[] { 6, 9 } },
             { CardData.Trait.SpellFocus, new[] { 6, 9, 12 } },
         };
@@ -175,9 +174,6 @@ public class TraitsDetection : MonoBehaviour
                         break;
                     case CardData.Trait.MonsterHunter:
                         traitDisplay.iconSlot.sprite = traitDisplay.monsterhunterIcon;
-                        break;
-                    case CardData.Trait.Blizzard:
-                        traitDisplay.iconSlot.sprite = traitDisplay.blizzardIcon;
                         break;
                     case CardData.Trait.Avatar:
                         traitDisplay.iconSlot.sprite = traitDisplay.AvatarIcon;
