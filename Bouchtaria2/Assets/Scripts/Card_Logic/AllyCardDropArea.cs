@@ -27,13 +27,13 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
     public void OnCardDrop(Card card)
     {
         //Verify Mana Legality 
-        if (card.gameObject.GetComponent<CardInstance>().CurrentManaCost > gm.AllyCurrentMana ||             
+        CardInstance cardInst = card.gameObject.GetComponent<CardInstance>();
+        if (!gm.CanAffordCardCost(cardInst) ||
             !TurnManager.Instance.IsPlayerTurn(PlayerOwner.Player))
         {
             card.ResetCard();
             return;
         }
-        CardInstance cardInst = card.gameObject.GetComponent<CardInstance>();
 
         if (gm.ShouldBlockRandomCardPlay(cardInst))
         {
@@ -98,7 +98,7 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
         handManager.RemoveCardFromHand(card.gameObject);
 
         //Use Mana
-        gm.UseMana(card.gameObject.GetComponent<CardInstance>().CurrentManaCost, PlayerOwner.Player);
+        gm.SpendCardCost(cardInst);
 
         //Instantiate card compact instead on board
         // Card enters board
