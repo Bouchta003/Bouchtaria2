@@ -861,11 +861,13 @@ public class CardInstance : MonoBehaviour, IAttackable
 
             if (targetsFriendlyUnit)
             {
+                pendingTargetedEffect = CurrentEffect?.ToLowerInvariant() ?? string.Empty;
                 IAttackable target = ChooseBestEnemyEffectTarget(EffectTarget.Unit);
+                pendingTargetedEffect = null;
 
                 if (target == null)
                 {
-                    Debug.LogWarning($"Enemy tried to play gear spell '{Data.name}' but no valid target.");
+                    Debug.LogWarning($"Enemy tried to play support spell '{Data.name}' but no valid friendly target.");
                     return;
                 }
 
@@ -2156,7 +2158,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
     private CardInstance ChooseBestFriendlyUnitTargetForGear()
     {
-        List<CardInstance> friendlyUnits = gameManager.GetValidTargets(PlayerOwner.Enemy)
+        List<CardInstance> friendlyUnits = gameManager.GetValidTargets(Owner)
             .OfType<CardInstance>()
             .Where(ci => !ci.IsDead)
             .ToList();
