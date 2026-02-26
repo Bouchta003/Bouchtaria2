@@ -402,7 +402,7 @@ public class GameManager : MonoBehaviour
             //Max HP Augment
             if(augment == DungeonShop.Augment.MaxHP)
             {
-                startingPlayerCoreHealth += 5;
+                startingPlayerCoreHealth += 10;
             }
 
             //Starting MANA Augment
@@ -1277,7 +1277,7 @@ public class GameManager : MonoBehaviour
             cardInst.Owner = PlayerOwner.Player;
             allyDropArea.AddSummonedCard(cardInst);
             allyDropArea.UpdateAllyCardPositions();
-            cardInst.ModifyStats(2, 2);
+            cardInst.ModifyStats(1,1);
             cardInst.CurrentEffect += " protect quickstrike regeneration";
             cardInst.CurrentEffectText += "\nProtect Quickstrike and Regeneration";
         }

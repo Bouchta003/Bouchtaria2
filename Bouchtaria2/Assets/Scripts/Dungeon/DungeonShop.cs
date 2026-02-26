@@ -79,7 +79,7 @@ public class DungeonShop : MonoBehaviour
                 message = "Too much cards in your deck? Buy this and I'll make three of them disappear !\n*poof*";
                 break;
             case 0:
-                message = "Get some more health before your fight, I sell 5 HP per buy, what do you say ?";
+                message = "Get some more health before your fight, I sell 10 HP per buy, what do you say ?";
                 break;
             case 1:
                 message = "With this mana potion, you'll start your fights with a lil more mana than the enemy, pretty neat right ?";
@@ -88,7 +88,7 @@ public class DungeonShop : MonoBehaviour
                 message = "Ya buy this one, ya draw one more card at each fight !";
                 break;
             case 3:
-                message = "Legends never die ! With this you'll revive once upon defeat.";
+                message = "Legends never die ! If you lose a fight, you'll get a second chance (once).";
                 break;
             default:
                 message = "Hummmm... I am not sure about this one, maybe in another patch I'll have some more info to share for this.";
@@ -203,14 +203,14 @@ public class DungeonShop : MonoBehaviour
         switch (aug)
         {
             case -1:
-                if (DungeonManager.Instance.CurrentRun.coins < 75)
+                if (DungeonManager.Instance.CurrentRun.coins < 90)
                 {
                     ErrorPopup.Show("Not enough dungeon coins.");
                     break;
                 }
 
-                ModifyUserCoin(-75);
-                DungeonManager.Instance.CurrentRun.coins -= 75;
+                ModifyUserCoin(-90);
+                DungeonManager.Instance.CurrentRun.coins -= 90;
                 int rand = UnityEngine.Random.Range(0, 3);
                 ShouldPay = false;
                 ClickAugment(rand);
@@ -240,14 +240,14 @@ public class DungeonShop : MonoBehaviour
                 DungeonManager.Instance.SaveRunData();
                 ShouldPay = true; break;
             case 0:
-                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 50)
+                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 90)
                 {
                     ErrorPopup.Show("Not enough dungeon coins.");
                     ShouldPay = true; break;
                 }
 
-                if(ShouldPay)ModifyUserCoin(-50);
-                if(ShouldPay)DungeonManager.Instance.CurrentRun.coins -= 50;
+                if(ShouldPay)ModifyUserCoin(-90);
+                if(ShouldPay)DungeonManager.Instance.CurrentRun.coins -= 90;
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.MaxHP);
                 DungeonManager.Instance.SaveRunData();
                 ShouldPay = true; break;
@@ -264,26 +264,26 @@ public class DungeonShop : MonoBehaviour
                 DungeonManager.Instance.SaveRunData();
                 ShouldPay = true; break;
             case 2:
-                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 100)
+                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 90)
                 {
                     ErrorPopup.Show("Not enough dungeon coins.");
                     ShouldPay = true; break;
                 }
 
-                if (ShouldPay) ModifyUserCoin(-100);
-                if (ShouldPay) DungeonManager.Instance.CurrentRun.coins -= 100;
+                if (ShouldPay) ModifyUserCoin(-90);
+                if (ShouldPay) DungeonManager.Instance.CurrentRun.coins -= 90;
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.StartDraw);
                 DungeonManager.Instance.SaveRunData();
                 ShouldPay = true; break;
             case 3:
-                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 200)
+                if (ShouldPay && DungeonManager.Instance.CurrentRun.coins < 180)
                 {
                     ErrorPopup.Show("Not enough dungeon coins.");
                     ShouldPay = true; break;
                 }
 
-                if (ShouldPay) ModifyUserCoin(-200);
-                if (ShouldPay) DungeonManager.Instance.CurrentRun.coins -= 200;
+                if (ShouldPay) ModifyUserCoin(-180);
+                if (ShouldPay) DungeonManager.Instance.CurrentRun.coins -= 180;
                 DungeonManager.Instance.CurrentRun.augments.Add(Augment.ExtraLife);
                 DungeonManager.Instance.SaveRunData();
                 ShouldPay = true; break;

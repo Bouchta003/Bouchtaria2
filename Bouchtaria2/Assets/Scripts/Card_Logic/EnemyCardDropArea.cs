@@ -142,7 +142,7 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
             if (GameRunContext.DungeonData.floor > 15)
                 GameManager.GetComponent<GameManager>().BuffAllAllies(1, 1, PlayerOwner.Enemy);
             if (GameRunContext.DungeonData.floor > 30)
-                GameManager.GetComponent<GameManager>().BuffAllAllies(1, 1, PlayerOwner.Enemy);
+                GameManager.GetComponent<GameManager>().deckManager.Draw(1,PlayerOwner.Enemy);
         }
 
         // IMPORTANT:

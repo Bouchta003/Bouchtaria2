@@ -385,6 +385,15 @@ public class ScanPanelView : MonoBehaviour
             keyDescription.text =
                 "Cannot be target by attacks until this unit attacks.";
         }
+        if (effectText.ToLower().Contains(("hissatsu").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Hissatsu";
+            keyDescription.text =
+                "Techniques that consume mana or the indicated value in tension if the gauge is unlocked.";
+        }
         if (effectText.ToLower().Contains(("quickstrike").ToLower()))
         {
             GameObject entry = Instantiate(keywordPrefab, keywordContainer);
@@ -392,7 +401,7 @@ public class ScanPanelView : MonoBehaviour
             var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
             keyName.text = "QuickStrike";
             keyDescription.text =
-                "Can attack units only during the turn it is summoned.";
+                "During the turn this is summonned this can attack units.";
         }
           if (effectText.ToLower().Contains(("charge").ToLower()))
         {
@@ -428,7 +437,15 @@ public class ScanPanelView : MonoBehaviour
             keyName.text = "Antirandom";
             keyDescription.text = "While this unit is on the field, cards with 'random' in their effect text can't be played.";
         }
-        
+        if (effectText.ToLower().Contains(("untargettable").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Untargettable";
+            keyDescription.text = "Cannot be target by card effects, but can be targetted by attacks.";
+        }
+
     }
     private int GetEffectID(string effect)
     {

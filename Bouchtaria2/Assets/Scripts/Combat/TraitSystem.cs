@@ -3187,21 +3187,31 @@ public class InazumaTier2Effect : IDeckTraitEffect
                 yield return combineId;
         }
     }
-
-    private static void ApplyTemporaryHissatsuBonus(CardInstance card, int amount)
+    private void ApplyTemporaryHissatsuBonus(CardInstance card, int amount)
     {
         if (amount <= 0 || card == null)
             return;
 
-        card.CurrentEffect = IncreaseNumbersOutsideProtectedPatterns(card.CurrentEffect, amount);
-        card.CurrentEffectText = IncreaseNumbersOutsideProtectedPatterns(card.CurrentEffectText, amount);
+        int key = card.GetInstanceID();
+        if (!hissatsuSnapshots.TryGetValue(key, out HissatsuSnapshot snapshot))
+        {
+            snapshot = new HissatsuSnapshot
+            {
+                Card = card,
+                BaseEffect = card.CurrentEffect,
+                BaseEffectText = card.CurrentEffectText,
+            };
+            hissatsuSnapshots[key] = snapshot;
+        }
+
+        card.CurrentEffect = IncreaseNumbersOutsideProtectedPatterns(snapshot.BaseEffect, amount);
+        card.CurrentEffectText = IncreaseNumbersOutsideProtectedPatterns(snapshot.BaseEffectText, amount);
         card.ParseEffects();
         GameManager.Instance.ShowChainHissatsu(amount);
         CardView cardView = card.GetComponent<CardView>();
         if (cardView != null)
             cardView.Refresh();
     }
-
     private void RefreshOwnerHissatsuCards(CardInstance ignoredCard)
     {
         if (hissatsuPowerBonusThisTurn <= 0)
