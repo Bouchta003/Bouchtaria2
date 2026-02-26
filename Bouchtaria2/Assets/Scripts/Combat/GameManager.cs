@@ -95,7 +95,7 @@ public class GameManager : MonoBehaviour
     [Range(0, 100)]
     public int fillingAlly = 0; // percentage (0–100)
     public int fillingEnemy = 0; // percentage (0–100)
-
+    [SerializeField] public TextMeshProUGUI textComp;
     [SerializeField] public Image fillImageAlly;
     [SerializeField] public Image fillImageEnemy;
 
@@ -518,7 +518,61 @@ public class GameManager : MonoBehaviour
 
         return int.TryParse(match.Groups[1].Value, out int cost) ? Mathf.Max(0, cost) : 0;
     }
+    public void ShowChainHissatsu(int value)
+    {
+        if (textComp == null) return;
+        StartCoroutine(QuickNotifyRoutine(textComp, value));
+    }
 
+    private IEnumerator QuickNotifyRoutine(TextMeshProUGUI textComp, int value)
+    {
+        GameObject go = textComp.gameObject;
+
+        // Set text
+        textComp.text = value.ToString();
+
+        // Random Z rotation between -5 and 5
+        float zRot = UnityEngine.Random.Range(-5f, 5f);
+        go.transform.localRotation = Quaternion.Euler(0f, 0f, zRot);
+
+        // Ensure visible
+        go.SetActive(true);
+
+        // Prepare color
+        Color c = textComp.color;
+        c.a = 0f;
+        textComp.color = c;
+
+        float fadeInTime = 0.15f;
+        float visibleTime = 0.35f;
+        float fadeOutTime = 0.2f;
+
+        // ----- Fade In -----
+        float t = 0f;
+        while (t < fadeInTime)
+        {
+            t += Time.deltaTime;
+            c.a = Mathf.Lerp(0f, 1f, t / fadeInTime);
+            textComp.color = c;
+            yield return null;
+        }
+
+        // Hold briefly
+        yield return new WaitForSeconds(visibleTime);
+
+        // ----- Fade Out -----
+        t = 0f;
+        while (t < fadeOutTime)
+        {
+            t += Time.deltaTime;
+            c.a = Mathf.Lerp(1f, 0f, t / fadeOutTime);
+            textComp.color = c;
+            yield return null;
+        }
+
+        // Hide object
+        go.SetActive(false);
+    }
     public bool CanAffordCardCost(CardInstance card)
     {
         if (card == null)

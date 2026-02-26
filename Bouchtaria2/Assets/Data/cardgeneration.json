@@ -4061,7 +4061,8 @@
       "atkValue": 0,
       "hpValue": 0,
       "traits": [ "Inazuma" ],
-      "effect": "hissatsu*(2) draw(2)",
+      "relatedCards": [ 248, 250 ],
+      "effect": "hissatsu*(2) draw(2) combine(251)",
       "effectText": "Hissatsu, Draw 2 cards",
       "artPath": "CardArt/illusionball",
       "artCompactPath": "CardArt/illusionball_compact",
@@ -4082,6 +4083,22 @@
       "artPath": "CardArt/goddohando",
       "artCompactPath": "CardArt/goddohando_compact",
       "packable": true,
+      "token": false,
+      "signature": false
+    },
+    "251": {
+      "id": 251,
+      "name": "Inazuma Break",
+      "cardType": "spell",
+      "manaCost": 3,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "Inazuma" ],
+      "effect": "hissatsu*(2) damageaoe(5) autodmg(5)",
+      "effectText": "Hissatsu, your core gets 10 armor ",
+      "artPath": "CardArt/inazumabreak",
+      "artCompactPath": "CardArt/inazumabreak_compact",
+      "packable": false,
       "token": false,
       "signature": false
     }

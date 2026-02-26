@@ -2997,10 +2997,10 @@ public class InazumaProgression : ITraitProgression
 
         hissatsuCount++;
         OnProgressUpdated?.Invoke(Trait, hissatsuCount, GetCurrentCap(), Owner);
-        if (hissatsuCount >= 2 && CurrentTier < 1 && maxTier >= 1)
+        if (hissatsuCount >= 1 && CurrentTier < 1 && maxTier >= 1)
             UnlockTier1();
 
-        if (hissatsuCount >= 5 && CurrentTier < 2 && maxTier >= 2)
+        if (hissatsuCount >= 2 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2();
 
         if (hissatsuCount >= 10 && CurrentTier < 3 && maxTier >= 3)
@@ -3025,8 +3025,8 @@ public class InazumaProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 2,
-            1 => 5,
+            0 => 1,
+            1 => 2,
             2 => 10,
             3 => 9999,
             _ => 9999,
@@ -3182,7 +3182,7 @@ public class InazumaTier2Effect : IDeckTraitEffect
         card.CurrentEffect = IncreaseNumbersOutsideProtectedPatterns(card.CurrentEffect, amount);
         card.CurrentEffectText = IncreaseNumbersOutsideProtectedPatterns(card.CurrentEffectText, amount);
         card.ParseEffects();
-
+        GameManager.Instance.ShowChainHissatsu(amount);
         CardView cardView = card.GetComponent<CardView>();
         if (cardView != null)
             cardView.Refresh();
