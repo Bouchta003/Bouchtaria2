@@ -2630,27 +2630,34 @@ public class CardInstance : MonoBehaviour, IAttackable
             }
 
             string valueStr = effect.Substring(start + 1, end - start - 1);
-            string[] discoversCards = valueStr.Split(',');
+            string[] discoversCards = valueStr.Split(',')
+                .Select(part => part.Trim())
+                .Where(part => !string.IsNullOrEmpty(part))
+                .ToArray();
 
             //Discover specific cards
-            if (int.TryParse(discoversCards[0], out int id) && int.TryParse(discoversCards[1], out int idd) && int.TryParse(discoversCards[2], out int iddd))
+            if (discoversCards.Length == 3
+                && int.TryParse(discoversCards[0], out int id)
+                && int.TryParse(discoversCards[1], out int idd)
+                && int.TryParse(discoversCards[2], out int iddd))
             {
                 gameManager.Discover(id, idd, iddd, Owner);
             }
             else if (effect.StartsWith("discovertrait")) { gameManager.DiscoverTrait(valueStr, Owner); }
             else 
             {
-                //Test for three different effects ? 
-                (string e1, string e2, string e3) = GetThreeStringsFromEffect(effect);
-                (string f1, string f2) = GetTwoStringsFromEffect(effect);
-                if (e1 == "" || e2 == "" || e3 == "")
-                    gameManager.DiscoverEffect(valueStr, Owner);
-                else if(f1 == "" || f2 == "")
+                if (discoversCards.Length == 2)
                 {
-                    gameManager.DiscoverEffectSelective(f1,f2, Owner);
+                    gameManager.DiscoverEffectSelective(discoversCards[0], discoversCards[1], Owner);
+                }
+                else if (discoversCards.Length == 3)
+                {
+                    gameManager.DiscoverEffect(discoversCards[0], discoversCards[1], discoversCards[2], Owner);
                 }
                 else
-                    gameManager.DiscoverEffect(e1,e2,e3, Owner);
+                {
+                    gameManager.DiscoverEffect(valueStr, Owner);
+                }
             }
         }
         else { gameManager.DiscoverOwnerTrait(Owner); }
@@ -2687,14 +2694,18 @@ public class CardInstance : MonoBehaviour, IAttackable
                 return;
             }
 
-            (string f1, string f2) = GetTwoStringsFromEffect(effect);
-            if (f1 == "" || f2 == "")
+            string valueStr = effect.Substring(start + 1, end - start - 1);
+            string[] parts = valueStr.Split(',')
+                .Select(part => part.Trim())
+                .Where(part => !string.IsNullOrEmpty(part))
+                .ToArray();
+
+            if (parts.Length == 2)
             {
-                gameManager.AddRandomCardToHandEffectSelective(Owner, f1,f2, Data.id);
+                gameManager.AddRandomCardToHandEffectSelective(Owner, parts[0], parts[1], Data.id);
                 return;
             }
 
-            string valueStr = effect.Substring(start + 1, end - start - 1);
             Debug.Log("Added random card with the following effect : " + valueStr);
             gameManager.AddRandomCardToHandEffect(Owner, valueStr, Data.id);
             return;
