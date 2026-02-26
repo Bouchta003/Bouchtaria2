@@ -79,12 +79,19 @@ public class MusicManager : MonoBehaviour
     private void PlayMusicForScene(string sceneName)
     {
         AudioClip newClip = GetMusicForScene(sceneName);
+        List<AudioClip> firebaseMusics = GetFirebaseMusicCandidates();
 
-        // Use default music if scene not found
+        // Use Firebase music as the default fallback for scenes without a mapping.
         if (newClip == null)
         {
-            //If some music is playing do not do anything, or else play a random firebase one
-            //newClip = defaultMusic;
+            bool firebaseMusicAlreadyPlaying = currentClip != null && firebaseMusics.Contains(currentClip);
+
+            // Keep the current track if we're already on one of the Firebase tracks
+            // so scene transitions stay musically smooth.
+            if (firebaseMusicAlreadyPlaying)
+                return;
+
+            newClip = GetRandomClip(firebaseMusics) ?? defaultMusic;
         }
 
         if (newClip != null)
@@ -108,7 +115,29 @@ public class MusicManager : MonoBehaviour
         if (candidates.Count == 0)
             return null;
 
-        // Pick random music
+        return GetRandomClip(candidates);
+    }
+
+    private List<AudioClip> GetFirebaseMusicCandidates()
+    {
+        List<AudioClip> firebaseCandidates = new List<AudioClip>();
+
+        foreach (SceneMusicEntry entry in sceneMusic)
+        {
+            if (entry.sceneName == "Firebase" && entry.music != null)
+            {
+                firebaseCandidates.Add(entry.music);
+            }
+        }
+
+        return firebaseCandidates;
+    }
+
+    private AudioClip GetRandomClip(List<AudioClip> candidates)
+    {
+        if (candidates == null || candidates.Count == 0)
+            return null;
+
         int index = Random.Range(0, candidates.Count);
         return candidates[index];
     }
