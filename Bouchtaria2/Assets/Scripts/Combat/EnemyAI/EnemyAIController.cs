@@ -552,6 +552,11 @@ public class EnemyAIController : MonoBehaviour
     }
     private bool CanEnemyActuallyCastSpell(CardInstance spell)
     {
+        return CanEnemyActuallyCastSpell(spell, skipTemporaryManaFollowupCheck: false);
+    }
+
+    private bool CanEnemyActuallyCastSpell(CardInstance spell, bool skipTemporaryManaFollowupCheck)
+    {
         if (spell == null)
             return false;
 
@@ -594,7 +599,7 @@ public class EnemyAIController : MonoBehaviour
             return false;
 
         // Don't cast temporary mana gain unless that mana unlocks a real follow-up play.
-        if (ContainsTopLevelEffect(effect, "managain") && !CanUseTemporaryManaFrom(spell))
+        if (!skipTemporaryManaFollowupCheck && ContainsTopLevelEffect(effect, "managain") && !CanUseTemporaryManaFrom(spell))
             return false;
 
         // Never cast resurrect effects without a dead target in graveyard.
@@ -783,7 +788,9 @@ public class EnemyAIController : MonoBehaviour
                 continue;
 
             string cardType = candidate.Data.cardType.ToLowerInvariant();
-            if (cardType == "spell" && !CanEnemyActuallyCastSpell(candidate))
+            // Prevent recursive managain->managain validation loops while still checking
+            // normal spell legality (targets, board state, distortion world, etc.).
+            if (cardType == "spell" && !CanEnemyActuallyCastSpell(candidate, skipTemporaryManaFollowupCheck: true))
                 continue;
 
             if (cardType == "minion" && !CanEnemyPlayMinion(candidate))
