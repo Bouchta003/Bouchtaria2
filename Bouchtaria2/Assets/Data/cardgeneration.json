@@ -1430,7 +1430,7 @@
       "hpValue": 1,
       "traits": [ "Pokemon" ],
       "effect": "d[morphto,targetunit]",
-      "effectText": "Deploy : Shapeshifts into any Ally.",
+      "effectText": "Deploy : Shapeshifts into any unit on board.",
       "artPath": "CardArt/ditto",
       "artCompactPath": "CardArt/ditto_compact",
       "packable": true,
