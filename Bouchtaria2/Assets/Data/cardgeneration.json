@@ -4325,7 +4325,7 @@
       "atkValue": 0,
       "hpValue": 0,
       "traits": [ "Inazuma" ],
-      "effect": "hissatsu*(1) buff(1,1)",
+      "effect": "hissatsu*(1) buff(1,1),targetunit",
       "effectText": "Hissatsu (1), Grant a unit +1/+1",
       "artPath": "CardArt/kingslance",
       "artCompactPath": "CardArt/kingslance_compact",
