@@ -5,6 +5,12 @@ using UnityEngine;
 
 public class EnemyAIController : MonoBehaviour
 {
+    private const float EffectsSettleSoftWarningSeconds = 8f;
+    private const float EffectsSettleHardTimeoutSeconds = 45f;
+    private const float AttackQueueSoftWarningSeconds = 8f;
+    private const float AttackQueueHardTimeoutSeconds = 20f;
+    private const float EndTurnPhaseTimeoutSeconds = 2f;
+
     [SerializeField] private HandManager enemyHand;
     [SerializeField] private EnemyCardDropArea enemyBoard;
     [SerializeField] private AllyCardDropArea allyBoard;
@@ -26,6 +32,8 @@ public class EnemyAIController : MonoBehaviour
         public CardInstance Card;
         public int Score;
     }
+
+    private Coroutine activeEnemyTurnRoutine;
     private void OnEnable()
     {
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
@@ -33,6 +41,12 @@ public class EnemyAIController : MonoBehaviour
 
     private void OnDisable()
     {
+        if (activeEnemyTurnRoutine != null)
+        {
+            StopCoroutine(activeEnemyTurnRoutine);
+            activeEnemyTurnRoutine = null;
+        }
+
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnStarted -= HandleTurnStart;
     }
@@ -41,16 +55,84 @@ public class EnemyAIController : MonoBehaviour
         if (owner != PlayerOwner.Enemy)
             return;
 
-        StartCoroutine(EnemyTurnRoutine());
+        if (activeEnemyTurnRoutine != null)
+            StopCoroutine(activeEnemyTurnRoutine);
+
+        activeEnemyTurnRoutine = StartCoroutine(EnemyTurnRoutine());
     }
 
     private IEnumerator WaitForEffectsToSettle()
     {
+        float startTime = Time.time;
+        bool didWarn = false;
+
         while (gameManager != null && gameManager.IsResolvingEffects)
+        {
+            float elapsed = Time.time - startTime;
+
+            // Soft warning for observability, but keep waiting for intentionally long effects.
+            if (!didWarn && elapsed >= EffectsSettleSoftWarningSeconds)
+            {
+                didWarn = true;
+                Debug.LogWarning($"[EnemyAI] Effects are taking longer than expected ({elapsed:F1}s, active={gameManager.ActiveEffectCount}). Still waiting.");
+            }
+
+            // Hard fail-safe to avoid infinite stalls if an effect never calls EndEffect().
+            if (elapsed >= EffectsSettleHardTimeoutSeconds)
+            {
+                Debug.LogWarning($"[EnemyAI] Hard timeout waiting for effects ({elapsed:F1}s, active={gameManager.ActiveEffectCount}). Continuing to avoid soft-lock.");
+                yield break;
+            }
+
             yield return null;
+        }
     }
+
+    private IEnumerator WaitForEnemyMainPhase()
+    {
+        float timeoutAt = Time.time + EndTurnPhaseTimeoutSeconds;
+        while (TurnManager.Instance != null &&
+               (TurnManager.Instance.CurrentPlayer != PlayerOwner.Enemy ||
+                TurnManager.Instance.CurrentPhase != TurnPhase.Main))
+        {
+            if (Time.time >= timeoutAt)
+            {
+                Debug.LogWarning("[EnemyAI] Timed out waiting for enemy main phase; continuing with fail-safe flow.");
+                yield break;
+            }
+
+            yield return null;
+        }
+    }
+
+    private IEnumerator WaitForAttackQueueToSettle()
+    {
+        float startTime = Time.time;
+        bool didWarn = false;
+
+        while (gameManager != null && gameManager.IsResolvingAttackQueue())
+        {
+            float elapsed = Time.time - startTime;
+
+            if (!didWarn && elapsed >= AttackQueueSoftWarningSeconds)
+            {
+                didWarn = true;
+                Debug.LogWarning($"[EnemyAI] Attack queue is taking longer than expected ({elapsed:F1}s). Still waiting.");
+            }
+
+            if (elapsed >= AttackQueueHardTimeoutSeconds)
+            {
+                Debug.LogWarning($"[EnemyAI] Hard timeout waiting for attack queue ({elapsed:F1}s). Continuing to avoid infinite loop.");
+                yield break;
+            }
+
+            yield return null;
+        }
+    }
+
     private IEnumerator EnemyTurnRoutine()
     {
+        yield return StartCoroutine(WaitForEnemyMainPhase());
         yield return StartCoroutine(WaitForEffectsToSettle());
 
         if (HasLethalThisTurn())
@@ -59,7 +141,8 @@ public class EnemyAIController : MonoBehaviour
             yield return StartCoroutine(WaitForEffectsToSettle());
             yield return StartCoroutine(TryAttack());
             yield return StartCoroutine(WaitForEffectsToSettle());
-            EndEnemyTurn();
+            yield return StartCoroutine(EndEnemyTurnSafely());
+            activeEnemyTurnRoutine = null;
             yield break;
         }
 
@@ -83,7 +166,8 @@ public class EnemyAIController : MonoBehaviour
 
         yield return new WaitForSeconds(0.2f);
 
-        EndEnemyTurn();
+        yield return StartCoroutine(EndEnemyTurnSafely());
+        activeEnemyTurnRoutine = null;
     }
     private int EvaluateSpell(CardInstance spell)
     {
@@ -990,7 +1074,7 @@ public class EnemyAIController : MonoBehaviour
             if (blessedTarget != null)
             {
                 gameManager.QueueAttack(weakestBlessedAttacker, blessedTarget);
-                yield return new WaitUntil(() => !gameManager.IsResolvingAttackQueue());
+                yield return StartCoroutine(WaitForAttackQueueToSettle());
                 yield return new WaitForSeconds(0.25f);
             }
         }
@@ -1012,7 +1096,7 @@ public class EnemyAIController : MonoBehaviour
 
 
             // 🔹 Wait until THIS attack finishes
-            yield return new WaitUntil(() => !gameManager.IsResolvingAttackQueue());
+            yield return StartCoroutine(WaitForAttackQueueToSettle());
 
             // 🔹 Small delay for readability
             yield return new WaitForSeconds(0.25f);
@@ -1156,9 +1240,26 @@ public class EnemyAIController : MonoBehaviour
         return totalAttack >= gameManager.PlayerCore.CurrentHealth;
     }
 
-    private void EndEnemyTurn()
+    private IEnumerator EndEnemyTurnSafely()
     {
+        if (TurnManager.Instance == null)
+            yield break;
+
+        float timeoutAt = Time.time + EndTurnPhaseTimeoutSeconds;
+        while (TurnManager.Instance.CurrentPlayer == PlayerOwner.Enemy &&
+               TurnManager.Instance.CurrentPhase != TurnPhase.Main)
+        {
+            if (Time.time >= timeoutAt)
+            {
+                Debug.LogWarning("[EnemyAI] Could not reach enemy main phase before ending turn. Forcing a best-effort EndTurn call.");
+                break;
+            }
+
+            yield return null;
+        }
+
         TurnManager.Instance.EndTurn();
+        activeEnemyTurnRoutine = null;
     }
 
 }
