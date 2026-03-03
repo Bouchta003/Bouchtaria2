@@ -20,6 +20,7 @@ public class DeckBuilding : MonoBehaviour
     [SerializeField] public GameObject DeckUI;
     [SerializeField] public GameObject IndexUI;
     [SerializeField] public GameObject ChangeDecksDropDown;
+    [SerializeField] private TMP_Dropdown deckDropdown;
     [SerializeField] public GameObject DeleteDeckButton;
     [SerializeField] public TMP_InputField DeckNameInput;
     [SerializeField] public TextMeshProUGUI DustCounter;
@@ -44,6 +45,7 @@ public class DeckBuilding : MonoBehaviour
     private Dictionary<string, List<int>> userDecks = new();
     private List<string> deckNames = new();
     private int currentDeckIndex = 0;
+    private const string NoDeckOption = "NoDeck";
     public Dictionary<CardData.Trait, int> AllyTraitsUnlockable;
     [SerializeField] private TraitsDetection traitsDetection;
     //DeckCount Display
@@ -66,6 +68,7 @@ public class DeckBuilding : MonoBehaviour
         }
 
         Instance = this;
+        CurrentDeck ??= new List<int>();
         if(craftFilter!=null)
             craftFilter.gameObject.SetActive(false);
         if (DeckUI != null)
@@ -79,6 +82,8 @@ public class DeckBuilding : MonoBehaviour
             UserDust = dust;
             DustCounter.text = dust.ToString();
         });
+
+        SetupDeckDropdown();
 
     }
     private void Start()
@@ -118,6 +123,63 @@ public class DeckBuilding : MonoBehaviour
     public Dictionary<string, List<int>> GetUserDecks()
     {
         return new Dictionary<string, List<int>>(userDecks);
+    }
+
+    private void SetupDeckDropdown()
+    {
+        if (deckDropdown == null && ChangeDecksDropDown != null)
+            deckDropdown = ChangeDecksDropDown.GetComponent<TMP_Dropdown>();
+
+        if (deckDropdown == null)
+            return;
+
+        deckDropdown.onValueChanged.RemoveListener(OnDeckDropdownChanged);
+        deckDropdown.onValueChanged.AddListener(OnDeckDropdownChanged);
+        RefreshDeckDropdownOptions();
+    }
+
+    private void RefreshDeckDropdownOptions()
+    {
+        if (deckDropdown == null)
+            return;
+
+        List<string> options = new List<string> { NoDeckOption };
+        options.AddRange(deckNames);
+
+        deckDropdown.ClearOptions();
+        deckDropdown.AddOptions(options);
+
+        int selectedIndex = 0;
+        if (!string.IsNullOrWhiteSpace(DeckNameInput.text))
+        {
+            int deckIndex = deckNames.IndexOf(DeckNameInput.text);
+            if (deckIndex >= 0)
+                selectedIndex = deckIndex + 1;
+        }
+
+        deckDropdown.SetValueWithoutNotify(selectedIndex);
+        deckDropdown.RefreshShownValue();
+    }
+
+    private void OnDeckDropdownChanged(int index)
+    {
+        if (index <= 0)
+        {
+            CurrentDeck ??= new List<int>();
+            CurrentDeck.Clear();
+            DeckNameInput.text = string.Empty;
+            currentDeckIndex = 0;
+            collection.ShowPage(collection.currentPage);
+            DetectUnlockableTraits();
+            return;
+        }
+
+        int deckIndex = index - 1;
+        if (deckIndex < 0 || deckIndex >= deckNames.Count)
+            return;
+
+        currentDeckIndex = deckIndex;
+        LoadDeck(deckNames[currentDeckIndex]);
     }
 
     #region CardDropInChest
@@ -431,6 +493,7 @@ public class DeckBuilding : MonoBehaviour
                             LoadDeck(deckNames[currentDeckIndex]);
                         }
 
+                        RefreshDeckDropdownOptions();
                         Debug.Log($"Deck '{deckName}' deleted successfully.");
                     });
                 }
@@ -472,6 +535,7 @@ public class DeckBuilding : MonoBehaviour
       }
 
       Debug.Log($"Fetched {deckNames.Count} decks");
+      RefreshDeckDropdownOptions();
 
       // ✅ NOW the data exists
       OnDecksLoaded?.Invoke();
@@ -501,6 +565,7 @@ public class DeckBuilding : MonoBehaviour
 
         currentDeckIndex = (currentDeckIndex + 1) % deckNames.Count;
         LoadDeck(deckNames[currentDeckIndex]);
+        RefreshDeckDropdownOptions();
     }
     public void DetectUnlockableTraits()
     {
