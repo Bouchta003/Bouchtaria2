@@ -1560,21 +1560,32 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         if (effect.StartsWith("autoheal"))
         {
+            if (effect.StartsWith("autohealfull"))
+            {
+                AutoHealFull();
+                gameManager.CheckGlow();
+                return false;
+            }
+
             if (!TryParseIntEffect(effect, "autoheal", out int heal))
             { gameManager.CheckGlow(); return false; }
-            if (effect.StartsWith("autohealfull"))
-            {AutoHealFull(); ; gameManager.CheckGlow(); return false; }
+
             AutoHealCore(heal);
             gameManager.CheckGlow();return false;
         }
 
         if (effect.StartsWith("healall"))
         {
+            if (effect.StartsWith("healallfull"))
+            {
+                HealAllFull();
+                gameManager.CheckGlow();
+                return false;
+            }
+
             if (!TryParseIntEffect(effect, "healall", out int heal))
             { gameManager.CheckGlow(); return false; }
-            if (effect.StartsWith("healallfull")) { HealAllFull();
-                gameManager.CheckGlow(); return false;
-            }
+
             HealAll(heal);
             gameManager.CheckGlow();return false;
         }
@@ -3351,12 +3362,16 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TryExecuteHealAll(string effect)
     {
-        if (!TryParseIntEffect(effect, "heal", out int amount))
-            return;
         if (effect.StartsWith("healallfull")) 
+        {
             HealAllFull();
-        else
-            HealAll(amount);
+            return;
+        }
+
+        if (!TryParseIntEffect(effect, "healall", out int amount))
+            return;
+
+        HealAll(amount);
     }
     private void TryExecuteGear(string effect, string effectText, IAttackable target)
     {
