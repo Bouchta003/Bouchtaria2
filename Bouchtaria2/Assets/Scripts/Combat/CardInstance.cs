@@ -1562,7 +1562,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             if (!TryParseIntEffect(effect, "autoheal", out int heal))
             { gameManager.CheckGlow(); return false; }
-
+            if (effect.StartsWith("autohealfull"))
+            {AutoHealFull(); ; gameManager.CheckGlow(); return false; }
             AutoHealCore(heal);
             gameManager.CheckGlow();return false;
         }
@@ -1571,7 +1572,9 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             if (!TryParseIntEffect(effect, "healall", out int heal))
             { gameManager.CheckGlow(); return false; }
-
+            if (effect.StartsWith("healallfull")) { HealAllFull();
+                gameManager.CheckGlow(); return false;
+            }
             HealAll(heal);
             gameManager.CheckGlow();return false;
         }
@@ -3350,8 +3353,10 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (!TryParseIntEffect(effect, "heal", out int amount))
             return;
-
-        HealAll(amount);
+        if (effect.StartsWith("healallfull")) 
+            HealAllFull();
+        else
+            HealAll(amount);
     }
     private void TryExecuteGear(string effect, string effectText, IAttackable target)
     {
@@ -3747,6 +3752,13 @@ public class CardInstance : MonoBehaviour, IAttackable
         else
             gameManager.EnemyCore.Heal(heal);
     }
+    public void AutoHealFull()
+    {
+        if (Owner == PlayerOwner.Player)
+            gameManager.PlayerCore.FullHeal();
+        else
+            gameManager.EnemyCore.FullHeal();
+    }
     public void HealAll(int heal)
     {
         if (Owner == PlayerOwner.Player)
@@ -3765,6 +3777,27 @@ public class CardInstance : MonoBehaviour, IAttackable
             {
                 CardInstance inst = enemy.GetComponent<CardInstance>();
                 inst.Heal(heal);
+            }
+        }
+    }
+    public void HealAllFull()
+    {
+        if (Owner == PlayerOwner.Player)
+        {
+            gameManager.PlayerCore.FullHeal();
+            foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
+            {
+                CardInstance inst = ally.GetComponent<CardInstance>();
+                inst.HealToFull();
+            }
+        }
+        else
+        {
+            gameManager.EnemyCore.FullHeal();
+            foreach (GameObject enemy in gameManager.enemyDropArea.enemyPrefabCards)
+            {
+                CardInstance inst = enemy.GetComponent<CardInstance>();
+                inst.HealToFull();
             }
         }
     }

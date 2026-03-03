@@ -32,7 +32,24 @@ public class CoreInstance : MonoBehaviour, IAttackable
         Transform = transform;
         IsBleeding = false;
     }
+    public void FullHeal()
+    {
+        GameManager gm = FindFirstObjectByType<GameManager>();
+        int bonus = 0;
+        int preHeal = CurrentHealth;
 
+        SFXManager.Instance.PlaySFXClip(gm.healSFX, transform, 1f);
+        if (Owner == PlayerOwner.Player) bonus = gm.PlayerHealBonus;
+        else bonus = gm.EnemyHealBonus;
+
+        CurrentHealth = MaxHealth;
+        int differenceHp = CurrentHealth - preHeal;
+        int overhealAmount = Mathf.Max(0, MaxHealth - differenceHp);
+
+        OnCoreChanged?.Invoke();
+        gm.NotifyHealed(Owner, differenceHp);
+        gm.NotifyHealResolved(Owner, this, differenceHp, overhealAmount);
+    }
     public void TakeDamage(int amount)
     {
         if (amount <= 0) return;
