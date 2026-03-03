@@ -625,9 +625,19 @@ public class CardInstance : MonoBehaviour, IAttackable
         string progressPlayFilter = GetProgressPlayKeywordFilter();
         if (!string.IsNullOrWhiteSpace(progressPlayFilter))
         {
-            string playedCardEffectText = card.CurrentEffectText ?? string.Empty;
-            if (playedCardEffectText.IndexOf(progressPlayFilter, StringComparison.OrdinalIgnoreCase) < 0)
-                return;
+            string playedCardEffect = card.CurrentEffect?.TrimStart() ?? string.Empty;
+
+            if (progressPlayFilter.Equals("gear", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!playedCardEffect.StartsWith("gear", StringComparison.OrdinalIgnoreCase))
+                    return;
+            }
+            else
+            {
+                string playedCardEffectText = card.CurrentEffectText ?? string.Empty;
+                if (playedCardEffectText.IndexOf(progressPlayFilter, StringComparison.OrdinalIgnoreCase) < 0)
+                    return;
+            }
         }
 
         ProgressionCounter++;
@@ -1303,10 +1313,19 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (!parsedEffects.TryGetValue(trigger, out var effects))
             return;
 
+        if (trigger != EffectTrigger.Requiem && (IsDead || IsDying || CurrentZone != CardZone.Board))
+            return;
+
         currentResolvingTrigger = trigger;
         List<string> orderedEffects = OrderEffectsForResolution(effects);
         for (int i = 0; i < orderedEffects.Count; i++)
         {
+            if (trigger != EffectTrigger.Requiem && (IsDead || IsDying || CurrentZone != CardZone.Board))
+            {
+                currentResolvingTrigger = null;
+                return;
+            }
+
             if (ExecuteEffect(orderedEffects[i]))
             {
                 pendingTriggeredEffects = orderedEffects;
@@ -1739,6 +1758,12 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         for (int i = start; i < queuedEffects.Count; i++)
         {
+            if (queuedTrigger != EffectTrigger.Requiem && (IsDead || IsDying || CurrentZone != CardZone.Board))
+            {
+                currentResolvingTrigger = null;
+                return;
+            }
+
             if (ExecuteEffect(queuedEffects[i]))
             {
                 pendingTriggeredEffects = queuedEffects;

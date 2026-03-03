@@ -1722,6 +1722,14 @@ public class GameManager : MonoBehaviour
         List<CardData> options1 = CardDatabase.Instance.GetCardsByEffect(effect1 + "*");
         List<CardData> options2 = CardDatabase.Instance.GetCardsByEffect(effect2 + "*");
         List<CardData> options3 = CardDatabase.Instance.GetCardsByEffect(effect3 + "*");
+
+        if (effect1.Contains("gear", StringComparison.OrdinalIgnoreCase))
+            options1 = FilterCardsStartingWithEffectKeyword(options1, "gear");
+        if (effect2.Contains("gear", StringComparison.OrdinalIgnoreCase))
+            options2 = FilterCardsStartingWithEffectKeyword(options2, "gear");
+        if (effect3.Contains("gear", StringComparison.OrdinalIgnoreCase))
+            options3 = FilterCardsStartingWithEffectKeyword(options3, "gear");
+
         if (options1.Count <= 0) return;
         if (owner == PlayerOwner.Enemy)
         {
@@ -1781,6 +1789,9 @@ public class GameManager : MonoBehaviour
     public void DiscoverEffect(string effect, PlayerOwner owner)
     {
         List<CardData> options = CardDatabase.Instance.GetCardsByEffect(effect+"*");
+        if (effect.Contains("gear", StringComparison.OrdinalIgnoreCase))
+            options = FilterCardsStartingWithEffectKeyword(options, "gear");
+
         Debug.Log(effect + "*");
         string res = "options :";
         foreach(CardData option in options)
@@ -1824,6 +1835,9 @@ public class GameManager : MonoBehaviour
     {
         List<CardData> options = CardDatabase.Instance.GetCardsByEffect(effect + "*");
         options = options.Where(t => !t.effect.ToLower().Contains(banned.ToLower())).ToList();
+        if (effect.Contains("gear", StringComparison.OrdinalIgnoreCase))
+            options = FilterCardsStartingWithEffectKeyword(options, "gear");
+
         Debug.Log(effect + "*");
         string res = "options :";
         foreach (CardData option in options)
@@ -1907,6 +1921,9 @@ public class GameManager : MonoBehaviour
     {
         DiscoverDiscount = manaDiscount;
         List<CardData> options = CardDatabase.Instance.GetCardsByEffect(effect + "*");
+        if (effect.Contains("gear", StringComparison.OrdinalIgnoreCase))
+            options = FilterCardsStartingWithEffectKeyword(options, "gear");
+
         Debug.Log(effect + "*");
         string res = "options :";
         foreach (CardData option in options)
@@ -2109,6 +2126,17 @@ public class GameManager : MonoBehaviour
 
         OnDiscover?.Invoke(owner);
     }
+    private List<CardData> FilterCardsStartingWithEffectKeyword(List<CardData> cards, string keyword)
+    {
+        if (cards == null || string.IsNullOrWhiteSpace(keyword))
+            return cards ?? new List<CardData>();
+
+        return cards
+            .Where(card => !string.IsNullOrWhiteSpace(card.effect)
+                && card.effect.TrimStart().StartsWith(keyword, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
     public void ShuffleInDeck(int id, PlayerOwner owner)
     {
         CardData shuffledCard = CardDatabase.Instance.GetCardById(id);
@@ -2206,8 +2234,8 @@ public class GameManager : MonoBehaviour
 
         List<CardData> options = CardDatabase.Instance.GetCardsByEffect(text);
         options = options.FindAll(card => card.id != prohibitedId && card.packable && !card.effect.ToLower().Contains(banned.ToLower()));
-        if (text.Contains("gear"))
-            options = options.FindAll(card => card.cardType == "spell");
+        if (text.Contains("gear", StringComparison.OrdinalIgnoreCase))
+            options = FilterCardsStartingWithEffectKeyword(options, "gear");
         if (options.Count == 0)
             return null;
         CardData data = options[UnityEngine.Random.Range(0, options.Count)];
@@ -2234,8 +2262,8 @@ public class GameManager : MonoBehaviour
 
         List<CardData> options = CardDatabase.Instance.GetCardsByEffect(text);
         options = options.FindAll(card => card.id != prohibitedId && card.packable);
-        if(text.Contains("gear"))
-            options = options.FindAll(card => card.cardType == "spell");
+        if (text.Contains("gear", StringComparison.OrdinalIgnoreCase))
+            options = FilterCardsStartingWithEffectKeyword(options, "gear");
         if (options.Count == 0)
             return null;
         CardData data = options[UnityEngine.Random.Range(0, options.Count)];
