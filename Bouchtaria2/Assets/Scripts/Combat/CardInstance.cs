@@ -1412,6 +1412,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.EmperorSapphire(Owner);
             gameManager.CheckGlow();return false;
         }
+        if (effect.StartsWith("bonushealth"))
+        {
+            int hp = GetSingleIntFromEffect(effect);
+            GrantBonusHealth(hp);
+            gameManager.CheckGlow(); return false;
+        }
         if (effect.StartsWith("tawakkul"))
         {
             gameManager.StartCoroutine(gameManager.Tawakkul(5));
@@ -3936,6 +3942,17 @@ public class CardInstance : MonoBehaviour, IAttackable
         TriggerBerserk();
         UpdateStatsColor();
         gameManager.CheckGlow();
+    }
+    public void GrantBonusHealth(int amount)
+    {
+        if (Owner == PlayerOwner.Player)
+        {
+            gameManager.PlayerHealBonus += amount;
+        }
+        else
+        {
+            gameManager.EnemyHealBonus += amount;
+        }
     }
     public void Kill(CardInstance target)
     {
