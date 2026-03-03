@@ -19,7 +19,7 @@ public class DeckBuilding : MonoBehaviour
     [SerializeField] public GameObject CollectionLayout;
     [SerializeField] public GameObject DeckUI;
     [SerializeField] public GameObject IndexUI;
-    [SerializeField] public GameObject ChangeDecksButton;
+    [SerializeField] public GameObject ChangeDecksDropDown;
     [SerializeField] public GameObject DeleteDeckButton;
     [SerializeField] public TMP_InputField DeckNameInput;
     [SerializeField] public TextMeshProUGUI DustCounter;
