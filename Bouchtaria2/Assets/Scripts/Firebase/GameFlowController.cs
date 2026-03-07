@@ -117,12 +117,16 @@ public class GameFlowController : MonoBehaviour
         //IsThisLineNecessary ?
         UserCollectionManager.Instance.RefreshCollection();
         GameRunContext.IsDungeonRun = false;
+        GameRunContext.IsAdventureCombat = false;
+        GameRunContext.AdventureFightId = 0;
         SceneManager.LoadScene("QuickMatch");
     }
     public void GoToDungeonCombat(DungeonRunData data)
     {
         if (!isGameReady) return;
         GameRunContext.IsDungeonRun = true;
+        GameRunContext.IsAdventureCombat = false;
+        GameRunContext.AdventureFightId = 0;
         GameRunContext.DungeonData = DungeonManager.Instance.CurrentRun;
         SceneManager.LoadScene("Combat");
     }
@@ -130,12 +134,16 @@ public class GameFlowController : MonoBehaviour
     {
         if (!isGameReady) return;
         GameRunContext.IsDungeonRun = true;
+        GameRunContext.IsAdventureCombat = false;
+        GameRunContext.AdventureFightId = 0;
         GameRunContext.DungeonData = DungeonManager.Instance.CurrentRun;
         SceneManager.LoadScene("DungeonAdventure");
     }
     public void GoToDungeonDeck(DungeonRunData data)
     {
         GameRunContext.IsDungeonRun = true;
+        GameRunContext.IsAdventureCombat = false;
+        GameRunContext.AdventureFightId = 0;
         GameRunContext.DungeonData = data;
 
         if (!isGameReady)
@@ -146,6 +154,23 @@ public class GameFlowController : MonoBehaviour
 
         UserCollectionManager.Instance.RefreshCollection();
         SceneManager.LoadScene("Collection");
+    }
+
+    public void GoToAdventureCombat(int fightId, System.Collections.Generic.List<int> playerDeck, System.Collections.Generic.List<int> enemyDeck)
+    {
+        if (!isGameReady)
+        {
+            ErrorPopup.Show("⚠️ Game data not ready yet");
+            return;
+        }
+
+        DeckSelectionCache.SelectedPlayerDeck = new System.Collections.Generic.List<int>(playerDeck);
+        DeckSelectionCache.SelectedEnemyDeck = new System.Collections.Generic.List<int>(enemyDeck);
+
+        GameRunContext.IsDungeonRun = false;
+        GameRunContext.IsAdventureCombat = true;
+        GameRunContext.AdventureFightId = fightId;
+        AdventureProgressionService.SetAdventureCombatActive(true, () => SceneManager.LoadScene("Combat"));
     }
 
     public void GoToShop()
@@ -169,6 +194,8 @@ public class GameFlowController : MonoBehaviour
 
         UserCollectionManager.Instance.RefreshCollection();
         GameRunContext.IsDungeonRun = false;
+        GameRunContext.IsAdventureCombat = false;
+        GameRunContext.AdventureFightId = 0;
         SceneManager.LoadScene("Collection");
     }
     public void GoToDungeon()

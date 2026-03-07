@@ -83,6 +83,13 @@ public class FirestoreManager : MonoBehaviour
                     { "dungeoneventfloors", new System.Collections.Generic.List<int>() },
                     { "dungeonpendingevent", -1 },
                     { "dungeonpendingeventfloor", -1 },
+                    { "adventurecombatactive", false },
+                    { "adventurestageonecompletedfights", new System.Collections.Generic.List<int>() },
+                    { "adventuresecondstageunlocked", false },
+                    { "adventuresecondstagestreak", 0 },
+                    { "adventurethirdstageunlocked", false },
+                    { "adventurecanreachsecondstage", false },
+                    { "adventurecanreachthirdstage", false },
                 })
                 .ContinueWithOnMainThread(setTask =>
                 {
@@ -136,6 +143,27 @@ public class FirestoreManager : MonoBehaviour
 
                 if (!snapshot.ContainsField("dungeonpendingeventfloor"))
                     updates["dungeonpendingeventfloor"] = -1;
+
+                if (!snapshot.ContainsField("adventurecombatactive"))
+                    updates["adventurecombatactive"] = false;
+
+                if (!snapshot.ContainsField("adventurestageonecompletedfights"))
+                    updates["adventurestageonecompletedfights"] = new System.Collections.Generic.List<int>();
+
+                if (!snapshot.ContainsField("adventuresecondstageunlocked"))
+                    updates["adventuresecondstageunlocked"] = false;
+
+                if (!snapshot.ContainsField("adventuresecondstagestreak"))
+                    updates["adventuresecondstagestreak"] = 0;
+
+                if (!snapshot.ContainsField("adventurethirdstageunlocked"))
+                    updates["adventurethirdstageunlocked"] = false;
+
+                if (!snapshot.ContainsField("adventurecanreachsecondstage"))
+                    updates["adventurecanreachsecondstage"] = false;
+
+                if (!snapshot.ContainsField("adventurecanreachthirdstage"))
+                    updates["adventurecanreachthirdstage"] = false;
 
                 if (updates.Count > 0)
                 {

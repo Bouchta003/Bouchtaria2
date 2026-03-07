@@ -33,6 +33,8 @@ public static class GameRunContext
 {
     public static DungeonRunData DungeonData;
     public static bool IsDungeonRun;
+    public static bool IsAdventureCombat;
+    public static int AdventureFightId;
 }
 
 public class DungeonManager : MonoBehaviour
