@@ -783,6 +783,11 @@ public class GameManager : MonoBehaviour
             ModifyUserGold(LossGoldCompensation);
             if (GameRunContext.IsDungeonRun)
                 DungeonManager.SetDungeonCombatActive(false);
+            if (GameRunContext.IsAdventureCombat)
+            {
+                AdventureProgressionService.SetAdventureCombatActive(false);
+                AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false);
+            }
         }
         else
         {
@@ -793,6 +798,11 @@ public class GameManager : MonoBehaviour
             {
                 DungeonManager.SetDungeonCombatActive(false);
                 ApplyDungeonCoinReward(DungeonWinCoinReward);
+            }
+            if (GameRunContext.IsAdventureCombat)
+            {
+                AdventureProgressionService.SetAdventureCombatActive(false);
+                AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, true);
             }
         }
 

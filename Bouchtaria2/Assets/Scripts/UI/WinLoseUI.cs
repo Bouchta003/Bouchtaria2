@@ -62,8 +62,16 @@ public class WinLoseUI : MonoBehaviour
             if (resultText.color != Color.red)
             { SceneManager.LoadScene("DungeonAdventure"); }
             else { SceneManager.LoadScene("DungeonMenu"); }
-        } 
-        else SceneManager.LoadScene("Main_Menu");
+            return;
+        }
+
+        if (GameRunContext.IsAdventureCombat)
+        {
+            SceneManager.LoadScene("Main_Menu");
+            return;
+        }
+
+        SceneManager.LoadScene("Main_Menu");
     }
     private void Setup(string title, Color color, string subtitle)
     {

@@ -5,6 +5,8 @@ public class MainMenuUIController : MonoBehaviour
     private void Start()
     {
         GameRunContext.IsDungeonRun = false;
+        GameRunContext.IsAdventureCombat = false;
+        GameRunContext.AdventureFightId = 0;
     }
     private void Update()
     {
