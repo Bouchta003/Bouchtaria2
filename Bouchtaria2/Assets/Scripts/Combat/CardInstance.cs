@@ -533,7 +533,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                               && healEffects.Count > 0;
 
         if (hasHealTrigger)
-            TriggerHeal();
+            TriggerHeal(healamount);
 
         if (!HasKeyword("progressheal") || ProgressionCap <= 0)
             return;
@@ -1520,6 +1520,17 @@ public class CardInstance : MonoBehaviour, IAttackable
             }
         }
 
+        if (effect.StartsWith("discardenemy"))
+        {
+            if (TryParseIntEffect(effect, "discardenemy", out int cards))
+            {
+                gameManager.DiscardRandomCardsFromHand(OtherPlayer(Owner), cards);
+            }
+
+            gameManager.CheckGlow();
+            return false;
+        }
+
         if (effect.StartsWith("draw"))
         {
             if (effect.StartsWith("draweffect"))
@@ -1821,9 +1832,40 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         TriggerEffects(EffectTrigger.Requiem);
     }
-    private void TriggerHeal()
+    private void TriggerHeal(int healAmount)
     {
-        TriggerEffects(EffectTrigger.Heal);
+        if (!parsedEffects.TryGetValue(EffectTrigger.Heal, out var effects) || effects == null)
+            return;
+
+        List<string> resolvedEffects = new();
+        foreach (string rawEffect in effects)
+        {
+            if (string.IsNullOrWhiteSpace(rawEffect))
+                continue;
+
+            string resolved = rawEffect.Replace("summonrandomcost(h)", $"summonrandomcost({healAmount})", StringComparison.OrdinalIgnoreCase);
+            resolvedEffects.Add(resolved);
+        }
+
+        if (resolvedEffects.Count == 0)
+            return;
+
+        EffectTrigger? previousResolvingTrigger = currentResolvingTrigger;
+        currentResolvingTrigger = EffectTrigger.Heal;
+
+        for (int i = 0; i < resolvedEffects.Count; i++)
+        {
+            if (ExecuteEffect(resolvedEffects[i]))
+            {
+                pendingTriggeredEffects = resolvedEffects;
+                pendingTriggeredEffectIndex = i + 1;
+                pendingTriggeredEffectType = EffectTrigger.Heal;
+                currentResolvingTrigger = null;
+                return;
+            }
+        }
+
+        currentResolvingTrigger = previousResolvingTrigger;
     }
     /// <summary>
     /// Returns how many same-side board summons this card can create from its DEPLOY trigger.
