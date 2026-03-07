@@ -1321,6 +1321,78 @@ public class GameManager : MonoBehaviour
         DecPendingSummons(owner);
     }
 
+    public void TrySummonForOwnerEffect(PlayerOwner owner, string effect, bool isTrait = false)
+    {
+        var board = GetBoardForOwner(owner);
+        if (board == null) return;
+
+        // compute effective occupied slots including pending reservations
+        int effectiveCount = board.GetCards().Count + GetPendingSummons(owner);
+        if (effectiveCount >= (owner == PlayerOwner.Player ? allyDropArea.maxBoardSize : enemyDropArea.maxBoardSize))
+            return;
+
+        // Reserve a slot immediately to prevent other concurrent summons from oversubscribing.
+        IncPendingSummons(owner);
+
+        List<CardData> options = CardDatabase.Instance.GetCardsByEffect(effect);
+        options = options.FindAll(card => card.cardType == "minion");
+        int range = options.Count;
+        if (range <= 0) return;
+        CardData data = options[UnityEngine.Random.Range(0, range)];
+
+        if (data == null)
+        {
+            DecPendingSummons(owner);
+            return;
+        }
+
+        ICardDropArea parent = owner == PlayerOwner.Player ? allyDropArea : enemyDropArea;
+
+        // create the card (this instantiates a GameObject)
+        CardInstance cardInst = CardFactory.Instance.CreateCard(data, owner, parent.CardContainer);
+
+        if (cardInst == null)
+        {
+            DecPendingSummons(owner);
+            return;
+        }
+
+        // attempt to add to board
+        if (owner == PlayerOwner.Player)
+        {
+            cardInst.GetComponent<SortingGroup>().sortingOrder = 1;
+            cardInst.SetZone(CardZone.Board);
+            allyDropArea.AddSummonedCard(cardInst);
+            allyDropArea.UpdateAllyCardPositions();
+        }
+        else
+        {
+            cardInst.GetComponent<SortingGroup>().sortingOrder = 3;
+            cardInst.SetZone(CardZone.Board);
+            enemyDropArea.AddSummonedCard(cardInst);
+            enemyDropArea.UpdateEnemyCardPositions();
+        }
+
+        // Verify the card was actually added to board list (AddSummonedCard may early-return when full)
+        bool actuallyAdded = parent.GetCards().Contains(cardInst.gameObject);
+
+        if (!actuallyAdded)
+        {
+            // board might have filled up in-between, destroy created GameObject and free reservation
+            Destroy(cardInst.gameObject);
+            DecPendingSummons(owner);
+            return;
+        }
+
+        // successful add -> release reservation
+        DecPendingSummons(owner);
+
+
+        if (isTrait)
+        {
+            StartCoroutine(DelayedDeploy(cardInst, forceRandomTarget: true));
+        }
+    }
     public void TrySummonForOwnerManaCost(PlayerOwner owner, int manaCost, bool isTrait = false)
     {
         var board = GetBoardForOwner(owner);

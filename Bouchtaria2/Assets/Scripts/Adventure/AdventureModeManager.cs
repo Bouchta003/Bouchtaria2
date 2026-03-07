@@ -11,7 +11,10 @@ public class AdventureModeManager : MonoBehaviour
     private const string AdventureSecondStageUnlockedField = "adventuresecondstageunlocked";
     private const string AdventureSecondStageStreakField = "adventuresecondstagestreak";
     private const string AdventureThirdStageUnlockedField = "adventurethirdstageunlocked";
-
+    public void ClickEnemy()
+    {
+        Debug.Log($"EnemyClicked");
+    }
     public void GetAdventureProgression(Action<AdventureRunData> onResult)
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;

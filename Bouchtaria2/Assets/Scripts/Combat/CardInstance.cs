@@ -1511,6 +1511,15 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.CheckGlow(); return false;
         }
 
+        if (effect.StartsWith("discounthand"))
+        {
+            if (TryParseIntEffect(effect, "discounthand", out int cards))
+            {
+                DiscountAllCardsHand(cards);
+                gameManager.CheckGlow(); return false;
+            }
+        }
+
         if (effect.StartsWith("draw"))
         {
             if (effect.StartsWith("draweffect"))
@@ -1607,6 +1616,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("summonrandomcost"))
         {
             gameManager.TrySummonForOwnerManaCost(Owner, GetSingleIntFromEffect(effect));
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("summonrandomeffect"))
+        {
+            gameManager.TrySummonForOwnerEffect(Owner, GetStringValueFromEffect(effect, "summonrandomeffect"));
             gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("summondeckmaxmana"))
@@ -2362,7 +2376,17 @@ public class CardInstance : MonoBehaviour, IAttackable
                 card.AddTemporaryManaModifier(1);
         }
     }
+    private void DiscountAllCardsHand(int amount)
+    {
+        HandManager friendlyHand = Owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
 
+        foreach (GameObject go in friendlyHand.handCards)
+        {
+            CardInstance card = go.GetComponent<CardInstance>();
+            if (card != null)
+                card.AddTemporaryManaModifier(amount);
+        }
+    }
     private void ExecuteInvestmentSpellReturn()
     {
         gameManager.DiscardCardsFromHandWithDeferredReturn(
