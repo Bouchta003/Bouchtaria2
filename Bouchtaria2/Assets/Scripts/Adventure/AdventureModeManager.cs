@@ -19,6 +19,7 @@ public class AdventureModeManager : MonoBehaviour
     [SerializeField] GameObject FirstFloorUI;
     [SerializeField] GameObject SecondFloorUI;
     [SerializeField] GameObject ThirdFloorUI;
+    [SerializeField] List<GameObject> CheckBoxes;
 
     bool isFirstFloor => FirstFloorUI.activeSelf && !SecondFloorUI.activeSelf && !ThirdFloorUI.activeSelf;
     bool isSecondFloor => !FirstFloorUI.activeSelf && SecondFloorUI.activeSelf && !ThirdFloorUI.activeSelf;
@@ -26,7 +27,14 @@ public class AdventureModeManager : MonoBehaviour
     private void Start()
     {
         SwitchToFloor(1);
-        
+        GetAdventureProgression(data =>
+        {
+            foreach (int id in data.completedStageOneFightIds) {
+                Debug.LogWarning(id);
+                CheckBoxes[id - 1].SetActive(true);
+            }
+        });
+
     }
     /// <summary>
     /// Depending on the floor and the player progression, display the related buttons for floor switching. Min floor is 1 and max floor is 3 meaning that on floor 1 we don't have a previous floor,
