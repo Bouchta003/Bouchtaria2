@@ -10,12 +10,12 @@ using UnityEngine;
 public class AdventureRunData
 {
     public List<int> completedStageOneFightIds = new List<int>();
+    public List<int> completedStageTwoFightIds = new List<int>();
     public bool secondStageUnlocked;
-    public int secondStageStreak;
     public bool thirdStageUnlocked;
 
     public bool CanReachSecondStage => secondStageUnlocked || completedStageOneFightIds.Count >= 8;
-    public bool CanReachThirdStage => thirdStageUnlocked || secondStageStreak >= 4;
+    public bool CanReachThirdStage => thirdStageUnlocked || completedStageTwoFightIds.Count >= 4;
 }
 
 public static class AdventureProgressionService
@@ -27,6 +27,7 @@ public static class AdventureProgressionService
 
     private const string AdventureCombatActiveField = "adventurecombatactive";
     private const string AdventureCompletedStageOneField = "adventurestageonecompletedfights";
+    private const string AdventureCompletedStageTwoField = "adventurestagetwocompletedfights";
     private const string AdventureSecondStageUnlockedField = "adventuresecondstageunlocked";
     private const string AdventureSecondStageStreakField = "adventuresecondstagestreak";
     private const string AdventureThirdStageUnlockedField = "adventurethirdstageunlocked";
@@ -90,9 +91,10 @@ public static class AdventureProgressionService
                         return;
                     }
 
-                    int expectedFight = StageTwoFightIds[Mathf.Clamp(data.secondStageStreak, 0, StageTwoFightIds.Length - 1)];
-                    data.secondStageStreak = fightId == expectedFight ? data.secondStageStreak + 1 : 1;
-                    data.thirdStageUnlocked = data.secondStageStreak >= StageTwoFightIds.Length;
+                    if (!data.completedStageTwoFightIds.Contains(fightId))
+                        data.completedStageTwoFightIds.Add(fightId);
+
+                    data.thirdStageUnlocked = data.completedStageTwoFightIds.Count >= StageTwoFightIds.Length;
                 }
                 else if (fightId == UltimateFightId)
                 {
@@ -106,7 +108,10 @@ public static class AdventureProgressionService
             else
             {
                 if (IsStageTwoFight(fightId))
-                    data.secondStageStreak = 0;
+                {
+                    if (!data.completedStageTwoFightIds.Contains(fightId))
+                        data.completedStageTwoFightIds.Clear();
+                }
             }
 
             Persist(userDoc, data);
@@ -134,13 +139,19 @@ public static class AdventureProgressionService
             .Where(IsStageOneFight)
             .OrderBy(x => x)
             .ToList();
+        data.completedStageTwoFightIds = data.completedStageTwoFightIds
+            .Distinct()
+            .Where(IsStageTwoFight)
+            .OrderBy(x => x)
+            .ToList();
 
         var updates = new Dictionary<string, object>
         {
             { AdventureCompletedStageOneField, data.completedStageOneFightIds },
+            { AdventureCompletedStageTwoField, data.completedStageTwoFightIds },
             { AdventureSecondStageUnlockedField, data.secondStageUnlocked || data.completedStageOneFightIds.Count >= StageOneFightIds.Length },
-            { AdventureSecondStageStreakField, Mathf.Clamp(data.secondStageStreak, 0, StageTwoFightIds.Length) },
-            { AdventureThirdStageUnlockedField, data.thirdStageUnlocked || data.secondStageStreak >= StageTwoFightIds.Length },
+            { AdventureSecondStageStreakField, FieldValue.Delete },
+            { AdventureThirdStageUnlockedField, data.thirdStageUnlocked || data.completedStageTwoFightIds.Count >= StageTwoFightIds.Length },
             { AdventureCanReachSecondStageField, data.CanReachSecondStage },
             { AdventureCanReachThirdStageField, data.CanReachThirdStage },
             { AdventureCombatActiveField, false }
@@ -165,13 +176,17 @@ public static class AdventureProgressionService
             else if (raw is IEnumerable<int> ints)
                 data.completedStageOneFightIds = ints.ToList();
         }
+        if (snapshot.ContainsField(AdventureCompletedStageTwoField))
+        {
+            object raw = snapshot.GetValue<object>(AdventureCompletedStageTwoField);
+            if (raw is IEnumerable<object> list)
+                data.completedStageTwoFightIds = list.Select(x => Convert.ToInt32(x)).ToList();
+            else if (raw is IEnumerable<int> ints)
+                data.completedStageTwoFightIds = ints.ToList();
+        }
 
         data.secondStageUnlocked = snapshot.ContainsField(AdventureSecondStageUnlockedField)
             && snapshot.GetValue<bool>(AdventureSecondStageUnlockedField);
-
-        data.secondStageStreak = snapshot.ContainsField(AdventureSecondStageStreakField)
-            ? snapshot.GetValue<int>(AdventureSecondStageStreakField)
-            : 0;
 
         data.thirdStageUnlocked = snapshot.ContainsField(AdventureThirdStageUnlockedField)
             && snapshot.GetValue<bool>(AdventureThirdStageUnlockedField);

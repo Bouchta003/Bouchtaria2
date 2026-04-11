@@ -9,8 +9,8 @@ using UnityEngine.UI;
 public class AdventureModeManager : MonoBehaviour
 {
     private const string AdventureCompletedStageOneField = "adventurestageonecompletedfights";
+    private const string AdventureCompletedStageTwoField = "adventurestagetwocompletedfights";
     private const string AdventureSecondStageUnlockedField = "adventuresecondstageunlocked";
-    private const string AdventureSecondStageStreakField = "adventuresecondstagestreak";
     private const string AdventureThirdStageUnlockedField = "adventurethirdstageunlocked";
 
     [SerializeField] Button previousFloorButton;
@@ -30,6 +30,10 @@ public class AdventureModeManager : MonoBehaviour
         GetAdventureProgression(data =>
         {
             foreach (int id in data.completedStageOneFightIds) {
+                CheckBoxes[id - 1].SetActive(true);
+            }
+            foreach (int id in data.completedStageTwoFightIds)
+            {
                 CheckBoxes[id - 1].SetActive(true);
             }
         });
@@ -158,13 +162,21 @@ public class AdventureModeManager : MonoBehaviour
                 }
             }
         }
+        if (snapshot.ContainsField(AdventureCompletedStageTwoField))
+        {
+            object raw = snapshot.GetValue<object>(AdventureCompletedStageTwoField);
+            if (raw is IEnumerable<object> list)
+            {
+                foreach (object entry in list)
+                {
+                    if (entry != null && int.TryParse(entry.ToString(), out int value))
+                        data.completedStageTwoFightIds.Add(value);
+                }
+            }
+        }
 
         data.secondStageUnlocked = snapshot.ContainsField(AdventureSecondStageUnlockedField)
             && snapshot.GetValue<bool>(AdventureSecondStageUnlockedField);
-
-        data.secondStageStreak = snapshot.ContainsField(AdventureSecondStageStreakField)
-            ? snapshot.GetValue<int>(AdventureSecondStageStreakField)
-            : 0;
 
         data.thirdStageUnlocked = snapshot.ContainsField(AdventureThirdStageUnlockedField)
             && snapshot.GetValue<bool>(AdventureThirdStageUnlockedField);

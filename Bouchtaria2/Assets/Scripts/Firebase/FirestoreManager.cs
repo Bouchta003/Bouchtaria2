@@ -85,8 +85,8 @@ public class FirestoreManager : MonoBehaviour
                     { "dungeonpendingeventfloor", -1 },
                     { "adventurecombatactive", false },
                     { "adventurestageonecompletedfights", new System.Collections.Generic.List<int>() },
+                    { "adventurestagetwocompletedfights", new System.Collections.Generic.List<int>() },
                     { "adventuresecondstageunlocked", false },
-                    { "adventuresecondstagestreak", 0 },
                     { "adventurethirdstageunlocked", false },
                     { "adventurecanreachsecondstage", false },
                     { "adventurecanreachthirdstage", false },
@@ -150,11 +150,11 @@ public class FirestoreManager : MonoBehaviour
                 if (!snapshot.ContainsField("adventurestageonecompletedfights"))
                     updates["adventurestageonecompletedfights"] = new System.Collections.Generic.List<int>();
 
+                if (!snapshot.ContainsField("adventurestagetwocompletedfights"))
+                    updates["adventurestagetwocompletedfights"] = new System.Collections.Generic.List<int>();
+
                 if (!snapshot.ContainsField("adventuresecondstageunlocked"))
                     updates["adventuresecondstageunlocked"] = false;
-
-                if (!snapshot.ContainsField("adventuresecondstagestreak"))
-                    updates["adventuresecondstagestreak"] = 0;
 
                 if (!snapshot.ContainsField("adventurethirdstageunlocked"))
                     updates["adventurethirdstageunlocked"] = false;
