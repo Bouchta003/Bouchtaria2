@@ -81,6 +81,16 @@ public class DeckSelectionController : MonoBehaviour
         }
         StartBattle();
     }
+    public List<int> GetSelectedUserDeck()
+    {
+        string selectedDeckName =
+            playerDeckDropdown.options[playerDeckDropdown.value].text;
+
+        List<int> selectedDeck = userDecks[selectedDeckName];
+
+        DeckSelectionCache.SelectedPlayerDeck = selectedDeck;
+        return selectedDeck;
+    }
     public void StartBattle()
     {
         string selectedDeckName =

@@ -130,6 +130,11 @@ public class GameFlowController : MonoBehaviour
         GameRunContext.DungeonData = DungeonManager.Instance.CurrentRun;
         SceneManager.LoadScene("Combat");
     }
+    public void GoAdventureStage1()
+    {
+        if (!isGameReady) return;
+        SceneManager.LoadScene("AdventureStage1");
+    }
     public void GoToDungeonAdventure()
     {
         if (!isGameReady) return;

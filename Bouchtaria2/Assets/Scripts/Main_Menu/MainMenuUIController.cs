@@ -20,6 +20,10 @@ public class MainMenuUIController : MonoBehaviour
     {
         GameFlowController.Instance.GoToDungeon();
     }
+    public void OnAdventureClicked()
+    {
+        GameFlowController.Instance.GoAdventureStage1();
+    }
     public void OnDuelClicked()
     {
         GameFlowController.Instance.GoToCombat();

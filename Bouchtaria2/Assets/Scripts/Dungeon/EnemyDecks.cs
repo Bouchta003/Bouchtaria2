@@ -537,7 +537,133 @@ public static class EnemyDecks
                 }
             },
         };
-
+    private static readonly Dictionary<int, List<int>> AdventureDecks =
+        new Dictionary<int, List<int>>
+        {
+            { 1, new List<int>
+                {
+                // Mixed theme: Mixed MonsterHunter-Fighter synergy deck (refreshed order).
+                // Core card preview: first card in deck list.
+                119, 119, 6, 6, 90, 90, 3, 3, 173, 173,
+                174, 174, 165, 165, 171, 171, 153, 153, 4, 4,
+                5, 5, 186, 186, 175, 175, 34, 34, 72, 72
+                }
+            },
+            { 2, new List<int>
+                {
+                // Mixed theme: Mixed Pokemon-Speedster synergy deck (refreshed order).
+                // Core card preview: first card in deck list.
+                25, 25, 147, 147, 0, 0, 19, 19, 40, 40,
+                120, 120, 16, 16, 72, 72, 54, 54, 71, 71,
+                91, 91, 22, 22, 26, 26, 148, 148, 1, 1
+                }
+            },
+            { 3, new List<int>
+                {
+                // Mixed theme: Mixed Avatar-Combo synergy deck (refreshed order).
+                // Core card preview: first card in deck list.
+                84, 84, 184, 184, 194, 194, 53, 53, 201, 201,
+                197, 197, 193, 193, 134, 134, 81, 81, 230, 230,
+                196, 196, 137, 137, 80, 80, 82, 82, 83, 83
+                }
+            },
+            { 4, new List<int>
+                {
+                // Mixed theme: Mixed Chaos-Gunner synergy deck (refreshed order).
+                // Core card preview: first card in deck list.
+                158, 158, 126, 126, 159, 159, 164, 164, 119, 119,
+                51, 51, 99, 99, 90, 90, 120, 120, 133, 133,
+                132, 132, 130, 130, 160, 160, 129, 129, 143, 143
+                }
+            },
+            { 5, new List<int>
+                {
+                // Pure theme: Pure MonsterHunter ladder deck.
+                // Core card preview: first card in deck list.
+                119, 119, 104, 104, 6, 6, 5, 5, 153, 153,
+                38, 38, 4, 4, 3, 3, 103, 103, 9, 9,
+                34, 34, 32, 32, 37, 37, 36, 36, 30, 30
+                }
+            },
+            { 6, new List<int>
+                {
+                // Pure theme: Pure Pokemon ladder deck.
+                // Core card preview: first card in deck list.
+                25, 25, 40, 40, 149, 149, 148, 148, 22, 22,
+                146, 146, 0, 0, 54, 54, 26, 26, 112, 112,
+                133, 133, 19, 19, 16, 16, 120, 120, 147, 147
+                }
+            },
+            { 7, new List<int>
+                {
+                // Mixed theme: Mixed Faith-Healer synergy deck (refreshed order).
+                // Core card preview: first card in deck list.
+                44, 44, 109, 109, 64, 64, 63, 63, 60, 60,
+                146, 146, 47, 47, 8, 8, 53, 53, 71, 71,
+                112, 112, 147, 147, 61, 61, 162, 162, 48, 48
+                }
+            },
+            { 8, new List<int>
+                {
+                // Mixed theme: Mixed Avatar-MonsterHunter synergy deck (refreshed order).
+                // Core card preview: first card in deck list.
+                119, 119, 153, 153, 4, 4, 5, 5, 134, 134,
+                3, 3, 34, 34, 53, 53, 137, 137, 36, 36,
+                6, 6, 84, 84, 80, 80, 37, 37, 82, 82
+                }
+            },
+            { 9, new List<int>
+                {
+                // Mixed theme: Mixed Healer-Pokemon synergy deck (refreshed order).
+                // Core card preview: first card in deck list.
+                147, 147, 148, 148, 146, 146, 26, 26, 25, 25,
+                112, 112, 210, 210, 16, 16, 120, 120, 8, 8,
+                52, 52, 0, 0, 44, 44, 40, 40, 54, 54
+                }
+            },
+            { 10, new List<int>
+                {
+                // Mixed theme: Mixed Speedster-Gunner synergy deck (refreshed order).
+                // Core card preview: first card in deck list.
+                96, 96, 119, 119, 90, 90, 160, 160, 69, 69,
+                91, 91, 72, 72, 1, 1, 71, 71, 132, 132,
+                95, 95, 51, 51, 159, 159, 73, 73, 164, 164
+                }
+            },
+            { 11, new List<int>
+                {
+                // Mixed theme: Mixed MonsterHunter-Neutral synergy deck (refreshed order).
+                // Core card preview: first card in deck list.
+                10, 10, 103, 103, 39, 39, 5, 5, 202, 202,
+                9, 9, 153, 153, 142, 142, 6, 6, 208, 208,
+                3, 3, 38, 38, 34, 34, 201, 201, 59, 59,
+                32, 32, 104, 104, 36, 36, 89, 89, 37, 37,
+                88, 88, 119, 119, 4, 4, 141, 141, 30, 30
+                }
+            },
+            { 12, new List<int>
+                {
+                // Mixed theme: Mixed Avatar-Healer synergy deck (refreshed order).
+                // Core card preview: first card in deck list.
+                113, 113, 71, 71, 49, 49, 47, 47, 8, 8,
+                44, 44, 99, 99, 152, 152, 82, 82, 146, 146,
+                147, 147, 84, 84, 45, 45, 52, 52, 210, 210,
+                53, 53, 80, 80, 137, 137, 51, 51, 134, 134,
+                24, 24, 42, 42, 166, 166, 48, 48, 10, 10
+                }
+            },
+            { 13, new List<int>
+                {
+                // Mixed theme: Mixed Chaos-Neutral synergy deck (refreshed order).
+                // Core card preview: first card in deck list.
+                127, 127, 120, 120, 142, 142, 85, 85, 131, 131,
+                205, 205, 208, 208, 201, 201, 128, 128, 188, 188,
+                157, 157, 132, 132, 126, 126, 129, 129, 166, 166,
+                89, 89, 202, 202, 119, 119, 88, 88, 158, 158,
+                133, 133, 141, 141, 59, 59, 191, 191, 130, 130
+                }
+            }
+        };
     public static List<int> GetFloorDeck(int floor)
     {
         if (FloorDecks.TryGetValue(floor, out List<int> deck))
@@ -545,6 +671,12 @@ public static class EnemyDecks
 
         int randomFloor = UnityEngine.Random.Range(1, FloorDecks.Count + 1);
         return FloorDecks[randomFloor];
+    }
+    public static List<int> GetAdventureDeck(int id)
+    {
+        if (AdventureDecks.TryGetValue(id, out List<int> deck))
+            return deck;
+        else return null;//Add default deck ? 
     }
 
     // Future expansion: add more unique packable Gunner/Speedster and pure Chaos control cards to reduce cross-trait overlap in late-floor 50-card decks.
