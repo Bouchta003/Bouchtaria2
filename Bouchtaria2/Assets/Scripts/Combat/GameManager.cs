@@ -200,11 +200,15 @@ public class GameManager : MonoBehaviour
         dungeonStartDrawBonus = 0;
         dungeonStartDrawBonusEnemy = 0;
         InitializeMana();
-        
+
         //Logic for dungeon runs
         if (GameRunContext.IsDungeonRun)
         {
             SetupDungeonFight(GameRunContext.DungeonData);
+        }
+        if (GameRunContext.IsAdventureCombat)
+        {
+            SetupAdventureFight(GameRunContext.AdventureFightId);
         }
 
         isTargettingAttack = false;
@@ -418,7 +422,18 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-    
+
+    void SetupAdventureFight(int battleId)
+    {
+        if(battleId<9)
+            startingEnemyCoreHealth = 30;
+        else if(battleId<13)
+            startingEnemyCoreHealth = 50;
+        else
+            startingEnemyCoreHealth = 80;
+
+        startingPlayerCoreHealth = 30;
+    }
     private void OnDestroy()
     {
         if (TurnManager.Instance != null)
@@ -791,6 +806,14 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            if (GameRunContext.IsAdventureCombat && GameRunContext.AdventureFightId==13)
+            {
+                //Verify if it was first phase or second phase.
+                //First phase of bouchta killed.
+                //Trigger dialogue first.
+                //Trigger animation and resurrect for 2nd phase.
+                return;
+            }
             CurrentGameState = GameState.PlayerWon;
             Debug.Log("PLAYER WINS");
             ModifyUserGold(WinGoldReward);
