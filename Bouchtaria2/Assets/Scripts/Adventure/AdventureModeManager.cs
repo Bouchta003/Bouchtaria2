@@ -30,7 +30,6 @@ public class AdventureModeManager : MonoBehaviour
         GetAdventureProgression(data =>
         {
             foreach (int id in data.completedStageOneFightIds) {
-                Debug.LogWarning(id);
                 CheckBoxes[id - 1].SetActive(true);
             }
         });
@@ -91,7 +90,7 @@ public class AdventureModeManager : MonoBehaviour
     }
     public void ClickEnemy(int id)
     {
-        Debug.Log($"EnemyClicked");
+        Debug.Log($"EnemyClicked : {id}");
         DeckSelectionController deckSelector = FindFirstObjectByType<DeckSelectionController>();
         StartAdventureFight(id, deckSelector.GetSelectedUserDeck());
     }
