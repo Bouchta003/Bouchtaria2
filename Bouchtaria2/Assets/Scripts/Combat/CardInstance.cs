@@ -3833,18 +3833,34 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (Owner == PlayerOwner.Player)
         {
             gameManager.PlayerCore.Heal(heal);
-            foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
+
+            List<GameObject> alliesSnapshot = new(gameManager.allyDropArea.allyPrefabCards);
+            foreach (GameObject ally in alliesSnapshot)
             {
+                if (ally == null)
+                    continue;
+
                 CardInstance inst = ally.GetComponent<CardInstance>();
+                if (inst == null || inst.IsDead)
+                    continue;
+
                 inst.Heal(heal);
             }
         }
         else
         {
             gameManager.EnemyCore.Heal(heal);
-            foreach (GameObject enemy in gameManager.enemyDropArea.enemyPrefabCards)
+
+            List<GameObject> enemiesSnapshot = new(gameManager.enemyDropArea.enemyPrefabCards);
+            foreach (GameObject enemy in enemiesSnapshot)
             {
+                if (enemy == null)
+                    continue;
+
                 CardInstance inst = enemy.GetComponent<CardInstance>();
+                if (inst == null || inst.IsDead)
+                    continue;
+
                 inst.Heal(heal);
             }
         }
@@ -3854,18 +3870,34 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (Owner == PlayerOwner.Player)
         {
             gameManager.PlayerCore.FullHeal();
-            foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
+
+            List<GameObject> alliesSnapshot = new(gameManager.allyDropArea.allyPrefabCards);
+            foreach (GameObject ally in alliesSnapshot)
             {
+                if (ally == null)
+                    continue;
+
                 CardInstance inst = ally.GetComponent<CardInstance>();
+                if (inst == null || inst.IsDead)
+                    continue;
+
                 inst.HealToFull();
             }
         }
         else
         {
             gameManager.EnemyCore.FullHeal();
-            foreach (GameObject enemy in gameManager.enemyDropArea.enemyPrefabCards)
+
+            List<GameObject> enemiesSnapshot = new(gameManager.enemyDropArea.enemyPrefabCards);
+            foreach (GameObject enemy in enemiesSnapshot)
             {
+                if (enemy == null)
+                    continue;
+
                 CardInstance inst = enemy.GetComponent<CardInstance>();
+                if (inst == null || inst.IsDead)
+                    continue;
+
                 inst.HealToFull();
             }
         }
