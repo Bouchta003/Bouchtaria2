@@ -40,6 +40,7 @@ public class CombatDialogue : MonoBehaviour
 
     public void TriggerCutscene(int id)
     {
+        if (Dialogues.Count<id+1) return;
         currentScene = Dialogues[id];
         currentLine = 0;
 

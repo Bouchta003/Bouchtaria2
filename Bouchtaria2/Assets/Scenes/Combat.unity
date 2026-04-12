@@ -960,22 +960,60 @@ MonoBehaviour:
       Name: Content0
       Avatar: {fileID: 21300000, guid: bbf768734d5132e4881bbcf9434d3207, type: 3}
   - Lines:
-    - Content: Content 1 Line 0 works
-      Name: Content1
-      Avatar: {fileID: 21300000, guid: bbf768734d5132e4881bbcf9434d3207, type: 3}
-    - Content: Content 1 Line 1 works too
-      Name: Line1
-      Avatar: {fileID: 2630107354086667377, guid: 44b3c9f2cbc069442aa95d686d1be39b, type: 3}
-    - Content: That's craaaazy
-      Name: Content1
-      Avatar: {fileID: 21300000, guid: bbf768734d5132e4881bbcf9434d3207, type: 3}
+    - Content: HALT !!
+      Name: Omri
+      Avatar: {fileID: 2511148379863632921, guid: d194490012f6e1942811d923ac27d60d, type: 3}
+    - Content: Huh?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Who are you ? Where do you think you're going ?
+      Name: Omri
+      Avatar: {fileID: 2511148379863632921, guid: d194490012f6e1942811d923ac27d60d, type: 3}
+    - Content: Get out of my way, I need to meet Bouchta.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: You got no business talking to The Bouchta, just get out of here before
+        I do to you what the mask did to those plumbers
+      Name: Omri
+      Avatar: {fileID: 8592307071887775603, guid: cf79ce4947617ce4fa609e9f3268a21c, type: 3}
+    - Content: Good reference, but you can keep them pipes in your own garage.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 4517582b12c2d6b40a9fbcdb18889ecf, type: 3}
+    - Content: Enough games, if you keep blocking me I'll have to move you homie.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Heh I was getting bored, let's fight !
+      Name: Omri
+      Avatar: {fileID: 8592307071887775603, guid: cf79ce4947617ce4fa609e9f3268a21c, type: 3}
+  - Lines:
+    - Content: a little bit of this..then I guess this would work if I...
+      Name: Omar
+      Avatar: {fileID: 4856391530043847218, guid: 2e95713182548384ea8323d362045757, type: 3}
+    - Content: (A doctor in this place ? He seems busy let's not attract any more
+        attention.)
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: You know these prime powers give me some high perception skills, I
+        know all my surroundings.
+      Name: Omar
+      Avatar: {fileID: 2408433479190029688, guid: 6b638bb9bb4aebc4b990c41308fafe8e, type: 3}
+    - Content: Prime powers ? What are you talking about ?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: You just rolled a poor nat 1 in stealth my boy now come back here
+        and fight me !
+      Name: Omar
+      Avatar: {fileID: 7487722197439553475, guid: b93317fb6fe50cf419759493d8c7a1a0, type: 3}
+    - Content: You got it !
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
   dialogueCanvasGroup: {fileID: 2025724818}
   AvatarImage: {fileID: 1974727333}
   UIDialogue: {fileID: 2025724813}
   DialogueText: {fileID: 222623634}
   DialogueName: {fileID: 900249786}
   fadeDuration: 0.3
-  typingSpeed: 0.03
+  typingSpeed: 0.02
 --- !u!1 &150991891
 GameObject:
   m_ObjectHideFlags: 0
@@ -5777,7 +5815,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.33333334, g: 0.082352936, b: 0.11294532, a: 0.5254902}
+  m_Color: {r: 0.24528301, g: 0.026610898, b: 0.1220543, a: 0.7921569}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9677,7 +9715,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -718, y: 106}
-  m_SizeDelta: {x: 480, y: 580}
+  m_SizeDelta: {x: 580, y: 580}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1974727333
 MonoBehaviour:
@@ -9752,7 +9790,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -718, y: 106}
-  m_SizeDelta: {x: 500, y: 600}
+  m_SizeDelta: {x: 600, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1977604177
 MonoBehaviour:

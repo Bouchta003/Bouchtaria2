@@ -96,10 +96,30 @@ public class MusicManager : MonoBehaviour
 
         if (newClip != null)
         {
+            if(SceneManager.GetActiveScene().name=="Combat" && GameRunContext.IsAdventureCombat)
+            {
+                newClip = GetMusicForAdventure(GameRunContext.AdventureFightId);
+            }
             PlayMusic(newClip, defaultFadeTime);
         }
     }
+    private AudioClip GetMusicForAdventure(int id)
+    {
+        List<AudioClip> candidates = new List<AudioClip>();
 
+        foreach (SceneMusicEntry entry in sceneMusic)
+        {
+            if (entry.sceneName == "Adventure"+id.ToString())
+            {
+                candidates.Add(entry.music);
+            }
+        }
+
+        if (candidates.Count == 0)
+            return null;
+
+        return GetRandomClip(candidates);
+    }
     private AudioClip GetMusicForScene(string sceneName)
     {
         List<AudioClip> candidates = new List<AudioClip>();

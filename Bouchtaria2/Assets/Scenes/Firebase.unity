@@ -4767,6 +4767,12 @@ MonoBehaviour:
     music: {fileID: 8300000, guid: 40ab8b17768603345a5be1043361d720, type: 3}
   - sceneName: Combat
     music: {fileID: 8300000, guid: 64d5c686345112944b3d73e6b61ab402, type: 3}
+  - sceneName: Adventure1
+    music: {fileID: 8300000, guid: 1a772d1e8c8b4594eaf7c562a4dbb841, type: 3}
+  - sceneName: Adventure2
+    music: {fileID: 8300000, guid: a3a72c84881a29142b09504163875635, type: 3}
+  - sceneName: Adventure3
+    music: {fileID: 8300000, guid: 87bb49ef2abadea4fb2351f3666590db, type: 3}
   defaultFadeTime: 1.5
   defaultMusic: {fileID: 8300000, guid: 26437b32d4a75814f848b8ac0fcba8a4, type: 3}
 --- !u!1 &1067415198
