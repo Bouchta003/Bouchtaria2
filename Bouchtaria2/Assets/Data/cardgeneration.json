@@ -4505,7 +4505,7 @@
       "hpValue": 3,
       "traits": [ "Healer" ],
       "effect": "h[summonrandomcost(h)]",
-      "effectText": "On heal : Summon a random minion of the healing amount",
+      "effectText": "On heal : Summon a random minion of the healed amount",
       "artPath": "CardArt/rhita",
       "artCompactPath": "CardArt/rhita_compact",
       "packable": true,
