@@ -542,114 +542,83 @@ public static class EnemyDecks
         {
             { 1, new List<int>
                 {
-                // Mixed theme: Mixed MonsterHunter-Fighter synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                119, 119, 6, 6, 90, 90, 3, 3, 173, 173,
-                174, 174, 165, 165, 171, 171, 153, 153, 4, 4,
-                5, 5, 186, 186, 175, 175, 34, 34, 72, 72
+                //Omri deck : Combo + add discard cards and omri that scales with discards. a lot of draw
+                192,192,196,196,197,197,194,194,93,93,
                 }
             },
             { 2, new List<int>
                 {
-                // Mixed theme: Mixed Pokemon-Speedster synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                25, 25, 147, 147, 0, 0, 19, 19, 40, 40,
-                120, 120, 16, 16, 72, 72, 54, 54, 71, 71,
-                91, 91, 22, 22, 26, 26, 148, 148, 1, 1
+                // Omar : Chaos central + add Omar staple + MH base (qurupeco to combine both worlds)
+                128,128,166,166,286,286//Omar DrBens and Qurupeco
+                ,193,51,38,246,193,51,38,246,
+                181,181,/*Deviljho*/
+
                 }
             },
             { 3, new List<int>
                 {
-                // Mixed theme: Mixed Avatar-Combo synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                84, 84, 184, 184, 194, 194, 53, 53, 201, 201,
-                197, 197, 193, 193, 134, 134, 81, 81, 230, 230,
-                196, 196, 137, 137, 80, 80, 82, 82, 83, 83
+                // Othmane : Le D and friends + inazuma othmane mains.
+                188,188,189,189,190,190,191,191,69,69,71,71,72,72,//Othmane cards and sonic core
+                214,214,//Luigi
                 }
             },
             { 4, new List<int>
                 {
-                // Mixed theme: Mixed Chaos-Gunner synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                158, 158, 126, 126, 159, 159, 164, 164, 119, 119,
-                51, 51, 99, 99, 90, 90, 120, 120, 133, 133,
-                132, 132, 130, 130, 160, 160, 129, 129, 143, 143
+                // Amine : Fighter based deck with a berserk logic and charges.
+                168,168,//Agni
+                183,183,184,184,185,185,186,186,187,187,209,209,//Amine Mains
+
+
                 }
             },
             { 5, new List<int>
                 {
-                // Pure theme: Pure MonsterHunter ladder deck.
-                // Core card preview: first card in deck list.
-                119, 119, 104, 104, 6, 6, 5, 5, 153, 153,
-                38, 38, 4, 4, 3, 3, 103, 103, 9, 9,
-                34, 34, 32, 32, 37, 37, 36, 36, 30, 30
+                //Adam : Bring back footballs in inazuma trait. Add morton as speedster and combine these two.
+                
                 }
             },
             { 6, new List<int>
                 {
-                // Pure theme: Pure Pokemon ladder deck.
-                // Core card preview: first card in deck list.
-                25, 25, 40, 40, 149, 149, 148, 148, 22, 22,
-                146, 146, 0, 0, 54, 54, 26, 26, 112, 112,
-                133, 133, 19, 19, 16, 16, 120, 120, 147, 147
+                // Reda : Bring back redox and reda cards, combine faith and neutral for the rest of the archetype. Also add bowser and smash for more buffs.
+                269,269,270,270 //Reda/redox
                 }
             },
             { 7, new List<int>
                 {
-                // Mixed theme: Mixed Faith-Healer synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                44, 44, 109, 109, 64, 64, 63, 63, 60, 60,
-                146, 146, 47, 47, 8, 8, 53, 53, 71, 71,
-                112, 112, 147, 147, 61, 61, 162, 162, 48, 48
+                // o: Gunner+Fighter combo with Bouisk as a reference inside of the deck.
                 }
             },
             { 8, new List<int>
                 {
-                // Mixed theme: Mixed Avatar-MonsterHunter synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                119, 119, 153, 153, 4, 4, 5, 5, 134, 134,
-                3, 3, 34, 34, 53, 53, 137, 137, 36, 36,
-                6, 6, 84, 84, 80, 80, 37, 37, 82, 82
+                // Thibauld : Healer and food deck + thib cards with maxime medard and moroccan food.
+                272,272 //Thib
+                ,274,274 //Maxime M
                 }
             },
             { 9, new List<int>
                 {
-                // Mixed theme: Mixed Healer-Pokemon synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                147, 147, 148, 148, 146, 146, 26, 26, 25, 25,
-                112, 112, 210, 210, 16, 16, 120, 120, 8, 8,
-                52, 52, 0, 0, 44, 44, 40, 40, 54, 54
+                // Madre : Faith with big stats and taunts + resurrect. Give her her unique spell that will summon random taunts that cost a total of 25 for 10 mana.
+                //  La madre card (6 2 5 protect blessed) has +1+1 for each taunt in graveyard.
+                284,284,//madre card
                 }
             },
             { 10, new List<int>
                 {
-                // Mixed theme: Mixed Speedster-Gunner synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                96, 96, 119, 119, 90, 90, 160, 160, 69, 69,
-                91, 91, 72, 72, 1, 1, 71, 71, 132, 132,
-                95, 95, 51, 51, 159, 159, 73, 73, 164, 164
+                // Sara : Strong card that self damag her hero but for big payout. in addition to healing and cinnamon cards.
+                283,283,282,282, //Sarito and Cinamoncops
                 }
             },
             { 11, new List<int>
                 {
-                // Mixed theme: Mixed MonsterHunter-Neutral synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                10, 10, 103, 103, 39, 39, 5, 5, 202, 202,
-                9, 9, 153, 153, 142, 142, 6, 6, 208, 208,
-                3, 3, 38, 38, 34, 34, 201, 201, 59, 59,
-                32, 32, 104, 104, 36, 36, 89, 89, 37, 37,
-                88, 88, 119, 119, 4, 4, 141, 141, 30, 30
+                //Rhita : Combo + Pokemon cards with the payoff of her signature card.
+                276,281, 276,281, //Rhita and rhita team
+                277,277,278,278,279,279
                 }
             },
             { 12, new List<int>
                 {
-                // Mixed theme: Mixed Avatar-Healer synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                113, 113, 71, 71, 49, 49, 47, 47, 8, 8,
-                44, 44, 99, 99, 152, 152, 82, 82, 146, 146,
-                147, 147, 84, 84, 45, 45, 52, 52, 210, 210,
-                53, 53, 80, 80, 137, 137, 51, 51, 134, 134,
-                24, 24, 42, 42, 166, 166, 48, 48, 10, 10
+                // Padre : Big monsters some faith cards, a lot of charges and his signature card, a huge 10  15 15 charge.
+                285,285 //Padre card
                 }
             },
             { 13, new List<int>

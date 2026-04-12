@@ -1447,6 +1447,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.ScrambleAllUnitsStats();
             gameManager.CheckGlow(); return false;
         }
+        if (effect.StartsWith("football"))
+        {
+            ModifyStats(gameManager.GetFootballCount(Owner), gameManager.GetFootballCount(Owner));
+            gameManager.CheckGlow(); return false;
+        }
         if (effect.StartsWith("resurrectlast"))
         {
             gameManager.ResurrectLast(Owner, Data);

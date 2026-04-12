@@ -64,7 +64,10 @@ public class Card : MonoBehaviour
     #region Pointer-based input (called by CardInputManager)
     public void OnHoverEnter()
     {
-        if (CombatDialogue.Instance.UIDialogue.activeSelf) return;
+        if (CombatDialogue.Instance != null)
+        {
+            if (CombatDialogue.Instance.UIDialogue.activeSelf && CombatDialogue.Instance.UIDialogue != null) return;
+        }
         if (!hoverEnabled) return;
         if (isDragging) return;
         if (gameManager != null &&
@@ -89,7 +92,10 @@ public class Card : MonoBehaviour
 
     public void OnPointerDown()
     {
-        if (CombatDialogue.Instance.UIDialogue.activeSelf) return;
+        if (CombatDialogue.Instance != null)
+        {
+            if (CombatDialogue.Instance.UIDialogue.activeSelf) return;
+        }
         if (SceneManager.GetActiveScene().name == "Combat")
         {
             //Discovery effect

@@ -2514,6 +2514,19 @@ public class GameManager : MonoBehaviour
         target.Die();
         return;
     }
+    public int GetFootballCount(PlayerOwner owner)
+    {
+        Graveyard graveyard =
+            owner == PlayerOwner.Player
+                ? PlayerGraveyard
+                : EnemyGraveyard;
+        int count = 0;
+        foreach(CardData card in graveyard.Cards)
+        {
+            if (card.effect.Contains("football")) count++;
+        }
+        return count;
+    }
     public void ResurrectLast(PlayerOwner owner, CardData excluded)
     {
         Graveyard graveyard =
