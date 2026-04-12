@@ -100,7 +100,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public int ProgressionCounter { get; set; }
     public int ProgressionCap { get; set; }
     private bool progressionCompleted = false;
-    private int lastHealTriggerAmount = 0;
+    private readonly Stack<int> healTriggerAmountStack = new();
     public bool EffectsSuppressed { get; set; } = false;
 
 
@@ -535,9 +535,16 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (hasHealTrigger)
         {
-            lastHealTriggerAmount = healamount;
-            TriggerHeal();
-            lastHealTriggerAmount = 0;
+            healTriggerAmountStack.Push(healamount);
+            try
+            {
+                TriggerHeal();
+            }
+            finally
+            {
+                if (healTriggerAmountStack.Count > 0)
+                    healTriggerAmountStack.Pop();
+            }
         }
 
         if (!HasKeyword("progressheal") || ProgressionCap <= 0)
@@ -1627,7 +1634,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             string valueToken = GetStringValueFromEffect(effect, "summonrandomcost");
             int summonCost = string.Equals(valueToken, "h", StringComparison.OrdinalIgnoreCase)
-                ? lastHealTriggerAmount
+                ? (healTriggerAmountStack.Count > 0 ? healTriggerAmountStack.Peek() : 0)
                 : GetSingleIntFromEffect(effect);
 
             if (summonCost > 0)
