@@ -3704,7 +3704,7 @@
       "hpValue": 7,
       "traits": [ "Fighter" ],
       "effect": "d[kill,targetunit] r[killlow]",
-      "effectText": "Desploy : Kill the an enemy you target\nRequiem : Kill the weakest enemy unit",
+      "effectText": "Desploy : Kill the enemy you target\nRequiem : Kill the weakest enemy unit",
       "artPath": "CardArt/bowser",
       "artCompactPath": "CardArt/bowser_compact",
       "packable": true,
