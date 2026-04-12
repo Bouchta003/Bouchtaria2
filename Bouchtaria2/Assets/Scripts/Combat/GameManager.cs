@@ -72,6 +72,7 @@ public class GameManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] TextMeshProUGUI manacounterAlly;
     [SerializeField] GameObject boardDesign;
+    [SerializeField] public GameObject UIparent;
     [SerializeField] List<Sprite> boards;
     [SerializeField] Sprite distortionBoard;
     [SerializeField] TextMeshProUGUI manacounterEnmy;
@@ -433,6 +434,8 @@ public class GameManager : MonoBehaviour
             startingEnemyCoreHealth = 80;
 
         startingPlayerCoreHealth = 30;
+
+        CombatDialogue.Instance.TriggerCutscene(battleId);
     }
     private void OnDestroy()
     {

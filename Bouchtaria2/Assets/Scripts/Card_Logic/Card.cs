@@ -64,18 +64,19 @@ public class Card : MonoBehaviour
     #region Pointer-based input (called by CardInputManager)
     public void OnHoverEnter()
     {
+        if (CombatDialogue.Instance.UIDialogue.activeSelf) return;
         if (!hoverEnabled) return;
         if (isDragging) return;
         if (gameManager != null &&
             gameManager.isDiscovering && !thisInstance.IsDisplay)
             return;
 
-        isHovered = true; // ✅ THIS WAS MISSING
+        isHovered = true; 
     }
 
     public void EnableHover()
     {
-        originalScale = transform.localScale; // ✅ CORRECT scale
+        originalScale = transform.localScale; 
         isHovered = false;
         hoverEnabled = true;
     }
@@ -88,7 +89,8 @@ public class Card : MonoBehaviour
 
     public void OnPointerDown()
     {
-        if(SceneManager.GetActiveScene().name == "Combat")
+        if (CombatDialogue.Instance.UIDialogue.activeSelf) return;
+        if (SceneManager.GetActiveScene().name == "Combat")
         {
             //Discovery effect
             if (gameManager.isDiscovering && thisInstance.IsDisplay)
