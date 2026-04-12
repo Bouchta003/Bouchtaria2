@@ -4773,6 +4773,26 @@ MonoBehaviour:
     music: {fileID: 8300000, guid: a3a72c84881a29142b09504163875635, type: 3}
   - sceneName: Adventure3
     music: {fileID: 8300000, guid: 87bb49ef2abadea4fb2351f3666590db, type: 3}
+  - sceneName: Adventure4
+    music: {fileID: 8300000, guid: 406864ad67519494792d295f2b99da27, type: 3}
+  - sceneName: Adventure5
+    music: {fileID: 8300000, guid: ecd92ca59f12b8648a0ee6f793c90c36, type: 3}
+  - sceneName: Adventure6
+    music: {fileID: 8300000, guid: 2da0e6979f8814548a58d9d58605554d, type: 3}
+  - sceneName: Adventure7
+    music: {fileID: 8300000, guid: 141ad3cc7dd311a4f96370934eeaf400, type: 3}
+  - sceneName: Adventure8
+    music: {fileID: 8300000, guid: 6424fb3fa808d6c4a821dbfa99dd2a40, type: 3}
+  - sceneName: Adventure9
+    music: {fileID: 8300000, guid: 2a7134f6f687dd34f9c351a3f6073bba, type: 3}
+  - sceneName: Adventure10
+    music: {fileID: 8300000, guid: a09e2c9d71585034c9e32d2cbcd9b51c, type: 3}
+  - sceneName: Adventure11
+    music: {fileID: 8300000, guid: 71e631676143d984d9a1ab6c533ede91, type: 3}
+  - sceneName: Adventure12
+    music: {fileID: 8300000, guid: 878203b70318118469302bc06f1e1ceb, type: 3}
+  - sceneName: Adventure13
+    music: {fileID: 8300000, guid: 7b7a1f835f85546409a09501d402b09c, type: 3}
   defaultFadeTime: 1.5
   defaultMusic: {fileID: 8300000, guid: 26437b32d4a75814f848b8ac0fcba8a4, type: 3}
 --- !u!1 &1067415198
