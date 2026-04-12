@@ -334,6 +334,41 @@ public class GameManager : MonoBehaviour
         return discardedCount;
     }
 
+    public int DiscardRandomCardsFromEnemyHand(PlayerOwner sourceOwner, int count)
+    {
+        if (count <= 0)
+            return 0;
+
+        PlayerOwner targetOwner = sourceOwner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player;
+        HandManager targetHand = targetOwner == PlayerOwner.Player ? allyHand : enemyHand;
+        if (targetHand == null || targetHand.handCards.Count == 0)
+            return 0;
+
+        int discardedCount = 0;
+        int toDiscard = Mathf.Min(count, targetHand.handCards.Count);
+
+        for (int i = 0; i < toDiscard; i++)
+        {
+            if (targetHand.handCards.Count == 0)
+                break;
+
+            int randomIndex = UnityEngine.Random.Range(0, targetHand.handCards.Count);
+            GameObject toRemove = targetHand.handCards[randomIndex];
+            if (toRemove == null)
+            {
+                targetHand.handCards.RemoveAt(randomIndex);
+                continue;
+            }
+
+            targetHand.RemoveCardFromHand(toRemove);
+            Destroy(toRemove);
+            discardedCount++;
+        }
+
+        targetHand.UpdateCardPositions();
+        return discardedCount;
+    }
+
     public CardInstance AddCardToHandWithBonuses(
         PlayerOwner owner,
         int id,
