@@ -100,6 +100,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public int ProgressionCounter { get; set; }
     public int ProgressionCap { get; set; }
     private bool progressionCompleted = false;
+    private int lastHealTriggerAmount = 0;
     public bool EffectsSuppressed { get; set; } = false;
 
 
@@ -533,7 +534,11 @@ public class CardInstance : MonoBehaviour, IAttackable
                               && healEffects.Count > 0;
 
         if (hasHealTrigger)
+        {
+            lastHealTriggerAmount = healamount;
             TriggerHeal();
+            lastHealTriggerAmount = 0;
+        }
 
         if (!HasKeyword("progressheal") || ProgressionCap <= 0)
             return;
@@ -1620,7 +1625,21 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         if (effect.StartsWith("summonrandomcost"))
         {
-            gameManager.TrySummonForOwnerManaCost(Owner, GetSingleIntFromEffect(effect));
+            string valueToken = GetStringValueFromEffect(effect, "summonrandomcost");
+            int summonCost = string.Equals(valueToken, "h", StringComparison.OrdinalIgnoreCase)
+                ? lastHealTriggerAmount
+                : GetSingleIntFromEffect(effect);
+
+            if (summonCost > 0)
+                gameManager.TrySummonForOwnerManaCost(Owner, summonCost);
+
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("discardenemy"))
+        {
+            if (TryParseIntEffect(effect, "discardenemy", out int discardCount))
+                gameManager.DiscardRandomCardsFromEnemyHand(Owner, discardCount);
+
             gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("summonrandomeffect"))
