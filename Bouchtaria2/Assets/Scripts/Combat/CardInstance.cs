@@ -100,6 +100,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     public int ProgressionCounter { get; set; }
     public int ProgressionCap { get; set; }
     private bool progressionCompleted = false;
+    private int lastHealTriggerAmount = 0;
     public bool EffectsSuppressed { get; set; } = false;
 
 
@@ -533,7 +534,11 @@ public class CardInstance : MonoBehaviour, IAttackable
                               && healEffects.Count > 0;
 
         if (hasHealTrigger)
+        {
+            lastHealTriggerAmount = healamount;
             TriggerHeal();
+            lastHealTriggerAmount = 0;
+        }
 
         if (!HasKeyword("progressheal") || ProgressionCap <= 0)
             return;
@@ -1620,7 +1625,21 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         if (effect.StartsWith("summonrandomcost"))
         {
-            gameManager.TrySummonForOwnerManaCost(Owner, GetSingleIntFromEffect(effect));
+            string valueToken = GetStringValueFromEffect(effect, "summonrandomcost");
+            int summonCost = string.Equals(valueToken, "h", StringComparison.OrdinalIgnoreCase)
+                ? lastHealTriggerAmount
+                : GetSingleIntFromEffect(effect);
+
+            if (summonCost > 0)
+                gameManager.TrySummonForOwnerManaCost(Owner, summonCost);
+
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("discardenemy"))
+        {
+            if (TryParseIntEffect(effect, "discardenemy", out int discardCount))
+                gameManager.DiscardRandomCardsFromEnemyHand(Owner, discardCount);
+
             gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("summonrandomeffect"))
@@ -3814,18 +3833,34 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (Owner == PlayerOwner.Player)
         {
             gameManager.PlayerCore.Heal(heal);
-            foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
+
+            List<GameObject> alliesSnapshot = new(gameManager.allyDropArea.allyPrefabCards);
+            foreach (GameObject ally in alliesSnapshot)
             {
+                if (ally == null)
+                    continue;
+
                 CardInstance inst = ally.GetComponent<CardInstance>();
+                if (inst == null || inst.IsDead)
+                    continue;
+
                 inst.Heal(heal);
             }
         }
         else
         {
             gameManager.EnemyCore.Heal(heal);
-            foreach (GameObject enemy in gameManager.enemyDropArea.enemyPrefabCards)
+
+            List<GameObject> enemiesSnapshot = new(gameManager.enemyDropArea.enemyPrefabCards);
+            foreach (GameObject enemy in enemiesSnapshot)
             {
+                if (enemy == null)
+                    continue;
+
                 CardInstance inst = enemy.GetComponent<CardInstance>();
+                if (inst == null || inst.IsDead)
+                    continue;
+
                 inst.Heal(heal);
             }
         }
@@ -3835,18 +3870,34 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (Owner == PlayerOwner.Player)
         {
             gameManager.PlayerCore.FullHeal();
-            foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
+
+            List<GameObject> alliesSnapshot = new(gameManager.allyDropArea.allyPrefabCards);
+            foreach (GameObject ally in alliesSnapshot)
             {
+                if (ally == null)
+                    continue;
+
                 CardInstance inst = ally.GetComponent<CardInstance>();
+                if (inst == null || inst.IsDead)
+                    continue;
+
                 inst.HealToFull();
             }
         }
         else
         {
             gameManager.EnemyCore.FullHeal();
-            foreach (GameObject enemy in gameManager.enemyDropArea.enemyPrefabCards)
+
+            List<GameObject> enemiesSnapshot = new(gameManager.enemyDropArea.enemyPrefabCards);
+            foreach (GameObject enemy in enemiesSnapshot)
             {
+                if (enemy == null)
+                    continue;
+
                 CardInstance inst = enemy.GetComponent<CardInstance>();
+                if (inst == null || inst.IsDead)
+                    continue;
+
                 inst.HealToFull();
             }
         }
