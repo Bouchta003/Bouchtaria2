@@ -200,20 +200,26 @@ public class GameManager : MonoBehaviour
         startingEnemyCoreHealth = startingCoreHealth;
         dungeonStartDrawBonus = 0;
         dungeonStartDrawBonusEnemy = 0;
+        isTargettingAttack = false;
         InitializeMana();
+
+        boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[UnityEngine.Random.Range(0, boards.Count)];
+        if (GameRunContext.IsDungeonRun) boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[0];
 
         //Logic for dungeon runs
         if (GameRunContext.IsDungeonRun)
         {
             SetupDungeonFight(GameRunContext.DungeonData);
+            SetupFirstTurn();
         }
-        if (GameRunContext.IsAdventureCombat)
+        else if (GameRunContext.IsAdventureCombat)
         {
             SetupAdventureFight(GameRunContext.AdventureFightId);
         }
-
-        isTargettingAttack = false;
-
+        else SetupFirstTurn();
+    }
+    public void SetupFirstTurn()
+    {
         if (TurnManager.Instance == null)
         {
             Debug.LogError("TurnManager missing!");
@@ -224,8 +230,6 @@ public class GameManager : MonoBehaviour
         fillImageAlly.transform.parent.gameObject.SetActive(false);
         fillImageEnemy.transform.parent.gameObject.SetActive(false);
         //Setup cores mana and deck before the turn logic
-        boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[UnityEngine.Random.Range(0, boards.Count)];
-        if (GameRunContext.IsDungeonRun) boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[0];
 
         DiscoverDiscount = 0;
         deckManager.InitializeDecks();        // build decks
@@ -256,7 +260,6 @@ public class GameManager : MonoBehaviour
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnStarted += HandleTurnStartedForPendingHandReturns;
     }
-
     private void HandleTurnStartedForPendingHandReturns(PlayerOwner owner)
     {
         if (pendingHandReturns.Count == 0)

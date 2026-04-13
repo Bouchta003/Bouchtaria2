@@ -146,6 +146,7 @@ public class CombatDialogue : MonoBehaviour
         currentLine = 0;
 
         GameManager.Instance.UIparent.SetActive(true);
+        GameManager.Instance.SetupFirstTurn();
     }
 }
 

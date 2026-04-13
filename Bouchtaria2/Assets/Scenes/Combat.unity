@@ -950,7 +950,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CombatDialogue
   Dialogues:
   - Lines:
-    - Content: Content 0 Line 0 works
+    - Content: Combat0
       Name: Content0
       Avatar: {fileID: 21300000, guid: bbf768734d5132e4881bbcf9434d3207, type: 3}
     - Content: Content 0 Line 1 works too
@@ -960,41 +960,42 @@ MonoBehaviour:
       Name: Content0
       Avatar: {fileID: 21300000, guid: bbf768734d5132e4881bbcf9434d3207, type: 3}
   - Lines:
-    - Content: HALT !!
+    - Content: State your purpose. Time is a resource I do not waste !
       Name: Omri
       Avatar: {fileID: 2511148379863632921, guid: d194490012f6e1942811d923ac27d60d, type: 3}
     - Content: Huh?
       Name: Traveler
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
-    - Content: Who are you ? Where do you think you're going ?
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: Everything has a cost. Even life, especially life!
       Name: Omri
       Avatar: {fileID: 2511148379863632921, guid: d194490012f6e1942811d923ac27d60d, type: 3}
-    - Content: Get out of my way, I need to meet Bouchta.
+    - Content: Then send me the bill or something, let me through !
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
-    - Content: You got no business talking to The Bouchta, just get out of here before
-        I do to you what the mask did to those plumbers
+    - Content: You misunderstand. You are the payment.
       Name: Omri
       Avatar: {fileID: 8592307071887775603, guid: cf79ce4947617ce4fa609e9f3268a21c, type: 3}
-    - Content: Good reference, but you can keep them pipes in your own garage.
+    - Content: Oh ? Am I supposed to be...flattered ?
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 4517582b12c2d6b40a9fbcdb18889ecf, type: 3}
-    - Content: Enough games, if you keep blocking me I'll have to move you homie.
-      Name: Traveler
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
-    - Content: Heh I was getting bored, let's fight !
+    - Content: Keep going and I'll do to you what the mask did to those mechanics.
       Name: Omri
       Avatar: {fileID: 8592307071887775603, guid: cf79ce4947617ce4fa609e9f3268a21c, type: 3}
+    - Content: Nice reference, but you can keep them pipes to yourself.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 4517582b12c2d6b40a9fbcdb18889ecf, type: 3}
+    - Content: Let's just duel instead.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
   - Lines:
     - Content: a little bit of this..then I guess this would work if I...
       Name: Omar
       Avatar: {fileID: 4856391530043847218, guid: 2e95713182548384ea8323d362045757, type: 3}
-    - Content: (A doctor in this place ? He seems busy let's not attract any more
-        attention.)
+    - Content: (A doctor in this place ? He seems busy, let's go while he's not looking.)
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
-    - Content: You know these prime powers give me some high perception skills, I
-        know all my surroundings.
+    - Content: Do you think I didn't see you ? Bouchta's prime powers maxed out my
+        perception skills.
       Name: Omar
       Avatar: {fileID: 2408433479190029688, guid: 6b638bb9bb4aebc4b990c41308fafe8e, type: 3}
     - Content: Prime powers ? What are you talking about ?
@@ -1006,6 +1007,155 @@ MonoBehaviour:
       Avatar: {fileID: 7487722197439553475, guid: b93317fb6fe50cf419759493d8c7a1a0, type: 3}
     - Content: You got it !
       Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+  - Lines:
+    - Content: "You shouldn\u2019t have come."
+      Name: Le D
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "No\u2014stay! This will be entertaining"
+      Name: La D
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Who exactly am I speaking to?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: "A friend\u2026 once."
+      Name: Le D
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: "A weapon\u2026 now!"
+      Name: La D
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: "Then I\u2019ll treat you like both."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: YES !
+      Name: La D
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+  - Lines:
+    - Content: YOU. FIGHT. NOW.
+      Name: Amine
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Hello to you too.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: NO TALK. ONLY BATTLE.
+      Name: Amine
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: You don't waste time huh ?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: BALLING. BLOOD. BATTLE. VICTORY!
+      Name: Amine
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "I\u2019m starting to see a pattern."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: 'ENOUGH! '
+      Name: Amine
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "Alright, alright\u2014message received."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+  - Lines:
+    - Content: "Yeah Alfonso, I\u2019m about to destroy him\u2014wait, hold on."
+      Name: Adam
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Should I come back later?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: Silence! You stand before a disciple of Player 7!
+      Name: Adam
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Player 7, what are you some sort of fan boy ?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 4517582b12c2d6b40a9fbcdb18889ecf, type: 3}
+    - Content: He inspires me... With the grace of the king, I can now make my hero
+        proud..
+      Name: Adam
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: And if that admiration destroys you?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: "\u2026Then it was worth it."
+      Name: Adam
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+  - Lines:
+    - Content: "Peace be upon you\u2026 though peace has long left this place."
+      Name: Reda
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "You don\u2019t sound like the others."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: I remember what we were. That is my burden.
+      Name: Reda
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Then you know this must end.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "Yes\u2026 but I will not give up this easily."
+      Name: Reda
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: I won't either !
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: He was once good you know. I want to believe there is still some light
+        within *Him*
+      Name: Reda
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "\u2026May your light be stronger than his darkness."
+      Name: Reda
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+  - Lines:
+    - Content: I guess you're next show me what you got !
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "\u2026"
+      Name: O
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: No witty comment like the others ?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 4517582b12c2d6b40a9fbcdb18889ecf, type: 3}
+    - Content: ...
+      Name: O
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "You don\u2019t...speak..?"
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: '**slow nod**'
+      Name: O
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Maybe you'll listen to reason then, we don't have to fight !
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: '**draws weapon**'
+      Name: O
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: ...
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: ...
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+  - Lines:
+    - Content: You should not be here.
+      Name: Thiboyer
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: I hear that a lot.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 4517582b12c2d6b40a9fbcdb18889ecf, type: 3}
+    - Content: I do not wish to fight.
+      Name: Thiboyer
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: But you will find a reason won't you ?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 4517582b12c2d6b40a9fbcdb18889ecf, type: 3}
+    - Content: "I swore to protect him\u2026 no matter what he became."
+      Name: Thiboyer
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Even if he is not himself anymore ?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: "\u2026Especially then."
+      Name: Thiboyer
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
   dialogueCanvasGroup: {fileID: 2025724818}
   AvatarImage: {fileID: 1974727333}
@@ -4044,7 +4194,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 450, y: 100}
+  m_SizeDelta: {x: 475, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &900249786
 MonoBehaviour:
@@ -4093,12 +4243,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 60
+  m_fontSize: 52.55
   m_fontSizeBase: 60
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 60
   m_fontStyle: 2
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
@@ -5782,7 +5932,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1058944594
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8754,8 +8904,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -234, y: 171}
-  m_SizeDelta: {x: 500, y: 100}
+  m_AnchoredPosition: {x: -227, y: 170}
+  m_SizeDelta: {x: 500, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1647069188
 MonoBehaviour:
@@ -8770,7 +8920,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4245283, g: 0.3504361, b: 0.3504361, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.69411767}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9714,8 +9864,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -718, y: 106}
-  m_SizeDelta: {x: 580, y: 580}
+  m_AnchoredPosition: {x: -650, y: 195}
+  m_SizeDelta: {x: 750, y: 750}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1974727333
 MonoBehaviour:
@@ -9737,7 +9887,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: fc8c2f22910600d409fbd7662d9d7a85, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -9772,7 +9922,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1977604176
 RectTransform:
   m_ObjectHideFlags: 0

@@ -574,7 +574,7 @@ public static class EnemyDecks
             { 5, new List<int>
                 {
                 //Adam : Bring back footballs in inazuma trait. Add morton as speedster and combine these two.
-                
+                275,275,275,275,287,287,271,271,271,271
                 }
             },
             { 6, new List<int>
@@ -606,6 +606,7 @@ public static class EnemyDecks
                 {
                 // Sara : Strong card that self damag her hero but for big payout. in addition to healing and cinnamon cards.
                 283,283,282,282, //Sarito and Cinamoncops
+                //Add tinkaton evolves when killing with rocks/boulders.
                 }
             },
             { 11, new List<int>
