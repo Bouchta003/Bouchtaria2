@@ -1011,25 +1011,25 @@ MonoBehaviour:
   - Lines:
     - Content: "You shouldn\u2019t have come."
       Name: Le D
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 6751513010459366182, guid: 279fb1430cd719847b98fadc83af0178, type: 3}
     - Content: "No\u2014stay! This will be entertaining"
       Name: La D
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 4128606575159468467, guid: f2ca51869d2993f44a7e96c48b5a26d6, type: 3}
     - Content: Who exactly am I speaking to?
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: "A friend\u2026 once."
       Name: Le D
-      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+      Avatar: {fileID: 6751513010459366182, guid: 279fb1430cd719847b98fadc83af0178, type: 3}
     - Content: "A weapon\u2026 now!"
       Name: La D
-      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+      Avatar: {fileID: 4128606575159468467, guid: f2ca51869d2993f44a7e96c48b5a26d6, type: 3}
     - Content: "Then I\u2019ll treat you like both."
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
-    - Content: YES !
+    - Content: YES ! LET's GOOOOOOOOOOOOOOOOoooo
       Name: La D
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 4128606575159468467, guid: f2ca51869d2993f44a7e96c48b5a26d6, type: 3}
   - Lines:
     - Content: YOU. FIGHT. NOW.
       Name: Amine
@@ -1157,13 +1157,82 @@ MonoBehaviour:
     - Content: "\u2026Especially then."
       Name: Thiboyer
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+  - Lines:
+    - Content: "You have come far\u2026 farther than most who dared enter this place."
+      Name: La Mama
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Far enough to finish this.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "Finish\u2026? No. You do not understand what waits beyond."
+      Name: La Mama
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Then help me understand.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "He was my firstborn. Before the crown, the prime, the curse\u2026
+        he was just my son."
+      Name: La Mama
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Bouchta?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: Yes. But some sort of devil corrupted him, it was too much. No soul
+        could carry that burden alone, that curse...
+      Name: La Mama
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: So you took it from him.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: "I shared it. I broke it, scattered it\u2026 so he would not be consumed
+        entirely."
+      Name: La Mama
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: And it changed you.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: "It made me what I was always meant to be\u2026 a mother who protects."
+      Name: La Mama
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Even now?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: Especially now.
+      Name: La Mama
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "He\u2019s suffering, and he is hurting a lot of people too, I cannot
+        let him get away with it."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "\u2026I know."
+      Name: La Mama
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Then let me end it.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Many believed they could. None were strong enough.
+      Name: La Mama
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Let me try at least, you don't know what I'm capable of !
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "I will test you\u2026 not as his mother, but as his guardian."
+      Name: La Mama
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "I won\u2019t hold back."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "Good. Because I will not let you pass\u2026 unless you prove you
+        can save him."
+      Name: La Mama
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
   dialogueCanvasGroup: {fileID: 2025724818}
   AvatarImage: {fileID: 1974727333}
   UIDialogue: {fileID: 2025724813}
   DialogueText: {fileID: 222623634}
   DialogueName: {fileID: 900249786}
   fadeDuration: 0.3
-  typingSpeed: 0.02
+  typingSpeed: 0.01
 --- !u!1 &150991891
 GameObject:
   m_ObjectHideFlags: 0
@@ -9864,7 +9933,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -650, y: 195}
+  m_AnchoredPosition: {x: -650, y: 190}
   m_SizeDelta: {x: 750, y: 750}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1974727333
@@ -10210,7 +10279,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2025724814
 MonoBehaviour:
   m_ObjectHideFlags: 0
