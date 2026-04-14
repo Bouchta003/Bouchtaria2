@@ -81,6 +81,7 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.MonsterHunter, new[] { 5, 10, 15 } },
             { CardData.Trait.Neutral, new[] { 4,8,12 } },
             { CardData.Trait.SpellFocus, new[] { 6, 9, 12 } },
+            { CardData.Trait.SoulForce, new[] { 4, 8, 12 } },
         };
 
         // 3. Resolve tiers
@@ -173,6 +174,9 @@ public class TraitsDetection : MonoBehaviour
                         break;
                     case CardData.Trait.Avatar:
                         traitDisplay.iconSlot.sprite = traitDisplay.AvatarIcon;
+                        break;
+                    case CardData.Trait.SoulForce:
+                        traitDisplay.iconSlot.sprite = traitDisplay.memeIcon;
                         break;
                     default:
                         Debug.Log("Unkown trait");
