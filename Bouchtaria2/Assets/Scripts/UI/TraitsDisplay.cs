@@ -167,6 +167,14 @@ public class TraitsDisplay : MonoBehaviour
                 if (tier > 2) display +=
                          "\nTier 3 Effect : The first time you play 4 cards in a turn, draw 2.";
                 break;
+            case CardData.Trait.SoulForce:
+                display += $"Collect souls with Soul Eater units: {Progression}/{CurrentCap}" +
+                    "\nTier 1 : The second soul collected each turn discounts a random card in your hand by 1.";
+                if (tier > 1) display +=
+                        "\nTier 2 : Whenever a character consumes souls, it gains +1/+1 per soul consumed.";
+                if (tier > 2) display +=
+                         "\nTier 3 : End turn with 5+ souls to consume them and gain a random Evangelist Grace spell.";
+                break;
             default:
                 display += "Need to define this trait's tier logic";
                 break;

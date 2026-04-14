@@ -145,6 +145,7 @@ public class GameManager : MonoBehaviour
     public event System.Action<PlayerOwner> OnDamageCard;
     public event System.Action<CardInstance> OnSpellPlayed;
     public event System.Action<CardInstance> OnCardPlayed;
+    public event System.Action<CardInstance, int> OnSoulConsumed;
 
     private sealed class PendingHandReturn
     {
@@ -231,6 +232,8 @@ public class GameManager : MonoBehaviour
         }
         SetFill(0, PlayerOwner.Player);
         SetFill(0, PlayerOwner.Enemy);
+        SetSouls(PlayerOwner.Player, 0);
+        SetSouls(PlayerOwner.Enemy, 0);
         fillImageAlly.transform.parent.gameObject.SetActive(false);
         fillImageEnemy.transform.parent.gameObject.SetActive(false);
         //Setup cores mana and deck before the turn logic
@@ -316,6 +319,30 @@ public class GameManager : MonoBehaviour
         if (!soulGO.activeSelf) soulGO.SetActive(true);
 
         return Convert.ToInt32(soulGO.GetComponentInChildren<TextMeshProUGUI>().text);
+    }
+    public int ConsumeSoul(CardInstance consumer, int amount)
+    {
+        if (consumer == null || amount <= 0)
+            return 0;
+
+        PlayerOwner owner = consumer.Owner;
+        int availableSouls = GetSouls(owner);
+        if (availableSouls <= 0)
+            return 0;
+
+        int consumed = Mathf.Min(amount, availableSouls);
+        SetSouls(owner, availableSouls - consumed);
+
+        OnSoulConsumed?.Invoke(consumer, consumed);
+
+        if (OwnerHasTrait(owner, CardData.Trait.SoulForce, 2) &&
+            consumer.CurrentZone == CardZone.Board &&
+            !consumer.IsDead)
+        {
+            consumer.ModifyStats(consumed, consumed);
+        }
+
+        return consumed;
     }
     public int DiscardCardsFromHandWithDeferredReturn(
         PlayerOwner owner,
@@ -779,6 +806,7 @@ public class GameManager : MonoBehaviour
                 CardData.Trait.Inazuma => new InazumaProgression(owner, maxTier, traitSystem),
                 CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
                 CardData.Trait.Combo => new ComboProgression(owner, maxTier, traitSystem),
+                CardData.Trait.SoulForce => new SoulForceProgression(owner, maxTier, traitSystem, deckManager),
                 _ => throw new System.NotImplementedException(),
             };
 

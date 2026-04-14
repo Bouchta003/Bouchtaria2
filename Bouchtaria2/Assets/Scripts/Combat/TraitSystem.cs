@@ -419,6 +419,263 @@ public class NeutralTier3Effect : IDeckTraitEffect
     }
 }
 #endregion
+#region SoulForce Trait
+public class SoulForceProgression : ITraitProgression
+{
+    public CardData.Trait Trait => CardData.Trait.SoulForce;
+    public PlayerOwner Owner { get; }
+    public int CurrentTier { get; private set; }
+    public int CurrentProgress => soulsCollected;
+
+    private readonly int maxTier;
+    private readonly TraitSystem traitSystem;
+    private readonly DeckManager deckManager;
+    private int soulsCollected;
+    private int soulsCollectedThisTurn;
+
+    public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
+
+    public SoulForceProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem, DeckManager deckManager)
+    {
+        Owner = owner;
+        this.maxTier = maxTier;
+        this.traitSystem = traitSystem;
+        this.deckManager = deckManager;
+    }
+
+    public void Register()
+    {
+        GameManager.Instance.OnCardKiller += OnCardKill;
+        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
+        PushInitialState();
+    }
+
+    public void Unregister()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnCardKiller -= OnCardKill;
+
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
+    }
+
+    public void ResetProgression()
+    {
+        soulsCollected = 0;
+        soulsCollectedThisTurn = 0;
+    }
+
+    public void PushInitialState()
+    {
+        OnProgressUpdated?.Invoke(Trait, soulsCollected, GetCurrentCap(), Owner);
+    }
+
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 4,
+            1 => 8,
+            2 => 12,
+            _ => 999
+        };
+    }
+
+    private void OnTurnStarted(PlayerOwner turnOwner)
+    {
+        if (turnOwner != Owner)
+            return;
+
+        soulsCollectedThisTurn = 0;
+    }
+
+    private void OnCardKill(CardInstance killer)
+    {
+        if (killer == null || killer.Owner != Owner)
+            return;
+
+        if (!killer.HasKeyword("souleater"))
+            return;
+
+        int currentSouls = GameManager.Instance.GetSouls(Owner);
+        GameManager.Instance.SetSouls(Owner, currentSouls + 1);
+
+        soulsCollected++;
+        soulsCollectedThisTurn++;
+        OnProgressUpdated?.Invoke(Trait, soulsCollected, GetCurrentCap(), Owner);
+
+        if (CurrentTier >= 1 && soulsCollectedThisTurn == 2)
+            DiscountRandomCardInHand();
+
+        if (soulsCollected >= 4 && CurrentTier < 1 && maxTier >= 1)
+            UnlockTier1();
+
+        if (soulsCollected >= 8 && CurrentTier < 2 && maxTier >= 2)
+            UnlockTier2();
+
+        if (soulsCollected >= 12 && CurrentTier < 3 && maxTier >= 3)
+            UnlockTier3();
+    }
+
+    private void DiscountRandomCardInHand()
+    {
+        HandManager hand = Owner == PlayerOwner.Player ? deckManager.handManager : deckManager.handManagerEnemy;
+        if (hand == null || hand.handCards.Count == 0)
+            return;
+
+        int randomIndex = Random.Range(0, hand.handCards.Count);
+        CardInstance randomCard = hand.handCards[randomIndex]?.GetComponent<CardInstance>();
+        if (randomCard == null)
+            return;
+
+        randomCard.AddTemporaryManaModifier(-1);
+    }
+
+    private void UnlockTier1()
+    {
+        CurrentTier = 1;
+        traitSystem.ActivateEffect(new SoulForceTier1Effect(Owner));
+    }
+
+    private void UnlockTier2()
+    {
+        CurrentTier = 2;
+        traitSystem.ActivateEffect(new SoulForceTier2Effect(Owner));
+    }
+
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+        traitSystem.ActivateEffect(new SoulForceTier3Effect(Owner));
+    }
+}
+
+public class SoulForceTier1Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.SoulForce;
+    public int Tier => 1;
+
+    private readonly PlayerOwner owner;
+
+    public SoulForceTier1Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        Debug.Log($"[SoulForce T1] Activated for {owner}");
+    }
+
+    public void OnUnregister() { }
+}
+
+public class SoulForceTier2Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.SoulForce;
+    public int Tier => 2;
+
+    private readonly PlayerOwner owner;
+
+    public SoulForceTier2Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        Debug.Log($"[SoulForce T2] Activated for {owner}");
+    }
+
+    public void OnUnregister() { }
+}
+
+public class SoulForceTier3Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.SoulForce;
+    public int Tier => 3;
+
+    private readonly PlayerOwner owner;
+
+    public SoulForceTier3Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
+    }
+
+    public void OnUnregister()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+    }
+
+    private void OnTurnEnded(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        int stock = GameManager.Instance.GetSouls(owner);
+        if (stock < 5)
+            return;
+
+        CardInstance consumer = FindSoulConsumer();
+        if (consumer == null)
+            return;
+
+        int consumed = GameManager.Instance.ConsumeSoul(consumer, stock);
+        if (consumed <= 0)
+            return;
+
+        List<CardData> graceSpells = CardDatabase.Instance.Cards.Values
+            .Where(card =>
+                card != null &&
+                string.Equals(card.cardType, "spell", System.StringComparison.OrdinalIgnoreCase) &&
+                !string.IsNullOrWhiteSpace(card.effect) &&
+                card.effect.IndexOf("evangelistgrace", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            .ToList();
+
+        if (graceSpells.Count == 0)
+            return;
+
+        CardData randomGrace = graceSpells[Random.Range(0, graceSpells.Count)];
+        GameManager.Instance.AddCardToHand(owner, randomGrace.id, -1);
+    }
+
+    private CardInstance FindSoulConsumer()
+    {
+        ICardDropArea board = GameManager.Instance.GetBoardForOwner(owner);
+        if (board != null)
+        {
+            foreach (GameObject cardGO in board.GetCards())
+            {
+                CardInstance unit = cardGO?.GetComponent<CardInstance>();
+                if (unit != null && !unit.IsDead && unit.CurrentZone == CardZone.Board)
+                    return unit;
+            }
+        }
+
+        HandManager hand = owner == PlayerOwner.Player
+            ? GameManager.Instance.deckManager.handManager
+            : GameManager.Instance.deckManager.handManagerEnemy;
+
+        if (hand == null)
+            return null;
+
+        foreach (GameObject cardGO in hand.handCards)
+        {
+            CardInstance candidate = cardGO?.GetComponent<CardInstance>();
+            if (candidate != null && !candidate.IsDead)
+                return candidate;
+        }
+
+        return null;
+    }
+}
+#endregion
 #region Combo Trait
 public class ComboProgression : ITraitProgression
 {
