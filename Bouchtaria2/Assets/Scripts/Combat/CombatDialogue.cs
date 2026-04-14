@@ -81,7 +81,16 @@ public class CombatDialogue : MonoBehaviour
             StartCoroutine(EndDialogue());
         }
     }
+    public void SkipDialogue()
+    {
+        StartCoroutine(FadeOut());
 
+        currentScene = null;
+        currentLine = 0;
+
+        GameManager.Instance.UIparent.SetActive(true);
+        GameManager.Instance.SetupFirstTurn();
+    }
     void DisplayLine()
     {
         var line = currentScene.Lines[currentLine];

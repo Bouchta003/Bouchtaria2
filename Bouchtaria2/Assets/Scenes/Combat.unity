@@ -1110,29 +1110,29 @@ MonoBehaviour:
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: "\u2026"
       Name: O
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -4935250693920927086, guid: e1fbeddc956bdb44992f101500560ad7, type: 3}
     - Content: No witty comment like the others ?
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 4517582b12c2d6b40a9fbcdb18889ecf, type: 3}
     - Content: ...
       Name: O
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -4935250693920927086, guid: e1fbeddc956bdb44992f101500560ad7, type: 3}
     - Content: "You don\u2019t...speak..?"
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: '**slow nod**'
       Name: O
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -4935250693920927086, guid: e1fbeddc956bdb44992f101500560ad7, type: 3}
     - Content: Maybe you'll listen to reason then, we don't have to fight !
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: '**draws weapon**'
       Name: O
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -3494014149633077478, guid: 95d51577ec1ea1248900fa436e226aeb, type: 3}
     - Content: ...
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
-    - Content: ...
+    - Content: ... I get it
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
   - Lines:
@@ -1160,71 +1160,140 @@ MonoBehaviour:
   - Lines:
     - Content: "You have come far\u2026 farther than most who dared enter this place."
       Name: La Mama
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 9007189993209018080, guid: 85905dad6650db64fa6deed1928417ce, type: 3}
     - Content: Far enough to finish this.
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: "Finish\u2026? No. You do not understand what waits beyond."
       Name: La Mama
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -767042309513428199, guid: 5251bf7670f8505449a5e85d61da0583, type: 3}
     - Content: Then help me understand.
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: "He was my firstborn. Before the crown, the prime, the curse\u2026
         he was just my son."
       Name: La Mama
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -767042309513428199, guid: 5251bf7670f8505449a5e85d61da0583, type: 3}
     - Content: Bouchta?
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: Yes. But some sort of devil corrupted him, it was too much. No soul
         could carry that burden alone, that curse...
       Name: La Mama
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -767042309513428199, guid: 5251bf7670f8505449a5e85d61da0583, type: 3}
     - Content: So you took it from him.
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: "I shared it. I broke it, scattered it\u2026 so he would not be consumed
         entirely."
       Name: La Mama
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -767042309513428199, guid: 5251bf7670f8505449a5e85d61da0583, type: 3}
     - Content: And it changed you.
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: "It made me what I was always meant to be\u2026 a mother who protects."
       Name: La Mama
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -767042309513428199, guid: 5251bf7670f8505449a5e85d61da0583, type: 3}
     - Content: Even now?
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: Especially now.
       Name: La Mama
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -767042309513428199, guid: 5251bf7670f8505449a5e85d61da0583, type: 3}
     - Content: "He\u2019s suffering, and he is hurting a lot of people too, I cannot
         let him get away with it."
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: "\u2026I know."
       Name: La Mama
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -767042309513428199, guid: 5251bf7670f8505449a5e85d61da0583, type: 3}
     - Content: Then let me end it.
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: Many believed they could. None were strong enough.
       Name: La Mama
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -767042309513428199, guid: 5251bf7670f8505449a5e85d61da0583, type: 3}
     - Content: Let me try at least, you don't know what I'm capable of !
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: "I will test you\u2026 not as his mother, but as his guardian."
       Name: La Mama
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 9007189993209018080, guid: 85905dad6650db64fa6deed1928417ce, type: 3}
     - Content: "I won\u2019t hold back."
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: "Good. Because I will not let you pass\u2026 unless you prove you
         can save him."
       Name: La Mama
+      Avatar: {fileID: 9007189993209018080, guid: 85905dad6650db64fa6deed1928417ce, type: 3}
+  - Lines:
+    - Content: "Stop. Whatever you think you\u2019re here to do\u2026 let it go."
+      Name: Sara
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "I\u2019m not turning back."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "Then understand this first\u2014you cannot save him."
+      Name: Sara
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: People seem to disagree on this.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: Well it's true, you cannot help him.
+      Name: Sara
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "There\u2019s always a way."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Yes, but you're not it. If he wants to move on he needs to do it himself.
+      Name: La Mama
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "You\u2019ve given up on him?"
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: No. I believe in him more than anyone. But He chose this path.
+      Name: Sara
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "No one chooses to become\u2026 that."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: He chose to carry everything. For us. For this kingdom. For people
+        like me.
+      Name: Sara
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "And now he\u2019s lost because of it."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: "No. Now he\u2019s exactly where that choice led him."
+      Name: Sara
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "Then I\u2019ll pull him out of it."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "You can\u2019t. Strength won\u2019t reach him. Words won\u2019t reach
+        him."
+      Name: Sara
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Then what will?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Time. Consequence. Himself.
+      Name: Sara
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "\u2026And until then?"
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: I believe in him, he will come to his senses. No one interferes.
+      Name: Sara
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Then I guess there is no changing your mind..
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: If you truly wanted to save him, you'd let his loved ones save him.
+      Name: Sara
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: You...won't...bother us...anymore
+      Name: Unkown
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
   dialogueCanvasGroup: {fileID: 2025724818}
   AvatarImage: {fileID: 1974727333}
@@ -2080,6 +2149,139 @@ RectTransform:
   m_AnchoredPosition: {x: -5, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &417397548
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 417397549}
+  - component: {fileID: 417397552}
+  - component: {fileID: 417397551}
+  - component: {fileID: 417397550}
+  m_Layer: 5
+  m_Name: SkipBtn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &417397549
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 417397548}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 1446714868}
+  m_Father: {fileID: 1594706196}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 407, y: 660}
+  m_SizeDelta: {x: 160, y: 30}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &417397550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 417397548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 417397551}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 116247823}
+        m_TargetAssemblyTypeName: CombatDialogue, Assembly-CSharp
+        m_MethodName: SkipDialogue
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &417397551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 417397548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -8575023060137426606, guid: f02326f99cc1b4b4a95ead3e28d8f889, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &417397552
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 417397548}
+  m_CullTransparentMesh: 1
 --- !u!1 &438573342
 GameObject:
   m_ObjectHideFlags: 0
@@ -7826,6 +8028,142 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1440998314}
   m_CullTransparentMesh: 1
+--- !u!1 &1446714867
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1446714868}
+  - component: {fileID: 1446714870}
+  - component: {fileID: 1446714869}
+  m_Layer: 5
+  m_Name: Text (TMP)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1446714868
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1446714867}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 417397549}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1446714869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1446714867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: skip
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 5f9fc153955699f4eb8e4a9dc09ec3da, type: 2}
+  m_sharedMaterial: {fileID: -6690465110090245793, guid: 5f9fc153955699f4eb8e4a9dc09ec3da, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 3744608818
+  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 0.8745098}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 24
+  m_fontSizeBase: 24
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 2
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1446714870
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1446714867}
+  m_CullTransparentMesh: 1
 --- !u!1 &1449377215
 GameObject:
   m_ObjectHideFlags: 0
@@ -8754,6 +9092,7 @@ RectTransform:
   - {fileID: 1974727332}
   - {fileID: 86960071}
   - {fileID: 1647069187}
+  - {fileID: 417397549}
   m_Father: {fileID: 2025724817}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -10279,7 +10618,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2025724814
 MonoBehaviour:
   m_ObjectHideFlags: 0
