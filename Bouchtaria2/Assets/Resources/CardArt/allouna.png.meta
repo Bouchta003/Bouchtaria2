@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4e52d75805835e140994752f3beb61e6
+guid: 2c854e6304a1ba546a05c142c165da9c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4943186867632987858
-    second: Kenza Bouchtaria 1_0
+      213: 5002826633958314924
+    second: allouna_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Kenza Bouchtaria 1_0
+      name: allouna_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e212c58ebb5466bb0800000000000000
-      internalID: -4943186867632987858
+      spriteID: ca3d2f5415c9d6540800000000000000
+      internalID: 5002826633958314924
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Kenza Bouchtaria 1_0: -4943186867632987858
+      allouna_0: 5002826633958314924
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

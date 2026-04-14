@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d386822c78efeaf4ea3a53d2b2984a82
+guid: 5435756b3854b9d4cb9e5080f4b4bd01
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -108886728738271905
-    second: Adamprime Bouchtaria 1_0
+      213: 4713726622891264198
+    second: adam7_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Adamprime Bouchtaria 1_0
+      name: adam7_0
       rect:
         serializedVersion: 2
-        x: 0
+        x: 61
         y: 0
-        width: 1024
-        height: 1536
+        width: 915
+        height: 1014
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f5d0dccd8182d7ef0800000000000000
-      internalID: -108886728738271905
+      spriteID: 6c84cbd93658a6140800000000000000
+      internalID: 4713726622891264198
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Adamprime Bouchtaria 1_0: -108886728738271905
+      adam7_0: 4713726622891264198
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -101,6 +101,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] public TextMeshProUGUI textComp;
     [SerializeField] public Image fillImageAlly;
     [SerializeField] public Image fillImageEnemy;
+    
+    [Header("Tension Gauge")]
+    [SerializeField] public GameObject allySoulCounter;
+    [SerializeField] public GameObject enemySoulCounter;
 
     [Header("Camera Shake")]
     [SerializeField] private Camera mainCamera;
@@ -292,7 +296,27 @@ public class GameManager : MonoBehaviour
             );
         }
     }
+    public void SetSouls(PlayerOwner owner, int counter)
+    {
+        GameObject soulGO = owner == PlayerOwner.Player ? allySoulCounter : enemySoulCounter;
 
+        if (!soulGO.activeSelf)
+            soulGO.SetActive(true);
+
+        TextMeshProUGUI[] texts = soulGO.GetComponentsInChildren<TextMeshProUGUI>(true);
+
+        foreach (TextMeshProUGUI text in texts)
+        {
+            text.text = counter.ToString();
+        }
+    }
+    public int GetSouls(PlayerOwner owner)
+    {
+        GameObject soulGO = owner == PlayerOwner.Player ? allySoulCounter : enemySoulCounter;
+        if (!soulGO.activeSelf) soulGO.SetActive(true);
+
+        return Convert.ToInt32(soulGO.GetComponentInChildren<TextMeshProUGUI>().text);
+    }
     public int DiscardCardsFromHandWithDeferredReturn(
         PlayerOwner owner,
         Func<CardInstance, bool> discardPredicate,

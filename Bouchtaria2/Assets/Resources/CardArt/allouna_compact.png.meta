@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8a0f5b82e6e492d4b821b76b354164dc
+guid: e597a4bdd7fadce49a930ab3e196c932
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3825500913006668750
-    second: groboyer Bouchtaria 1_0
+      213: 1194842345151105122
+    second: allouna_compact_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: groboyer Bouchtaria 1_0
+      name: allouna_compact_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 1024
-        height: 1536
+        height: 1024
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2341e40203719eac0800000000000000
-      internalID: -3825500913006668750
+      spriteID: 268835948cee49010800000000000000
+      internalID: 1194842345151105122
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      groboyer Bouchtaria 1_0: -3825500913006668750
+      allouna_compact_0: 1194842345151105122
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

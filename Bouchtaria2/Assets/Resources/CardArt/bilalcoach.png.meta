@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 72a072fe7d053934193300f7bf0cf250
+guid: 36ca1cc9287005c4293c5d6504309f35
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3985679786977525462
-    second: Allouna Bouchtaria 1_0
+      213: -8016802412154849292
+    second: bilalcoach_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Allouna Bouchtaria 1_0
+      name: bilalcoach_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6deff3336aaff4730800000000000000
-      internalID: 3985679786977525462
+      spriteID: 4f7f3055ea89eb090800000000000000
+      internalID: -8016802412154849292
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Allouna Bouchtaria 1_0: 3985679786977525462
+      bilalcoach_0: -8016802412154849292
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 7670b4fbfceb4d447b362fa498703231
+guid: d7b4f2bbba6037b4abc60f79436690e1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1224622850834964889
-    second: Khyar 2 Bouchtaria 1_0
+      213: -2043777973553859606
+    second: soul indicator_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Khyar 2 Bouchtaria 1_0
+      name: soul indicator_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1024
-        height: 1536
+        width: 898
+        height: 890
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 76ed7286104410fe0800000000000000
-      internalID: -1224622850834964889
+      spriteID: ae3fd8ee2ca03a3e0800000000000000
+      internalID: -2043777973553859606
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Khyar 2 Bouchtaria 1_0: -1224622850834964889
+      soul indicator_0: -2043777973553859606
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

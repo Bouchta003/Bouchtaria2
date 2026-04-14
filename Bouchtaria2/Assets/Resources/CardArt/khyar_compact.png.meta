@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d768b92072842004c946fb71a4f77b8e
+guid: 36d4af7ae540476409a758212493e9d3
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7551517952670080599
-    second: Bilal Bouchtaria 1_0
+      213: 7419598945164646008
+    second: khyar_compact_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Bilal Bouchtaria 1_0
+      name: khyar_compact_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 1024
-        height: 1536
+        height: 1024
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9a16d148e6e933790800000000000000
-      internalID: -7551517952670080599
+      spriteID: 876d66e0ee5b7f660800000000000000
+      internalID: 7419598945164646008
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Bilal Bouchtaria 1_0: -7551517952670080599
+      khyar_compact_0: 7419598945164646008
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
