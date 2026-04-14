@@ -1295,6 +1295,137 @@ MonoBehaviour:
     - Content: You...won't...bother us...anymore
       Name: Unkown
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+  - Lines:
+    - Content: Careful what you say next. His name is not yours to stain.
+      Name: Rhita
+      Avatar: {fileID: 823831621719853587, guid: 6618328ae6b46a34aae76951021567d7, type: 3}
+    - Content: "I\u2019ve heard enough to know what he\u2019s become."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "Then you\u2019ve heard lies."
+      Name: Rhita
+      Avatar: {fileID: -7777597809696197703, guid: 428412fb0aae8a64a8abe6faf8dd926a, type: 3}
+    - Content: "An entire kingdom doesn\u2019t fall to lies."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: It falls to weakness. Something he never had.
+      Name: Rhita
+      Avatar: {fileID: -7777597809696197703, guid: 428412fb0aae8a64a8abe6faf8dd926a, type: 3}
+    - Content: You call this strength?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: I call it resolve.
+      Name: Rhita
+      Avatar: {fileID: -7777597809696197703, guid: 428412fb0aae8a64a8abe6faf8dd926a, type: 3}
+    - Content: "He\u2019s tearing everything apart."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "He\u2019s rebuilding it. You just don\u2019t understand the cost."
+      Name: Rhita
+      Avatar: {fileID: 823831621719853587, guid: 6618328ae6b46a34aae76951021567d7, type: 3}
+    - Content: And you do?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 4517582b12c2d6b40a9fbcdb18889ecf, type: 3}
+    - Content: He taught me everything I am. Discipline. Precision. Pride.
+      Name: Rhita
+      Avatar: {fileID: -7777597809696197703, guid: 428412fb0aae8a64a8abe6faf8dd926a, type: 3}
+    - Content: "Then you know this isn\u2019t who he was."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: This is exactly who he was meant to be.
+      Name: Rhita
+      Avatar: {fileID: 823831621719853587, guid: 6618328ae6b46a34aae76951021567d7, type: 3}
+    - Content: "\u2026You really believe that."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "I don\u2019t believe. I remember."
+      Name: Rhita
+      Avatar: {fileID: -7777597809696197703, guid: 428412fb0aae8a64a8abe6faf8dd926a, type: 3}
+    - Content: People are calling him mad.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "\u2026Say that again."
+      Name: Rhita
+      Avatar: {fileID: 823831621719853587, guid: 6618328ae6b46a34aae76951021567d7, type: 3}
+    - Content: You heard me.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Who are you to him anyway to defend him like that?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: I am the blade that answers to disrespect, you do'nt know the value
+        of my brother and you will perish in your arrogance !
+      Name: Rhita
+      Avatar: {fileID: 823831621719853587, guid: 6618328ae6b46a34aae76951021567d7, type: 3}
+  - Lines:
+    - Content: "Sit\u2026 just for a moment."
+      Name: El Padre
+      Avatar: {fileID: -5098830139293016519, guid: 3dea7a2145f1c284c93349ddcf49e913, type: 3}
+    - Content: "\u2026You\u2019re not attacking?"
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: "If I wished you dead, we wouldn\u2019t be speaking."
+      Name: El Padre
+      Avatar: {fileID: -5098830139293016519, guid: 3dea7a2145f1c284c93349ddcf49e913, type: 3}
+    - Content: Fair enough.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 4517582b12c2d6b40a9fbcdb18889ecf, type: 3}
+    - Content: "Tell me\u2026 what do you see when you think of him?"
+      Name: El Padre
+      Avatar: {fileID: -5098830139293016519, guid: 3dea7a2145f1c284c93349ddcf49e913, type: 3}
+    - Content: A king who lost his way.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: Hmm.
+      Name: El Padre
+      Avatar: {fileID: -5098830139293016519, guid: 3dea7a2145f1c284c93349ddcf49e913, type: 3}
+    - Content: You disagree.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: "I think you\u2019re looking for something to blame."
+      Name: El Padre
+      Avatar: {fileID: -5098830139293016519, guid: 3dea7a2145f1c284c93349ddcf49e913, type: 3}
+    - Content: "Isn\u2019t that what this is?"
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 4517582b12c2d6b40a9fbcdb18889ecf, type: 3}
+    - Content: That is the part you see.
+      Name: El Padre
+      Avatar: {fileID: -5098830139293016519, guid: 3dea7a2145f1c284c93349ddcf49e913, type: 3}
+    - Content: What part am I missing?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 4517582b12c2d6b40a9fbcdb18889ecf, type: 3}
+    - Content: "The sacrifices. The choices no one noticed. The moments where he
+        stood alone\u2026 and no one stepped forward."
+      Name: El Padre
+      Avatar: {fileID: -5098830139293016519, guid: 3dea7a2145f1c284c93349ddcf49e913, type: 3}
+    - Content: "\u2026You\u2019re saying this could\u2019ve been avoided."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: "I\u2019m saying he wasn\u2019t stopped, it should have been me..."
+      Name: Rhita
+      Avatar: {fileID: -5098830139293016519, guid: 3dea7a2145f1c284c93349ddcf49e913, type: 3}
+    - Content: Would it matter you or him a tyrant would be born. You didn't matter
+        did you?.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Now, I stand with him. As I should have from the beginning.
+      Name: El Padre
+      Avatar: {fileID: -5098830139293016519, guid: 3dea7a2145f1c284c93349ddcf49e913, type: 3}
+    - Content: I hear you, but it's too late now, I'm stopping this madness !
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: ...
+      Name: El Padre
+      Avatar: {fileID: -5098830139293016519, guid: 3dea7a2145f1c284c93349ddcf49e913, type: 3}
+    - Content: ...
+      Name: El Padre
+      Avatar: {fileID: -5098830139293016519, guid: 3dea7a2145f1c284c93349ddcf49e913, type: 3}
+    - Content: ...
+      Name: El Padre
+      Avatar: {fileID: -5098830139293016519, guid: 3dea7a2145f1c284c93349ddcf49e913, type: 3}
+    - Content: No you wont.
+      Name: El Padre
+      Avatar: {fileID: -7868205583407863676, guid: de262dc92570fa04590ee0ccfad7ef73, type: 3}
   dialogueCanvasGroup: {fileID: 2025724818}
   AvatarImage: {fileID: 1974727333}
   UIDialogue: {fileID: 2025724813}
