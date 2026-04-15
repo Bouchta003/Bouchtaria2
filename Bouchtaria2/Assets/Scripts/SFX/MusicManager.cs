@@ -21,12 +21,15 @@ public class MusicManager : MonoBehaviour
     [Header("Settings")]
     [SerializeField]
     private float defaultFadeTime = 1.5f;
+    [SerializeField, Range(0f, 1f)]
+    private float adventureDialogueVolumeMultiplier = 0.05f;
 
     [Header("Default Music")]
     [SerializeField]
     private AudioClip defaultMusic;
 
     private AudioClip currentClip;
+    private bool isAdventureDialogueMusicDucked;
 
     private Coroutine crossfadeCoroutine;
     [System.Serializable]
@@ -66,6 +69,18 @@ public class MusicManager : MonoBehaviour
     public void PlayCurrentMusic()
     {
         activeSource.Play();
+    }
+    public void SetAdventureDialogueMusicDuck(bool isActive)
+    {
+        if (!GameRunContext.IsAdventureCombat)
+            return;
+
+        isAdventureDialogueMusicDucked = isActive;
+
+        if (isActive)
+            PlayCurrentMusic();
+
+        ApplyCurrentVolumes();
     }
     private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
     private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
@@ -190,6 +205,25 @@ public class MusicManager : MonoBehaviour
         crossfadeCoroutine = StartCoroutine(Crossfade(newClip, fadeTime));
     }
 
+    private float GetTargetMusicVolume()
+    {
+        if (GameRunContext.IsAdventureCombat && isAdventureDialogueMusicDucked)
+            return adventureDialogueVolumeMultiplier;
+
+        return 1f;
+    }
+
+    private void ApplyCurrentVolumes()
+    {
+        float targetVolume = GetTargetMusicVolume();
+
+        if (activeSource != null)
+            activeSource.volume = targetVolume;
+
+        if (inactiveSource != null && crossfadeCoroutine == null)
+            inactiveSource.volume = 0f;
+    }
+
 
     private IEnumerator Crossfade(AudioClip newClip, float fadeTime)
     {
@@ -201,7 +235,7 @@ public class MusicManager : MonoBehaviour
 
             inactiveSource.clip = newClip;
             inactiveSource.loop = true;
-            inactiveSource.volume = 1f;
+            inactiveSource.volume = GetTargetMusicVolume();
             inactiveSource.Play();
 
             activeSource.Stop();
@@ -232,12 +266,13 @@ public class MusicManager : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / fadeTime);
+            float targetVolume = GetTargetMusicVolume();
 
             if (activeSource != null)
                 activeSource.volume = Mathf.Lerp(startVolume, 0f, t);
 
             if (inactiveSource != null)
-                inactiveSource.volume = Mathf.Lerp(0f, 1f, t);
+                inactiveSource.volume = Mathf.Lerp(0f, targetVolume, t);
 
             yield return null;
         }
@@ -247,7 +282,7 @@ public class MusicManager : MonoBehaviour
             activeSource.volume = 0f;
 
         if (inactiveSource != null)
-            inactiveSource.volume = 1f;
+            inactiveSource.volume = GetTargetMusicVolume();
 
         // Stop old source and swap references
         if (activeSource != null && activeSource.isPlaying)

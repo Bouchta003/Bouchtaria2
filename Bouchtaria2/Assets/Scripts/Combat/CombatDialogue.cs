@@ -44,6 +44,9 @@ public class CombatDialogue : MonoBehaviour
         currentScene = Dialogues[id];
         currentLine = 0;
 
+        if (GameRunContext.IsAdventureCombat && MusicManager.Instance != null)
+            MusicManager.Instance.SetAdventureDialogueMusicDuck(true);
+
         GameManager.Instance.UIparent.SetActive(false);
         StartCoroutine(FadeIn());
 
@@ -90,6 +93,14 @@ public class CombatDialogue : MonoBehaviour
 
         GameManager.Instance.UIparent.SetActive(true);
         GameManager.Instance.SetupFirstTurn();
+
+        if (MusicManager.Instance != null)
+        {
+            if (GameRunContext.IsAdventureCombat)
+                MusicManager.Instance.SetAdventureDialogueMusicDuck(false);
+            else
+                MusicManager.Instance.PlayCurrentMusic();
+        }
     }
     void DisplayLine()
     {
@@ -157,7 +168,13 @@ public class CombatDialogue : MonoBehaviour
         GameManager.Instance.UIparent.SetActive(true);
         GameManager.Instance.SetupFirstTurn();
 
-        MusicManager.Instance.PlayCurrentMusic();
+        if (MusicManager.Instance != null)
+        {
+            if (GameRunContext.IsAdventureCombat)
+                MusicManager.Instance.SetAdventureDialogueMusicDuck(false);
+            else
+                MusicManager.Instance.PlayCurrentMusic();
+        }
     }
 }
 
