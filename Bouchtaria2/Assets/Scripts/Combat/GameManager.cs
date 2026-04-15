@@ -158,6 +158,15 @@ public class GameManager : MonoBehaviour
     }
 
     private readonly List<PendingHandReturn> pendingHandReturns = new();
+    private sealed class PartnerLink
+    {
+        public CardInstance Source;
+        public CardInstance Partner;
+        public PlayerOwner Owner;
+        public int BoostMode;
+        public bool StatsApplied;
+    }
+    private readonly List<PartnerLink> activePartnerLinks = new();
 
     public void NotifySpellPlayed(CardInstance spell)
     {
@@ -249,6 +258,7 @@ public class GameManager : MonoBehaviour
 
         //Start turn logic
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
+        TurnManager.Instance.OnTurnEnded += HandleTurnEnded;
         TurnManager.Instance.StartFirstTurn();
         if (dungeonStartDrawBonus > 0)
         {
@@ -532,6 +542,7 @@ public class GameManager : MonoBehaviour
         {
             TurnManager.Instance.OnTurnStarted -= HandleTurnStart;
             TurnManager.Instance.OnTurnStarted -= HandleTurnStartedForPendingHandReturns;
+            TurnManager.Instance.OnTurnEnded -= HandleTurnEnded;
         }
     }
     // Update is called once per frame
@@ -745,6 +756,80 @@ public class GameManager : MonoBehaviour
     {
         IncreaseMaxMana(owner);
         RefillMana(owner);
+    }
+    private void HandleTurnEnded(PlayerOwner owner)
+    {
+        UpdatePartnerLinks();
+
+        foreach (PartnerLink link in activePartnerLinks)
+        {
+            if (link == null || link.BoostMode != 1)
+                continue;
+            if (link.Owner != owner)
+                continue;
+
+            StartCoroutine(deckManager.Draw(1, owner));
+        }
+    }
+    private bool IsPartnerLinkAlive(PartnerLink link)
+    {
+        if (link == null || link.Source == null || link.Partner == null)
+            return false;
+
+        return !link.Source.IsDead
+            && !link.Partner.IsDead
+            && link.Source.CurrentZone == CardZone.Board
+            && link.Partner.CurrentZone == CardZone.Board;
+    }
+    private void UpdatePartnerLinks()
+    {
+        for (int i = activePartnerLinks.Count - 1; i >= 0; i--)
+        {
+            PartnerLink link = activePartnerLinks[i];
+            bool alive = IsPartnerLinkAlive(link);
+
+            if (!alive)
+            {
+                if (link != null && link.StatsApplied)
+                {
+                    if (link.Source != null && !link.Source.IsDead)
+                        link.Source.ModifyStats(-1, -1);
+                    if (link.Partner != null && !link.Partner.IsDead)
+                        link.Partner.ModifyStats(-1, -1);
+                }
+
+                activePartnerLinks.RemoveAt(i);
+                continue;
+            }
+
+            if (link.BoostMode == 0 && !link.StatsApplied)
+            {
+                link.Source.ModifyStats(1, 1);
+                link.Partner.ModifyStats(1, 1);
+                link.StatsApplied = true;
+            }
+        }
+    }
+    public void SummonPartner(CardInstance source, int cardId, int boost)
+    {
+        if (source == null || source.IsDead || source.CurrentZone != CardZone.Board)
+            return;
+
+        CardInstance summoned = TrySummonForOwnerAndGet(source.Owner, cardId);
+        if (summoned == null || summoned.IsDead)
+            return;
+
+        PartnerLink link = new PartnerLink
+        {
+            Source = source,
+            Partner = summoned,
+            Owner = source.Owner,
+            BoostMode = boost,
+            StatsApplied = false
+        };
+
+        activePartnerLinks.Add(link);
+        UpdatePartnerLinks();
     }
     private void EndGame()
     {
@@ -1272,13 +1357,17 @@ public class GameManager : MonoBehaviour
     }
     public void TrySummonForOwner(PlayerOwner owner, int cardId, bool isTrait = false, bool islow = false, int setAtk = -1, int setHp = -1)
     {
+        TrySummonForOwnerAndGet(owner, cardId, isTrait, islow, setAtk, setHp);
+    }
+    public CardInstance TrySummonForOwnerAndGet(PlayerOwner owner, int cardId, bool isTrait = false, bool islow = false, int setAtk = -1, int setHp = -1)
+    {
         var board = GetBoardForOwner(owner);
-        if (board == null) return;
+        if (board == null) return null;
 
         // compute effective occupied slots including pending reservations
         int effectiveCount = board.GetCards().Count + GetPendingSummons(owner);
         if (effectiveCount >= (owner == PlayerOwner.Player ? allyDropArea.maxBoardSize : enemyDropArea.maxBoardSize))
-            return;
+            return null;
 
         // Reserve a slot immediately to prevent other concurrent summons from oversubscribing.
         IncPendingSummons(owner);
@@ -1287,7 +1376,7 @@ public class GameManager : MonoBehaviour
         if (data == null)
         {
             DecPendingSummons(owner);
-            return;
+            return null;
         }
 
         ICardDropArea parent = owner == PlayerOwner.Player ? allyDropArea : enemyDropArea;
@@ -1298,7 +1387,7 @@ public class GameManager : MonoBehaviour
         if (cardInst == null)
         {
             DecPendingSummons(owner);
-            return;
+            return null;
         }
 
         // attempt to add to board
@@ -1350,7 +1439,7 @@ public class GameManager : MonoBehaviour
             // board might have filled up in-between, destroy created GameObject and free reservation
             Destroy(cardInst.gameObject);
             DecPendingSummons(owner);
-            return;
+            return null;
         }
 
         // successful add -> release reservation
@@ -1360,6 +1449,7 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(DelayedDeploy(cardInst, forceRandomTarget: true));
         }
+        return cardInst;
     }
     public void TrySummonForOwnerNergi(PlayerOwner owner)
     {
@@ -2662,6 +2752,7 @@ public class GameManager : MonoBehaviour
     public void NotifyCardKilled(CardInstance deadCard)
     {
         OnCardKilled?.Invoke(deadCard);
+        UpdatePartnerLinks();
 
         // 🔑 Add to graveyard
         if (deadCard.Owner == PlayerOwner.Player)
