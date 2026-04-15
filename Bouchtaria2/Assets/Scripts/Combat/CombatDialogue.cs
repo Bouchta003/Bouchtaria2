@@ -89,7 +89,6 @@ public class CombatDialogue : MonoBehaviour
         currentLine = 0;
 
         GameManager.Instance.UIparent.SetActive(true);
-        GameManager.Instance.SetupFirstTurn();
     }
     void DisplayLine()
     {
@@ -156,8 +155,6 @@ public class CombatDialogue : MonoBehaviour
 
         GameManager.Instance.UIparent.SetActive(true);
         GameManager.Instance.SetupFirstTurn();
-
-        MusicManager.Instance.PlayCurrentMusic();
     }
 }
 

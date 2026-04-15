@@ -6,7 +6,7 @@ public class AudioSystem : MonoBehaviour
 {
     public static AudioSystem Instance;
     [Header("Audio Children")]
-    [SerializeField] SoundMixer soundMixer;
+    [SerializeField] public SoundMixer soundMixer;
     [SerializeField] public GameObject PauseCanvas;
     [SerializeField] GameObject MenuButton;
 
@@ -31,6 +31,17 @@ public class AudioSystem : MonoBehaviour
         if (GameRunContext.IsDungeonRun) MenuButton.GetComponentInChildren<TextMeshProUGUI>().text = "Concede";
         if (SceneManager.GetActiveScene().name == "Firebase") MenuButton.SetActive(false);
         else MenuButton.SetActive(true);
+    }
+    public void ToggleFullscreen()
+    {
+        if (Screen.fullScreenMode == FullScreenMode.Windowed)
+        {
+            Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+        }
+        else
+        {
+            Screen.fullScreenMode = FullScreenMode.Windowed;
+        }
     }
     public void MainMenu()
     {

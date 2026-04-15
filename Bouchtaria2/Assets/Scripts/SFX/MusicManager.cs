@@ -1,7 +1,8 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 
 public class MusicManager : MonoBehaviour
 {
@@ -15,8 +16,9 @@ public class MusicManager : MonoBehaviour
     private AudioSource inactiveSource;
 
     [Header("Scene Music Mapping")]
-    [SerializeField]
-    private List<SceneMusicEntry> sceneMusic = new List<SceneMusicEntry>();
+    [SerializeField] private List<SceneMusicEntry> sceneMusic = new List<SceneMusicEntry>();
+    [SerializeField] private TMP_Dropdown musicDropdown;
+    [SerializeField] private TextMeshProUGUI musicCurrentlyPlaying;
 
     [Header("Settings")]
     [SerializeField]
@@ -58,7 +60,11 @@ public class MusicManager : MonoBehaviour
         if (activeSource != null) activeSource.playOnAwake = false;
         if (inactiveSource != null) inactiveSource.playOnAwake = false;
     }
-
+    private void Start()
+    {
+        PopulateDropdown();
+        Invoke(nameof(PlayInitialMusic), 0.05f);
+    }
     public void PauseCurrentMusic()
     {
         activeSource.Pause();
@@ -67,12 +73,41 @@ public class MusicManager : MonoBehaviour
     {
         activeSource.Play();
     }
+    public void PlaySelectedMusic()
+    {
+        if (musicDropdown == null || allMusicClips.Count == 0)
+            return;
+
+        int index = musicDropdown.value;
+
+        if (index < 0 || index >= allMusicClips.Count)
+            return;
+
+        AudioClip selectedClip = allMusicClips[index];
+        PlayMusic(selectedClip, defaultFadeTime);
+    }
     private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
     private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
-    private void Start()
+    private List<AudioClip> allMusicClips = new List<AudioClip>();
+
+    private void PopulateDropdown()
     {
-        Invoke(nameof(PlayInitialMusic), 0.05f);
+        musicDropdown.ClearOptions();
+        allMusicClips.Clear();
+
+        List<string> options = new List<string>();
+
+        foreach (SceneMusicEntry entry in sceneMusic)
+        {
+            if (entry.music != null && !allMusicClips.Contains(entry.music))
+            {
+                allMusicClips.Add(entry.music);
+                options.Add(entry.music.name);
+            }
+        }
+
+        musicDropdown.AddOptions(options);
     }
     private void PlayInitialMusic()
     {
@@ -82,7 +117,6 @@ public class MusicManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         PlayMusicForScene(scene.name);
-        PauseCurrentMusic();
     }
 
     private void PlayMusicForScene(string sceneName)
@@ -170,7 +204,6 @@ public class MusicManager : MonoBehaviour
         int index = Random.Range(0, candidates.Count);
         return candidates[index];
     }
-
     public void PlayMusic(AudioClip newClip, float fadeTime)
     {
         if (newClip == null)
@@ -181,6 +214,12 @@ public class MusicManager : MonoBehaviour
 
         currentClip = newClip;
 
+        // ✅ UPDATE UI TEXT HERE
+        if (musicCurrentlyPlaying != null)
+        {
+            musicCurrentlyPlaying.text = "Now Playing: " + newClip.name;
+        }
+
         if (crossfadeCoroutine != null)
         {
             StopCoroutine(crossfadeCoroutine);
@@ -189,8 +228,6 @@ public class MusicManager : MonoBehaviour
 
         crossfadeCoroutine = StartCoroutine(Crossfade(newClip, fadeTime));
     }
-
-
     private IEnumerator Crossfade(AudioClip newClip, float fadeTime)
     {
         // Immediate (no fade) path
