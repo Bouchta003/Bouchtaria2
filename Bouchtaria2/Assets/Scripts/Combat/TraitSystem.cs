@@ -446,6 +446,7 @@ public class SoulForceProgression : ITraitProgression
     public void Register()
     {
         GameManager.Instance.OnCardKiller += OnCardKill;
+        GameManager.Instance.SetSouls(Owner, 0);
         TurnManager.Instance.OnTurnStarted += OnTurnStarted;
         PushInitialState();
     }
@@ -494,7 +495,7 @@ public class SoulForceProgression : ITraitProgression
         if (killer == null || killer.Owner != Owner)
             return;
 
-        if (!killer.HasKeyword("souleater"))
+        if (!killer.HasTrait("SoulForce"))
             return;
 
         int currentSouls = GameManager.Instance.GetSouls(Owner);

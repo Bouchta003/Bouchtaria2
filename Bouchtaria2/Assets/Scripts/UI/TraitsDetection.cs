@@ -176,7 +176,7 @@ public class TraitsDetection : MonoBehaviour
                         traitDisplay.iconSlot.sprite = traitDisplay.AvatarIcon;
                         break;
                     case CardData.Trait.SoulForce:
-                        traitDisplay.iconSlot.sprite = traitDisplay.memeIcon;
+                        traitDisplay.iconSlot.sprite = traitDisplay.soulForceIcon;
                         break;
                     default:
                         Debug.Log("Unkown trait");

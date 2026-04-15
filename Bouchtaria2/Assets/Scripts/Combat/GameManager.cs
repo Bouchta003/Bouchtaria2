@@ -241,8 +241,7 @@ public class GameManager : MonoBehaviour
         }
         SetFill(0, PlayerOwner.Player);
         SetFill(0, PlayerOwner.Enemy);
-        SetSouls(PlayerOwner.Player, 0);
-        SetSouls(PlayerOwner.Enemy, 0);
+
         fillImageAlly.transform.parent.gameObject.SetActive(false);
         fillImageEnemy.transform.parent.gameObject.SetActive(false);
         //Setup cores mana and deck before the turn logic

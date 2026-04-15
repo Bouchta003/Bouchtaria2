@@ -2538,7 +2538,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     private void TryExecuteSummonPartner(string effect)
     {
         (int cardId, int boost) = GetTwoIntsFromEffect(effect);
-        if (cardId <= 0 || boost < 0)
+        if (cardId <= 0 || boost < -1)
             return;
 
         SummonPartner(cardId, boost);
