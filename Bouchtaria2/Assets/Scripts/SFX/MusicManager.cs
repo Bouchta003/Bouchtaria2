@@ -59,6 +59,14 @@ public class MusicManager : MonoBehaviour
         if (inactiveSource != null) inactiveSource.playOnAwake = false;
     }
 
+    public void PauseCurrentMusic()
+    {
+        activeSource.Pause();
+    }
+    public void PlayCurrentMusic()
+    {
+        activeSource.Play();
+    }
     private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
     private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
@@ -74,6 +82,7 @@ public class MusicManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         PlayMusicForScene(scene.name);
+        PauseCurrentMusic();
     }
 
     private void PlayMusicForScene(string sceneName)

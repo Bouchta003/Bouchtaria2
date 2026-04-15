@@ -2483,11 +2483,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             && int.TryParse(parts[1].Trim(), out int hp))
         {
             ModifyStats(atk, hp);
-            Debug.Log($"[EOT] selfbuff({atk},{hp}) applied to {Data.name}: +{atk}/+{hp}");
             return;
         }
-
-        Debug.LogWarning($"Invalid selfbuff parameters '{effect}' on {Data.name}");
     }
 
     private void TryExecuteSelfHeal(string effect)

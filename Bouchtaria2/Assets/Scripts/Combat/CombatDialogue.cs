@@ -156,6 +156,8 @@ public class CombatDialogue : MonoBehaviour
 
         GameManager.Instance.UIparent.SetActive(true);
         GameManager.Instance.SetupFirstTurn();
+
+        MusicManager.Instance.PlayCurrentMusic();
     }
 }
 

@@ -532,7 +532,6 @@ public class GameManager : MonoBehaviour
             startingEnemyCoreHealth = 80;
 
         startingPlayerCoreHealth = 30;
-
         CombatDialogue.Instance.TriggerCutscene(battleId);
     }
     private void OnDestroy()
