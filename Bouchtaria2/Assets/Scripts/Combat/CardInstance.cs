@@ -1683,6 +1683,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.TrySummonForOwnerNergi(Owner);
             gameManager.CheckGlow();return false;
         }
+        if (effect.StartsWith("summonpartner"))
+        {
+            TryExecuteSummonPartner(effect);
+            gameManager.CheckGlow(); return false;
+        }
         if (effect.StartsWith("summon"))
         {
             TryExecuteSummon(effect);
@@ -2529,6 +2534,21 @@ public class CardInstance : MonoBehaviour, IAttackable
         else
             gameManager.TrySummonForOwner(Owner, cardId);
 
+    }
+    private void TryExecuteSummonPartner(string effect)
+    {
+        (int cardId, int boost) = GetTwoIntsFromEffect(effect);
+        if (cardId <= 0 || boost < 0)
+            return;
+
+        SummonPartner(cardId, boost);
+    }
+    public void SummonPartner(int id, int boost)
+    {
+        if (CurrentZone != CardZone.Board || IsDead)
+            return;
+
+        gameManager.SummonPartner(this, id, boost);
     }
     private IEnumerable<CardInstance> GetOwnerBoardCards()
     {
