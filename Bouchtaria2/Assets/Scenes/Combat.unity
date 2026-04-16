@@ -1301,6 +1301,10 @@ MonoBehaviour:
     - Content: Louriprime
       Name: Louriprime
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+  - Lines:
+    - Content: Louriprime
+      Name: You have bested me
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
   dialogueCanvasGroup: {fileID: 2025724818}
   AvatarImage: {fileID: 1974727333}
   UIDialogue: {fileID: 2025724813}

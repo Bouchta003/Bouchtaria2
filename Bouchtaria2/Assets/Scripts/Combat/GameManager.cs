@@ -240,7 +240,7 @@ public class GameManager : MonoBehaviour
     }
     public void SetupFirstTurn()
     {
-        if (TurnManager.Instance == null)
+        if (TurnManager.Instance == null ||adventureBossSecondPhaseTriggered ||adventureBossFinalDialogueTriggered)
         {
             Debug.LogError("TurnManager missing!");
             return;
