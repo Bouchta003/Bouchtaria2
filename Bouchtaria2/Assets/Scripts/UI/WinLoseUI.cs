@@ -43,6 +43,14 @@ public class WinLoseUI : MonoBehaviour
 
             restartBtn.SetActive(false);
             Setup("VICTORY", Color.green, "Enemy Core Destroyed, you earned 100 Gold and 20 Coins");
+            SFXManager.Instance.PlaySFXClip(GameManager.Instance.winSFX[i], transform, 1f);
+            return;
+        }
+        if (GameRunContext.IsAdventureCombat)
+        {
+            restartBtn.SetActive(false);
+            Setup("VICTORY", Color.green, "Enemy defeated, you earned 100 Gold/");
+            SFXManager.Instance.PlaySFXClip(GameManager.Instance.winSFX[i], transform, 1f);
             return;
         }
 

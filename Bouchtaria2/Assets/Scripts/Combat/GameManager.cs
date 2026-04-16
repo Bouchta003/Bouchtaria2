@@ -549,10 +549,10 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.G)) EnemyCore.TakeDamage(999) ;
         manacounterAlly.text = $"{AllyCurrentMana}/{AllyCurrentMaxMana}";
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
-        //if (Input.GetKeyDown(KeyCode.G)) SetFill(50, PlayerOwner.Player) ;
         if (DistortionWorld && boardDesign.GetComponentInChildren<SpriteRenderer>().sprite != distortionBoard)
         {
             boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = distortionBoard;

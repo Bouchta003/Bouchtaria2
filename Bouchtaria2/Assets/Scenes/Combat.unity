@@ -1293,6 +1293,14 @@ MonoBehaviour:
     - Content: No you wont.
       Name: El Padre
       Avatar: {fileID: -7868205583407863676, guid: de262dc92570fa04590ee0ccfad7ef73, type: 3}
+  - Lines:
+    - Content: Bouchta fight
+      Name: Bouchta
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+  - Lines:
+    - Content: Louriprime
+      Name: Louriprime
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
   dialogueCanvasGroup: {fileID: 2025724818}
   AvatarImage: {fileID: 1974727333}
   UIDialogue: {fileID: 2025724813}

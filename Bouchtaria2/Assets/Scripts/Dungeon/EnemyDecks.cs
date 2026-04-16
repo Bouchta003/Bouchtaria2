@@ -632,6 +632,17 @@ public static class EnemyDecks
                 89, 89, 202, 202, 119, 119, 88, 88, 158, 158,
                 133, 133, 141, 141, 59, 59, 191, 191, 130, 130
                 }
+            },
+            { 14, new List<int>
+                {
+                // Mixed theme: Mixed Faith-Pokemon synergy deck (refreshed order).
+                // Core card preview: first card in deck list.
+                25, 25, 60, 60, 64, 64, 0, 0, 19, 19,
+                112, 112, 62, 62, 22, 22, 148, 148, 147, 147,
+                109, 109, 40, 40, 120, 120, 63, 63, 162, 162,
+                54, 54, 202, 202, 26, 26, 16, 16, 133, 133,
+                149, 149, 61, 61, 216, 216, 146, 146, 10, 10
+                }
             }
         };
     public static List<int> GetFloorDeck(int floor)
