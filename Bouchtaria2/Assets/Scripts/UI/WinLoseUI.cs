@@ -13,10 +13,24 @@ public class WinLoseUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI subText;
     [SerializeField] private GameObject restartBtn;
     [SerializeField] private Image backgroundPanel;
+    private CanvasGroup canvasGroup;
 
     private void Awake()
     {
+        canvasGroup = GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+            canvasGroup = gameObject.AddComponent<CanvasGroup>();
+
+        SetInteractionEnabled(true);
         gameObject.SetActive(false);
+    }
+    public void SetInteractionEnabled(bool enabled)
+    {
+        if (canvasGroup == null)
+            return;
+
+        canvasGroup.interactable = enabled;
+        canvasGroup.blocksRaycasts = true;
     }
 
     public void ShowWin()
@@ -75,6 +89,7 @@ public class WinLoseUI : MonoBehaviour
     }
     private void Setup(string title, Color color, string subtitle)
     {
+        SetInteractionEnabled(true);
         gameObject.SetActive(true);
 
         resultText.text = title;
