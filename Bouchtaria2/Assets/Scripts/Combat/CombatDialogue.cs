@@ -27,6 +27,7 @@ public class CombatDialogue : MonoBehaviour
     bool isTyping = false;
     Coroutine typingCoroutine;
     bool resumeCombatAfterDialogue = true;
+    private int adventureFightId = -1; // Store the adventure fight ID
 
     public static CombatDialogue Instance;
 
@@ -42,7 +43,16 @@ public class CombatDialogue : MonoBehaviour
 
     public void TriggerCutscene(int id, bool resumeCombat = true)
     {
+        // Pause music when dialogue starts
+        MusicManager.Instance.PauseCurrentMusic();
+
+        // Store adventure fight ID if this is an adventure
+        if (GameRunContext.IsAdventureCombat)
+        {
+            adventureFightId = GameRunContext.AdventureFightId;
+        }
         if (Dialogues.Count<id+1) return;
+
         currentScene = Dialogues[id];
         currentLine = 0;
         resumeCombatAfterDialogue = resumeCombat;
@@ -151,7 +161,11 @@ public class CombatDialogue : MonoBehaviour
         dialogueCanvasGroup.alpha = 0;
         dialogueCanvasGroup.gameObject.SetActive(false);
     }
-
+    private AudioClip GetAdventureMusicForFight(int fightId)
+    {
+        // Get the music for the specific adventure fight ID
+        return MusicManager.Instance.GetMusicForAdventure(fightId);
+    }
     IEnumerator EndDialogue()
     {
         yield return StartCoroutine(FadeOut());
@@ -163,6 +177,22 @@ public class CombatDialogue : MonoBehaviour
         OnDialogueEnded?.Invoke();
         if (resumeCombatAfterDialogue)
             GameManager.Instance.SetupFirstTurn();
+
+        // Resume/change music after dialogue ends
+        if (adventureFightId != -1)
+        {
+            // Play the specific adventure music for this fight
+            AudioClip adventureMusic = GetAdventureMusicForFight(adventureFightId);
+            if (adventureMusic != null)
+            {
+                MusicManager.Instance.PlayMusic(adventureMusic, 1.5f);
+            }
+        }
+        else
+        {
+            // Resume normal music
+            MusicManager.Instance.PlayCurrentMusic();
+        }
     }
 }
 

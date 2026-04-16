@@ -248,7 +248,7 @@ public class MusicManager : MonoBehaviour
             PlayMusic(newClip, defaultFadeTime);
         }
     }
-    private AudioClip GetMusicForAdventure(int id)
+    public AudioClip GetMusicForAdventure(int id)
     {
         List<AudioClip> candidates = new List<AudioClip>();
 

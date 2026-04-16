@@ -1294,17 +1294,97 @@ MonoBehaviour:
       Name: El Padre
       Avatar: {fileID: -7868205583407863676, guid: de262dc92570fa04590ee0ccfad7ef73, type: 3}
   - Lines:
-    - Content: Bouchta fight
-      Name: Bouchta
+    - Content: "\u2014Quiet\u2026! Just\u2014just be quiet\u2026!"
+      Name: King Bouchta
+      Avatar: {fileID: -5921655818418249398, guid: 590806d078986784998c150eca7fc5b3, type: 3}
+    - Content: "\u2026Who are you talking to?"
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "They don\u2019t stop\u2026 they never stop\u2026"
+      Name: King bouchta
+      Avatar: {fileID: -5921655818418249398, guid: 590806d078986784998c150eca7fc5b3, type: 3}
+    - Content: Who ? There is no one here.
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: "No\u2026 they\u2019re always here."
+      Name: King bouchta
+      Avatar: {fileID: -5921655818418249398, guid: 590806d078986784998c150eca7fc5b3, type: 3}
+    - Content: "Crying\u2026 begging\u2026 blaming\u2026"
+      Name: King bouchta
+      Avatar: {fileID: -5921655818418249398, guid: 590806d078986784998c150eca7fc5b3, type: 3}
+    - Content: You don't know what it's like...I hear everything!
+      Name: King bouchta
+      Avatar: {fileID: -5921655818418249398, guid: 590806d078986784998c150eca7fc5b3, type: 3}
+    - Content: Bouchta...tell me what can I do to help ?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: "You\u2019re not hearing them."
+      Name: King bouchta
+      Avatar: {fileID: -5921655818418249398, guid: 590806d078986784998c150eca7fc5b3, type: 3}
+    - Content: I'm not doing enough, am I doing too much ? I need to do MORE!
+      Name: King bouchta
+      Avatar: {fileID: 8386265856786639955, guid: 7c62b9d78d4400c4da8c0c44fa91b39f, type: 3}
+    - Content: "Their hunger\u2026 their fear\u2026 their pain\u2026"
+      Name: King bouchta
+      Avatar: {fileID: 8386265856786639955, guid: 7c62b9d78d4400c4da8c0c44fa91b39f, type: 3}
+    - Content: "If I carry it\u2026 if I take it all\u2026 they can live without
+        it\u2026"
+      Name: King bouchta
+      Avatar: {fileID: 8386265856786639955, guid: 7c62b9d78d4400c4da8c0c44fa91b39f, type: 3}
+    - Content: YES... I Need to keep going...
+      Name: King bouchta
+      Avatar: {fileID: 8386265856786639955, guid: 7c62b9d78d4400c4da8c0c44fa91b39f, type: 3}
+    - Content: "That\u2019s not how it works.."
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: ENOUGH
+      Name: King bouchta
+      Avatar: {fileID: -5921655818418249398, guid: 590806d078986784998c150eca7fc5b3, type: 3}
+    - Content: ...You're loud too.
+      Name: King bouchta
+      Avatar: {fileID: -5921655818418249398, guid: 590806d078986784998c150eca7fc5b3, type: 3}
+    - Content: At last...
+      Name: King bouchta
+      Avatar: {fileID: -5921655818418249398, guid: 590806d078986784998c150eca7fc5b3, type: 3}
+    - Content: A voice I can put an end to..your death will soothe me.
+      Name: King bouchta
+      Avatar: {fileID: -1759543871456397347, guid: 5a45e82fa02d0f34c8d5b97f00f86a37, type: 3}
+    - Content: '**gulp**'
+      Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
   - Lines:
-    - Content: Louriprime
-      Name: Louriprime
+    - Content: Did you think it was over ?
+      Name: ...
+      Avatar: {fileID: -1888874408403687225, guid: b5a803c6d02f07140b8a1cc307a99564, type: 3}
+    - Content: Come on you should have played the first game
+      Name: ...
+      Avatar: {fileID: -1888874408403687225, guid: b5a803c6d02f07140b8a1cc307a99564, type: 3}
+    - Content: If you did you'd now there was a crazier second phase
+      Name: ...
+      Avatar: {fileID: -1888874408403687225, guid: b5a803c6d02f07140b8a1cc307a99564, type: 3}
+    - Content: Anyway nice to meet you, I'm the curse
+      Name: Prime Curse
+      Avatar: {fileID: 9205835235867031492, guid: 88a5f2c8a6a06d942bcf0c6c45cdeee6, type: 3}
+    - Content: You look like a nice potential host, would you work with me ?
+      Name: Prime Curse
+      Avatar: {fileID: 9205835235867031492, guid: 88a5f2c8a6a06d942bcf0c6c45cdeee6, type: 3}
+    - Content: Come on I didn't come all this way for this classic evil corruption
+        dialogue let's get his over with
+      Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+    - Content: Now that's what I'm looking for ! Some spirit...some zing
+      Name: Prime Curse
+      Avatar: {fileID: -1888874408403687225, guid: 2ad6898d2901eef4c806cba29dfa4cd4, type: 3}
+    - Content: I can just as well take your body after you die so you're right
+      Name: Prime Curse
+      Avatar: {fileID: 9205835235867031492, guid: 88a5f2c8a6a06d942bcf0c6c45cdeee6, type: 3}
+    - Content: Let's get this party STAAARTEEEED
+      Name: Prime Curse
+      Avatar: {fileID: -1888874408403687225, guid: 2ad6898d2901eef4c806cba29dfa4cd4, type: 3}
   - Lines:
     - Content: Louriprime
       Name: You have bested me
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -1888874408403687225, guid: 2ad6898d2901eef4c806cba29dfa4cd4, type: 3}
   dialogueCanvasGroup: {fileID: 2025724818}
   AvatarImage: {fileID: 1974727333}
   UIDialogue: {fileID: 2025724813}
