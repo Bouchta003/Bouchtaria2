@@ -329,8 +329,10 @@ public class DeckManager : MonoBehaviour
 
         if (deck.Count == 0)
         {
-            Debug.Log($"{owner} deck is empty.");
-            return;
+            InitializeDeck(owner);
+            if (owner == PlayerOwner.Player) GameManager.Instance.PlayerFatigue++;
+            else GameManager.Instance.EnemyFatigue++;
+            GameManager.Instance.DisplayFatigue(owner);
         }
 
         if (hand.handCards.Count >= hand.maxHandSize)
@@ -380,6 +382,9 @@ public class DeckManager : MonoBehaviour
         hand.AddCard(card.gameObject);
         hand.UpdateCardPositions();
         OnCardDrawn?.Invoke(card);
+        //Fatigue effect
+        if (owner == PlayerOwner.Player) GameManager.Instance.PlayerCore.TakeDamage(card.CurrentManaCost*GameManager.Instance.PlayerFatigue);
+        else GameManager.Instance.EnemyCore.TakeDamage(card.CurrentManaCost * GameManager.Instance.EnemyFatigue);
     }
     public void ReplaceCardsInDeck(PlayerOwner owner,Dictionary<int, int> replacements)
     {

@@ -74,6 +74,7 @@ public class GameManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] TextMeshProUGUI manacounterAlly;
     [SerializeField] GameObject boardDesign;
+    [SerializeField] GameObject fatigueDisplay;
     [SerializeField] public GameObject UIparent;
     [SerializeField] List<Sprite> boards;
     [SerializeField] Sprite distortionBoard;
@@ -104,7 +105,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] public Image fillImageAlly;
     [SerializeField] public Image fillImageEnemy;
     
-    [Header("Tension Gauge")]
+    [Header("Soul Counter")]
     [SerializeField] public GameObject allySoulCounter;
     [SerializeField] public GameObject enemySoulCounter;
 
@@ -115,6 +116,8 @@ public class GameManager : MonoBehaviour
     public Graveyard PlayerGraveyard { get; private set; } = new();
     public Graveyard EnemyGraveyard { get; private set; } = new();
 
+    public int PlayerFatigue = 0;
+    public int EnemyFatigue = 0;
 
     public int PlayerRandomCount = 0;
     public int EnemyRandomCount = 0;
@@ -402,7 +405,13 @@ public class GameManager : MonoBehaviour
         hand.UpdateCardPositions();
         return discardedCount;
     }
-
+    public void DisplayFatigue(PlayerOwner owner)
+    {
+        fatigueDisplay.SetActive(true);//Add animation
+        int fatigueVal = owner == PlayerOwner.Player ? PlayerFatigue : EnemyFatigue;
+        TextMeshProUGUI fatigueTxt = fatigueDisplay.GetComponentInChildren<TextMeshProUGUI>();
+        fatigueTxt.text = $"No more cards in deck.\nRefilling deck.\n{owner} now takes damage equal to the mana of cards draw * {fatigueVal}";
+    }
     public int DiscardRandomCardsFromEnemyHand(PlayerOwner sourceOwner, int count)
     {
         if (count <= 0)
