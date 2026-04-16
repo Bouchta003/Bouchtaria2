@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using SFB;
 
 public class MusicManager : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class MusicManager : MonoBehaviour
     [SerializeField] private List<SceneMusicEntry> sceneMusic = new List<SceneMusicEntry>();
     [SerializeField] private TMP_Dropdown musicDropdown;
     [SerializeField] private TextMeshProUGUI musicCurrentlyPlaying;
+    [SerializeField] private TMP_Dropdown musicImportedDropdown;
 
     [Header("Settings")]
     [SerializeField]
@@ -62,6 +64,7 @@ public class MusicManager : MonoBehaviour
     }
     private void Start()
     {
+        LoadSavedMusicFolder();
         PopulateDropdown();
         Invoke(nameof(PlayInitialMusic), 0.05f);
     }
@@ -90,7 +93,106 @@ public class MusicManager : MonoBehaviour
     private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
     private List<AudioClip> allMusicClips = new List<AudioClip>();
+    private List<AudioClip> importedClips = new List<AudioClip>();
+    public void ClearSavedFolder()
+    {
+        PlayerPrefs.DeleteKey("MusicFolderPath");
+        importedClips.Clear();
+        musicImportedDropdown.ClearOptions();
+    }
+    private void LoadSavedMusicFolder()
+    {
+        if (!PlayerPrefs.HasKey("MusicFolderPath"))
+            return;
 
+        string folderPath = PlayerPrefs.GetString("MusicFolderPath");
+
+        if (string.IsNullOrEmpty(folderPath))
+            return;
+
+        if (!System.IO.Directory.Exists(folderPath))
+        {
+            Debug.LogWarning("Saved music folder no longer exists.");
+            return;
+        }
+
+        StartCoroutine(LoadMusicFromFolder(folderPath));
+    }
+    public void BrowseFolder()
+    {
+        var paths = StandaloneFileBrowser.OpenFolderPanel("Select Music Folder", "", false);
+
+        if (paths.Length > 0 && !string.IsNullOrEmpty(paths[0]))
+        {
+            string folderPath = paths[0];
+
+            // Save it
+            PlayerPrefs.SetString("MusicFolderPath", folderPath);
+            PlayerPrefs.Save();
+
+            StartCoroutine(LoadMusicFromFolder(folderPath));
+        }
+    }
+    private IEnumerator LoadMusicFromFolder(string folderPath)
+    {
+        importedClips.Clear();
+        musicImportedDropdown.ClearOptions();
+
+        string[] files = System.IO.Directory.GetFiles(folderPath, "*.mp3");
+
+        List<string> options = new List<string>();
+
+        foreach (string file in files)
+        {
+            yield return StartCoroutine(LoadAudioFile(file, (clip) =>
+            {
+                if (clip != null)
+                {
+                    importedClips.Add(clip);
+                    options.Add(System.IO.Path.GetFileNameWithoutExtension(file));
+                }
+            }));
+        }
+
+        if (options.Count == 0)
+        {
+            Debug.LogWarning("No MP3 files found in folder.");
+
+        }else
+        musicImportedDropdown.AddOptions(options);
+    }
+    public void PlaySelectedImportedMusic()
+    {
+        if (musicImportedDropdown == null || importedClips.Count == 0)
+            return;
+
+        int index = musicImportedDropdown.value;
+
+        if (index < 0 || index >= importedClips.Count)
+            return;
+
+        AudioClip selectedClip = importedClips[index];
+        PlayMusic(selectedClip, defaultFadeTime);
+    }
+    private IEnumerator LoadAudioFile(string path, System.Action<AudioClip> onLoaded)
+    {
+        using (var www = UnityEngine.Networking.UnityWebRequestMultimedia.GetAudioClip("file://" + path, AudioType.MPEG))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityEngine.Networking.UnityWebRequest.Result.Success)
+            {
+                AudioClip clip = UnityEngine.Networking.DownloadHandlerAudioClip.GetContent(www);
+                clip.name = System.IO.Path.GetFileNameWithoutExtension(path);
+                onLoaded?.Invoke(clip);
+            }
+            else
+            {
+                Debug.LogError("Failed to load: " + path);
+                onLoaded?.Invoke(null);
+            }
+        }
+    }
     private void PopulateDropdown()
     {
         musicDropdown.ClearOptions();
