@@ -8,6 +8,7 @@ using System.Linq;
 using UnityEngine.Rendering;
 using System;
 using System.Text.RegularExpressions;
+using System.Reflection;
 using Firebase.Auth;
 using Firebase.Firestore;
 using Firebase.Extensions;
@@ -194,6 +195,7 @@ public class GameManager : MonoBehaviour
     private int dungeonStartDrawBonus;
     private int dungeonStartDrawBonusEnemy;
     private bool adventureBossSecondPhaseTriggered;
+    private bool adventureBossFinalDialogueTriggered;
     private void Awake()
     {
         if (Instance != null)
@@ -217,6 +219,7 @@ public class GameManager : MonoBehaviour
         dungeonStartDrawBonus = 0;
         dungeonStartDrawBonusEnemy = 0;
         adventureBossSecondPhaseTriggered = false;
+        adventureBossFinalDialogueTriggered = false;
         isTargettingAttack = false;
         InitializeMana();
 
@@ -991,22 +994,35 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(HandleAdventureBossSecondPhaseTransition());
                 return;
             }
+            if (GameRunContext.IsAdventureCombat && GameRunContext.AdventureFightId == 13 && adventureBossSecondPhaseTriggered && !adventureBossFinalDialogueTriggered)
+            {
+                adventureBossFinalDialogueTriggered = true;
+                CurrentGameState = GameState.PlayerWon;
+                Debug.Log("PLAYER WINS");
+                ApplyPlayerWinRewardsAndProgression();
+                StartCoroutine(HandleAdventureBossFinalDialogueThenWinUI());
+                return;
+            }
             CurrentGameState = GameState.PlayerWon;
             Debug.Log("PLAYER WINS");
-            ModifyUserGold(WinGoldReward);
-            if (GameRunContext.IsDungeonRun)
-            {
-                DungeonManager.SetDungeonCombatActive(false);
-                ApplyDungeonCoinReward(DungeonWinCoinReward);
-            }
-            if (GameRunContext.IsAdventureCombat)
-            {
-                AdventureProgressionService.SetAdventureCombatActive(false);
-                AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, true);
-            }
+            ApplyPlayerWinRewardsAndProgression();
         }
 
         EndGame();
+    }
+    private void ApplyPlayerWinRewardsAndProgression()
+    {
+        ModifyUserGold(WinGoldReward);
+        if (GameRunContext.IsDungeonRun)
+        {
+            DungeonManager.SetDungeonCombatActive(false);
+            ApplyDungeonCoinReward(DungeonWinCoinReward);
+        }
+        if (GameRunContext.IsAdventureCombat)
+        {
+            AdventureProgressionService.SetAdventureCombatActive(false);
+            AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, true);
+        }
     }
     private IEnumerator HandleAdventureBossSecondPhaseTransition()
     {
@@ -1025,15 +1041,51 @@ public class GameManager : MonoBehaviour
             winLoseUI.gameObject.SetActive(false);
         }
 
+        EnemyCore.Initialize(PlayerOwner.Enemy, 100);
         EnemyCore.FullHeal();
         ResetEnemyForAdventureSecondPhase(14);
         CombatDialogue.Instance.TriggerCutscene(14);
     }
+    private IEnumerator HandleAdventureBossFinalDialogueThenWinUI()
+    {
+        Debug.Log("Adventure boss second phase completed. Triggering final dialogue.");
+
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.enabled = false;
+
+        if (winLoseUI != null)
+            winLoseUI.gameObject.SetActive(false);
+
+        bool dialogueFinished = false;
+        CombatDialogue dialogue = CombatDialogue.Instance;
+
+        if (dialogue != null)
+        {
+            Action markDialogueFinished = () => dialogueFinished = true;
+            dialogue.OnDialogueEnded += markDialogueFinished;
+            dialogue.TriggerCutscene(15, resumeCombat: false);
+            yield return new WaitUntil(() => dialogueFinished);
+            dialogue.OnDialogueEnded -= markDialogueFinished;
+        }
+        else
+        {
+            Debug.LogWarning("CombatDialogue.Instance is missing; skipping combat 15 dialogue.");
+        }
+
+        EndGame();
+    }
     private void ResetEnemyForAdventureSecondPhase(int adventureDeckId)
     {
+        Dictionary<CardData.Trait, int> savedEnemyProgress = SnapshotTraitProgress(PlayerOwner.Enemy);
+        RemoveTraitProgressionsForOwner(PlayerOwner.Enemy);
         ClearEnemyHand();
+        DiscardEnemyDeck();
         EnemyGraveyard = new Graveyard();
         ReplaceEnemyDeckFromAdventureDeck(adventureDeckId);
+        deckManager.RefreshUnlockableTraitsForOwner(PlayerOwner.Enemy);
+        enemyTraitUI.DetectTraitBorder();
+        SetupPlayerTraits(PlayerOwner.Enemy, deckManager.EnemyTraitsUnlockable, enemyTraitSystem);
+        RestoreTraitProgress(PlayerOwner.Enemy, savedEnemyProgress);
         StartCoroutine(deckManager.Draw(5, PlayerOwner.Enemy));
     }
     private void ClearEnemyHand()
@@ -1064,6 +1116,119 @@ public class GameManager : MonoBehaviour
 
         deckManager.Shuffle(enemyDeck);
         deckManager.decks[PlayerOwner.Enemy] = enemyDeck;
+    }
+    private void DiscardEnemyDeck()
+    {
+        if (deckManager == null || deckManager.decks == null)
+            return;
+
+        if (deckManager.decks.TryGetValue(PlayerOwner.Enemy, out Queue<CardData> existingEnemyDeck))
+            existingEnemyDeck.Clear();
+    }
+    private Dictionary<CardData.Trait, int> SnapshotTraitProgress(PlayerOwner owner)
+    {
+        Dictionary<CardData.Trait, int> snapshot = new();
+
+        foreach (ITraitProgression progression in activeProgressions)
+        {
+            if (progression.Owner != owner)
+                continue;
+
+            snapshot[progression.Trait] = Mathf.Max(progression.CurrentProgress, 0);
+        }
+
+        return snapshot;
+    }
+    private void RemoveTraitProgressionsForOwner(PlayerOwner owner)
+    {
+        for (int i = activeProgressions.Count - 1; i >= 0; i--)
+        {
+            ITraitProgression progression = activeProgressions[i];
+            if (progression.Owner != owner)
+                continue;
+
+            progression.OnProgressUpdated -= HandleTraitProgressUpdated;
+            progression.Unregister();
+            activeProgressions.RemoveAt(i);
+        }
+
+        TraitSystem traitSystem = owner == PlayerOwner.Player ? allyTraitSystem : enemyTraitSystem;
+        traitSystem.ClearAll();
+    }
+    private void RestoreTraitProgress(PlayerOwner owner, Dictionary<CardData.Trait, int> savedProgress)
+    {
+        foreach (ITraitProgression progression in activeProgressions)
+        {
+            if (progression.Owner != owner)
+                continue;
+
+            if (!savedProgress.TryGetValue(progression.Trait, out int progress) || progress <= 0)
+            {
+                progression.PushInitialState();
+                continue;
+            }
+
+            TryRestoreProgressOnProgression(progression, progress);
+            progression.PushInitialState();
+        }
+    }
+    private void TryRestoreProgressOnProgression(ITraitProgression progression, int progress)
+    {
+        switch (progression.Trait)
+        {
+            case CardData.Trait.Neutral:
+                SetIntField(progression, "neutralPlayed", progress);
+                break;
+            case CardData.Trait.SoulForce:
+                SetIntField(progression, "soulsCollected", progress);
+                break;
+            case CardData.Trait.Fighter:
+                SetIntField(progression, "FighterPlayed", progress);
+                break;
+            case CardData.Trait.Chaos:
+                SetIntField(progression, "randomPlayed", progress);
+                break;
+            case CardData.Trait.Speedster:
+                SetIntField(progression, "speedsterAttacks", progress);
+                break;
+            case CardData.Trait.Pokemon:
+                SetIntField(progression, "pokemonKills", progress);
+                break;
+            case CardData.Trait.MonsterHunter:
+                SetIntField(progression, "colossusDeaths", progress);
+                break;
+            case CardData.Trait.Healer:
+                SetIntField(progression, "healAmount", progress);
+                break;
+            case CardData.Trait.Faith:
+                SetIntField(progression, "discoverCount", progress);
+                break;
+            case CardData.Trait.Avatar:
+                SetIntField(progression, "praiseCount", progress);
+                break;
+            case CardData.Trait.Gunner:
+                SetIntField(progression, "damageCount", progress);
+                break;
+            case CardData.Trait.Inazuma:
+                SetIntField(progression, "hissatsuCount", progress);
+                break;
+            default:
+                Debug.Log($"No trait-progress restoration mapping for {progression.Trait}.");
+                break;
+        }
+    }
+    private void SetIntField(ITraitProgression progression, string fieldName, int value)
+    {
+        if (progression == null || string.IsNullOrWhiteSpace(fieldName))
+            return;
+
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+        FieldInfo field = progression.GetType().GetField(fieldName, flags);
+
+        if (field == null || field.FieldType != typeof(int))
+            return;
+
+        field.SetValue(progression, value);
     }
     private void ApplyDungeonCoinReward(int reward)
     {
