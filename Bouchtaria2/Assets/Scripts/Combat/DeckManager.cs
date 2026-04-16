@@ -38,6 +38,19 @@ public class DeckManager : MonoBehaviour
 
         Debug.Log($"Traits detected: Player={AllyTraitsUnlockable.Count}, Enemy={EnemyTraitsUnlockable.Count}");
     }
+    public void RefreshUnlockableTraitsForOwner(PlayerOwner owner)
+    {
+        Dictionary<CardData.Trait, int> refreshed =
+            traitsDetection.RetrieveTraitTiersFromDeck(
+                decks[owner],
+                owner
+            );
+
+        if (owner == PlayerOwner.Player)
+            AllyTraitsUnlockable = refreshed;
+        else
+            EnemyTraitsUnlockable = refreshed;
+    }
 
     public void InitializeDecks()
     {

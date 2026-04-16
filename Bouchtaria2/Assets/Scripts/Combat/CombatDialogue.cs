@@ -6,6 +6,7 @@ using TMPro;
 
 public class CombatDialogue : MonoBehaviour
 {
+    public event System.Action OnDialogueEnded;
     [Header("Data")]
     [SerializeField] List<DialogueCutscene> Dialogues;
 
@@ -25,6 +26,7 @@ public class CombatDialogue : MonoBehaviour
 
     bool isTyping = false;
     Coroutine typingCoroutine;
+    bool resumeCombatAfterDialogue = true;
 
     public static CombatDialogue Instance;
 
@@ -38,11 +40,12 @@ public class CombatDialogue : MonoBehaviour
         Instance = this;
     }
 
-    public void TriggerCutscene(int id)
+    public void TriggerCutscene(int id, bool resumeCombat = true)
     {
         if (Dialogues.Count<id+1) return;
         currentScene = Dialogues[id];
         currentLine = 0;
+        resumeCombatAfterDialogue = resumeCombat;
 
         GameManager.Instance.UIparent.SetActive(false);
         StartCoroutine(FadeIn());
@@ -89,7 +92,9 @@ public class CombatDialogue : MonoBehaviour
         currentLine = 0;
 
         GameManager.Instance.UIparent.SetActive(true);
-        GameManager.Instance.SetupFirstTurn();
+        OnDialogueEnded?.Invoke();
+        if (resumeCombatAfterDialogue)
+            GameManager.Instance.SetupFirstTurn();
     }
     void DisplayLine()
     {
@@ -155,7 +160,9 @@ public class CombatDialogue : MonoBehaviour
         currentLine = 0;
 
         GameManager.Instance.UIparent.SetActive(true);
-        GameManager.Instance.SetupFirstTurn();
+        OnDialogueEnded?.Invoke();
+        if (resumeCombatAfterDialogue)
+            GameManager.Instance.SetupFirstTurn();
     }
 }
 
