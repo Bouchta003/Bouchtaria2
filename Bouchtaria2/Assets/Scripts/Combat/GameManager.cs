@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour
     private const int LossGoldCompensation = 20;
     private const int WinGoldReward = 100;
     private const int DungeonWinCoinReward = 30;
+    private const float AdventureSecondPhaseDelaySeconds = 3f;
 
     public static GameManager Instance;
 
@@ -192,6 +193,7 @@ public class GameManager : MonoBehaviour
     public int DiscoverDiscount;
     private int dungeonStartDrawBonus;
     private int dungeonStartDrawBonusEnemy;
+    private bool adventureBossSecondPhaseTriggered;
     private void Awake()
     {
         if (Instance != null)
@@ -214,6 +216,7 @@ public class GameManager : MonoBehaviour
         startingEnemyCoreHealth = startingCoreHealth;
         dungeonStartDrawBonus = 0;
         dungeonStartDrawBonusEnemy = 0;
+        adventureBossSecondPhaseTriggered = false;
         isTargettingAttack = false;
         InitializeMana();
 
@@ -982,12 +985,10 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            if (GameRunContext.IsAdventureCombat && GameRunContext.AdventureFightId==13)
+            if (GameRunContext.IsAdventureCombat && GameRunContext.AdventureFightId == 13 && !adventureBossSecondPhaseTriggered)
             {
-                //Verify if it was first phase or second phase.
-                //First phase of bouchta killed.
-                //Trigger dialogue first.
-                //Trigger animation and resurrect for 2nd phase.
+                adventureBossSecondPhaseTriggered = true;
+                StartCoroutine(HandleAdventureBossSecondPhaseTransition());
                 return;
             }
             CurrentGameState = GameState.PlayerWon;
@@ -1006,6 +1007,63 @@ public class GameManager : MonoBehaviour
         }
 
         EndGame();
+    }
+    private IEnumerator HandleAdventureBossSecondPhaseTransition()
+    {
+        if (winLoseUI != null)
+        {
+            winLoseUI.gameObject.SetActive(true);
+            winLoseUI.ShowWin();
+            winLoseUI.SetInteractionEnabled(false);
+        }
+
+        yield return new WaitForSeconds(AdventureSecondPhaseDelaySeconds);
+
+        if (winLoseUI != null)
+        {
+            winLoseUI.SetInteractionEnabled(true);
+            winLoseUI.gameObject.SetActive(false);
+        }
+
+        EnemyCore.FullHeal();
+        ResetEnemyForAdventureSecondPhase(14);
+        CombatDialogue.Instance.TriggerCutscene(14);
+    }
+    private void ResetEnemyForAdventureSecondPhase(int adventureDeckId)
+    {
+        ClearEnemyHand();
+        EnemyGraveyard = new Graveyard();
+        ReplaceEnemyDeckFromAdventureDeck(adventureDeckId);
+        StartCoroutine(deckManager.Draw(5, PlayerOwner.Enemy));
+    }
+    private void ClearEnemyHand()
+    {
+        if (enemyHand == null)
+            return;
+
+        foreach (GameObject handCard in new List<GameObject>(enemyHand.handCards))
+        {
+            enemyHand.RemoveCardFromHand(handCard);
+            Destroy(handCard);
+        }
+
+        enemyHand.handCards.Clear();
+        enemyHand.UpdateCardPositions();
+    }
+    private void ReplaceEnemyDeckFromAdventureDeck(int adventureDeckId)
+    {
+        List<int> enemyDeckIds = EnemyDecks.GetAdventureDeck(adventureDeckId);
+        Queue<CardData> enemyDeck = new Queue<CardData>();
+
+        foreach (int cardId in enemyDeckIds)
+        {
+            CardData cardData = CardDatabase.Instance.GetCardById(cardId);
+            if (cardData != null)
+                enemyDeck.Enqueue(cardData);
+        }
+
+        deckManager.Shuffle(enemyDeck);
+        deckManager.decks[PlayerOwner.Enemy] = enemyDeck;
     }
     private void ApplyDungeonCoinReward(int reward)
     {
