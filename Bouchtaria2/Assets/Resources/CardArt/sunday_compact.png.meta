@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 28dc76bcfc5f3c14f89dfc1b774727b8
+guid: 1e8c91bfcb99b7e4aa6715315891bc5a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4347074383671278454
-    second: fatigue_0
+      213: 7115869073017408320
+    second: sunday_compact_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: fatigue_0
+      name: sunday_compact_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 512
-        height: 512
+        width: 1024
+        height: 1024
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 67b3de2ce19e35c30800000000000000
-      internalID: 4347074383671278454
+      spriteID: 04b046d6835a0c260800000000000000
+      internalID: 7115869073017408320
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: d5117f7a0eb3275468fd7d51fab9b44d
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      fatigue_0: 4347074383671278454
+      sunday_compact_0: 7115869073017408320
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

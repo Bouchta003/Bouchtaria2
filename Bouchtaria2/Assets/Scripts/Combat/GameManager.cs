@@ -75,6 +75,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI manacounterAlly;
     [SerializeField] GameObject boardDesign;
     [SerializeField] GameObject fatigueDisplay;
+    private CanvasGroup canvasGroup;
     [SerializeField] public GameObject UIparent;
     [SerializeField] List<Sprite> boards;
     [SerializeField] Sprite distortionBoard;
@@ -212,7 +213,9 @@ public class GameManager : MonoBehaviour
         if (mainCamera == null)
             mainCamera = Camera.main;
 
-        cameraBasePos = mainCamera.transform.position;
+        cameraBasePos = mainCamera.transform.position; 
+        canvasGroup = fatigueDisplay.GetComponent<CanvasGroup>();
+
     }
     void Start()
     {
@@ -407,18 +410,54 @@ public class GameManager : MonoBehaviour
     }
     public void DisplayFatigue(PlayerOwner owner)
     {
-        fatigueDisplay.SetActive(true);//Add animation
+        fatigueDisplay.SetActive(true);
+
         int fatigueVal = owner == PlayerOwner.Player ? PlayerFatigue : EnemyFatigue;
+
         TextMeshProUGUI fatigueTxt = fatigueDisplay.GetComponentInChildren<TextMeshProUGUI>();
-        fatigueTxt.text = $"No more cards in deck.\nRefilling deck.\n{owner} now takes damage equal to the mana of cards draw * {fatigueVal}";
+        fatigueTxt.text = $"No more cards in deck.\nRefilling deck.\n{owner} now takes damage equal to the mana of the drawn cards * {fatigueVal}";
+
+        StopAllCoroutines();
+        StartCoroutine(FadeRoutine());
     }
-    public int DiscardRandomCardsFromEnemyHand(PlayerOwner sourceOwner, int count)
+    private IEnumerator FadeRoutine()
+    {
+        // Fade in
+        yield return StartCoroutine(Fade(0f, 1f, 0.5f));
+
+        // Stay visible for 3 seconds
+        yield return new WaitForSeconds(3f);
+
+        // Fade out
+        yield return StartCoroutine(Fade(1f, 0f, 0.5f));
+
+        fatigueDisplay.SetActive(false);
+    }
+    private IEnumerator Fade(float start, float end, float duration)
+    {
+        float time = 0f;
+
+        while (time < duration)
+        {
+            time += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Lerp(start, end, time / duration);
+            yield return null;
+        }
+
+        canvasGroup.alpha = end;
+    }
+    public int DiscardRandomCards(PlayerOwner sourceOwner, bool targetEnemy, int count)
     {
         if (count <= 0)
             return 0;
 
-        PlayerOwner targetOwner = sourceOwner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player;
-        HandManager targetHand = targetOwner == PlayerOwner.Player ? allyHand : enemyHand;
+        HandManager targetHand;
+
+        if (targetEnemy)
+            targetHand = sourceOwner == PlayerOwner.Player ? enemyHand : allyHand;
+        else
+            targetHand = sourceOwner == PlayerOwner.Player ? allyHand : enemyHand;
+
         if (targetHand == null || targetHand.handCards.Count == 0)
             return 0;
 
@@ -432,6 +471,7 @@ public class GameManager : MonoBehaviour
 
             int randomIndex = UnityEngine.Random.Range(0, targetHand.handCards.Count);
             GameObject toRemove = targetHand.handCards[randomIndex];
+
             if (toRemove == null)
             {
                 targetHand.handCards.RemoveAt(randomIndex);
@@ -446,7 +486,6 @@ public class GameManager : MonoBehaviour
         targetHand.UpdateCardPositions();
         return discardedCount;
     }
-
     public CardInstance AddCardToHandWithBonuses(
         PlayerOwner owner,
         int id,

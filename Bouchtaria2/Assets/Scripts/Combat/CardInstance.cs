@@ -1161,9 +1161,16 @@ public class CardInstance : MonoBehaviour, IAttackable
                 TryExecuteDamageAoe(effect);
                 gameManager.CheckGlow();
                 continue;
-            }if (effect.StartsWith("grantall"))
+            }
+            if (effect.StartsWith("grantall"))
             {
                 TryExecuteGrantAll(effect);
+                gameManager.CheckGlow();
+                continue;
+            }
+            if (effect.StartsWith("morphall"))
+            {
+                TryExecuteMorphAll(GetSingleIntFromEffect(effect));
                 gameManager.CheckGlow();
                 continue;
             }
@@ -1576,7 +1583,14 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.Hissatsu(Owner);
             gameManager.CheckGlow(); return false;
         }
+        if (effect.StartsWith("autodmgself"))
+        {
+            if (!TryParseIntEffect(effect, "autodmg", out int dmg))
+            { gameManager.CheckGlow(); return false; }
 
+            AutoDamageCoreSelf(dmg);
+            gameManager.CheckGlow(); return false;
+        }
         if (effect.StartsWith("autodmg"))
         {
             if (!TryParseIntEffect(effect, "autodmg", out int dmg))
@@ -1645,7 +1659,14 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("discardenemy"))
         {
             if (TryParseIntEffect(effect, "discardenemy", out int discardCount))
-                gameManager.DiscardRandomCardsFromEnemyHand(Owner, discardCount);
+                gameManager.DiscardRandomCards(Owner, true,discardCount);
+
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("discard"))
+        {
+            if (TryParseIntEffect(effect, "discard", out int discardCount))
+                gameManager.DiscardRandomCards(Owner,false, discardCount);
 
             gameManager.CheckGlow(); return false;
         }
@@ -1746,6 +1767,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("grantall"))
         {
             TryExecuteGrantAll(effect);
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("morphall"))
+        {
+            TryExecuteMorphAll(GetSingleIntFromEffect(effect));
             gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("damagerandomenemy"))
@@ -3356,6 +3382,30 @@ public class CardInstance : MonoBehaviour, IAttackable
             ci.view.UpdateMode();
         }
     }
+    private void TryExecuteMorphAll(int idMorph)
+    {
+        List<GameObject> allyboard =  gameManager.allyDropArea.allyPrefabCards;
+        List<GameObject> enemyyboard =  gameManager.enemyDropArea.enemyPrefabCards;
+
+        foreach (GameObject unitGO in allyboard)
+        {
+            if (unitGO == null) continue;
+
+            CardInstance ci = unitGO.GetComponent<CardInstance>();
+            if (ci == null || ci.IsDead) continue;
+
+            ci.MorphTo(idMorph);
+        }
+        foreach (GameObject unitGO in enemyyboard)
+        {
+            if (unitGO == null) continue;
+
+            CardInstance ci = unitGO.GetComponent<CardInstance>();
+            if (ci == null || ci.IsDead) continue;
+
+            ci.MorphTo(idMorph);
+        }
+    }
     private string ExtractParenthesizedArgs(string input)
     {
         if (string.IsNullOrEmpty(input))
@@ -3982,6 +4032,15 @@ public class CardInstance : MonoBehaviour, IAttackable
         TurnManager tm = FindFirstObjectByType<TurnManager>(); tm.UpdateGlow();
 
         UpdateStatsColor();
+    }
+    public void AutoDamageCoreSelf(int dmg)
+    {
+        if (Owner != PlayerOwner.Enemy)
+            gameManager.PlayerCore.TakeDamage(dmg);
+        else
+            gameManager.EnemyCore.TakeDamage(dmg);
+        gameManager.OnDamageWithCard(Owner);
+
     }
     public void AutoDamageCore(int dmg)
     {

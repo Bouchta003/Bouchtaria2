@@ -544,6 +544,7 @@ public static class EnemyDecks
                 {
                 //Omri deck : Combo + add discard cards and omri that scales with discards. a lot of draw
                 192,192,196,196,197,197,194,194,93,93,
+                302,302,//Gate Discard
                 }
             },
             { 2, new List<int>
@@ -560,6 +561,7 @@ public static class EnemyDecks
                 // Othmane : Le D and friends + inazuma othmane mains.
                 188,188,189,189,190,190,191,191,69,69,71,71,72,72,//Othmane cards and sonic core
                 214,214,//Luigi
+                307,307,//Doukha Mania
                 }
             },
             { 4, new List<int>
@@ -567,14 +569,15 @@ public static class EnemyDecks
                 // Amine : Fighter based deck with a berserk logic and charges.
                 168,168,//Agni
                 183,183,184,184,185,185,186,186,187,187,209,209,//Amine Mains
+                299,299,300,300,//Vikingrr and Max
 
 
                 }
             },
             { 5, new List<int>
                 {
-                //Adam : Bring back footballs in inazuma trait. Add morton as speedster and combine these two.
-                275,275,275,275,287,287,271,271,271,271
+                //Adam : Bring back footballs in inazuma trait
+                275,275,275,275,287,287,271,271,271,271,298,298,298,298,
                 }
             },
             { 6, new List<int>
@@ -584,8 +587,10 @@ public static class EnemyDecks
                 }
             },
             { 7, new List<int>
-                {
-                // o: Gunner+Fighter combo with Bouisk as a reference inside of the deck.
+                {//Count 20
+                173,173,173,173,173,173,173,173,173,173,173,173,// o: Gunner+Fighter 
+                90,90,90,90,90,
+                91,91,91//troll bouisk
                 }
             },
             { 8, new List<int>
@@ -613,7 +618,8 @@ public static class EnemyDecks
                 {
                 //Rhita : Combo + Pokemon cards with the payoff of her signature card.
                 276,281, 276,281, //Rhita and rhita team
-                277,277,278,278,279,279
+                277,277,278,278,279,279,
+                304,306,306,304//Sunday both forms
                 }
             },
             { 12, new List<int>
