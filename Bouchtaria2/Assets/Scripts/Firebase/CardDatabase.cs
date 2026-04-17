@@ -47,6 +47,11 @@ public class CardDatabase : MonoBehaviour
     }
 
 
+    public bool IsCardArtValid(CardData card)
+    {
+        var sprite = Resources.Load<Sprite>(card.artPath);
+        return sprite != null;
+    }
     private void LoadAllCards()
     {
         db.Collection("cards").GetSnapshotAsync().ContinueWithOnMainThread(task =>
@@ -112,15 +117,15 @@ public class CardDatabase : MonoBehaviour
             card.artSpriteCompact = Resources.Load<Sprite>(card.artCompactPath);
         }
 
-        if (card.artSprite == null)
+        if (card.artSprite == null || !IsCardArtValid(card))
         {
-            card.artSprite = defaultCardArt;
+            card.artSprite = null;
             Debug.LogWarning($"⚠️ Missing art for card {card.id}, using default");
         }
-        if (card.artSpriteCompact == null)
+        if (card.artSpriteCompact == null || !IsCardArtValid(card))
         {
-            card.artSpriteCompact = defaultCardArt;
-            Debug.LogWarning($"⚠️ Missing art for card {card.id}, using default");
+            card.artSpriteCompact = null;
+            Debug.LogWarning($"⚠️ Missing compact art for card {card.id}, using default");
         }
         return card;
     }
@@ -137,8 +142,9 @@ public class CardDatabase : MonoBehaviour
             Debug.LogWarning($"CardDatabase: Card with id {id} not found");
             return null;
         }
-
-        return data;
+        if (IsCardArtValid(data))
+            return data;
+        else return null;
     }
     public List<CardData> GetCardsByEffect(string effect)
     {
@@ -153,7 +159,7 @@ public class CardDatabase : MonoBehaviour
         foreach (CardData card in Cards.Values)
         {
             if (!string.IsNullOrEmpty(card.effect) &&
-                card.effect.Contains(effect))
+                card.effect.Contains(effect) && IsCardArtValid(card))
             {
                 result.Add(card);
 
@@ -176,7 +182,7 @@ public class CardDatabase : MonoBehaviour
         {
             if (card.traits != null && card.packable &&
                 card.traits.Any(t =>
-                    t.Equals(trait, StringComparison.OrdinalIgnoreCase)))
+                    t.Equals(trait, StringComparison.OrdinalIgnoreCase))&&IsCardArtValid(card))
             {
                 result.Add(card);
             }
@@ -196,7 +202,7 @@ public class CardDatabase : MonoBehaviour
 
         foreach (CardData card in Cards.Values)
         {
-            if (card.cardType != null && card.packable && card.cardType==type)
+            if (card.cardType != null && card.packable && card.cardType==type && IsCardArtValid(card))
             {
                 result.Add(card);
             }
@@ -216,7 +222,7 @@ public class CardDatabase : MonoBehaviour
 
         foreach (CardData card in Cards.Values)
         {
-            if (card.cardType != null && card.packable && card.effectText.ToLower().Contains(text.ToLower()))
+            if (card.cardType != null && card.packable && card.effectText.ToLower().Contains(text.ToLower()) && IsCardArtValid(card))
             {
                 result.Add(card);
             }
@@ -236,7 +242,7 @@ public class CardDatabase : MonoBehaviour
 
         foreach (CardData card in Cards.Values)
         {
-            if (card.cardType != null && card.packable && card.manaCost == mana)
+            if (card.cardType != null && card.packable && card.manaCost == mana && IsCardArtValid(card))
             {
                 result.Add(card);
             }
@@ -256,7 +262,7 @@ public class CardDatabase : MonoBehaviour
 
         foreach (CardData card in Cards.Values)
         {
-            if (card.cardType != null && !card.packable)
+            if (card.cardType != null && !card.packable && IsCardArtValid(card))
             {
                 result.Add(card);
             }

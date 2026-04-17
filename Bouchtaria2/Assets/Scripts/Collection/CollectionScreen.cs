@@ -220,6 +220,7 @@ public class CollectionScreen : MonoBehaviour
         {
             //Remove unpackable cards first
 
+            if (!CardDatabase.Instance.IsCardArtValid(card)) continue;
             if (!card.packable) continue;
             // -------------------------
             // OWNERSHIP FILTER
