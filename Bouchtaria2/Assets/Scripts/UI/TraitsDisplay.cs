@@ -184,7 +184,7 @@ public class TraitsDisplay : MonoBehaviour
                 if (tier > 1) display +=
                     "\nTier 2 : Bleeding enemies have -2 ATK.";
                 if (tier > 2) display +=
-                    "\nTier 3 : Attacking a Bleeding enemy consumes the Bleed and deals double damage.";
+                    "\nTier 3 : Attacking a Bleeding enemy with a Swordsman consumes the Bleed and deals double damage.";
                 break;
 
             case CardData.Trait.Cozy:

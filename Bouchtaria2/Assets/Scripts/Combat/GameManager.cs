@@ -3490,11 +3490,12 @@ public class GameManager : MonoBehaviour
             if (OwnerHasTrait(targetUnit.Owner, CardData.Trait.Swordsman, 2) && attacker.IsBleeding)
                 attackerDmg = Mathf.Max(0, attackerDmg - 2);
 
-            if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 3) && targetWasBleeding)
+            if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 3) && targetWasBleeding && attacker.HasTrait("Swordsman"))
             {
                 attackerDmg *= 2;
                 targetUnit.IsBleeding = false;
                 targetUnit.BleedingTurns = 0;
+                targetUnit.cardView.UpdateMode();
             }
 
             if (attackerDmg >= targetUnit.CurrentHealth && !targetUnit.HasKeyword("blessed")) isKill = true;
@@ -3554,7 +3555,7 @@ public class GameManager : MonoBehaviour
 
             if (OwnerHasTrait(target.Owner, CardData.Trait.Swordsman, 2) && attacker.IsBleeding)
                 attackerDmg = Mathf.Max(0, attackerDmg - 2);
-            if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 3) && targetWasBleeding)
+            if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 3) && targetWasBleeding && attacker.HasTrait("Swordsman"))
             {
                 attackerDmg *= 2;
                 core.IsBleeding = false;

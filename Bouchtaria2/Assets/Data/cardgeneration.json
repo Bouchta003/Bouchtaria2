@@ -5144,7 +5144,7 @@
       "manaCost": 6,
       "atkValue": 3,
       "hpValue": 6,
-      "traits": [ "Swordsman", "Fighter" ],
+      "traits": [ "Swordsman" ],
       "effect": "cleave strikebleed",
       "effectText": "Cleave and Apply Bleed on strike",
       "artPath": "CardArt/nagoriyuki",
