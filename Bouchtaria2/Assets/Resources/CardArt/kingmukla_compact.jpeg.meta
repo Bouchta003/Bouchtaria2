@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e448fe8d0506c8f468eee10ef42bd4a5
+guid: fe02411752935fb40b0d97e3eb319ab6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5985988413649679470
-    second: thelichking_0
+      213: 7835793675039386109
+    second: kingmukla_compact_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: thelichking_0
+      name: kingmukla_compact_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 841
-        height: 841
+        width: 384
+        height: 384
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 29b8eceb04f7deca0800000000000000
-      internalID: -5985988413649679470
+      spriteID: df9a9f5e4d45ebc60800000000000000
+      internalID: 7835793675039386109
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      thelichking_0: -5985988413649679470
+      kingmukla_compact_0: 7835793675039386109
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
