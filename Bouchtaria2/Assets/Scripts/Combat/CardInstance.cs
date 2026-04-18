@@ -1378,11 +1378,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         effect = effect.ToLowerInvariant();
         Debug.Log($"[DEPLOY] Executing effect: {effect}");
 
-        if (TryResolveDeckStatusConditional(effect, out bool isDeckConditional, out string resolvedDeckConditionalEffect))
+        if (TryResolveDeckStatusConditional(effect, out bool isDeckConditional, out string resolvedDeckConditionalEffect) && isDeckConditional)
         {
-            if (!isDeckConditional)
-                return false;
-
             if (string.IsNullOrWhiteSpace(resolvedDeckConditionalEffect))
             {
                 Debug.LogWarning($"Malformed deck conditional effect '{effect}' on card {Data.name}");
