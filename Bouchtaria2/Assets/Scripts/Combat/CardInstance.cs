@@ -1204,7 +1204,11 @@ public class CardInstance : MonoBehaviour, IAttackable
                 if (target is CardInstance inst) TryExecuteSilence(inst);
                 continue;
             }
-
+            if (effect.StartsWith("applybleed"))
+            {
+                if (target is CardInstance inst) ApplyBleed(inst);
+                continue;
+            }
             if (effect.StartsWith("sleepall"))
             {
                 SleepAll();
@@ -1797,10 +1801,15 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteKill(effect, null);
             gameManager.CheckGlow(); return false;
         }
+        else if (effect.StartsWith("damagebleed"))
+        {
+            TryExecuteDamageBleed(effect, null);
+            gameManager.CheckGlow(); return false;
+        }
         else if (effect.StartsWith("damage"))
         {
             TryExecuteDamage(effect, null);
-            gameManager.CheckGlow();return false;
+            gameManager.CheckGlow(); return false;
         }
 
         if (effect.StartsWith("catch") && effect.Contains(",target"))
@@ -2344,6 +2353,13 @@ public class CardInstance : MonoBehaviour, IAttackable
                 TryExecuteGear(pendingTargetedEffect, CurrentEffectText, ci);
                 executed = true;
             }
+        }else if (pendingTargetedEffect.StartsWith("damagebleed"))
+        {
+            if (target != null)
+            {
+                TryExecuteDamageBleed(pendingTargetedEffect, target);
+                executed = true;
+            }
         }
         else if (pendingTargetedEffect.StartsWith("damage"))
         {
@@ -2397,6 +2413,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         else if (pendingTargetedEffect.StartsWith("silence") && target is CardInstance silenceTarget)
         {
             TryExecuteSilence(silenceTarget);
+            executed = true;
+        }
+        else if (pendingTargetedEffect.StartsWith("applybleed") && target is CardInstance bleedTarget)
+        {
+            ApplyBleed(bleedTarget);
             executed = true;
         }
         else if (pendingTargetedEffect.StartsWith("morphto") && target is CardInstance morphTarget)
@@ -3054,6 +3075,21 @@ public class CardInstance : MonoBehaviour, IAttackable
         view.hpTextBoard.text = CurrentHealth.ToString();
         UpdateStatsColor();
     }
+    private void TryExecuteDamageBleed(string effect, IAttackable target)
+    {
+        if (!TryParseIntEffect(effect, "damagebleed", out int amount))
+            return;
+
+        if (target == null)
+        {
+            Debug.LogError($"Damage effect requires a target on {Data.name}");
+            return;
+        }
+
+        target.TakeDamage(amount);
+        ApplyBleed(target);
+        gameManager.OnDamageWithCard(Owner);
+    }
     private void TryExecuteDamage(string effect, IAttackable target)
     {
         if(effect.StartsWith("damagenheal")){
@@ -3407,7 +3443,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             CardInstance ci = unitGO.GetComponent<CardInstance>();
             if (ci == null || ci.IsDead) continue;
 
-            ci.MorphTo(idMorph);
+            ci.MorphTo(idMorph, false);
         }
         foreach (GameObject unitGO in enemyyboard)
         {
@@ -3416,7 +3452,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             CardInstance ci = unitGO.GetComponent<CardInstance>();
             if (ci == null || ci.IsDead) continue;
 
-            ci.MorphTo(idMorph);
+            ci.MorphTo(idMorph,false);
         }
     }
     private string ExtractParenthesizedArgs(string input)
@@ -3749,7 +3785,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
     }
 
-    public void MorphTo(int newCardId)
+    public void MorphTo(int newCardId, bool triggerDeploy = true)
     {
         CardData newData = CardDatabase.Instance.GetCardById(newCardId);
         if (newData == null || newCardId == Data.id || CurrentHealth <= 0)
@@ -3796,6 +3832,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         ParseEffects();
 
         // Trigger deploy next frame
+        if(triggerDeploy)
         StartCoroutine(DelayedDeployAfterMorph());
     }
     private string ExtractRuntimeAddedEffects(string runtimeEffect, string baseEffect)
@@ -3907,6 +3944,29 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.Heal(heal);
         else
             gameManager.EnemyCore.Heal(heal);
+    }
+    public void ApplyBleed(IAttackable targetUnit)
+    {
+        if (targetUnit is CardInstance cardinst) {ApplyBleed(cardinst); return; }
+        else if(targetUnit is CoreInstance targetCore)
+        targetCore.IsBleeding = true;
+
+        if (gameManager.OwnerHasTrait(this.Owner, CardData.Trait.Swordsman, 1) && this.HasTrait("Swordsman"))
+            gameManager.swordsmanBleedAppliedThisTurn.Add(this.Owner);
+        gameManager.NotifyBleedApplied(this.Owner);
+    }
+    public void ApplyBleed(CardInstance targetUnit)
+    {
+        targetUnit.IsBleeding = true;
+        if (targetUnit.CurrentEffectText == null)
+            targetUnit.CurrentEffectText = "Is Bleeding";
+        else if (!targetUnit.CurrentEffectText.Contains("Is Bleeding"))
+            targetUnit.CurrentEffectText += "\nIs Bleeding";
+        targetUnit.GetComponent<CardView>().UpdateMode();
+
+        if (gameManager.OwnerHasTrait(this.Owner, CardData.Trait.Swordsman, 1) && this.HasTrait("Swordsman"))
+            gameManager.swordsmanBleedAppliedThisTurn.Add(this.Owner);
+        gameManager.NotifyBleedApplied(this.Owner);
     }
     public void AutoHealFull()
     {

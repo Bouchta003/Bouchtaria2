@@ -131,7 +131,7 @@ public class GameManager : MonoBehaviour
     public bool IsCombatAnimating { get; private set; }
     //Trait logic
     private readonly List<ITraitProgression> activeProgressions = new();
-    private readonly HashSet<PlayerOwner> swordsmanBleedAppliedThisTurn = new();
+    public readonly HashSet<PlayerOwner> swordsmanBleedAppliedThisTurn = new();
     //Attack logic
     private readonly Queue<AttackRequest> attackQueue = new Queue<AttackRequest>();
     private bool isResolvingAttack = false;
@@ -141,6 +141,7 @@ public class GameManager : MonoBehaviour
     //Trait Actions
     public event System.Action<CardInstance> OnCardKilled;
     public event System.Action<CardInstance> OnCardAttack;
+    public event System.Action<PlayerOwner> OnBleedApplied;
     public event System.Action<CardInstance> OnCardKiller;
     public event System.Action<PlayerOwner, int> OnOwnerHeal;
     public event System.Action<PlayerOwner, IAttackable, int, int> OnOwnerHealResolved;
@@ -183,7 +184,10 @@ public class GameManager : MonoBehaviour
     {
         OnCardPlayed?.Invoke(card);
     }
-
+    public void NotifyBleedApplied(PlayerOwner owner)
+    {
+        OnBleedApplied?.Invoke(owner);
+    }
     //Camera shake
     private Vector3 cameraBasePos;
     private Tween cameraShakeTween;
@@ -3503,7 +3507,7 @@ public class GameManager : MonoBehaviour
             }
             //Apply Bleeding to target
             bool shouldApplyBleed =
-                attacker.HasKeyword("bleed") ||
+                attacker.HasKeyword("strikebleed") ||
                 (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 1)
                  && attacker.HasTrait("Swordsman")
                  && !swordsmanBleedAppliedThisTurn.Contains(attacker.Owner)
@@ -3520,6 +3524,7 @@ public class GameManager : MonoBehaviour
 
                 if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 1) && attacker.HasTrait("Swordsman"))
                     swordsmanBleedAppliedThisTurn.Add(attacker.Owner);
+                OnBleedApplied?.Invoke(attacker.Owner);
             }
             //Apply lifesteal Heal before damage if enemy not blessed
             if (attacker.HasKeyword("lifesteal") && !targetUnit.HasKeyword("blessed"))
@@ -3554,7 +3559,7 @@ public class GameManager : MonoBehaviour
             }
 
             bool shouldApplyBleed =
-                attacker.HasKeyword("bleed") ||
+                attacker.HasKeyword("strikebleed") ||
                 (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 1)
                  && attacker.HasTrait("Swordsman")
                  && !swordsmanBleedAppliedThisTurn.Contains(attacker.Owner)
@@ -3565,6 +3570,7 @@ public class GameManager : MonoBehaviour
                 core.IsBleeding = true;
                 if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 1) && attacker.HasTrait("Swordsman"))
                     swordsmanBleedAppliedThisTurn.Add(attacker.Owner);
+                OnBleedApplied?.Invoke(attacker.Owner);
             }
 
             if (attacker.HasKeyword("lifesteal"))

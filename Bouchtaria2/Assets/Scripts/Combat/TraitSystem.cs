@@ -4160,9 +4160,9 @@ public class SwordsmanProgression : ITraitProgression
 
     private readonly int maxTier;
     private readonly TraitSystem traitSystem;
-    private int swordsmanAttacks;
+    private int appliedbleeds;
 
-    public int CurrentProgress => swordsmanAttacks;
+    public int CurrentProgress => appliedbleeds;
     public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
 
     public SwordsmanProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem)
@@ -4174,24 +4174,24 @@ public class SwordsmanProgression : ITraitProgression
 
     public void Register()
     {
-        GameManager.Instance.OnCardAttack += OnCardAttack;
+        GameManager.Instance.OnBleedApplied += OnApplyBleed;
         PushInitialState();
     }
 
     public void Unregister()
     {
         if (GameManager.Instance != null)
-            GameManager.Instance.OnCardAttack -= OnCardAttack;
+            GameManager.Instance.OnBleedApplied -= OnApplyBleed;
     }
 
     public void ResetProgression()
     {
-        swordsmanAttacks = 0;
+        appliedbleeds = 0;
     }
 
     public void PushInitialState()
     {
-        OnProgressUpdated?.Invoke(Trait, swordsmanAttacks, GetCurrentCap(), Owner);
+        OnProgressUpdated?.Invoke(Trait, appliedbleeds, GetCurrentCap(), Owner);
     }
 
     private int GetCurrentCap()
@@ -4205,19 +4205,19 @@ public class SwordsmanProgression : ITraitProgression
         };
     }
 
-    private void OnCardAttack(CardInstance attacker)
+    private void OnApplyBleed(PlayerOwner owner)
     {
-        if (attacker == null || attacker.Owner != Owner || !attacker.HasTrait("Swordsman"))
+        if (owner != Owner)
             return;
 
-        swordsmanAttacks++;
-        OnProgressUpdated?.Invoke(Trait, swordsmanAttacks, GetCurrentCap(), Owner);
+        appliedbleeds++;
+        OnProgressUpdated?.Invoke(Trait, appliedbleeds, GetCurrentCap(), Owner);
 
-        if (swordsmanAttacks >= 3 && CurrentTier < 1 && maxTier >= 1)
+        if (appliedbleeds >= 3 && CurrentTier < 1 && maxTier >= 1)
             UnlockTier1();
-        if (swordsmanAttacks >= 6 && CurrentTier < 2 && maxTier >= 2)
+        if (appliedbleeds >= 6 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2();
-        if (swordsmanAttacks >= 10 && CurrentTier < 3 && maxTier >= 3)
+        if (appliedbleeds >= 10 && CurrentTier < 3 && maxTier >= 3)
             UnlockTier3();
     }
 
