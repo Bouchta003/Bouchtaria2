@@ -1378,6 +1378,21 @@ public class CardInstance : MonoBehaviour, IAttackable
         effect = effect.ToLowerInvariant();
         Debug.Log($"[DEPLOY] Executing effect: {effect}");
 
+        if (TryResolveDeckStatusConditional(effect, out bool isDeckConditional, out string resolvedDeckConditionalEffect))
+        {
+            if (!isDeckConditional)
+                return false;
+
+            if (string.IsNullOrWhiteSpace(resolvedDeckConditionalEffect))
+            {
+                Debug.LogWarning($"Malformed deck conditional effect '{effect}' on card {Data.name}");
+                gameManager.CheckGlow();
+                return false;
+            }
+
+            return ExecuteEffect(resolvedDeckConditionalEffect);
+        }
+
         if (effect.Contains(",target") && !effect.StartsWith("gear"))
         {
             DeployPending = (CurrentZone == CardZone.Board);
@@ -1856,6 +1871,46 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
         return false;
+    }
+
+    private bool TryResolveDeckStatusConditional(string effect, out bool isConditional, out string resolvedEffect)
+    {
+        isConditional = false;
+        resolvedEffect = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(effect))
+            return true;
+
+        int separatorIndex = effect.IndexOf('?');
+        if (separatorIndex <= 0)
+            return true;
+
+        string condition = effect.Substring(0, separatorIndex).Trim();
+        string nestedEffect = effect.Substring(separatorIndex + 1).Trim();
+
+        bool conditionMatched;
+        switch (condition)
+        {
+            case "highlander":
+                conditionMatched = deckManager.HasNoDuplicates(Owner);
+                break;
+            case "pure":
+                conditionMatched = deckManager.HasPureDeck(Owner);
+                break;
+            case "polyvalent":
+                conditionMatched = deckManager.HasPolyvalentDeck(Owner);
+                break;
+            default:
+                return true;
+        }
+
+        isConditional = true;
+        if (conditionMatched)
+        {
+            resolvedEffect = nestedEffect;
+        }
+
+        return true;
     }
 
     private void ResumePendingTriggeredEffects()
