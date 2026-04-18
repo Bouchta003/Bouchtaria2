@@ -327,16 +327,21 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
             index++;
         }
     }
-
     private void HandleTurnStart(PlayerOwner owner)
     {
         if (owner != PlayerOwner.Player)
             return;
 
-        foreach (var cardGO in allyPrefabCards)
+        // Create a copy so modifications to allyPrefabCards during iteration are safe
+        foreach (var cardGO in allyPrefabCards.ToArray())
         {
+            if (cardGO == null) // In case it was already destroyed
+                continue;
+
             var instance = cardGO.GetComponent<CardInstance>();
-            instance.OnTurnStart();
+
+            if (instance != null)
+                instance.OnTurnStart();
         }
     }
     private void TriggerGunners(int traitLevel)

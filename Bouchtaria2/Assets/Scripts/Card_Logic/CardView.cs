@@ -268,7 +268,11 @@ public class CardView : MonoBehaviour,
             nameTextBoard.fontStyle = FontStyles.Italic;
         manaTextBoard.text = thisInstance.CurrentManaCost.ToString();
         manaTextBoard.gameObject.SetActive(false);
-        atkTextBoard.text = thisInstance.CurrentAttack.ToString();
+        if (GameManager.Instance.OwnerHasTrait(CardInstance.OtherPlayer(thisInstance.Owner), CardData.Trait.Swordsman, 2) && thisInstance.IsBleeding)
+        {
+            atkTextBoard.text = Mathf.Max(0,(thisInstance.CurrentAttack - 2)).ToString(); atkTextBoard.color = Color.orange;
+        }
+        else atkTextBoard.text = (thisInstance.CurrentAttack).ToString();
         hpTextBoard.text = thisInstance.CurrentHealth.ToString();
 
         frameRendererBoard.color = Color.white;
@@ -315,7 +319,6 @@ public class CardView : MonoBehaviour,
         lifestealSprite.SetActive(false);
         sleepSprite.SetActive(false);
         partnerSprite.SetActive(false);
-
 
         if (inst.HasKeyword("protect"))
             protectSprite.SetActive(true);
@@ -373,7 +376,12 @@ public class CardView : MonoBehaviour,
         else
         {
             manaTextBoard.text = instance.CurrentManaCost.ToString();
-            atkTextBoard.text = instance.CurrentAttack.ToString();
+            if (GameManager.Instance.OwnerHasTrait(instance.Owner, CardData.Trait.Swordsman, 2) && instance.IsBleeding)
+            {
+                atkTextBoard.text = (instance.CurrentAttack - 2).ToString();atkTextBoard.color = Color.orange;
+            }
+            else
+                atkTextBoard.text = instance.CurrentAttack.ToString();
             hpTextBoard.text = instance.CurrentHealth.ToString();
         }
 

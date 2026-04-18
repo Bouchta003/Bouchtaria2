@@ -3551,6 +3551,9 @@ public class GameManager : MonoBehaviour
             attacker.TriggerStrike();
             bool targetWasBleeding = core.IsBleeding;
             int attackerDmg = attacker.CurrentAttack;
+
+            if (OwnerHasTrait(target.Owner, CardData.Trait.Swordsman, 2) && attacker.IsBleeding)
+                attackerDmg = Mathf.Max(0, attackerDmg - 2);
             if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 3) && targetWasBleeding)
             {
                 attackerDmg *= 2;
