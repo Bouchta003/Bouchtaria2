@@ -403,6 +403,82 @@ public class DeckManager : MonoBehaviour
             deck.Enqueue(card);
         }
     }
+    /// <summary>
+    /// Verifies if the deck has any duplicate cards.
+    /// Returns false if any card appears more than once, true otherwise.
+    /// </summary>
+    public bool HasNoDuplicates(PlayerOwner owner)
+    {
+        if (!decks.TryGetValue(owner, out Queue<CardData> deck))
+        {
+            Debug.LogError($"Attempted to check duplicates for {owner}, but no deck is initialized.");
+            return false;
+        }
+
+        if (deck.Count == 0)
+            return true;
+
+        // Convert queue to list for analysis
+        List<CardData> deckSnapshot = new List<CardData>(deck);
+        Dictionary<int, int> cardCounts = new Dictionary<int, int>();
+
+        // Count each card ID
+        foreach (CardData card in deckSnapshot)
+        {
+            if (card == null)
+                continue;
+
+            if (cardCounts.ContainsKey(card.id))
+                cardCounts[card.id]++;
+            else
+                cardCounts[card.id] = 1;
+        }
+
+        // Check if any card appears more than once
+        foreach (var count in cardCounts.Values)
+        {
+            if (count > 1)
+                return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Verifies if the deck is "pure" (has only one active trait, regardless of tier).
+    /// Returns false if more than 1 distinct trait is active, true otherwise.
+    /// </summary>
+    public bool HasPureDeck(PlayerOwner owner)
+    {
+        Dictionary<CardData.Trait, int> traitsUnlockable =
+            owner == PlayerOwner.Player
+                ? AllyTraitsUnlockable
+                : EnemyTraitsUnlockable;
+
+        if (traitsUnlockable == null || traitsUnlockable.Count == 0)
+            return true; // No traits = pure
+
+        // If more than 1 distinct trait is unlocked, deck is not pure
+        return traitsUnlockable.Count == 1;
+    }
+
+    /// <summary>
+    /// Verifies if the deck is "polyvalent" (has at least 3 active traits).
+    /// Returns true if 3 or more distinct traits are active, false otherwise.
+    /// </summary>
+    public bool HasPolyvalentDeck(PlayerOwner owner)
+    {
+        Dictionary<CardData.Trait, int> traitsUnlockable =
+            owner == PlayerOwner.Player
+                ? AllyTraitsUnlockable
+                : EnemyTraitsUnlockable;
+
+        if (traitsUnlockable == null || traitsUnlockable.Count == 0)
+            return false;
+
+        // Return true if 3 or more traits are present
+        return traitsUnlockable.Count >= 3;
+    }
     public void ReplaceCardsEverywhere(
     PlayerOwner owner,Dictionary<int, int> replacements)
     {
