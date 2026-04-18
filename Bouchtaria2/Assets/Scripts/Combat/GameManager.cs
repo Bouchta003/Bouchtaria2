@@ -131,6 +131,7 @@ public class GameManager : MonoBehaviour
     public bool IsCombatAnimating { get; private set; }
     //Trait logic
     private readonly List<ITraitProgression> activeProgressions = new();
+    public readonly HashSet<PlayerOwner> swordsmanBleedAppliedThisTurn = new();
     //Attack logic
     private readonly Queue<AttackRequest> attackQueue = new Queue<AttackRequest>();
     private bool isResolvingAttack = false;
@@ -140,6 +141,7 @@ public class GameManager : MonoBehaviour
     //Trait Actions
     public event System.Action<CardInstance> OnCardKilled;
     public event System.Action<CardInstance> OnCardAttack;
+    public event System.Action<PlayerOwner> OnBleedApplied;
     public event System.Action<CardInstance> OnCardKiller;
     public event System.Action<PlayerOwner, int> OnOwnerHeal;
     public event System.Action<PlayerOwner, IAttackable, int, int> OnOwnerHealResolved;
@@ -182,7 +184,10 @@ public class GameManager : MonoBehaviour
     {
         OnCardPlayed?.Invoke(card);
     }
-
+    public void NotifyBleedApplied(PlayerOwner owner)
+    {
+        OnBleedApplied?.Invoke(owner);
+    }
     //Camera shake
     private Vector3 cameraBasePos;
     private Tween cameraShakeTween;
@@ -806,6 +811,7 @@ public class GameManager : MonoBehaviour
     }
     private void HandleTurnStart(PlayerOwner owner)
     {
+        swordsmanBleedAppliedThisTurn.Remove(owner);
         IncreaseMaxMana(owner);
         RefillMana(owner);
     }
@@ -942,8 +948,8 @@ public class GameManager : MonoBehaviour
                 CardData.Trait.Fighter => new FighterProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
                 CardData.Trait.Inazuma => new InazumaProgression(owner, maxTier, traitSystem),
                 CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
-                CardData.Trait.Cozy => throw new System.NotImplementedException(),
-                CardData.Trait.Swordsman => throw new System.NotImplementedException(),
+                CardData.Trait.Cozy => new CozyProgression(owner, maxTier, traitSystem),
+                CardData.Trait.Swordsman => new SwordsmanProgression(owner, maxTier, traitSystem),
                 CardData.Trait.Combo => new ComboProgression(owner, maxTier, traitSystem),
                 CardData.Trait.SoulForce => new SoulForceProgression(owner, maxTier, traitSystem, deckManager),
                 _ => throw new System.NotImplementedException(),
@@ -3476,6 +3482,22 @@ public class GameManager : MonoBehaviour
             bool isKill = false;
             int attackerDmg = attacker.CurrentAttack;
             int defenderDmg = targetUnit.CurrentAttack;
+            bool targetWasBleeding = targetUnit.IsBleeding;
+
+            if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 2) && targetUnit.IsBleeding)
+                defenderDmg = Mathf.Max(0, defenderDmg - 2);
+
+            if (OwnerHasTrait(targetUnit.Owner, CardData.Trait.Swordsman, 2) && attacker.IsBleeding)
+                attackerDmg = Mathf.Max(0, attackerDmg - 2);
+
+            if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 3) && targetWasBleeding && attacker.HasTrait("Swordsman"))
+            {
+                attackerDmg *= 2;
+                targetUnit.IsBleeding = false;
+                targetUnit.BleedingTurns = 0;
+                targetUnit.cardView.UpdateMode();
+            }
+
             if (attackerDmg >= targetUnit.CurrentHealth && !targetUnit.HasKeyword("blessed")) isKill = true;
             int thornDamage = 0;
             attacker.TriggerStrike();
@@ -3485,20 +3507,34 @@ public class GameManager : MonoBehaviour
                 thornDamage = targetUnit.ThornsDamage;
             }
             //Apply Bleeding to target
-            if (attacker.HasKeyword("bleed"))
+            bool shouldApplyBleed =
+                attacker.HasKeyword("strikebleed") ||
+                (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 1)
+                 && attacker.HasTrait("Swordsman")
+                 && !swordsmanBleedAppliedThisTurn.Contains(attacker.Owner)
+                 && !targetWasBleeding);
+
+            if (shouldApplyBleed)
             {
                 targetUnit.IsBleeding = true;
-                targetUnit.CurrentEffectText += "\nIs Bleeding";
+                if (targetUnit.CurrentEffectText == null)
+                    targetUnit.CurrentEffectText = "Is Bleeding";
+                else if (!targetUnit.CurrentEffectText.Contains("Is Bleeding"))
+                    targetUnit.CurrentEffectText += "\nIs Bleeding";
                 targetUnit.GetComponent<CardView>().UpdateMode();
+
+                if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 1) && attacker.HasTrait("Swordsman"))
+                    swordsmanBleedAppliedThisTurn.Add(attacker.Owner);
+                OnBleedApplied?.Invoke(attacker.Owner);
             }
             //Apply lifesteal Heal before damage if enemy not blessed
             if (attacker.HasKeyword("lifesteal") && !targetUnit.HasKeyword("blessed"))
             {
-                attacker.AutoHealCore(attacker.CurrentAttack);
+                attacker.AutoHealCore(attackerDmg);
             }
             if (targetUnit.HasKeyword("lifesteal") && !attacker.HasKeyword("blessed"))
             {
-                targetUnit.AutoHealCore(targetUnit.CurrentAttack);
+                targetUnit.AutoHealCore(defenderDmg);
             }
             if (isKill)
             {
@@ -3514,16 +3550,38 @@ public class GameManager : MonoBehaviour
         if (target is CoreInstance core)
         {
             attacker.TriggerStrike();
-            if (attacker.HasKeyword("bleed"))
+            bool targetWasBleeding = core.IsBleeding;
+            int attackerDmg = attacker.CurrentAttack;
+
+            if (OwnerHasTrait(target.Owner, CardData.Trait.Swordsman, 2) && attacker.IsBleeding)
+                attackerDmg = Mathf.Max(0, attackerDmg - 2);
+            if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 3) && targetWasBleeding && attacker.HasTrait("Swordsman"))
+            {
+                attackerDmg *= 2;
+                core.IsBleeding = false;
+                core.BleedingTurns = 0;
+            }
+
+            bool shouldApplyBleed =
+                attacker.HasKeyword("strikebleed") ||
+                (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 1)
+                 && attacker.HasTrait("Swordsman")
+                 && !swordsmanBleedAppliedThisTurn.Contains(attacker.Owner)
+                 && !targetWasBleeding);
+
+            if (shouldApplyBleed)
             {
                 core.IsBleeding = true;
+                if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 1) && attacker.HasTrait("Swordsman"))
+                    swordsmanBleedAppliedThisTurn.Add(attacker.Owner);
+                OnBleedApplied?.Invoke(attacker.Owner);
             }
 
             if (attacker.HasKeyword("lifesteal"))
             {
-                attacker.AutoHealCore(attacker.CurrentAttack);
+                attacker.AutoHealCore(attackerDmg);
             }
-            core.TakeDamage(attacker.CurrentAttack);
+            core.TakeDamage(attackerDmg);
             return;
         }
     }

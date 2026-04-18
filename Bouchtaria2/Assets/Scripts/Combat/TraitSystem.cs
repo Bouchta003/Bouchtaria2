@@ -3868,3 +3868,420 @@ public class GunnerTier3Effect : IDeckTraitEffect
     }
 }
 #endregion
+
+#region Cozy
+public class CozyProgression : ITraitProgression
+{
+    public CardData.Trait Trait => CardData.Trait.Cozy;
+    public PlayerOwner Owner { get; }
+    public int CurrentTier { get; private set; }
+
+    private readonly int maxTier;
+    private readonly TraitSystem traitSystem;
+    private int cozySkippedAttacks;
+
+    public int CurrentProgress => cozySkippedAttacks;
+    public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
+
+    public CozyProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem)
+    {
+        Owner = owner;
+        this.maxTier = maxTier;
+        this.traitSystem = traitSystem;
+    }
+
+    public void Register()
+    {
+        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
+        PushInitialState();
+    }
+
+    public void Unregister()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+    }
+
+    public void ResetProgression()
+    {
+        cozySkippedAttacks = 0;
+    }
+
+    public void PushInitialState()
+    {
+        OnProgressUpdated?.Invoke(Trait, cozySkippedAttacks, GetCurrentCap(), Owner);
+    }
+
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 4,
+            1 => 8,
+            2 => 12,
+            _ => 9999
+        };
+    }
+
+    private void OnTurnEnded(PlayerOwner turnOwner)
+    {
+        if (turnOwner != Owner)
+            return;
+
+        GameManager gm = GameManager.Instance;
+        if (gm == null)
+            return;
+
+        List<CardInstance> unitsThatCouldAttackButDidNot = GetUnitsThatCouldAttackButDidNot(gm, Owner);
+        if (unitsThatCouldAttackButDidNot.Count <= 0)
+            return;
+
+        cozySkippedAttacks += unitsThatCouldAttackButDidNot.Count;
+        OnProgressUpdated?.Invoke(Trait, cozySkippedAttacks, GetCurrentCap(), Owner);
+
+        if (cozySkippedAttacks >= 4 && CurrentTier < 1 && maxTier >= 1)
+            UnlockTier1();
+        if (cozySkippedAttacks >= 8 && CurrentTier < 2 && maxTier >= 2)
+            UnlockTier2();
+        if (cozySkippedAttacks >= 12 && CurrentTier < 3 && maxTier >= 3)
+            UnlockTier3();
+    }
+
+    private void UnlockTier1()
+    {
+        CurrentTier = 1;
+        traitSystem.ActivateEffect(new CozyTier1Effect(Owner));
+    }
+
+    private void UnlockTier2()
+    {
+        CurrentTier = 2;
+        traitSystem.ActivateEffect(new CozyTier2Effect(Owner));
+    }
+
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+        traitSystem.ActivateEffect(new CozyTier3Effect(Owner));
+    }
+
+    private static List<CardInstance> GetUnitsThatCouldAttackButDidNot(GameManager gm, PlayerOwner owner)
+    {
+        IEnumerable<GameObject> cards =
+            owner == PlayerOwner.Player ? gm.allyDropArea?.GetCards() : gm.enemyDropArea?.GetCards();
+
+        List<CardInstance> result = new();
+        if (cards == null)
+            return result;
+
+        foreach (GameObject go in cards)
+        {
+            CardInstance card = go?.GetComponent<CardInstance>();
+            if (card == null || card.Owner != owner || card.IsDead || card.CurrentZone != CardZone.Board)
+                continue;
+
+            if (gm.CanSelectAttacker(card) && !card.HasAttackedThisTurn)
+                result.Add(card);
+        }
+
+        return result;
+    }
+}
+
+public class CozyTier1Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Cozy;
+    public int Tier => 1;
+    private readonly PlayerOwner owner;
+
+    public CozyTier1Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
+    }
+
+    public void OnUnregister()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+    }
+
+    private void OnTurnEnded(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        foreach (CardInstance card in GetUnitsThatCouldAttackButDidNot(owner))
+        {
+            int hpGain = card.HasTrait("Cozy") ? 2 : 1;
+            card.ModifyStats(0, hpGain);
+        }
+    }
+
+    public static List<CardInstance> GetUnitsThatCouldAttackButDidNot(PlayerOwner owner)
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null)
+            return new List<CardInstance>();
+
+        IEnumerable<GameObject> cards =
+            owner == PlayerOwner.Player ? gm.allyDropArea?.GetCards() : gm.enemyDropArea?.GetCards();
+
+        List<CardInstance> result = new();
+        if (cards == null)
+            return result;
+
+        foreach (GameObject go in cards)
+        {
+            CardInstance card = go?.GetComponent<CardInstance>();
+            if (card == null || card.Owner != owner || card.IsDead || card.CurrentZone != CardZone.Board)
+                continue;
+
+            if (gm.CanSelectAttacker(card) && !card.HasAttackedThisTurn)
+                result.Add(card);
+        }
+
+        return result;
+    }
+}
+
+public class CozyTier2Effect : IDeckTraitEffect
+{
+    public int Tier => 2;
+    public CardData.Trait Trait => CardData.Trait.Cozy;
+    private readonly PlayerOwner owner;
+
+    public CozyTier2Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
+    }
+
+    public void OnUnregister()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+    }
+
+    private void OnTurnEnded(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        List<CardInstance> skippedUnits = CozyTier1Effect.GetUnitsThatCouldAttackButDidNot(owner);
+        int cozySkippedCount = skippedUnits.Count(ci => ci.HasTrait("Cozy"));
+        int triggers = cozySkippedCount / 2;
+        if (triggers <= 0)
+            return;
+
+        GameManager gm = GameManager.Instance;
+        if (gm == null)
+            return;
+
+        DeckManager deck = gm.deckManager;
+        HandManager hand = owner == PlayerOwner.Player ? deck.handManager : deck.handManagerEnemy;
+        CoreInstance core = owner == PlayerOwner.Player ? gm.PlayerCore : gm.EnemyCore;
+
+        for (int i = 0; i < triggers; i++)
+        {
+            DiscountRandomCardInHand(hand);
+            core?.Heal(2);
+        }
+    }
+
+    private static void DiscountRandomCardInHand(HandManager hand)
+    {
+        if (hand == null || hand.handCards.Count == 0)
+            return;
+
+        int index = Random.Range(0, hand.handCards.Count);
+        CardInstance card = hand.handCards[index]?.GetComponent<CardInstance>();
+        if (card == null)
+            return;
+
+        card.AddTemporaryManaModifier(-1);
+    }
+}
+
+public class CozyTier3Effect : IDeckTraitEffect
+{
+    public int Tier => 3;
+    public CardData.Trait Trait => CardData.Trait.Cozy;
+    private readonly PlayerOwner owner;
+
+    public CozyTier3Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister()
+    {
+        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
+    }
+
+    public void OnUnregister()
+    {
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+    }
+
+    private void OnTurnEnded(PlayerOwner turnOwner)
+    {
+        if (turnOwner != owner)
+            return;
+
+        foreach (CardInstance card in CozyTier1Effect.GetUnitsThatCouldAttackButDidNot(owner))
+        {
+            if (string.IsNullOrWhiteSpace(card.CurrentEffect))
+                card.CurrentEffect = "blessed";
+            else if (!card.HasKeyword("blessed"))
+                card.CurrentEffect += " blessed";
+
+            card.GetComponent<CardView>()?.UpdateMode();
+        }
+    }
+}
+#endregion
+
+#region Swordsman
+public class SwordsmanProgression : ITraitProgression
+{
+    public CardData.Trait Trait => CardData.Trait.Swordsman;
+    public PlayerOwner Owner { get; }
+    public int CurrentTier { get; private set; }
+
+    private readonly int maxTier;
+    private readonly TraitSystem traitSystem;
+    private int appliedbleeds;
+
+    public int CurrentProgress => appliedbleeds;
+    public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
+
+    public SwordsmanProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem)
+    {
+        Owner = owner;
+        this.maxTier = maxTier;
+        this.traitSystem = traitSystem;
+    }
+
+    public void Register()
+    {
+        GameManager.Instance.OnBleedApplied += OnApplyBleed;
+        PushInitialState();
+    }
+
+    public void Unregister()
+    {
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnBleedApplied -= OnApplyBleed;
+    }
+
+    public void ResetProgression()
+    {
+        appliedbleeds = 0;
+    }
+
+    public void PushInitialState()
+    {
+        OnProgressUpdated?.Invoke(Trait, appliedbleeds, GetCurrentCap(), Owner);
+    }
+
+    private int GetCurrentCap()
+    {
+        return CurrentTier switch
+        {
+            0 => 3,
+            1 => 6,
+            2 => 10,
+            _ => 9999
+        };
+    }
+
+    private void OnApplyBleed(PlayerOwner owner)
+    {
+        if (owner != Owner)
+            return;
+
+        appliedbleeds++;
+        OnProgressUpdated?.Invoke(Trait, appliedbleeds, GetCurrentCap(), Owner);
+
+        if (appliedbleeds >= 3 && CurrentTier < 1 && maxTier >= 1)
+            UnlockTier1();
+        if (appliedbleeds >= 6 && CurrentTier < 2 && maxTier >= 2)
+            UnlockTier2();
+        if (appliedbleeds >= 10 && CurrentTier < 3 && maxTier >= 3)
+            UnlockTier3();
+    }
+
+    private void UnlockTier1()
+    {
+        CurrentTier = 1;
+        traitSystem.ActivateEffect(new SwordsmanTier1Effect(Owner));
+    }
+
+    private void UnlockTier2()
+    {
+        CurrentTier = 2;
+        traitSystem.ActivateEffect(new SwordsmanTier2Effect(Owner));
+    }
+
+    private void UnlockTier3()
+    {
+        CurrentTier = 3;
+        traitSystem.ActivateEffect(new SwordsmanTier3Effect(Owner));
+    }
+}
+
+public class SwordsmanTier1Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Swordsman;
+    public int Tier => 1;
+    private readonly PlayerOwner owner;
+
+    public SwordsmanTier1Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister() { }
+    public void OnUnregister() { }
+}
+
+public class SwordsmanTier2Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Swordsman;
+    public int Tier => 2;
+    private readonly PlayerOwner owner;
+
+    public SwordsmanTier2Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister() { }
+    public void OnUnregister() { }
+}
+
+public class SwordsmanTier3Effect : IDeckTraitEffect
+{
+    public CardData.Trait Trait => CardData.Trait.Swordsman;
+    public int Tier => 3;
+    private readonly PlayerOwner owner;
+
+    public SwordsmanTier3Effect(PlayerOwner owner)
+    {
+        this.owner = owner;
+    }
+
+    public void OnRegister() { }
+    public void OnUnregister() { }
+}
+#endregion
