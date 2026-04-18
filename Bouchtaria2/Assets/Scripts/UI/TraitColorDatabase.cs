@@ -18,12 +18,14 @@ public static class TraitColorDatabase
         { CardData.Trait.Speedster,     new Color(0.10f, 0.60f, 1.00f) }, // electric blue
 
         { CardData.Trait.Chaos,   new Color(0.62f, 0.12f, 0.94f) },
-        { CardData.Trait.Neutral,   new Color(0.58f, 0.58f, 0.58f) },
+        { CardData.Trait.Neutral,   new Color(0.45f, 0.45f, 0.45f) },
 
         { CardData.Trait.Inazuma,   new Color(1, 0.90f, 0.10f) },
         { CardData.Trait.MonsterHunter,   new Color(0.5f, 0.65f, 0.40f) },
         { CardData.Trait.Pokemon,   new Color(0.90f, 0.4f, 0.4f) },
-        { CardData.Trait.SoulForce, new Color(0.42f, 0.22f, 0.72f) }
+        { CardData.Trait.SoulForce, new Color(0.42f, 0.22f, 0.72f) },
+        { CardData.Trait.Cozy, new Color(0.96f, 0.72f, 0.82f) },
+        { CardData.Trait.Swordsman, new Color(0.78f, 0.82f, 0.88f) },
     };
 
     public static Color Get(CardData.Trait trait)

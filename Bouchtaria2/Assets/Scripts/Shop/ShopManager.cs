@@ -50,6 +50,9 @@ public class ShopManager : MonoBehaviour
     [SerializeField] Image chaosGlow;
     [SerializeField] Image comboGlow;
     [SerializeField] Image gunnerGlow;
+    [SerializeField] Image soulGlow;
+    [SerializeField] Image cozyGlow;
+    [SerializeField] Image swordsmanGlow;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Awake()
@@ -821,6 +824,18 @@ public class ShopManager : MonoBehaviour
         {
             EnableRainbowGlow(inazumaGlow);
         }
+        else if (selectedTrait == "Cozy")
+        {
+            EnableRainbowGlow(cozyGlow);
+        }
+        else if (selectedTrait == "SoulForce")
+        {
+            EnableRainbowGlow(soulGlow);
+        }
+        else if (selectedTrait == "Swordsman")
+        {
+            EnableRainbowGlow(swordsmanGlow);
+        }
         else if (selectedTrait == "Speedster")
         {
             EnableRainbowGlow(speedsterGlow);
@@ -839,6 +854,9 @@ public class ShopManager : MonoBehaviour
         DisableGlow(avatarGlow);
         DisableGlow(inazumaGlow);
         DisableGlow(fighterGlow);
+        DisableGlow(cozyGlow);
+        DisableGlow(soulGlow);
+        DisableGlow(swordsmanGlow);
         DisableGlow(neutralGlow);
         DisableGlow(speedsterGlow);
     }

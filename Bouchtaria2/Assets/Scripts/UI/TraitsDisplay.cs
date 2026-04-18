@@ -21,6 +21,8 @@ public class TraitsDisplay : MonoBehaviour
     [SerializeField] public Sprite spellFocusIcon;//
     [SerializeField] public Sprite speedsterIcon;
     [SerializeField] public Sprite soulForceIcon;
+    [SerializeField] public Sprite cozyIcon;
+    [SerializeField] public Sprite swordsmanIcon;
 
     [Header("Prefab components")]
     [SerializeField] public Image iconSlot;
@@ -175,6 +177,23 @@ public class TraitsDisplay : MonoBehaviour
                         "\nTier 2 : Whenever a character consumes souls, it gains +1/+1 per soul consumed.";
                 if (tier > 2) display +=
                          "\nTier 3 : End turn with 5+ souls to consume them and gain a random Evangelist Grace.";
+                break;
+            case CardData.Trait.Swordsman:
+                display += $"Apply Bleed to enemies to unlock: {Progression}/{CurrentCap}" +
+                    "\nTier 1 : The first Swordsman attack each turn applies Bleed.";
+                if (tier > 1) display +=
+                    "\nTier 2 : Bleeding enemies have -2 ATK.";
+                if (tier > 2) display +=
+                    "\nTier 3 : Attacking a Bleeding enemy consumes the Bleed and deals double damage.";
+                break;
+
+            case CardData.Trait.Cozy:
+                display += $"End turns with units choosing not to attack to unlock: {Progression}/{CurrentCap}" +
+                    "\nTier 1 : Each unit that didn't attack gains +1 HP. Cozy units gain +2 HP instead.";
+                if (tier > 1) display +=
+                    "\nTier 2 : Every 2 Cozy units that didn't attack discount a random card in your hand by 1 and heal your core by 2.";
+                if (tier > 2) display +=
+                    "\nTier 3 : End of turn, units that didn't attack gain Blessed.";
                 break;
             default:
                 display += "Need to define this trait's tier logic";

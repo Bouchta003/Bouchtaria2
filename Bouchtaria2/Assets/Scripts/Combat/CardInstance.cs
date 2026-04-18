@@ -1232,6 +1232,19 @@ public class CardInstance : MonoBehaviour, IAttackable
                 TryExecuteGear(effect, CurrentEffectText, target);
                 continue;
             }
+            if (effect.StartsWith("buffall"))
+            {
+                (int atk, int hp) = GetTwoIntsFromEffect(effect);
+                if (atk == -1 && hp == -1)
+                {
+                    //Scenario of random mix of stats
+                    TryParseIntEffect(effect, "buffall", out int stats);
+                    gameManager.BuffAllAllies(stats, Owner);
+                    gameManager.CheckGlow();continue;
+                }
+                gameManager.BuffAllAllies(atk, hp, Owner);
+                gameManager.CheckGlow(); continue;
+            }
 
             if (effect.StartsWith("buff"))
             {

@@ -462,7 +462,7 @@ MonoBehaviour:
   pokemonIcon: {fileID: -4253989046976991003, guid: b67fd643f7036d24293239a74ce5e59f, type: 3}
   inazumaIcon: {fileID: -4679337653480981598, guid: 18b76b424b98187479c4dfd3f9888a59, type: 3}
   monsterhunterIcon: {fileID: 1161511386734866271, guid: 487e185bae9ff834c9400cc40bf2d976, type: 3}
-  healIcon: {fileID: -7885902996687886234, guid: 3f454b34cdc56f04b9f9094479b85660, type: 3}
+  healIcon: {fileID: 7166812964727351717, guid: c2412d0c41d893d448901692c0e0f192, type: 3}
   gunnerIcon: {fileID: -288840297590651333, guid: 8bbbca989cd7072428e711b069cef2c8, type: 3}
   FighterIcon: {fileID: 6247287197807811734, guid: c0c47a2ca855b064fbe0b6b783cb2b7b, type: 3}
   faithIcon: {fileID: 1436432417859167358, guid: ed8f50d6c687ee0498b87cd1083b2c78, type: 3}
@@ -474,6 +474,8 @@ MonoBehaviour:
   spellFocusIcon: {fileID: 2353896673767084397, guid: 9e75d9614a3236441a43570f2ae6a004, type: 3}
   speedsterIcon: {fileID: -3300177487904253893, guid: 1923a5453900f4046a727c70b5452275, type: 3}
   soulForceIcon: {fileID: -3659142802131623403, guid: 7eaa8453a4fbadc42921d7e5b09b22b8, type: 3}
+  cozyIcon: {fileID: -7885902996687886234, guid: 3f454b34cdc56f04b9f9094479b85660, type: 3}
+  swordsmanIcon: {fileID: -7328256368193133169, guid: ad371e4315d606f48b8e7b5e9802bf2a, type: 3}
   iconSlot: {fileID: 7266386244633224757}
   gemSlot: {fileID: 3872599570111737514}
   frameRaritySlot: {fileID: 633088922378128279}

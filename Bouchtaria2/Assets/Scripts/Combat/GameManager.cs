@@ -942,13 +942,12 @@ public class GameManager : MonoBehaviour
                 CardData.Trait.Fighter => new FighterProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
                 CardData.Trait.Inazuma => new InazumaProgression(owner, maxTier, traitSystem),
                 CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
+                CardData.Trait.Cozy => throw new System.NotImplementedException(),
+                CardData.Trait.Swordsman => throw new System.NotImplementedException(),
                 CardData.Trait.Combo => new ComboProgression(owner, maxTier, traitSystem),
                 CardData.Trait.SoulForce => new SoulForceProgression(owner, maxTier, traitSystem, deckManager),
                 _ => throw new System.NotImplementedException(),
             };
-
-            //CardData.Trait.Gunner => new GunnerProgression( owner, maxTier,traitSystem, allyDropArea, enemyDropArea), _ => null};
-
             if (progression != null)
             {
                 progression.Register(); progression.OnProgressUpdated += HandleTraitProgressUpdated;

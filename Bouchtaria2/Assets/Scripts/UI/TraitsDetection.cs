@@ -82,6 +82,8 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Neutral, new[] { 4,8,12 } },
             { CardData.Trait.SpellFocus, new[] { 6, 9, 12 } },
             { CardData.Trait.SoulForce, new[] { 4, 8, 12 } },
+            { CardData.Trait.Cozy, new[] { 4, 8, 12 } },
+            { CardData.Trait.Swordsman, new[] { 4, 8, 12 } },
         };
 
         // 3. Resolve tiers
@@ -159,6 +161,12 @@ public class TraitsDetection : MonoBehaviour
                         break;
                     case CardData.Trait.Chaos:
                         traitDisplay.iconSlot.sprite = traitDisplay.chaosIcon;
+                        break;
+                    case CardData.Trait.Cozy:
+                        traitDisplay.iconSlot.sprite = traitDisplay.cozyIcon;
+                        break;
+                    case CardData.Trait.Swordsman:
+                        traitDisplay.iconSlot.sprite = traitDisplay.swordsmanIcon;
                         break;
                     case CardData.Trait.Healer:
                         traitDisplay.iconSlot.sprite = traitDisplay.healIcon;

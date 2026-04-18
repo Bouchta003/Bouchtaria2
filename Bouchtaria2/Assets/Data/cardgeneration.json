@@ -5010,7 +5010,7 @@
       "signature": false
     },
     "308": {
-      "id": 308,
+      "id": 308,//Add effect
       "name": "Mid-Suavemente",
       "cardType": "spell",
       "manaCost": 3,
@@ -5029,7 +5029,7 @@
       "id": 309,
       "name": "Omri Complaint",
       "cardType": "spell",
-      "manaCost": 3,
+      "manaCost": 1,
       "atkValue": 0,
       "hpValue": 0,
       "traits": [ "Combo" ],
@@ -5069,6 +5069,22 @@
       "effectText": "???",
       "artPath": "CardArt/excalibur",
       "artCompactPath": "CardArt/excalibur_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
+    },
+    "312": {
+      "id": 312,
+      "name": "Short Rose",
+      "cardType": "minion",
+      "manaCost": 3,
+      "atkValue": 3,
+      "hpValue": 4,
+      "traits": [ "Neutral" ],
+      "effect": "protect",
+      "effectText": "Protect",
+      "artPath": "CardArt/shortrose",
+      "artCompactPath": "CardArt/shortrose_compact",
       "packable": true,
       "token": false,
       "signature": false
