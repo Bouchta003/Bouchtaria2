@@ -1204,6 +1204,11 @@ public class CardInstance : MonoBehaviour, IAttackable
                 if (target is CardInstance inst) TryExecuteSilence(inst);
                 continue;
             }
+            if (effect.StartsWith("grant"))
+            {
+                if (target is CardInstance inst) TryExecuteGrantTarget(GetStringValueFromEffect(effect,"grant"),inst);
+                continue;
+            }
             if (effect.StartsWith("applybleed"))
             {
                 if (target is CardInstance inst) ApplyBleed(inst);
@@ -1540,7 +1545,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         else if (effect.StartsWith("silence"))
         {
             BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
-            gameManager.CheckGlow();return false;
+            gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("morphto"))
         {
@@ -1796,6 +1801,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("grantall"))
         {
             TryExecuteGrantAll(effect);
+            gameManager.CheckGlow(); return false;
+        }
+        else
+        if (effect.StartsWith("grant"))
+        {
+            BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
             gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("morphall"))
@@ -2465,6 +2476,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         else if (pendingTargetedEffect.StartsWith("silence") && target is CardInstance silenceTarget)
         {
             TryExecuteSilence(silenceTarget);
+            executed = true;
+        }
+        else if (pendingTargetedEffect.StartsWith("grant") && target is CardInstance grantTarget)
+        {
+            TryExecuteGrantTarget(GetStringValueFromEffect(pendingTargetedEffect,"grant"), grantTarget);
             executed = true;
         }
         else if (pendingTargetedEffect.StartsWith("applybleed") && target is CardInstance bleedTarget)
@@ -3451,6 +3467,29 @@ public class CardInstance : MonoBehaviour, IAttackable
             target.TakeDamage(amount);
         }
         gameManager.OnDamageWithCard(Owner);
+    }
+    private void TryExecuteGrantTarget(string completeeffect,CardInstance ci)
+    {
+        string args = ExtractParenthesizedArgs(completeeffect);
+        if (string.IsNullOrWhiteSpace(args))
+            return;
+
+        string[] parts = args.Split(',');
+        if (parts.Length < 2)
+            return;
+
+        string effect = parts[0].Trim();
+        string effectText = parts[1].Trim();
+        if (string.IsNullOrWhiteSpace(effect))
+            return;
+
+        List<GameObject> board = Owner != PlayerOwner.Player
+            ? gameManager.enemyDropArea.enemyPrefabCards
+            : gameManager.allyDropArea.allyPrefabCards;
+
+        ci.CurrentEffect = AppendToken(ci.CurrentEffect, effect);
+        ci.CurrentEffectText = AppendToken(ci.CurrentEffectText, effectText, "\n");
+        ci.view.UpdateMode();
     }
     private void TryExecuteGrantAll(string completeeffect)
     {

@@ -3916,8 +3916,8 @@ public class CozyProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 4,
-            1 => 8,
+            0 => 3,
+            1 => 6,
             2 => 12,
             _ => 9999
         };
