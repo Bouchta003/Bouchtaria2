@@ -3977,7 +3977,7 @@ public class CozyProgression : ITraitProgression
         foreach (GameObject go in cards)
         {
             CardInstance card = go?.GetComponent<CardInstance>();
-            if (card == null || card.Owner != owner || card.IsDead || card.CurrentZone != CardZone.Board)
+            if (card == null || card.Owner != owner || card.IsDead || card.IsAsleep || card.CurrentZone != CardZone.Board)
                 continue;
 
             if (CouldHaveAttackedThisTurn(gm, card) && !card.HasAttackedThisTurn)

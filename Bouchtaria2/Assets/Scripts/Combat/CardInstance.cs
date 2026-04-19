@@ -1834,6 +1834,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteDamageBleed(effect, null);
             gameManager.CheckGlow(); return false;
         }
+        else if (effect.StartsWith("blooddexplosion"))
+        {
+            TryExecuteBloodExplosion(effect, null);
+            gameManager.CheckGlow(); return false;
+        }
         else if (effect.StartsWith("damage"))
         {
             TryExecuteDamage(effect, null);
@@ -2426,6 +2431,14 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (target != null)
             {
                 TryExecuteDamageBleed(pendingTargetedEffect, target);
+                executed = true;
+            }
+        }
+        else if (pendingTargetedEffect.StartsWith("bloodexplosion"))
+        {
+            if (target != null)
+            {
+                TryExecuteBloodExplosion(pendingTargetedEffect, target);
                 executed = true;
             }
         }
@@ -3147,6 +3160,21 @@ public class CardInstance : MonoBehaviour, IAttackable
         //Update view
         view.hpTextBoard.text = CurrentHealth.ToString();
         UpdateStatsColor();
+    }
+    private void TryExecuteBloodExplosion(string effect, IAttackable target)
+    {
+        if (!TryParseIntEffect(effect, "damagebleed", out int amount))
+            return;
+
+        if (target == null)
+        {
+            Debug.LogError($"Damage effect requires a target on {Data.name}");
+            return;
+        }
+        if (target is CoreInstance core && core != IsBleeding) return;
+        if (target is CardInstance card && card != IsBleeding) return;
+        target.TakeDamage(amount);
+        gameManager.OnDamageWithCard(Owner);
     }
     private void TryExecuteDamageBleed(string effect, IAttackable target)
     {
@@ -4199,7 +4227,9 @@ public class CardInstance : MonoBehaviour, IAttackable
         CurrentEffect = ""; CurrentEffectText = ""; parsedEffects.Clear();
 
         //Reset Stats
-        CurrentAttack = Data.atkValue; CurrentHealth = Mathf.Min(CurrentHealth, Data.hpValue);
+        CurrentAttack = Data.atkValue; 
+        CurrentHealth = Mathf.Min(CurrentHealth, Data.hpValue);
+        CurrentMaxHealth = Data.hpValue;
         ThornsDamage = 0;
 
         //Update display

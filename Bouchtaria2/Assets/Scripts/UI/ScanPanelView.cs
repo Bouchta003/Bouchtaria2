@@ -13,6 +13,11 @@ public class ScanPanelView : MonoBehaviour
     [Header("UI Content")]
     [SerializeField] private TMP_Text effectText;
     [SerializeField] private TMP_Text nameText;
+    [SerializeField] private TMP_Text atkText;
+    [SerializeField] private TMP_Text hpText;
+    [SerializeField] private TMP_Text manaText;
+    [SerializeField] private Image trait1Image;
+    [SerializeField] private Image trait2Image;
     [SerializeField] private Image cardSpriteCompact;
     [SerializeField] private Transform keywordContainer;
     [SerializeField] private Transform relatedContainer;
@@ -117,9 +122,18 @@ public class ScanPanelView : MonoBehaviour
         {
             CardInstance cardInst = cardView.GetComponent<CardInstance>();
 
-
             nameText.text = cardInst.Data.name;
             effectText.text = cardInst.CurrentEffectText;
+            //Original stats
+            atkText.text = cardInst.Data.atkValue.ToString();
+            hpText.text = cardInst.Data.hpValue.ToString();
+            manaText.text = cardInst.Data.manaCost.ToString();
+            //TraitDisplay
+            if (TryGetTraitColor(card.traits[0], out Color color))
+                trait1Image.color = color;
+            if (card.traits.Count > 1 && TryGetTraitColor(card.traits[1], out Color color2))
+                trait2Image.color = color2;
+            else trait2Image.color = color;
         }
 
         foreach (Transform child in keywordContainer)
@@ -138,7 +152,16 @@ public class ScanPanelView : MonoBehaviour
 
         nameText.text = card.Data.name;
         effectText.text = card.CurrentEffectText;
-
+        //Original stats
+        atkText.text = card.Data.atkValue.ToString();
+        hpText.text = card.Data.hpValue.ToString();
+        manaText.text = card.Data.manaCost.ToString();
+        //TraitDisplay
+        if (TryGetTraitColor(card.Data.traits[0], out Color color))
+            trait1Image.color = color;
+        if (card.Data.traits.Count > 1 && TryGetTraitColor(card.Data.traits[1], out Color color2))
+            trait2Image.color = color2;
+        else trait2Image.color = color;
         if (card.ProgressionCounter > 0 && card.ProgressionCap>0)
         {
             effectText.text += $"\nProgression : {card.ProgressionCounter}/{card.ProgressionCap}";
@@ -460,6 +483,30 @@ public class ScanPanelView : MonoBehaviour
             var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
             keyName.text = "Deathless";
             keyDescription.text = "Survives ONCE lethal damage when reaching 1HP. Resets when coming back to full HP";
+        }
+        if (effectText.ToLower().Contains(("pure").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Pure Deck";
+            keyDescription.text = "A pure deck is a deck with only ONE trait active";
+        }
+        if (effectText.ToLower().Contains(("polyvalent").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Polyvalent Deck";
+            keyDescription.text = "A polyvalent deck is a deck with AT LEAST 3 traits active";
+        }
+        if (effectText.ToLower().Contains(("singleton").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Singleton Deck";
+            keyDescription.text = "A singleton deck contains only one copy of each card remainging in deck. (drawing duplicates might still activate the effect)";
         }
 
     }
