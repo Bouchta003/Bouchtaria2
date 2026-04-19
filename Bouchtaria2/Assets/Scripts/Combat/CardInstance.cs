@@ -1206,7 +1206,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             }
             if (effect.StartsWith("grant"))
             {
-                if (target is CardInstance inst) TryExecuteGrantTarget(GetStringValueFromEffect(effect,"grant"),inst);
+                if (target is CardInstance inst) TryExecuteGrantTarget(effect, inst);
                 continue;
             }
             if (effect.StartsWith("applybleed"))
@@ -2480,7 +2480,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else if (pendingTargetedEffect.StartsWith("grant") && target is CardInstance grantTarget)
         {
-            TryExecuteGrantTarget(GetStringValueFromEffect(pendingTargetedEffect,"grant"), grantTarget);
+            TryExecuteGrantTarget(pendingTargetedEffect, grantTarget);
             executed = true;
         }
         else if (pendingTargetedEffect.StartsWith("applybleed") && target is CardInstance bleedTarget)
@@ -3468,28 +3468,32 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         gameManager.OnDamageWithCard(Owner);
     }
-    private void TryExecuteGrantTarget(string completeeffect,CardInstance ci)
+    private void TryExecuteGrantTarget(string completeeffect, CardInstance ci)
     {
-        string args = ExtractParenthesizedArgs(completeeffect);
+        if (ci == null || ci.IsDead)
+            return;
+
+        string args = completeeffect.Contains("(")
+            ? ExtractParenthesizedArgs(completeeffect)
+            : completeeffect;
+
         if (string.IsNullOrWhiteSpace(args))
             return;
 
         string[] parts = args.Split(',');
-        if (parts.Length < 2)
+        if (parts.Length < 1)
             return;
 
         string effect = parts[0].Trim();
-        string effectText = parts[1].Trim();
+        string effectText = parts.Length >= 2 ? parts[1].Trim() : effect;
         if (string.IsNullOrWhiteSpace(effect))
             return;
 
-        List<GameObject> board = Owner != PlayerOwner.Player
-            ? gameManager.enemyDropArea.enemyPrefabCards
-            : gameManager.allyDropArea.allyPrefabCards;
-
         ci.CurrentEffect = AppendToken(ci.CurrentEffect, effect);
-        ci.CurrentEffectText = AppendToken(ci.CurrentEffectText, effectText, "\n");
+        if (!string.IsNullOrWhiteSpace(effectText))
+            ci.CurrentEffectText = AppendToken(ci.CurrentEffectText, effectText, "\n");
         ci.view.UpdateMode();
+        ci.ParseEffects();
     }
     private void TryExecuteGrantAll(string completeeffect)
     {
@@ -3498,11 +3502,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
 
         string[] parts = args.Split(',');
-        if (parts.Length < 2)
+        if (parts.Length < 1)
             return;
 
         string effect = parts[0].Trim();
-        string effectText = parts[1].Trim();
+        string effectText = parts.Length >= 2 ? parts[1].Trim() : effect;
         if (string.IsNullOrWhiteSpace(effect))
             return;
 
@@ -3518,8 +3522,10 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (ci == null || ci.IsDead) continue;
 
             ci.CurrentEffect = AppendToken(ci.CurrentEffect, effect);
-            ci.CurrentEffectText = AppendToken(ci.CurrentEffectText, effectText, "\n");
+            if (!string.IsNullOrWhiteSpace(effectText))
+                ci.CurrentEffectText = AppendToken(ci.CurrentEffectText, effectText, "\n");
             ci.view.UpdateMode();
+            ci.ParseEffects();
         }
     }
     private void TryExecuteMorphAll(int idMorph)
