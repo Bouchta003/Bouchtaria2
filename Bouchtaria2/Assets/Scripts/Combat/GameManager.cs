@@ -3483,6 +3483,9 @@ public class GameManager : MonoBehaviour
             int attackerDmg = attacker.CurrentAttack;
             int defenderDmg = targetUnit.CurrentAttack;
             bool targetWasBleeding = targetUnit.IsBleeding;
+            List<CardInstance> cleaveTargets = attacker.HasKeyword("cleave")
+                ? GetAdjacentUnits(targetUnit)
+                : null;
 
             if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 2) && targetUnit.IsBleeding)
                 defenderDmg = Mathf.Max(0, defenderDmg - 2);
@@ -3542,6 +3545,7 @@ public class GameManager : MonoBehaviour
             }
             attacker.TakeDamage(defenderDmg + thornDamage);
             targetUnit.TakeDamage(attackerDmg);
+            ApplyCleaveDamage(attacker, cleaveTargets, attackerDmg);
 
             return;
         }
@@ -3583,6 +3587,55 @@ public class GameManager : MonoBehaviour
             }
             core.TakeDamage(attackerDmg);
             return;
+        }
+    }
+    private List<CardInstance> GetAdjacentUnits(CardInstance centerUnit)
+    {
+        List<CardInstance> adjacent = new();
+        if (centerUnit == null)
+            return adjacent;
+
+        ICardDropArea board = GetBoardForOwner(centerUnit.Owner);
+        if (board == null)
+            return adjacent;
+
+        List<CardInstance> livingUnitsInOrder = new();
+        foreach (GameObject cardGO in board.GetCards())
+        {
+            if (cardGO == null || !cardGO.activeSelf)
+                continue;
+
+            CardInstance ci = cardGO.GetComponent<CardInstance>();
+            if (ci == null || ci.IsDead || ci.CurrentZone != CardZone.Board)
+                continue;
+
+            livingUnitsInOrder.Add(ci);
+        }
+
+        int centerIndex = livingUnitsInOrder.IndexOf(centerUnit);
+        if (centerIndex < 0)
+            return adjacent;
+
+        if (centerIndex - 1 >= 0)
+            adjacent.Add(livingUnitsInOrder[centerIndex - 1]);
+
+        if (centerIndex + 1 < livingUnitsInOrder.Count)
+            adjacent.Add(livingUnitsInOrder[centerIndex + 1]);
+
+        return adjacent;
+    }
+
+    private void ApplyCleaveDamage(CardInstance attacker, List<CardInstance> cleaveTargets, int damage)
+    {
+        if (attacker == null || cleaveTargets == null || cleaveTargets.Count == 0 || damage <= 0)
+            return;
+
+        foreach (CardInstance cleaveTarget in cleaveTargets)
+        {
+            if (cleaveTarget == null || cleaveTarget.IsDead || cleaveTarget.CurrentZone != CardZone.Board)
+                continue;
+
+            cleaveTarget.TakeDamage(damage);
         }
     }
     public void HandleBoardCardClick(Card card)

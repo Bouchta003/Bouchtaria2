@@ -3980,11 +3980,30 @@ public class CozyProgression : ITraitProgression
             if (card == null || card.Owner != owner || card.IsDead || card.CurrentZone != CardZone.Board)
                 continue;
 
-            if (gm.CanSelectAttacker(card) && !card.HasAttackedThisTurn)
+            if (CouldHaveAttackedThisTurn(gm, card) && !card.HasAttackedThisTurn)
                 result.Add(card);
         }
 
         return result;
+    }
+
+    private static bool CouldHaveAttackedThisTurn(GameManager gm, CardInstance card)
+    {
+        if (gm == null || card == null)
+            return false;
+
+        if (card.CurrentAttack <= 0 || card.IsAsleep)
+            return false;
+
+        if (card.IsSummoningSick)
+        {
+            bool canAttackUnitOnSummon = card.CanAttackUnitOnSummon();
+            bool canAttackCoreOnSummon = card.CanAttackCoreOnSummon();
+            if (!canAttackUnitOnSummon && !canAttackCoreOnSummon)
+                return false;
+        }
+
+        return gm.GetValidTargets(card).Count > 0;
     }
 }
 
@@ -4041,11 +4060,30 @@ public class CozyTier1Effect : IDeckTraitEffect
             if (card == null || card.Owner != owner || card.IsDead || card.CurrentZone != CardZone.Board)
                 continue;
 
-            if (gm.CanSelectAttacker(card) && !card.HasAttackedThisTurn)
+            if (CouldHaveAttackedThisTurn(gm, card) && !card.HasAttackedThisTurn)
                 result.Add(card);
         }
 
         return result;
+    }
+
+    private static bool CouldHaveAttackedThisTurn(GameManager gm, CardInstance card)
+    {
+        if (gm == null || card == null)
+            return false;
+
+        if (card.CurrentAttack <= 0 || card.IsAsleep)
+            return false;
+
+        if (card.IsSummoningSick)
+        {
+            bool canAttackUnitOnSummon = card.CanAttackUnitOnSummon();
+            bool canAttackCoreOnSummon = card.CanAttackCoreOnSummon();
+            if (!canAttackUnitOnSummon && !canAttackCoreOnSummon)
+                return false;
+        }
+
+        return gm.GetValidTargets(card).Count > 0;
     }
 }
 
