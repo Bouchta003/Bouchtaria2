@@ -445,6 +445,22 @@ public class ScanPanelView : MonoBehaviour
             keyName.text = "Untargettable";
             keyDescription.text = "Cannot be target by card effects, but can be targetted by attacks.";
         }
+        if (effectText.ToLower().Contains(("partner").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Partners";
+            keyDescription.text = "Partners are linked and have specific bonus when together.";
+        }
+        if (effectText.ToLower().Contains(("deathless").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Deathless";
+            keyDescription.text = "Survives ONCE lethal damage when reaching 1HP. Resets when coming back to full HP";
+        }
 
     }
     private int GetEffectID(string effect)

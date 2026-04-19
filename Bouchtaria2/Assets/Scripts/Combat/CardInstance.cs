@@ -1709,6 +1709,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.TrySummonForOwnerEffect(Owner, GetStringValueFromEffect(effect, "summonrandomeffect"));
             gameManager.CheckGlow(); return false;
         }
+        if (effect.StartsWith("summonrandomtrait"))
+        {
+            gameManager.TrySummonForOwnerTrait(Owner, GetStringValueFromEffect(effect, "summonrandomtrait"));
+            gameManager.CheckGlow(); return false;
+        }
         if (effect.StartsWith("summondeckmaxmana"))
         {
             if (TryParseIntEffect(effect, "summondeckmaxmana", out int maxMana))
@@ -3484,7 +3489,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (parts.Length < 1)
             return;
 
-        string effect = parts[0].Trim();
+        string effect = parts[0].Trim().Replace("/", "");
         string effectText = parts.Length >= 2 ? parts[1].Trim() : effect;
         if (string.IsNullOrWhiteSpace(effect))
             return;

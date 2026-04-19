@@ -1873,6 +1873,78 @@ public class GameManager : MonoBehaviour
             StartCoroutine(DelayedDeploy(cardInst, forceRandomTarget: true));
         }
     }
+    public void TrySummonForOwnerTrait(PlayerOwner owner, string trait, bool isTrait = false)
+    {
+        var board = GetBoardForOwner(owner);
+        if (board == null) return;
+
+        // compute effective occupied slots including pending reservations
+        int effectiveCount = board.GetCards().Count + GetPendingSummons(owner);
+        if (effectiveCount >= (owner == PlayerOwner.Player ? allyDropArea.maxBoardSize : enemyDropArea.maxBoardSize))
+            return;
+
+        // Reserve a slot immediately to prevent other concurrent summons from oversubscribing.
+        IncPendingSummons(owner);
+
+        List<CardData> options = CardDatabase.Instance.GetCardsByTraitPackable(trait);
+        options = options.FindAll(card => card.cardType == "minion");
+        int range = options.Count;
+        if (range <= 0) return;
+        CardData data = options[UnityEngine.Random.Range(0, range)];
+
+        if (data == null)
+        {
+            DecPendingSummons(owner);
+            return;
+        }
+
+        ICardDropArea parent = owner == PlayerOwner.Player ? allyDropArea : enemyDropArea;
+
+        // create the card (this instantiates a GameObject)
+        CardInstance cardInst = CardFactory.Instance.CreateCard(data, owner, parent.CardContainer);
+
+        if (cardInst == null)
+        {
+            DecPendingSummons(owner);
+            return;
+        }
+
+        // attempt to add to board
+        if (owner == PlayerOwner.Player)
+        {
+            cardInst.GetComponent<SortingGroup>().sortingOrder = 1;
+            cardInst.SetZone(CardZone.Board);
+            allyDropArea.AddSummonedCard(cardInst);
+            allyDropArea.UpdateAllyCardPositions();
+        }
+        else
+        {
+            cardInst.GetComponent<SortingGroup>().sortingOrder = 3;
+            cardInst.SetZone(CardZone.Board);
+            enemyDropArea.AddSummonedCard(cardInst);
+            enemyDropArea.UpdateEnemyCardPositions();
+        }
+
+        // Verify the card was actually added to board list (AddSummonedCard may early-return when full)
+        bool actuallyAdded = parent.GetCards().Contains(cardInst.gameObject);
+
+        if (!actuallyAdded)
+        {
+            // board might have filled up in-between, destroy created GameObject and free reservation
+            Destroy(cardInst.gameObject);
+            DecPendingSummons(owner);
+            return;
+        }
+
+        // successful add -> release reservation
+        DecPendingSummons(owner);
+
+
+        if (isTrait)
+        {
+            StartCoroutine(DelayedDeploy(cardInst, forceRandomTarget: true));
+        }
+    }
     public void TrySummonForOwnerManaCost(PlayerOwner owner, int manaCost, bool isTrait = false)
     {
         var board = GetBoardForOwner(owner);
@@ -3624,7 +3696,6 @@ public class GameManager : MonoBehaviour
 
         return adjacent;
     }
-
     private void ApplyCleaveDamage(CardInstance attacker, List<CardInstance> cleaveTargets, int damage)
     {
         if (attacker == null || cleaveTargets == null || cleaveTargets.Count == 0 || damage <= 0)
@@ -3632,10 +3703,96 @@ public class GameManager : MonoBehaviour
 
         foreach (CardInstance cleaveTarget in cleaveTargets)
         {
-            if (cleaveTarget == null || cleaveTarget.IsDead || cleaveTarget.CurrentZone != CardZone.Board)
+            if (cleaveTarget == null ||
+                cleaveTarget.IsDead ||
+                cleaveTarget.CurrentZone != CardZone.Board)
                 continue;
 
-            cleaveTarget.TakeDamage(damage);
+            bool isKill = false;
+
+            int attackerDmg = damage;
+            bool targetWasBleeding = cleaveTarget.IsBleeding;
+
+            //----------------------------------
+            // Attacker-side trait modifiers
+            //----------------------------------
+
+            if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 3)
+                && targetWasBleeding
+                && attacker.HasTrait("Swordsman"))
+            {
+                attackerDmg *= 2;
+
+                cleaveTarget.IsBleeding = false;
+                cleaveTarget.BleedingTurns = 0;
+                cleaveTarget.cardView.UpdateMode();
+            }
+
+            //----------------------------------
+            // Kill check
+            //----------------------------------
+
+            if (attackerDmg >= cleaveTarget.CurrentHealth &&
+                !cleaveTarget.HasKeyword("blessed"))
+            {
+                isKill = true;
+            }
+
+            //----------------------------------
+            // Bleed
+            //----------------------------------
+
+            bool shouldApplyBleed =
+                attacker.HasKeyword("strikebleed") ||
+                (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 1)
+                 && attacker.HasTrait("Swordsman")
+                 && !swordsmanBleedAppliedThisTurn.Contains(attacker.Owner)
+                 && !targetWasBleeding);
+
+            if (shouldApplyBleed)
+            {
+                cleaveTarget.IsBleeding = true;
+
+                if (cleaveTarget.CurrentEffectText == null)
+                    cleaveTarget.CurrentEffectText = "Is Bleeding";
+                else if (!cleaveTarget.CurrentEffectText.Contains("Is Bleeding"))
+                    cleaveTarget.CurrentEffectText += "\nIs Bleeding";
+
+                cleaveTarget.cardView.UpdateMode();
+
+                if (OwnerHasTrait(attacker.Owner, CardData.Trait.Swordsman, 1)
+                    && attacker.HasTrait("Swordsman"))
+                {
+                    swordsmanBleedAppliedThisTurn.Add(attacker.Owner);
+                }
+
+                OnBleedApplied?.Invoke(attacker.Owner);
+            }
+
+            //----------------------------------
+            // Attacker lifesteal only
+            //----------------------------------
+
+            if (attacker.HasKeyword("lifesteal") &&
+                !cleaveTarget.HasKeyword("blessed"))
+            {
+                attacker.AutoHealCore(attackerDmg);
+            }
+
+            //----------------------------------
+            // On kill
+            //----------------------------------
+
+            if (isKill)
+            {
+                OnCardKiller?.Invoke(attacker);
+            }
+
+            //----------------------------------
+            // Damage only
+            //----------------------------------
+
+            cleaveTarget.TakeDamage(attackerDmg);
         }
     }
     public void HandleBoardCardClick(Card card)

@@ -66,6 +66,8 @@ public class CardView : MonoBehaviour,
     [SerializeField] GameObject lifestealSprite;
     [SerializeField] GameObject sleepSprite;
     [SerializeField] GameObject partnerSprite;
+    [SerializeField] GameObject strikebleedSprite;
+    [SerializeField] GameObject deathlessSprite;
 
     [Header("Progress")]
     private Coroutine progressRoutine;
@@ -319,6 +321,8 @@ public class CardView : MonoBehaviour,
         lifestealSprite.SetActive(false);
         sleepSprite.SetActive(false);
         partnerSprite.SetActive(false);
+        strikebleedSprite.SetActive(false);
+        deathlessSprite.SetActive(false);
 
         if (inst.HasKeyword("protect"))
             protectSprite.SetActive(true);
@@ -346,6 +350,10 @@ public class CardView : MonoBehaviour,
             bleedSprite.SetActive(true); 
         if (inst.HasKeyword("partnered") ||inst.HasKeyword("summonpartner"))
             partnerSprite.SetActive(true);
+        if (inst.HasKeyword("strikebleed"))
+            strikebleedSprite.SetActive(true);
+        if (inst.HasKeyword("deathless"))
+            deathlessSprite.SetActive(true);
         Refresh();
     }
     public void Bind(CardInstance instance)

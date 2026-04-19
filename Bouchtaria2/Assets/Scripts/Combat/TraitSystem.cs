@@ -3939,9 +3939,9 @@ public class CozyProgression : ITraitProgression
         cozySkippedAttacks += unitsThatCouldAttackButDidNot.Count;
         OnProgressUpdated?.Invoke(Trait, cozySkippedAttacks, GetCurrentCap(), Owner);
 
-        if (cozySkippedAttacks >= 4 && CurrentTier < 1 && maxTier >= 1)
+        if (cozySkippedAttacks >= 3 && CurrentTier < 1 && maxTier >= 1)
             UnlockTier1();
-        if (cozySkippedAttacks >= 8 && CurrentTier < 2 && maxTier >= 2)
+        if (cozySkippedAttacks >= 6 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2();
         if (cozySkippedAttacks >= 12 && CurrentTier < 3 && maxTier >= 3)
             UnlockTier3();
@@ -4115,8 +4115,7 @@ public class CozyTier2Effect : IDeckTraitEffect
             return;
 
         List<CardInstance> skippedUnits = CozyTier1Effect.GetUnitsThatCouldAttackButDidNot(owner);
-        int cozySkippedCount = skippedUnits.Count(ci => ci.HasTrait("Cozy"));
-        int triggers = cozySkippedCount / 2;
+        int triggers = skippedUnits.Count / 2;
         if (triggers <= 0)
             return;
 

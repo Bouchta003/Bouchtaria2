@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f019e2bc9fe85d748ad159eb89daae34
+guid: 3a3480eaa827d604fbad1f12c494b4b6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4623718961278540827
-    second: shortrose_0
+      213: 7128941586955501285
+    second: strikebleed_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: shortrose_0
+      name: strikebleed_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 629
-        height: 944
+        x: 9
+        y: 7
+        width: 235
+        height: 243
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b1cde34d5efba2040800000000000000
-      internalID: 4623718961278540827
+      spriteID: 5eefdf24a961fe260800000000000000
+      internalID: 7128941586955501285
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 90f18c6d4f522764f9f6a05d73edcbba
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      shortrose_0: 4623718961278540827
+      strikebleed_0: 7128941586955501285
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
