@@ -1883,7 +1883,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteDamageBleed(effect, null);
             gameManager.CheckGlow(); return false;
         }
-        else if (effect.StartsWith("bloodexplosion") || effect.StartsWith("blooddexplosion"))
+        else if (effect.StartsWith("bloodexplosion"))
         {
             TryExecuteBloodExplosion(effect, null);
             gameManager.CheckGlow(); return false;
