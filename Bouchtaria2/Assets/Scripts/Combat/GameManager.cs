@@ -151,6 +151,7 @@ public class GameManager : MonoBehaviour
     public event System.Action<PlayerOwner> OnPraise;
     public event System.Action<PlayerOwner> OnHissatsuPlayed;
     public event System.Action<PlayerOwner> OnDamageCard;
+    public event System.Action<CardInstance> OnDamageCardInstance;
     public event System.Action<CardInstance> OnSpellPlayed;
     public event System.Action<CardInstance> OnCardPlayed;
     public event System.Action<CardInstance, int> OnSoulConsumed;
@@ -2259,6 +2260,10 @@ public class GameManager : MonoBehaviour
     public void OnDamageWithCard(PlayerOwner owner)
     {
         OnDamageCard?.Invoke(owner);
+    }
+    public void OnDamageWithCardInstance(CardInstance inst)
+    {
+        OnDamageCardInstance?.Invoke(inst);
     }
     public void LimitEnemySpace(PlayerOwner effectOwner, int limit)
     {

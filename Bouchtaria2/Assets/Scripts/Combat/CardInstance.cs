@@ -168,7 +168,6 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (total <= 1)
             return;
 
-        // Pick atk directly (cleaner)
         int newHp = UnityEngine.Random.Range(1, total + 1);
         int newAtk = total - newHp;
 
@@ -314,6 +313,18 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             ProgressionCap = attackCap;
             gameManager.OnCardAttack += OnAttack;
+        }
+        else if (HasKeyword("progressstrike") &&
+          TryParseProgress("progressstrike", out int strikeCap))
+        {
+            ProgressionCap = strikeCap;
+            gameManager.OnCardAttack += OnStrike;
+        }
+        else if (HasKeyword("progressberserk") &&
+         TryParseProgress("progressberserk", out int berserkCap))
+        {
+            ProgressionCap = berserkCap;
+            gameManager.OnDamageCardInstance += OnCardTakeDamage;
         }
         else if (HasKeyword("progresskill") &&
           TryParseProgress("progresskill", out int killCap))
@@ -580,6 +591,28 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         CheckProgressCompletion();
     }
+    void OnStrike(CardInstance inst)//if the card itself attacks, not their allues
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+        if (inst != this)
+            return;
+        ProgressionCounter++;
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+
+        CheckProgressCompletion();
+    }
+    void OnCardTakeDamage(CardInstance inst)//if the card itself takes damage, not their allues
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+        if (inst != this)
+            return;
+        ProgressionCounter++;
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+
+        CheckProgressCompletion();
+    }
     void OnEndTurn(PlayerOwner owner)
     {
         if (CurrentZone != CardZone.Board)
@@ -788,7 +821,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (IsBleeding)
         {
             TakeDamage(1);
-            gameManager.OnDamageWithCard(OtherPlayer(Owner));
+            gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(OtherPlayer(Owner));
             BleedingTurns++;
             if (BleedingTurns >= 3) { IsBleeding = false; BleedingTurns = 0; view.UpdateMode(); }
         }
@@ -1207,6 +1240,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (effect.StartsWith("grant"))
             {
                 if (target is CardInstance inst) TryExecuteGrantTarget(effect, inst);
+                continue;
+            }
+            if (effect.StartsWith("equipself"))
+            {
+                if (target is CardInstance inst) TryExecuteEquipSelf(inst);
                 continue;
             }
             if (effect.StartsWith("applybleed"))
@@ -2118,6 +2156,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "progressheal":
             case "progressmana":
             case "progressattack":
+            case "progressstrike":
+            case "progressberserk":
             case "progresskill":
             case "progressdamage":
             case "progresskazuyacombo":
@@ -2499,6 +2539,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         else if (pendingTargetedEffect.StartsWith("grant") && target is CardInstance grantTarget)
         {
             TryExecuteGrantTarget(pendingTargetedEffect, grantTarget);
+            executed = true;
+        }
+        else if (pendingTargetedEffect.StartsWith("equipself") && target is CardInstance equipselfTarget)
+        {
+            TryExecuteEquipSelf(equipselfTarget);
             executed = true;
         }
         else if (pendingTargetedEffect.StartsWith("applybleed") && target is CardInstance bleedTarget)
@@ -3189,7 +3234,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         target.TakeDamage(amount);
-        gameManager.OnDamageWithCard(Owner);
+        gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
     }
     private void TryExecuteDamageBleed(string effect, IAttackable target)
     {
@@ -3204,7 +3249,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         target.TakeDamage(amount);
         ApplyBleed(target);
-        gameManager.OnDamageWithCard(Owner);
+        gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
     }
     private void TryExecuteDamage(string effect, IAttackable target)
     {
@@ -3212,7 +3257,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             (int atk, int hp) = GetTwoIntsFromEffect(effect);
 
             target.TakeDamage(atk);
-            gameManager.OnDamageWithCard(Owner);
+            gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
             target.Heal(hp);
             return;
         }
@@ -3227,7 +3272,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
 
         target.TakeDamage(amount);
-        gameManager.OnDamageWithCard(Owner);
+        gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
     }
     private void TryExecuteKill(string effect, IAttackable target)
     {
@@ -3322,7 +3367,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 if (targetatk == null)
                     return;
                 targetatk.TakeDamage(CurrentAttack);
-                gameManager.OnDamageWithCard(Owner);
+                gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
                 return;
             }
             else return;
@@ -3332,7 +3377,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
 
         target.TakeDamage(amount);
-        gameManager.OnDamageWithCard(Owner);
+        gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
     }
     private void TryExecuteAbsorb(string effect, IAttackable target)
     {
@@ -3514,7 +3559,34 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             target.TakeDamage(amount);
         }
-        gameManager.OnDamageWithCard(Owner);
+        gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
+    }
+    private void TryExecuteEquipSelf(CardInstance ci)
+    {
+        if (ci == null || ci.IsDead || ci==this)
+            return;
+        string effect = "";
+        string effectText = "";
+        switch (Data.id)
+        {
+            case (329)://Honedge
+                effect = "progressstrike(2)[morphto(330)]";//Evolve
+                effectText = "Equipped with Honedge, add Doublade to your hand when striking twice";
+                ci.ModifyStats(4, 0);//give it +4/+0
+                break;
+            case (330)://Doublade
+                effect = "progressstrike(3)[morphto(330)] haste";//Evolve and haste
+                effectText = "Equipped with Doublade, add Aegislash to your hand when striking thrice, Haste";
+                ci.ModifyStats(4, 0);//give it +4/+0
+                break;
+            case (331)://Aegislash
+                effect = "blessed";//blessed
+                effectText = "Equipped with Honedge";
+                ci.ModifyStats(10,10);//give it +10/10
+                break;
+        }
+        TryExecuteGear(effect,effectText,ci);
+        SelfDestroy();
     }
     private void TryExecuteGrantTarget(string completeeffect, CardInstance ci)
     {
@@ -3820,9 +3892,6 @@ public class CardInstance : MonoBehaviour, IAttackable
             Debug.LogWarning($"Invalid selfbuff parameters '{subEffect}' on {Data.name}");
             return;
         }
-
-        Debug.LogWarning($"Unknown gear sub-effect '{subEffect}' on {Data.name}");
-
 
         Debug.LogWarning($"Unknown gear sub-effect '{subEffect}' on {Data.name}");
     }
@@ -4259,7 +4328,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.TakeDamage(dmg);
         else
             gameManager.EnemyCore.TakeDamage(dmg);
-        gameManager.OnDamageWithCard(Owner);
+        gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
 
     }
     public void AutoDamageCore(int dmg)
@@ -4268,7 +4337,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.TakeDamage(dmg);
         else
             gameManager.EnemyCore.TakeDamage(dmg);
-        gameManager.OnDamageWithCard(Owner);
+        gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
 
     }
     public void AutoShieldCore(int shield)
