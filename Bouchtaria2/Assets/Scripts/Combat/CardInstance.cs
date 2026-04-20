@@ -1570,6 +1570,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             SelfDestroy();
             gameManager.CheckGlow();return false;
         }
+        if (effect.StartsWith("swapstats"))
+        {
+            TryExecuteSwapStats();
+            gameManager.CheckGlow(); return false;
+        }
 
         if (effect.StartsWith("sleepall"))
         {
@@ -2480,7 +2485,8 @@ public class CardInstance : MonoBehaviour, IAttackable
                 executed = true;
             }
         }
-        else if (pendingTargetedEffect.StartsWith("bloodexplosion"))
+        else if (pendingTargetedEffect.StartsWith("bloodexplosion")
+            || pendingTargetedEffect.StartsWith("blooddexplosion"))
         {
             executed = TryExecuteBloodExplosion(pendingTargetedEffect, target);
         }
@@ -3210,8 +3216,12 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private bool TryExecuteBloodExplosion(string effect, IAttackable target)
     {
+        string normalizedEffect = effect.StartsWith("blooddexplosion")
+            ? effect.Replace("blooddexplosion", "bloodexplosion")
+            : effect;
+
         int amount = 5;
-        if (effect.Contains('(') && !TryParseIntEffect(effect, "bloodexplosion", out amount))
+        if (normalizedEffect.Contains('(') && !TryParseIntEffect(normalizedEffect, "bloodexplosion", out amount))
             return false;
 
         if (target == null)
@@ -3578,7 +3588,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 ci.ModifyStats(4, 0);//give it +4/+0
                 break;
             case (330)://Doublade
-                effect = "progressstrike(3)[morphto(330)] haste";//Evolve and haste
+                effect = "progressstrike(3)[morphto(331)] haste";//Evolve and haste
                 effectText = "Equipped with Doublade, add Aegislash to your hand when striking thrice, Haste";
                 ci.ModifyStats(4, 0);//give it +4/+0
                 break;
@@ -3809,6 +3819,24 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (targetInstance.Owner == PlayerOwner.Player)
             gameManager.CheckGlow();
 
+    }
+    private void TryExecuteSwapStats()
+    {
+        int oldAttack = Mathf.Max(0, CurrentAttack);
+        int oldMaxHealth = Mathf.Max(1, CurrentMaxHealth);
+        int missingHealth = Mathf.Max(0, oldMaxHealth - CurrentHealth);
+
+        int newAttack = oldMaxHealth;
+        int newMaxHealth = Mathf.Max(1, oldAttack);
+        int newHealth = Mathf.Clamp(newMaxHealth - missingHealth, 1, newMaxHealth);
+
+        CurrentAttack = Mathf.Max(0, newAttack);
+        CurrentMaxHealth = Mathf.Max(1, newMaxHealth);
+        CurrentHealth = Mathf.Clamp(newHealth, 1, CurrentMaxHealth);
+
+        view.UpdateMode();
+        UpdateStatsColor();
+        UpdateBuffProgressCounter();
     }
     private void ApplySingleGearEffect(string subEffect, CardInstance target)
     {
