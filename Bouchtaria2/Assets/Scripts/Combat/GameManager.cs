@@ -819,16 +819,6 @@ public class GameManager : MonoBehaviour
     private void HandleTurnEnded(PlayerOwner owner)
     {
         UpdatePartnerLinks();
-
-        foreach (PartnerLink link in activePartnerLinks)
-        {
-            if (link == null || link.BoostMode != 1)
-                continue;
-            if (link.Owner != owner)
-                continue;
-
-            StartCoroutine(deckManager.Draw(1, owner));
-        }
     }
     private bool IsPartnerLinkAlive(PartnerLink link)
     {
@@ -867,6 +857,59 @@ public class GameManager : MonoBehaviour
                 link.Partner.ModifyStats(1, 1);
                 link.StatsApplied = true;
             }
+        }
+    }
+    private void HandlePartnerAttackTriggers(CardInstance attacker)
+    {
+        if (attacker == null || attacker.IsDead)
+            return;
+
+        UpdatePartnerLinks();
+
+        foreach (PartnerLink link in activePartnerLinks)
+        {
+            if (link == null || link.BoostMode != 2)
+                continue;
+
+            if (!IsPartnerLinkAlive(link))
+                continue;
+
+            CardInstance buffTarget = null;
+            if (ReferenceEquals(link.Source, attacker))
+                buffTarget = link.Partner;
+            else if (ReferenceEquals(link.Partner, attacker))
+                buffTarget = link.Source;
+
+            if (buffTarget == null || buffTarget.IsDead)
+                continue;
+
+            int totalStats = 2;
+            int atk = UnityEngine.Random.Range(0, totalStats + 1);
+            int hp = totalStats - atk;
+            buffTarget.ModifyStats(atk, hp);
+        }
+    }
+    private void HandlePartnerDeathTriggers(CardInstance deadCard)
+    {
+        if (deadCard == null)
+            return;
+
+        for (int i = 0; i < activePartnerLinks.Count; i++)
+        {
+            PartnerLink link = activePartnerLinks[i];
+            if (link == null || link.BoostMode != 1)
+                continue;
+
+            bool sourceDied = ReferenceEquals(link.Source, deadCard);
+            bool partnerDied = ReferenceEquals(link.Partner, deadCard);
+            if (!sourceDied && !partnerDied)
+                continue;
+
+            CardInstance survivor = sourceDied ? link.Partner : link.Source;
+            if (survivor == null || survivor.IsDead || survivor.CurrentZone != CardZone.Board)
+                continue;
+
+            survivor.ModifyStats(3, 3);
         }
     }
     public void SummonPartner(CardInstance source, int cardId, int boost)
@@ -3103,6 +3146,7 @@ public class GameManager : MonoBehaviour
     public void NotifyCardKilled(CardInstance deadCard)
     {
         OnCardKilled?.Invoke(deadCard);
+        HandlePartnerDeathTriggers(deadCard);
         UpdatePartnerLinks();
 
         // 🔑 Add to graveyard
@@ -3552,6 +3596,7 @@ public class GameManager : MonoBehaviour
         }
 
         OnCardAttack?.Invoke(attacker);
+        HandlePartnerAttackTriggers(attacker);
 
         // UNIT vs UNIT
         if (target is CardInstance targetUnit)
