@@ -400,6 +400,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.OnCardAttack -= OnAttack;
 
         if (gameManager != null)
+            gameManager.OnCardAttack -= OnStrike;
+
+        if (gameManager != null)
+            gameManager.OnDamageCardInstance -= OnCardTakeDamage;
+
+        if (gameManager != null)
             gameManager.OnCardPlayed -= OnCardPlayed;
 
         if (deckManager != null)
@@ -1872,7 +1878,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteDamageBleed(effect, null);
             gameManager.CheckGlow(); return false;
         }
-        else if (effect.StartsWith("blooddexplosion"))
+        else if (effect.StartsWith("bloodexplosion"))
         {
             TryExecuteBloodExplosion(effect, null);
             gameManager.CheckGlow(); return false;
@@ -2476,11 +2482,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else if (pendingTargetedEffect.StartsWith("bloodexplosion"))
         {
-            if (target != null)
-            {
-                TryExecuteBloodExplosion(pendingTargetedEffect, target);
-                executed = true;
-            }
+            executed = TryExecuteBloodExplosion(pendingTargetedEffect, target);
         }
         else if (pendingTargetedEffect.StartsWith("damage"))
         {
@@ -3206,35 +3208,36 @@ public class CardInstance : MonoBehaviour, IAttackable
         view.hpTextBoard.text = CurrentHealth.ToString();
         UpdateStatsColor();
     }
-    private void TryExecuteBloodExplosion(string effect, IAttackable target)
+    private bool TryExecuteBloodExplosion(string effect, IAttackable target)
     {
         int amount = 5;
         if (effect.Contains('(') && !TryParseIntEffect(effect, "bloodexplosion", out amount))
-            return;
+            return false;
 
         if (target == null)
         {
             Debug.LogError($"Damage effect requires a target on {Data.name}");
-            return;
+            return false;
         }
 
         if (target is CoreInstance core)
         {
             if (core.Owner == Owner || !core.IsBleeding)
-                return;
+                return false;
         }
         else if (target is CardInstance card)
         {
             if (card.Owner == Owner || !card.IsBleeding)
-                return;
+                return false;
         }
         else
         {
-            return;
+            return false;
         }
 
         target.TakeDamage(amount);
         gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
+        return true;
     }
     private void TryExecuteDamageBleed(string effect, IAttackable target)
     {
@@ -3801,6 +3804,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         targetInstance.CurrentEffectText += "\n" + effectText;
         targetInstance.cardView.UpdateMode();
         targetInstance.ParseEffects();
+        targetInstance.InitializeProgressIfAny();
 
         if (targetInstance.Owner == PlayerOwner.Player)
             gameManager.CheckGlow();
@@ -4364,6 +4368,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         CurrentHealth -= amount;
         gameManager.NotifyDamage(Owner, amount);
+        gameManager.OnDamageWithCardInstance(this);
         SFXManager.Instance.PlaySFXClip(gameManager.dmgSFX, transform, 1f);
 
         //Trigore Logic :
@@ -4498,6 +4503,12 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (gameManager != null)
             gameManager.OnCardAttack -= OnAttack;
+
+        if (gameManager != null)
+            gameManager.OnCardAttack -= OnStrike;
+
+        if (gameManager != null)
+            gameManager.OnDamageCardInstance -= OnCardTakeDamage;
 
         if (gameManager != null)
             gameManager.OnCardPlayed -= OnCardPlayed;
