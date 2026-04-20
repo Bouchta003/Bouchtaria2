@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: eeca6e8fda2fa7a4db7affda12d52f1e
+guid: bc95fdfa499d13342a1a008890085ffb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5055270926204570773
-    second: kingmukla_0
+      213: -8062396762134515810
+    second: mythra_compact_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: kingmukla_0
+      name: mythra_compact_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 341
-        height: 512
+        width: 1153
+        height: 1153
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b63773860e118d9b0800000000000000
-      internalID: -5055270926204570773
+      spriteID: e9f66ba7cdc9c1090800000000000000
+      internalID: -8062396762134515810
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: c7dbdc3bb0a85ee4eb46fdbbb8c100a9
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      kingmukla_0: -5055270926204570773
+      mythra_compact_0: -8062396762134515810
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

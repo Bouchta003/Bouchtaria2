@@ -542,42 +542,46 @@ public static class EnemyDecks
         {
             { 1, new List<int>
                 {
-                //Omri deck : Combo + add discard cards and omri that scales with discards. a lot of draw
+                //Omri deck : Combo + add discard cards and omri that scales with discards. (14)
                 192,192,196,196,197,197,194,194,93,93,
                 302,302,//Gate Discard
+                309,309,//Omri complaint
+                47,47,//BBQ
                 }
             },
             { 2, new List<int>
                 {
-                // Omar : Chaos central + add Omar staple + MH base (qurupeco to combine both worlds)
-                128,128,166,166,286,286//Omar DrBens and Qurupeco
-                ,193,51,38,246,193,51,38,246,
+                // Omar : Chaos central + add Omar staple + MH base (20)
+                128,128,166,166,286,286,305,305,//Omar DrBens and Qurupeco bensalmiserable
+                193,51,38,246,193,51,38,246,
                 181,181,/*Deviljho*/
-
+                316,316,//Nago
                 }
             },
             { 3, new List<int>
                 {
-                // Othmane : Le D and friends + inazuma othmane mains.
-                188,188,189,189,190,190,191,191,69,69,71,71,72,72,//Othmane cards and sonic core
+                // Othmane : Le D and friends + inazuma othmane mains (28 cards)
+                188,188,189,189,190,190,191,191,69,69,71,72,//Othmane cards and sonic core
                 214,214,//Luigi
                 307,307,//Doukha Mania
+                317,317,318,318,//Mukla pyramad
+                68,68,68,68,58,58,//Faith and no more music
+                19,19,//Chimchar
                 }
             },
             { 4, new List<int>
                 {
-                // Amine : Fighter based deck with a berserk logic and charges.
+                // Amine : Fighter based deck with a berserk logic and charges. (18)
                 168,168,//Agni
                 183,183,184,184,185,185,186,186,187,187,209,209,//Amine Mains
                 299,299,300,300,//Vikingrr and Max
-
-
                 }
             },
             { 5, new List<int>
                 {
-                //Adam : Bring back footballs in inazuma trait
+                //Adam : Bring back footballs in inazuma trait (14)
                 275,275,275,275,287,287,271,271,271,271,298,298,298,298,
+                312,312,//short rose
                 }
             },
             { 6, new List<int>
@@ -587,17 +591,18 @@ public static class EnemyDecks
                 }
             },
             { 7, new List<int>
-                {//Count 20
+                {//Count 22
                 173,173,173,173,173,173,173,173,173,173,173,173,// o: Gunner+Fighter 
                 90,90,90,90,90,
-                91,91,91//troll bouisk
+                91,91,91,//troll bouisk
+                158,158,//Jour de fete
                 }
             },
             { 8, new List<int>
                 {
                 // Thibauld : Healer and food deck + thib cards with maxime medard and moroccan food.
-                272,272 //Thib
-                ,274,274 //Maxime M
+                272,272, //Thib
+                274,274, //Maxime M
                 }
             },
             { 9, new List<int>
@@ -611,43 +616,36 @@ public static class EnemyDecks
                 {
                 // Sara : Strong card that self damag her hero but for big payout. in addition to healing and cinnamon cards.
                 283,283,282,282, //Sarito and Cinamoncops
+                304,306,306,304, //Sunday both forms
                 //Add tinkaton evolves when killing with rocks/boulders.
                 }
             },
             { 11, new List<int>
                 {
-                //Rhita : Combo + Pokemon cards with the payoff of her signature card.
+                //Rhita : Cozy + Pokemon cards with the payoff of her signature card.
                 276,281, 276,281, //Rhita and rhita team
                 277,277,278,278,279,279,
-                304,306,306,304//Sunday both forms
+                320,320, //Poukoupia
+                312,312, //Short rose
+                56,56,  //Wigglytuff
                 }
             },
             { 12, new List<int>
                 {
                 // Padre : Big monsters some faith cards, a lot of charges and his signature card, a huge 10  15 15 charge.
-                285,285 //Padre card
+                285,285, //Padre card
                 }
             },
             { 13, new List<int>
                 {
-                // Mixed theme: Mixed Chaos-Neutral synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                127, 127, 120, 120, 142, 142, 85, 85, 131, 131,
-                205, 205, 208, 208, 201, 201, 128, 128, 188, 188,
-                157, 157, 132, 132, 126, 126, 129, 129, 166, 166,
-                89, 89, 202, 202, 119, 119, 88, 88, 158, 158,
-                133, 133, 141, 141, 59, 59, 191, 191, 130, 130
+                // ??? theme: Bouchta
+
                 }
             },
             { 14, new List<int>
                 {
-                // Mixed theme: Mixed Faith-Pokemon synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                25, 25, 60, 60, 64, 64, 0, 0, 19, 19,
-                112, 112, 62, 62, 22, 22, 148, 148, 147, 147,
-                109, 109, 40, 40, 120, 120, 63, 63, 162, 162,
-                54, 54, 202, 202, 26, 26, 16, 16, 133, 133,
-                149, 149, 61, 61, 216, 216, 146, 146, 10, 10
+                // ???: Prime curse).
+
                 }
             }
         };

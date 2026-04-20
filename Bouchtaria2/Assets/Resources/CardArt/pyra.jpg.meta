@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: eeca6e8fda2fa7a4db7affda12d52f1e
+guid: dc4da48a9d68a584d92154427a6d46d2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5055270926204570773
-    second: kingmukla_0
+      213: -3506451733291383443
+    second: pyra_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: kingmukla_0
+      name: pyra_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 341
-        height: 512
+        width: 721
+        height: 1082
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b63773860e118d9b0800000000000000
-      internalID: -5055270926204570773
+      spriteID: d654d1ff9b4965fc0800000000000000
+      internalID: -3506451733291383443
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: c7dbdc3bb0a85ee4eb46fdbbb8c100a9
+    spriteID: 46cf3336fa788f14599a8484fc80a18e
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      kingmukla_0: -5055270926204570773
+      pyra_0: -3506451733291383443
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
