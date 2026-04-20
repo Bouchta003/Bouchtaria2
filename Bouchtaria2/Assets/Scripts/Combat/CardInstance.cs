@@ -3163,7 +3163,8 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TryExecuteBloodExplosion(string effect, IAttackable target)
     {
-        if (!TryParseIntEffect(effect, "damagebleed", out int amount))
+        int amount = 5;
+        if (effect.Contains('(') && !TryParseIntEffect(effect, "bloodexplosion", out amount))
             return;
 
         if (target == null)
@@ -3171,8 +3172,22 @@ public class CardInstance : MonoBehaviour, IAttackable
             Debug.LogError($"Damage effect requires a target on {Data.name}");
             return;
         }
-        if (target is CoreInstance core && core != IsBleeding) return;
-        if (target is CardInstance card && card != IsBleeding) return;
+
+        if (target is CoreInstance core)
+        {
+            if (core.Owner == Owner || !core.IsBleeding)
+                return;
+        }
+        else if (target is CardInstance card)
+        {
+            if (card.Owner == Owner || !card.IsBleeding)
+                return;
+        }
+        else
+        {
+            return;
+        }
+
         target.TakeDamage(amount);
         gameManager.OnDamageWithCard(Owner);
     }
