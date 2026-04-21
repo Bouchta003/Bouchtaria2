@@ -279,6 +279,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         progressionCompleted = false;
 
         SyncHealSubscription();
+        SyncStrikeSubscription();
         SyncSpellSubscription();
         SyncManaGainSubscription();
 
@@ -313,19 +314,11 @@ public class CardInstance : MonoBehaviour, IAttackable
            TryParseProgress("progressattack", out int attackCap))
         {
             ProgressionCap = attackCap;
-            gameManager.OnCardAttack += OnAttack;
         }
         else if (HasKeyword("progressstrike") &&
           TryParseProgress("progressstrike", out int strikeCap))
         {
             ProgressionCap = strikeCap;
-            gameManager.OnCardAttack += OnStrike;
-        }
-        else if (HasKeyword("progresstrike") &&
-          TryParseProgress("progresstrike", out int strikeCap2))
-        {
-            ProgressionCap = strikeCap2;
-            gameManager.OnCardAttack += OnStrike;
         }
         else if (HasKeyword("progressberserk") &&
          TryParseProgress("progressberserk", out int berserkCap))
@@ -415,6 +408,17 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnEnded -= OnEndTurn;
+    }
+    private void SyncStrikeSubscription()
+    {
+        if (gameManager == null) return;
+        gameManager.OnCardAttack -= OnStrike;
+        gameManager.OnCardAttack -= OnAttack;
+
+        if (HasKeyword("progressstrike") && TryParseProgress("progressstrike", out _))
+            gameManager.OnCardAttack += OnStrike;
+        else if (HasKeyword("progressattack") && TryParseProgress("progressattack", out _))
+            gameManager.OnCardAttack += OnAttack;
     }
     private void SyncHealSubscription()
     {
@@ -2147,7 +2151,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 parsedEffects[trigger].Add(e.Trim()); Debug.Log($"Parsing deploy effects: {e}");
             }
         }
-
+        SyncStrikeSubscription();
         SyncHealSubscription();
         SyncSpellSubscription();
         SyncManaGainSubscription();
@@ -3573,36 +3577,39 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (ci == null || ci.IsDead || ci == this)
             return;
-        string effect = "";
+
+        string effectToAppend = "";
         string effectText = "";
+
         switch (Data.id)
         {
-            case (329)://Honedge
-                effect = "progressstrike(2)[morphto(330)]";//Evolve
-                effectText = "Equipped with Honedge, add Doublade to your hand when striking twice";
-                ci.ModifyStats(4, 0);//give it +4/+0
+            case 329: // Honedge
+                effectToAppend = "progressstrike(2)[addcard(330)]";
+                effectText = "Equipped with Honedge: Adds Doublade to your hand after striking twice";
+                ci.ModifyStats(4, 0);
                 break;
-            case (330)://Doublade
-                effect = "progressstrike(3)[morphto(331)] haste";//Evolve and haste
-                effectText = "Equipped with Doublade, add Aegislash to your hand when striking thrice, Haste";
-                ci.ModifyStats(4, 0);//give it +4/+0
+            case 330: // Doublade
+                effectToAppend = "progressstrike(4)[addcard(331)] haste";
+                effectText = "Equipped with Doublade: Adds Aegislash to your hand after striking four times, Haste";
+                ci.ModifyStats(4, 0);
                 break;
-            case (331)://Aegislash
-                effect = "blessed";//blessed
-                effectText = "Equipped with Honedge";
-                ci.ModifyStats(10, 10);//give it +10/10
+            case 331: // Aegislash
+                effectToAppend = "blessed";
+                effectText = "Equipped with Aegislash";
+                ci.ModifyStats(10, 10);
                 break;
         }
 
-        int progressionToTransfer = this.ProgressionCounter;
-        TryExecuteGear(effect, effectText, ci);
-
-        // Transfer progression if the target now has a progression cap
-        if (ci.ProgressionCap > 0 && progressionToTransfer > 0)
+        if (!string.IsNullOrEmpty(effectToAppend))
         {
-            ci.ProgressionCounter = progressionToTransfer;
-            ci.cardView.ShowProgress(ci.ProgressionCounter, ci.ProgressionCap);
-            ci.CheckProgressCompletion();
+            ci.CurrentEffect = AppendToken(ci.CurrentEffect, effectToAppend);
+            ci.CurrentEffectText = AppendToken(ci.CurrentEffectText, effectText, "\n");
+            ci.cardView.UpdateMode();
+            ci.ParseEffects();
+            ci.InitializeProgressIfAny();
+
+            if (ci.Owner == PlayerOwner.Player)
+                gameManager.CheckGlow();
         }
 
         SelfDestroy();
