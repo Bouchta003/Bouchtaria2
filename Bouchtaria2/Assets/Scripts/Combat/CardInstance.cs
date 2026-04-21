@@ -4037,7 +4037,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
     }
 
-    public void MorphTo(int newCardId, bool triggerDeploy = true)
+    public void MorphTo(int newCardId, bool triggerDeploy = false)
     {
         CardData newData = CardDatabase.Instance.GetCardById(newCardId);
         if (newData == null || newCardId == Data.id || CurrentHealth <= 0)
