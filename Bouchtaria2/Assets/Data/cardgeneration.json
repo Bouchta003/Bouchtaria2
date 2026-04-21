@@ -5392,7 +5392,7 @@
       "atkValue": 14,
       "hpValue": 6,
       "traits": [ "Pokemon", "Swordsman" ],
-      "effect": "d[equipself,targetunit] progressberserk(3)[morphto(331)] blessed",
+      "effect": "d[equipself,targetunit] progressberserk(3)[morphto(331)] blessed eot[swapstats] sot[swapstats]",
       "effectText": "Equipable : Gives +10/+10 to an ally and blessed\nDuring the enemy's turn swaps stats, and swaps them back again during yours.",
       "artPath": "CardArt/aegislash",
       "artCompactPath": "CardArt/aegislash_compact",

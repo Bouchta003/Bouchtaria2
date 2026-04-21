@@ -180,7 +180,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         CurrentAttack = newAtk;
         CurrentMaxHealth = newHp;
-        CurrentHealth = CurrentMaxHealth-CurrentDamage;
+        CurrentHealth = Mathf.Max(1,CurrentMaxHealth-CurrentDamage);
 
         cardView.UpdateMode();
     }
@@ -3176,7 +3176,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         string valueStr = effect.Substring(start + 1, end - start - 1);
         string[] stats = valueStr.Split(','); int atk = -1; int hp = -1;
         if (stats.Length < 2)
-        {// SELFBUFF(x)
+        {// BUFF(x)
             if (int.TryParse(stats[0], out int totalStats))
             {
                 int newAtk = UnityEngine.Random.Range(0, totalStats + 1);
