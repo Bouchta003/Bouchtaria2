@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -278,11 +278,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         ProgressionCap = 0;
         progressionCompleted = false;
 
+        SyncHealSubscription();
+        SyncSpellSubscription();
+        SyncManaGainSubscription();
+
         if (Data.cardType != "minion" || !CurrentEffect.Contains("progress"))
         {
-            SyncHealSubscription();
-            SyncSpellSubscription();
-            SyncManaGainSubscription();
             return;
         }
 
@@ -320,6 +321,12 @@ public class CardInstance : MonoBehaviour, IAttackable
             ProgressionCap = strikeCap;
             gameManager.OnCardAttack += OnStrike;
         }
+        else if (HasKeyword("progresstrike") &&
+          TryParseProgress("progresstrike", out int strikeCap2))
+        {
+            ProgressionCap = strikeCap2;
+            gameManager.OnCardAttack += OnStrike;
+        }
         else if (HasKeyword("progressberserk") &&
          TryParseProgress("progressberserk", out int berserkCap))
         {
@@ -351,23 +358,26 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.OnSpellPlayed += OnSpellPlayed;
             cardView.ShowProgress(ProgressionCounter, ProgressionCap);
         }
-        else if (HasKeyword("progressspel") &&
-         TryParseProgress("progressspel", out int spellcap))
+        else if (HasKeyword("progressspell") &&
+         TryParseProgress("progressspell", out int spellcap))
         {
             ProgressionCap = spellcap;
             gameManager.OnSpellPlayed += OnSpellPlayed;
             cardView.ShowProgress(ProgressionCounter, ProgressionCap);
         }
+        else if (HasKeyword("progressspel") &&
+         TryParseProgress("progressspel", out int spellcap2))
+        {
+            ProgressionCap = spellcap2;
+            gameManager.OnSpellPlayed += OnSpellPlayed;
+            cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+        }
         else if (HasKeyword("progressbuff") &&
-          TryParseProgress("progressbuff", out int buffCap))
+         TryParseProgress("progressbuff", out int buffCap))
         {
             ProgressionCap = buffCap;
-            UpdateBuffProgressCounter();
+            cardView.ShowProgress(ProgressionCounter, ProgressionCap);
         }
-
-        SyncHealSubscription();
-        SyncSpellSubscription();
-        SyncManaGainSubscription();
     }
 
     private void CheckProgressCompletion()
@@ -388,37 +398,23 @@ public class CardInstance : MonoBehaviour, IAttackable
     private void CleanupProgressSubscriptions()
     {
         if (gameManager != null)
+        {
             gameManager.OnOwnerHeal -= OnHeal;
-
-        if (gameManager != null)
             gameManager.OnOwnerDamage -= OnDamage;
+            gameManager.OnCardAttack -= OnAttack;
+            gameManager.OnCardAttack -= OnStrike;
+            gameManager.OnDamageCardInstance -= OnCardTakeDamage;
+            gameManager.OnCardPlayed -= OnCardPlayed;
+            gameManager.OnSpellPlayed -= OnSpellPlayed;
+            gameManager.OnCardKilled -= OnCardKilledForProgress;
+            gameManager.OnOwnerManaGain -= OnManaGained;
+        }
 
         if (deckManager != null)
             deckManager.OnCardDrawn -= OnCardDrawn;
 
-        if (deckManager != null)
-            gameManager.OnCardAttack -= OnAttack;
-
-        if (gameManager != null)
-            gameManager.OnCardAttack -= OnStrike;
-
-        if (gameManager != null)
-            gameManager.OnDamageCardInstance -= OnCardTakeDamage;
-
-        if (gameManager != null)
-            gameManager.OnCardPlayed -= OnCardPlayed;
-
-        if (deckManager != null)
+        if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnEnded -= OnEndTurn;
-
-        if (gameManager != null)
-            gameManager.OnSpellPlayed -= OnSpellPlayed;
-
-        if (gameManager != null)
-            gameManager.OnCardKilled -= OnCardKilledForProgress;
-
-        if (gameManager != null)
-            gameManager.OnOwnerManaGain -= OnManaGained;
     }
     private void SyncHealSubscription()
     {
@@ -1214,9 +1210,19 @@ public class CardInstance : MonoBehaviour, IAttackable
                 continue;
             }
             // Targeted spell effects
+            if (effect.StartsWith("damagebleed"))
+            {
+                TryExecuteDamageBleed(effect, target);
+                continue;
+            }
             if (effect.StartsWith("damage"))
             {
                 TryExecuteDamage(effect, target);
+                continue;
+            }
+            if (effect.StartsWith("bloodexplosion"))
+            {
+                TryExecuteBloodExplosion(effect, target);
                 continue;
             }
             if (effect.StartsWith("kill"))
@@ -2485,8 +2491,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 executed = true;
             }
         }
-        else if (pendingTargetedEffect.StartsWith("bloodexplosion")
-            || pendingTargetedEffect.StartsWith("blooddexplosion"))
+        else if (pendingTargetedEffect.StartsWith("bloodexplosion"))
         {
             executed = TryExecuteBloodExplosion(pendingTargetedEffect, target);
         }
@@ -3216,37 +3221,27 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private bool TryExecuteBloodExplosion(string effect, IAttackable target)
     {
-        string normalizedEffect = effect.StartsWith("blooddexplosion")
-            ? effect.Replace("blooddexplosion", "bloodexplosion")
-            : effect;
-
-        int amount = 5;
-        if (normalizedEffect.Contains('(') && !TryParseIntEffect(normalizedEffect, "bloodexplosion", out amount))
-            return false;
-
         if (target == null)
         {
             Debug.LogError($"Damage effect requires a target on {Data.name}");
             return false;
         }
 
-        if (target is CoreInstance core)
+        int amount = 5;
+        if (effect.Contains('(') && !TryParseIntEffect(effect, "bloodexplosion", out amount))
+            amount = 5;
+
+        bool isBleeding = false;
+        if (target is CoreInstance core) isBleeding = core.IsBleeding;
+        else if (target is CardInstance card) isBleeding = card.IsBleeding;
+
+        if (isBleeding && target.Owner != Owner)
         {
-            if (core.Owner == Owner || !core.IsBleeding)
-                return false;
-        }
-        else if (target is CardInstance card)
-        {
-            if (card.Owner == Owner || !card.IsBleeding)
-                return false;
-        }
-        else
-        {
-            return false;
+            target.TakeDamage(amount);
+            gameManager.OnDamageWithCardInstance(this);
+            gameManager.OnDamageWithCard(Owner);
         }
 
-        target.TakeDamage(amount);
-        gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
         return true;
     }
     private void TryExecuteDamageBleed(string effect, IAttackable target)
@@ -3576,7 +3571,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     private void TryExecuteEquipSelf(CardInstance ci)
     {
-        if (ci == null || ci.IsDead || ci==this)
+        if (ci == null || ci.IsDead || ci == this)
             return;
         string effect = "";
         string effectText = "";
@@ -3595,10 +3590,21 @@ public class CardInstance : MonoBehaviour, IAttackable
             case (331)://Aegislash
                 effect = "blessed";//blessed
                 effectText = "Equipped with Honedge";
-                ci.ModifyStats(10,10);//give it +10/10
+                ci.ModifyStats(10, 10);//give it +10/10
                 break;
         }
-        TryExecuteGear(effect,effectText,ci);
+
+        int progressionToTransfer = this.ProgressionCounter;
+        TryExecuteGear(effect, effectText, ci);
+
+        // Transfer progression if the target now has a progression cap
+        if (ci.ProgressionCap > 0 && progressionToTransfer > 0)
+        {
+            ci.ProgressionCounter = progressionToTransfer;
+            ci.cardView.ShowProgress(ci.ProgressionCounter, ci.ProgressionCap);
+            ci.CheckProgressCompletion();
+        }
+
         SelfDestroy();
     }
     private void TryExecuteGrantTarget(string completeeffect, CardInstance ci)

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -154,9 +154,14 @@ public class GameManager : MonoBehaviour
     public event System.Action<CardInstance> OnDamageCardInstance;
     public event System.Action<CardInstance> OnSpellPlayed;
     public event System.Action<CardInstance> OnCardPlayed;
+    public event System.Action<CardInstance, int, int> OnCardBuffed;
     public event System.Action<CardInstance, int> OnSoulConsumed;
 
-    private sealed class PendingHandReturn
+    public void NotifyCardBuffed(CardInstance card, int atk, int hp)
+    {
+        OnCardBuffed?.Invoke(card, atk, hp);
+    }
+private sealed class PendingHandReturn
     {
         public PlayerOwner Owner;
         public int CardId;
