@@ -210,7 +210,7 @@ private sealed class PendingHandReturn
     public int DiscoverDiscount;
     private int dungeonStartDrawBonus;
     private int dungeonStartDrawBonusEnemy;
-    private bool adventureBossSecondPhaseTriggered;
+    public bool adventureBossSecondPhaseTriggered;
     private bool adventureBossFinalDialogueTriggered;
     private void Awake()
     {
@@ -384,7 +384,7 @@ private sealed class PendingHandReturn
         {
             consumer.ModifyStats(consumed, consumed);
         }
-
+        consumer.cardView.UpdateMode();
         return consumed;
     }
     public int DiscardCardsFromHandWithDeferredReturn(
@@ -3762,10 +3762,11 @@ private sealed class PendingHandReturn
             {
                 OnCardKiller?.Invoke(attacker);
             }
+            int excessDmg = attacker.CurrentAttack - targetUnit.CurrentHealth;
             attacker.TakeDamage(defenderDmg + thornDamage);
             targetUnit.TakeDamage(attackerDmg);
             ApplyCleaveDamage(attacker, cleaveTargets, attackerDmg);
-
+            ApplyPierceDamage(attacker, targetUnit, excessDmg);
             return;
         }
 
@@ -3842,6 +3843,25 @@ private sealed class PendingHandReturn
             adjacent.Add(livingUnitsInOrder[centerIndex + 1]);
 
         return adjacent;
+    }
+    private void ApplyPierceDamage(CardInstance attacker, CardInstance target, int damage)
+    {
+        if (attacker == null || !attacker.HasKeyword("pierce"))
+            return;
+
+        // Blessed targets absorb the hit entirely — no pierce
+        if (target.HasKeyword("blessed"))
+            return;
+
+        if (damage <= 0)
+            return;
+
+        CoreInstance enemyCore = attacker.Owner == PlayerOwner.Player ? EnemyCore : PlayerCore;
+        if (enemyCore == null)
+            return;
+
+        enemyCore.TakeDamage(damage);
+        OnDamageWithCard(attacker.Owner);
     }
     private void ApplyCleaveDamage(CardInstance attacker, List<CardInstance> cleaveTargets, int damage)
     {

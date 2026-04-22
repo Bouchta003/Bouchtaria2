@@ -78,7 +78,7 @@ public class TraitsDisplay : MonoBehaviour
                 display += $"Kill or catch enemies to activate : {Progression}/{CurrentCap}" +
                     "\nTier 1 : The next Pokemon you play evolves instantly.";
                 if (tier > 1) display +=
-                        "\nTier 2 : The next Pokemon you play evolves instantly and gains +2/+2.";
+                        "\nTier 2 : The next Pokemon you play evolves instantly and gains +3/+3.";
                 if (tier > 2) display +=
                          "\nTier 3 : Discover a LEGENDARY Pokemon.";
                 break;

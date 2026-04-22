@@ -103,7 +103,7 @@ public class CombatDialogue : MonoBehaviour
 
         GameManager.Instance.UIparent.SetActive(true);
         OnDialogueEnded?.Invoke();
-        if (resumeCombatAfterDialogue)
+        if (resumeCombatAfterDialogue && !GameManager.Instance.adventureBossSecondPhaseTriggered)
             GameManager.Instance.SetupFirstTurn();
     }
     void DisplayLine()

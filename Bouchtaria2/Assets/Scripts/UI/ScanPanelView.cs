@@ -300,6 +300,15 @@ public class ScanPanelView : MonoBehaviour
             keyDescription.text =
                 "Fully heals at the end of your turn.";
         }
+        if (effectText.ToLower().Contains(("pierce").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Pierce";
+            keyDescription.text =
+                "Excess damage during attack is dealt to the enemy Core.";
+        }
         if (effectText.ToLower().Contains(("consume").ToLower()))
         {
             GameObject entry = Instantiate(keywordPrefab, keywordContainer);

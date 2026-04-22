@@ -1,0 +1,7163 @@
+fileFormatVersion: 2
+guid: 6b77769be63a6af489073cf1c565eaa9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 8088823615029406807
+    second: excalibursit_0
+  - first:
+      213: 5139223019634733532
+    second: excalibursit_1
+  - first:
+      213: 3418089551907475453
+    second: excalibursit_2
+  - first:
+      213: -6210985285721269964
+    second: excalibursit_3
+  - first:
+      213: -8131946557476506990
+    second: excalibursit_4
+  - first:
+      213: -6687692750118940173
+    second: excalibursit_5
+  - first:
+      213: -1197299073958279209
+    second: excalibursit_6
+  - first:
+      213: 7557244429665940141
+    second: excalibursit_7
+  - first:
+      213: -5128958082862954306
+    second: excalibursit_8
+  - first:
+      213: 6158529131706295054
+    second: excalibursit_9
+  - first:
+      213: 8282353044429540454
+    second: excalibursit_10
+  - first:
+      213: 34492110408679728
+    second: excalibursit_11
+  - first:
+      213: -4162741187859766844
+    second: excalibursit_12
+  - first:
+      213: 2190772671283589344
+    second: excalibursit_13
+  - first:
+      213: -8799771023294765681
+    second: excalibursit_14
+  - first:
+      213: 8654524107976939184
+    second: excalibursit_15
+  - first:
+      213: 5052431249314488857
+    second: excalibursit_16
+  - first:
+      213: -791642562295154296
+    second: excalibursit_17
+  - first:
+      213: 6708294836190206456
+    second: excalibursit_18
+  - first:
+      213: 9129176201598096496
+    second: excalibursit_19
+  - first:
+      213: -4345847397573502373
+    second: excalibursit_20
+  - first:
+      213: 5844563849328408996
+    second: excalibursit_21
+  - first:
+      213: -9152012445686307192
+    second: excalibursit_22
+  - first:
+      213: 8553923206311345263
+    second: excalibursit_23
+  - first:
+      213: 5984659934067116821
+    second: excalibursit_24
+  - first:
+      213: 7701705225155979246
+    second: excalibursit_25
+  - first:
+      213: 1004200187553309808
+    second: excalibursit_26
+  - first:
+      213: -3029822111652702746
+    second: excalibursit_27
+  - first:
+      213: -7073534285902329623
+    second: excalibursit_28
+  - first:
+      213: -8911714704969101592
+    second: excalibursit_29
+  - first:
+      213: 3542471846267965821
+    second: excalibursit_30
+  - first:
+      213: -4956796718398510368
+    second: excalibursit_31
+  - first:
+      213: -7710030660191507683
+    second: excalibursit_32
+  - first:
+      213: -5074231007343734846
+    second: excalibursit_33
+  - first:
+      213: -355110621069503895
+    second: excalibursit_34
+  - first:
+      213: 1329176899707974374
+    second: excalibursit_35
+  - first:
+      213: -8441430242934084400
+    second: excalibursit_36
+  - first:
+      213: 9161343446073727800
+    second: excalibursit_37
+  - first:
+      213: -5394040706199948129
+    second: excalibursit_38
+  - first:
+      213: 236731600357636743
+    second: excalibursit_39
+  - first:
+      213: -857972885970582805
+    second: excalibursit_40
+  - first:
+      213: 6982702505350066855
+    second: excalibursit_41
+  - first:
+      213: 6329740051175267356
+    second: excalibursit_42
+  - first:
+      213: 5108501211001063210
+    second: excalibursit_43
+  - first:
+      213: 5523922463555033446
+    second: excalibursit_44
+  - first:
+      213: 5119687011096516756
+    second: excalibursit_45
+  - first:
+      213: -2100502654055423398
+    second: excalibursit_46
+  - first:
+      213: -851843960967536142
+    second: excalibursit_47
+  - first:
+      213: -2252224297545695833
+    second: excalibursit_48
+  - first:
+      213: -8802056074934674733
+    second: excalibursit_49
+  - first:
+      213: 6505881614199740797
+    second: excalibursit_50
+  - first:
+      213: -7240149027222776805
+    second: excalibursit_51
+  - first:
+      213: 9106834315646419465
+    second: excalibursit_52
+  - first:
+      213: -3649026566104385727
+    second: excalibursit_53
+  - first:
+      213: -5051201553653990188
+    second: excalibursit_54
+  - first:
+      213: 3277242822281328019
+    second: excalibursit_55
+  - first:
+      213: 8279817644222629959
+    second: excalibursit_56
+  - first:
+      213: 5601584643135007750
+    second: excalibursit_57
+  - first:
+      213: -4706869216523130251
+    second: excalibursit_58
+  - first:
+      213: -3216591619106698655
+    second: excalibursit_59
+  - first:
+      213: 4387340887022551792
+    second: excalibursit_60
+  - first:
+      213: 5450572844035447077
+    second: excalibursit_61
+  - first:
+      213: 4746601816433933503
+    second: excalibursit_62
+  - first:
+      213: -2378274089122626748
+    second: excalibursit_63
+  - first:
+      213: -3765729992997928173
+    second: excalibursit_64
+  - first:
+      213: 2060781833600819085
+    second: excalibursit_65
+  - first:
+      213: 7597212044354542638
+    second: excalibursit_66
+  - first:
+      213: 8414181779396849257
+    second: excalibursit_67
+  - first:
+      213: -6949685977607381052
+    second: excalibursit_68
+  - first:
+      213: -3939085984579458318
+    second: excalibursit_69
+  - first:
+      213: -1320459403150159037
+    second: excalibursit_70
+  - first:
+      213: -7984867977939418146
+    second: excalibursit_71
+  - first:
+      213: -7223380988762201669
+    second: excalibursit_72
+  - first:
+      213: -2957684284968986249
+    second: excalibursit_73
+  - first:
+      213: -7436664465190022578
+    second: excalibursit_74
+  - first:
+      213: 87801979066826105
+    second: excalibursit_75
+  - first:
+      213: 7292573693087585027
+    second: excalibursit_76
+  - first:
+      213: -5909665112252416343
+    second: excalibursit_77
+  - first:
+      213: -2221832909919596996
+    second: excalibursit_78
+  - first:
+      213: 2597649630063278377
+    second: excalibursit_79
+  - first:
+      213: 2004740408850403507
+    second: excalibursit_80
+  - first:
+      213: 1068585318514827316
+    second: excalibursit_81
+  - first:
+      213: -8868329980990043848
+    second: excalibursit_82
+  - first:
+      213: 6286145399047976163
+    second: excalibursit_83
+  - first:
+      213: 6600255992729386274
+    second: excalibursit_84
+  - first:
+      213: 2488970698356297426
+    second: excalibursit_85
+  - first:
+      213: 2859823024394515544
+    second: excalibursit_86
+  - first:
+      213: 485782291082646555
+    second: excalibursit_87
+  - first:
+      213: -9089489579335499895
+    second: excalibursit_88
+  - first:
+      213: -4669751472487029030
+    second: excalibursit_89
+  - first:
+      213: -6834365319362663289
+    second: excalibursit_90
+  - first:
+      213: -4434434528596651522
+    second: excalibursit_91
+  - first:
+      213: -1561209212215357580
+    second: excalibursit_92
+  - first:
+      213: 8570770780714250955
+    second: excalibursit_93
+  - first:
+      213: -649908301399442492
+    second: excalibursit_94
+  - first:
+      213: 5763576397659099073
+    second: excalibursit_95
+  - first:
+      213: 3279618158742436337
+    second: excalibursit_96
+  - first:
+      213: 4703284909803753564
+    second: excalibursit_97
+  - first:
+      213: -8705007837454167410
+    second: excalibursit_98
+  - first:
+      213: -9103285577404291572
+    second: excalibursit_99
+  - first:
+      213: 8026826715783310989
+    second: excalibursit_100
+  - first:
+      213: -6453582785725046706
+    second: excalibursit_101
+  - first:
+      213: 4571775658202495411
+    second: excalibursit_102
+  - first:
+      213: -7732464894998035459
+    second: excalibursit_103
+  - first:
+      213: -8986351279079964159
+    second: excalibursit_104
+  - first:
+      213: 1926965940614328780
+    second: excalibursit_105
+  - first:
+      213: -4258224478395202245
+    second: excalibursit_106
+  - first:
+      213: 9210977970813050024
+    second: excalibursit_107
+  - first:
+      213: 8040727475620713494
+    second: excalibursit_108
+  - first:
+      213: 8580141915146973961
+    second: excalibursit_109
+  - first:
+      213: -5864116885209211510
+    second: excalibursit_110
+  - first:
+      213: -2452888810003949496
+    second: excalibursit_111
+  - first:
+      213: 2072924115434834718
+    second: excalibursit_112
+  - first:
+      213: -6744076528748114741
+    second: excalibursit_113
+  - first:
+      213: -250989081857087276
+    second: excalibursit_114
+  - first:
+      213: 3260349337513562095
+    second: excalibursit_115
+  - first:
+      213: -3672761547311252662
+    second: excalibursit_116
+  - first:
+      213: -2709096911595895706
+    second: excalibursit_117
+  - first:
+      213: 293942501330069043
+    second: excalibursit_118
+  - first:
+      213: 2149597258100650360
+    second: excalibursit_119
+  - first:
+      213: -4068184019962697591
+    second: excalibursit_120
+  - first:
+      213: -7480344267649218916
+    second: excalibursit_121
+  - first:
+      213: -4586507423862075615
+    second: excalibursit_122
+  - first:
+      213: 7395242477826014818
+    second: excalibursit_123
+  - first:
+      213: -7248407238052682791
+    second: excalibursit_124
+  - first:
+      213: 2225502624657815032
+    second: excalibursit_125
+  - first:
+      213: 865118591273239240
+    second: excalibursit_126
+  - first:
+      213: -379549479312387974
+    second: excalibursit_127
+  - first:
+      213: -2115270822207002141
+    second: excalibursit_128
+  - first:
+      213: -222319192240597801
+    second: excalibursit_129
+  - first:
+      213: 6722897414275601755
+    second: excalibursit_130
+  - first:
+      213: -1839116723129217548
+    second: excalibursit_131
+  - first:
+      213: -2153070234511607094
+    second: excalibursit_132
+  - first:
+      213: -8061598738414464117
+    second: excalibursit_133
+  - first:
+      213: 8316557485847624492
+    second: excalibursit_134
+  - first:
+      213: -5566400040038105505
+    second: excalibursit_135
+  - first:
+      213: -7499248615545281700
+    second: excalibursit_136
+  - first:
+      213: -6178930265653346133
+    second: excalibursit_137
+  - first:
+      213: 5045508770411905971
+    second: excalibursit_138
+  - first:
+      213: 5393923199624451559
+    second: excalibursit_139
+  - first:
+      213: -6097520987435219711
+    second: excalibursit_140
+  - first:
+      213: -397496158932440075
+    second: excalibursit_141
+  - first:
+      213: -8605430518164765273
+    second: excalibursit_142
+  - first:
+      213: -5965401810650679429
+    second: excalibursit_143
+  - first:
+      213: 2345387294723154701
+    second: excalibursit_144
+  - first:
+      213: -8836215170424644206
+    second: excalibursit_145
+  - first:
+      213: 8766563477315779043
+    second: excalibursit_146
+  - first:
+      213: -2258942744899457793
+    second: excalibursit_147
+  - first:
+      213: 7586387195502902823
+    second: excalibursit_148
+  - first:
+      213: -2082740302677397836
+    second: excalibursit_149
+  - first:
+      213: -1130432663331071483
+    second: excalibursit_150
+  - first:
+      213: -6043403210238065692
+    second: excalibursit_151
+  - first:
+      213: 3411409173729900011
+    second: excalibursit_152
+  - first:
+      213: -7772018587124304166
+    second: excalibursit_153
+  - first:
+      213: 1852651332162589694
+    second: excalibursit_154
+  - first:
+      213: -9174909141301420811
+    second: excalibursit_155
+  - first:
+      213: -3756085870878473785
+    second: excalibursit_156
+  - first:
+      213: -3210229508021154844
+    second: excalibursit_157
+  - first:
+      213: 5411552739465111627
+    second: excalibursit_158
+  - first:
+      213: -128148097593759100
+    second: excalibursit_159
+  - first:
+      213: -5986837287944751894
+    second: excalibursit_160
+  - first:
+      213: 4291185533581895180
+    second: excalibursit_161
+  - first:
+      213: 3853111883851938717
+    second: excalibursit_162
+  - first:
+      213: -7862000438264895570
+    second: excalibursit_163
+  - first:
+      213: 8673420311514356786
+    second: excalibursit_164
+  - first:
+      213: -2460229617226000385
+    second: excalibursit_165
+  - first:
+      213: -8238458937534847423
+    second: excalibursit_166
+  - first:
+      213: -4097653200359841923
+    second: excalibursit_167
+  - first:
+      213: -7678204298682261675
+    second: excalibursit_168
+  - first:
+      213: 5058012512059292635
+    second: excalibursit_169
+  - first:
+      213: -946281152229007440
+    second: excalibursit_170
+  - first:
+      213: 1013932277892734639
+    second: excalibursit_171
+  - first:
+      213: -663359262889696850
+    second: excalibursit_172
+  - first:
+      213: 9041188357664668859
+    second: excalibursit_173
+  - first:
+      213: 2354963082207238614
+    second: excalibursit_174
+  - first:
+      213: 8393033228389790616
+    second: excalibursit_175
+  - first:
+      213: -7024943799910968261
+    second: excalibursit_176
+  - first:
+      213: 3231139438703906766
+    second: excalibursit_177
+  - first:
+      213: -3119473700838516872
+    second: excalibursit_178
+  - first:
+      213: -4033850340886016597
+    second: excalibursit_179
+  - first:
+      213: -8814944337257410088
+    second: excalibursit_180
+  - first:
+      213: -2397178525696460374
+    second: excalibursit_181
+  - first:
+      213: -4337150476650920645
+    second: excalibursit_182
+  - first:
+      213: 840979424835609954
+    second: excalibursit_183
+  - first:
+      213: 7417194858661252496
+    second: excalibursit_184
+  - first:
+      213: 795809175305942768
+    second: excalibursit_185
+  - first:
+      213: -638363157348590975
+    second: excalibursit_186
+  - first:
+      213: -251323706098879446
+    second: excalibursit_187
+  - first:
+      213: -1553856226492678874
+    second: excalibursit_188
+  - first:
+      213: -740786366919291577
+    second: excalibursit_189
+  - first:
+      213: -9211402912219989359
+    second: excalibursit_190
+  - first:
+      213: 7203644955270063958
+    second: excalibursit_191
+  - first:
+      213: 3515549748269581709
+    second: excalibursit_192
+  - first:
+      213: 5049490786759205021
+    second: excalibursit_193
+  - first:
+      213: 558436537068599174
+    second: excalibursit_194
+  - first:
+      213: 3916847106965415042
+    second: excalibursit_195
+  - first:
+      213: -8665656643367373099
+    second: excalibursit_196
+  - first:
+      213: -4219572107666906285
+    second: excalibursit_197
+  - first:
+      213: 3798291677612012135
+    second: excalibursit_198
+  - first:
+      213: -112618952569729544
+    second: excalibursit_199
+  - first:
+      213: -2699082987619920596
+    second: excalibursit_200
+  - first:
+      213: 4980150058378327858
+    second: excalibursit_201
+  - first:
+      213: 1807340668848665536
+    second: excalibursit_202
+  - first:
+      213: 2460845272295345116
+    second: excalibursit_203
+  - first:
+      213: -5953999999666976649
+    second: excalibursit_204
+  - first:
+      213: 3877633433008867014
+    second: excalibursit_205
+  - first:
+      213: -9181276606769038420
+    second: excalibursit_206
+  - first:
+      213: 71994086428362640
+    second: excalibursit_207
+  - first:
+      213: 6749702617494464308
+    second: excalibursit_208
+  - first:
+      213: -7610637548468456350
+    second: excalibursit_209
+  - first:
+      213: 4807928090700441759
+    second: excalibursit_210
+  - first:
+      213: -8418394852942756541
+    second: excalibursit_211
+  - first:
+      213: 7064446878927340829
+    second: excalibursit_212
+  - first:
+      213: 5259070540413899617
+    second: excalibursit_213
+  - first:
+      213: 7514081828474582721
+    second: excalibursit_214
+  - first:
+      213: 8560284236924623325
+    second: excalibursit_215
+  - first:
+      213: -2495263370117250366
+    second: excalibursit_216
+  - first:
+      213: -1408595947559026578
+    second: excalibursit_217
+  - first:
+      213: 2050611016563201816
+    second: excalibursit_218
+  - first:
+      213: -1285420360731262995
+    second: excalibursit_219
+  - first:
+      213: 9146108186823617797
+    second: excalibursit_220
+  - first:
+      213: -3291857264944786394
+    second: excalibursit_221
+  - first:
+      213: 5827306558942066177
+    second: excalibursit_222
+  - first:
+      213: 7576723799935022620
+    second: excalibursit_223
+  - first:
+      213: 724084331597595502
+    second: excalibursit_224
+  - first:
+      213: 2243611392680432879
+    second: excalibursit_225
+  - first:
+      213: 1913187116111522921
+    second: excalibursit_226
+  - first:
+      213: 5902733612803443561
+    second: excalibursit_227
+  - first:
+      213: -6531615778621702118
+    second: excalibursit_228
+  - first:
+      213: -9154909023806746152
+    second: excalibursit_229
+  - first:
+      213: 2235263968510231
+    second: excalibursit_230
+  - first:
+      213: -7194304156458382625
+    second: excalibursit_231
+  - first:
+      213: -115556142571976527
+    second: excalibursit_232
+  - first:
+      213: 2760360058463041604
+    second: excalibursit_233
+  - first:
+      213: 175728534293546291
+    second: excalibursit_234
+  - first:
+      213: 1613861508280963750
+    second: excalibursit_235
+  - first:
+      213: 680837038652784018
+    second: excalibursit_236
+  - first:
+      213: 2890765804092062352
+    second: excalibursit_237
+  - first:
+      213: 6669874501207608637
+    second: excalibursit_238
+  - first:
+      213: -1717661991176746534
+    second: excalibursit_239
+  - first:
+      213: -1205572041068175196
+    second: excalibursit_240
+  - first:
+      213: 1690971403776007435
+    second: excalibursit_241
+  - first:
+      213: 8906462748819942886
+    second: excalibursit_242
+  - first:
+      213: -6668299949235150666
+    second: excalibursit_243
+  - first:
+      213: 3270263258839365669
+    second: excalibursit_244
+  - first:
+      213: -4666920404231425530
+    second: excalibursit_245
+  - first:
+      213: 8424110257182153923
+    second: excalibursit_246
+  - first:
+      213: -5989400464697781492
+    second: excalibursit_247
+  - first:
+      213: -7637082065902487872
+    second: excalibursit_248
+  - first:
+      213: -2523122324248625445
+    second: excalibursit_249
+  - first:
+      213: 4134821026467367049
+    second: excalibursit_250
+  - first:
+      213: -3687255140572550091
+    second: excalibursit_251
+  - first:
+      213: 4728692416944167016
+    second: excalibursit_252
+  - first:
+      213: -8968888799341565953
+    second: excalibursit_253
+  - first:
+      213: -8374171292520642004
+    second: excalibursit_254
+  - first:
+      213: -2317653915584414691
+    second: excalibursit_255
+  - first:
+      213: -3387925509168765011
+    second: excalibursit_256
+  - first:
+      213: 1713557790825122848
+    second: excalibursit_257
+  - first:
+      213: -2755536740804302502
+    second: excalibursit_258
+  - first:
+      213: 5393463875528435795
+    second: excalibursit_259
+  - first:
+      213: 5468047973703180092
+    second: excalibursit_260
+  - first:
+      213: -3318002738527411868
+    second: excalibursit_261
+  - first:
+      213: -4406986967710406563
+    second: excalibursit_262
+  - first:
+      213: 8029288416546940010
+    second: excalibursit_263
+  - first:
+      213: 8102702806430133832
+    second: excalibursit_264
+  - first:
+      213: -5449399074960843409
+    second: excalibursit_265
+  - first:
+      213: -2254820728614030474
+    second: excalibursit_266
+  - first:
+      213: -6107683738265357986
+    second: excalibursit_267
+  - first:
+      213: -5361345483827963408
+    second: excalibursit_268
+  - first:
+      213: -6833036310626754476
+    second: excalibursit_269
+  - first:
+      213: 8009567086518984945
+    second: excalibursit_270
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: excalibursit_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 428
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 75c6e90b836414070800000000000000
+      internalID: 8088823615029406807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 413
+        width: 25
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd1b6da8b10325740800000000000000
+      internalID: 5139223019634733532
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_2
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 427
+        width: 14
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dff4bef665e7f6f20800000000000000
+      internalID: 3418089551907475453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_3
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 417
+        width: 20
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 439d7633ac52ec9a0800000000000000
+      internalID: -6210985285721269964
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_4
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 422
+        width: 19
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 292f62dd0b5852f80800000000000000
+      internalID: -8131946557476506990
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_5
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 412
+        width: 15
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f1943e60ea8033a0800000000000000
+      internalID: -6687692750118940173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_6
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 420
+        width: 11
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d700d6f5d6526fe0800000000000000
+      internalID: -1197299073958279209
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_7
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 412
+        width: 14
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da2b90fc4c9b0e860800000000000000
+      internalID: 7557244429665940141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_8
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 423
+        width: 26
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb8c51b4cc742d8b0800000000000000
+      internalID: -5128958082862954306
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_9
+      rect:
+        serializedVersion: 2
+        x: 95
+        y: 412
+        width: 21
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e03af32bd9d777550800000000000000
+      internalID: 6158529131706295054
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_10
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 427
+        width: 16
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66c099d4634d0f270800000000000000
+      internalID: 8282353044429540454
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_11
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 419
+        width: 22
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0318674446a8a7000800000000000000
+      internalID: 34492110408679728
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_12
+      rect:
+        serializedVersion: 2
+        x: 131
+        y: 423
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c12bbdd1f8fa36c0800000000000000
+      internalID: -4162741187859766844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_13
+      rect:
+        serializedVersion: 2
+        x: 137
+        y: 427
+        width: 13
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e0fd772320376e10800000000000000
+      internalID: 2190772671283589344
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_14
+      rect:
+        serializedVersion: 2
+        x: 148
+        y: 426
+        width: 14
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f856db3a0eee0e580800000000000000
+      internalID: -8799771023294765681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_15
+      rect:
+        serializedVersion: 2
+        x: 149
+        y: 404
+        width: 78
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b6150492db0b1870800000000000000
+      internalID: 8654524107976939184
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_16
+      rect:
+        serializedVersion: 2
+        x: 187
+        y: 426
+        width: 15
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 912297bc377dd1640800000000000000
+      internalID: 5052431249314488857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_17
+      rect:
+        serializedVersion: 2
+        x: 203
+        y: 429
+        width: 14
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 889315da8458305f0800000000000000
+      internalID: -791642562295154296
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_18
+      rect:
+        serializedVersion: 2
+        x: 221
+        y: 427
+        width: 17
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f954b78c96a81d50800000000000000
+      internalID: 6708294836190206456
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_19
+      rect:
+        serializedVersion: 2
+        x: 236
+        y: 426
+        width: 23
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 074543c036951be70800000000000000
+      internalID: 9129176201598096496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_20
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 427
+        width: 14
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5a539331d270b3c0800000000000000
+      internalID: -4345847397573502373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_21
+      rect:
+        serializedVersion: 2
+        x: 269
+        y: 427
+        width: 14
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a93f4aeadf0c1150800000000000000
+      internalID: 5844563849328408996
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_22
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 426
+        width: 16
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 886e9ea8b258df080800000000000000
+      internalID: -9152012445686307192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_23
+      rect:
+        serializedVersion: 2
+        x: 286
+        y: 403
+        width: 112
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6c7824e5d3a5b670800000000000000
+      internalID: 8553923206311345263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_24
+      rect:
+        serializedVersion: 2
+        x: 296
+        y: 426
+        width: 16
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51b459f7088cd0350800000000000000
+      internalID: 5984659934067116821
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_25
+      rect:
+        serializedVersion: 2
+        x: 313
+        y: 427
+        width: 12
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee7213ec814f1ea60800000000000000
+      internalID: 7701705225155979246
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_26
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 427
+        width: 18
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 074ee7600c2afed00800000000000000
+      internalID: 1004200187553309808
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_27
+      rect:
+        serializedVersion: 2
+        x: 342
+        y: 429
+        width: 34
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e5115697d8e3f5d0800000000000000
+      internalID: -3029822111652702746
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_28
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 405
+        width: 66
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e8ce3e4b02c5dd90800000000000000
+      internalID: -7073534285902329623
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_29
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 405
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ee01be21ba335480800000000000000
+      internalID: -8911714704969101592
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_30
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 400
+        width: 16
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d71df971063692130800000000000000
+      internalID: 3542471846267965821
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_31
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 400
+        width: 29
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0eae80895abe53bb0800000000000000
+      internalID: -4956796718398510368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_32
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 405
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d1b2aebc6f7700590800000000000000
+      internalID: -7710030660191507683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_33
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 417
+        width: 13
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2cf010388c5b499b0800000000000000
+      internalID: -5074231007343734846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_34
+      rect:
+        serializedVersion: 2
+        x: 86
+        y: 412
+        width: 12
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9621f2785c4621bf0800000000000000
+      internalID: -355110621069503895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_35
+      rect:
+        serializedVersion: 2
+        x: 88
+        y: 419
+        width: 14
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e2bfb6195f227210800000000000000
+      internalID: 1329176899707974374
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_36
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 405
+        width: 41
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0dcacad2be30ada80800000000000000
+      internalID: -8441430242934084400
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_37
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 412
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83bd3984351a32f70800000000000000
+      internalID: 9161343446073727800
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_38
+      rect:
+        serializedVersion: 2
+        x: 198
+        y: 402
+        width: 92
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9474fa7e848425b0800000000000000
+      internalID: -5394040706199948129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_39
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 399
+        width: 11
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78a3d62e22a094300800000000000000
+      internalID: 236731600357636743
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_40
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 400
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be28ec8b43ed714f0800000000000000
+      internalID: -857972885970582805
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_41
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 398
+        width: 14
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a2fe93ceea87e060800000000000000
+      internalID: 6982702505350066855
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_42
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 23
+        width: 368
+        height: 387
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1c5dd64a01c7d750800000000000000
+      internalID: 6329740051175267356
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_43
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 405
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a270f5019ca05e640800000000000000
+      internalID: 5108501211001063210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_44
+      rect:
+        serializedVersion: 2
+        x: 61
+        y: 403
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6699ffea63ae8ac40800000000000000
+      internalID: 5523922463555033446
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_45
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 405
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 498d6991638cc0740800000000000000
+      internalID: 5119687011096516756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_46
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 400
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a52e24f07f389d2e0800000000000000
+      internalID: -2100502654055423398
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_47
+      rect:
+        serializedVersion: 2
+        x: 83
+        y: 402
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f1e7764e64ad24f0800000000000000
+      internalID: -851843960967536142
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_48
+      rect:
+        serializedVersion: 2
+        x: 85
+        y: 394
+        width: 26
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7adf8462fed7eb0e0800000000000000
+      internalID: -2252224297545695833
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_49
+      rect:
+        serializedVersion: 2
+        x: 132
+        y: 389
+        width: 23
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3da137892a0d8d580800000000000000
+      internalID: -8802056074934674733
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_50
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 391
+        width: 42
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d79de15cbd8894a50800000000000000
+      internalID: 6505881614199740797
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_51
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 376
+        width: 48
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b141f77d1d2d58b90800000000000000
+      internalID: -7240149027222776805
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_52
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 395
+        width: 10
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 902417c5f89f16e70800000000000000
+      internalID: 9106834315646419465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_53
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 398
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1477267ebad0c5dc0800000000000000
+      internalID: -3649026566104385727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_54
+      rect:
+        serializedVersion: 2
+        x: 404
+        y: 393
+        width: 13
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4dc7d8903f686e9b0800000000000000
+      internalID: -5051201553653990188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_55
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 382
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 395f6c8bbfa1b7d20800000000000000
+      internalID: 3277242822281328019
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_56
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 359
+        width: 40
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 748c6e07742d7e270800000000000000
+      internalID: 8279817644222629959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_57
+      rect:
+        serializedVersion: 2
+        x: 376
+        y: 389
+        width: 14
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60c6851fd83dcbd40800000000000000
+      internalID: 5601584643135007750
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_58
+      rect:
+        serializedVersion: 2
+        x: 405
+        y: 387
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57aeae8b267ddaeb0800000000000000
+      internalID: -4706869216523130251
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_59
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 376
+        width: 12
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16a85a3f6fe5c53d0800000000000000
+      internalID: -3216591619106698655
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_60
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 370
+        width: 20
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f2c687aa47f2ec30800000000000000
+      internalID: 4387340887022551792
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_61
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 372
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5299f1f8f1354ab40800000000000000
+      internalID: 5450572844035447077
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_62
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 372
+        width: 24
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbcb4c614315fd140800000000000000
+      internalID: 4746601816433933503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_63
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 371
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 443845b015caefed0800000000000000
+      internalID: -2378274089122626748
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_64
+      rect:
+        serializedVersion: 2
+        x: 406
+        y: 379
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3130357e5807dbbc0800000000000000
+      internalID: -3765729992997928173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_65
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 366
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8fda5fb82e599c10800000000000000
+      internalID: 2060781833600819085
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_66
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 359
+        width: 27
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2c52134a18be6960800000000000000
+      internalID: 7597212044354542638
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_67
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 361
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96e63848fbd25c470800000000000000
+      internalID: 8414181779396849257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_68
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 357
+        width: 17
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4cfd234ac61cd8f90800000000000000
+      internalID: -6949685977607381052
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_69
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 366
+        width: 12
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2faeb6dca2e8559c0800000000000000
+      internalID: -3939085984579458318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_70
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 361
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34319ee3b29ccade0800000000000000
+      internalID: -1320459403150159037
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_71
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 363
+        width: 20
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed3878431ec003190800000000000000
+      internalID: -7984867977939418146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_72
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 351
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb1e487034561cb90800000000000000
+      internalID: -7223380988762201669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_73
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 352
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7791ba430d134f6d0800000000000000
+      internalID: -2957684284968986249
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_74
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 345
+        width: 22
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e42149ee119abc890800000000000000
+      internalID: -7436664465190022578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_75
+      rect:
+        serializedVersion: 2
+        x: 29
+        y: 352
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97dbadc4f6fe73100800000000000000
+      internalID: 87801979066826105
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_76
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 357
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30318dad22d643560800000000000000
+      internalID: 7292573693087585027
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_77
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 355
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9aefca224e6acfda0800000000000000
+      internalID: -5909665112252416343
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_78
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 352
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c3e48fd7db67a21e0800000000000000
+      internalID: -2221832909919596996
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_79
+      rect:
+        serializedVersion: 2
+        x: 367
+        y: 338
+        width: 38
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 929b8da5394bc0420800000000000000
+      internalID: 2597649630063278377
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_80
+      rect:
+        serializedVersion: 2
+        x: 397
+        y: 358
+        width: 12
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b05660c7c442db10800000000000000
+      internalID: 2004740408850403507
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_81
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 327
+        width: 23
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43026428fa064de00800000000000000
+      internalID: 1068585318514827316
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_82
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 317
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83944246edc5de480800000000000000
+      internalID: -8868329980990043848
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_83
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 252
+        width: 39
+        height: 102
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e4f5bc5fefdc3750800000000000000
+      internalID: 6286145399047976163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_84
+      rect:
+        serializedVersion: 2
+        x: 369
+        y: 330
+        width: 21
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22d37411bd1d89b50800000000000000
+      internalID: 6600255992729386274
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_85
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 296
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2de02ebb9a99a8220800000000000000
+      internalID: 2488970698356297426
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_86
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 315
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 854b48183e120b720800000000000000
+      internalID: 2859823024394515544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_87
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 321
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1418228b68ddb600800000000000000
+      internalID: 485782291082646555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_88
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 286
+        width: 18
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98fb712c265abd180800000000000000
+      internalID: -9089489579335499895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_89
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 302
+        width: 12
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad6ad05f6c5b13fb0800000000000000
+      internalID: -4669751472487029030
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_90
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 296
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78ca32ab3f47721a0800000000000000
+      internalID: -6834365319362663289
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_91
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 265
+        width: 16
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef115477a49b572c0800000000000000
+      internalID: -4434434528596651522
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_92
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 284
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 47f06dd3e78755ae0800000000000000
+      internalID: -1561209212215357580
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_93
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 290
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc235cb7d9e71f670800000000000000
+      internalID: 8570770780714250955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_94
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 252
+        width: 18
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4cb328ed7df0bf6f0800000000000000
+      internalID: -649908301399442492
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_95
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 271
+        width: 12
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1cfcb4a62365cff40800000000000000
+      internalID: 5763576397659099073
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_96
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 265
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f973c6d65b838d20800000000000000
+      internalID: 3279618158742436337
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_97
+      rect:
+        serializedVersion: 2
+        x: 10
+        y: 252
+        width: 13
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c50de46d4bc654140800000000000000
+      internalID: 4703284909803753564
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_98
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 259
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e829d813e79913780800000000000000
+      internalID: -8705007837454167410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_99
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 238
+        width: 22
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0661e5aff1aaa180800000000000000
+      internalID: -9103285577404291572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_100
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 232
+        width: 21
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8e21ebbe54056f60800000000000000
+      internalID: 8026826715783310989
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_101
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 241
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e40684026a44076a0800000000000000
+      internalID: -6453582785725046706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_102
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 240
+        width: 19
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b9ffe32db5327f30800000000000000
+      internalID: 4571775658202495411
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_103
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 232
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df3c6777524c0b490800000000000000
+      internalID: -7732464894998035459
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_104
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 237
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 102cf879f111a4380800000000000000
+      internalID: -8986351279079964159
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_105
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 245
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc1f7904055fdba10800000000000000
+      internalID: 1926965940614328780
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_106
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 238
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b35816fd56fb7e4c0800000000000000
+      internalID: -4258224478395202245
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_107
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 244
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ac9240a9a7f3df70800000000000000
+      internalID: 9210977970813050024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_108
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 236
+        width: 12
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61498189907669f60800000000000000
+      internalID: 8040727475620713494
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_109
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 225
+        width: 11
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 90376cebc99c21770800000000000000
+      internalID: 8580141915146973961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_110
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 207
+        width: 22
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8d1cb723c87e9ea0800000000000000
+      internalID: -5864116885209211510
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_111
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 221
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8481f2e8f9695fdd0800000000000000
+      internalID: -2452888810003949496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_112
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 225
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1b85da008184cc10800000000000000
+      internalID: 2072924115434834718
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_113
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 222
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bcc4be5f02a3862a0800000000000000
+      internalID: -6744076528748114741
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_114
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 222
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d8286582ce448cf0800000000000000
+      internalID: -250989081857087276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_115
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 220
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fef0d2ac2761f3d20800000000000000
+      internalID: 3260349337513562095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_116
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 210
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4b7cc3f4dab70dc0800000000000000
+      internalID: -3672761547311252662
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_117
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 209
+        width: 19
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 664083a56ba576ad0800000000000000
+      internalID: -2709096911595895706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_118
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 214
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3362b28c52b441400800000000000000
+      internalID: 293942501330069043
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_119
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 207
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8713e333157e4dd10800000000000000
+      internalID: 2149597258100650360
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_120
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 213
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 988e3312038ea87c0800000000000000
+      internalID: -4068184019962697591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_121
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 205
+        width: 12
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c968329658a703890800000000000000
+      internalID: -7480344267649218916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_122
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 201
+        width: 21
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 12f42016cc37950c0800000000000000
+      internalID: -4586507423862075615
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_123
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 201
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26ef2b61add21a660800000000000000
+      internalID: 7395242477826014818
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_124
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 206
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d3ef7c450c786b90800000000000000
+      internalID: -7248407238052682791
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_125
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 194
+        width: 11
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f5bd6d88d292ee10800000000000000
+      internalID: 2225502624657815032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_126
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 176
+        width: 22
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c28d6176c4810c00800000000000000
+      internalID: 865118591273239240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_127
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 190
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7096ee62c19bbaf0800000000000000
+      internalID: -379549479312387974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_128
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 194
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e96a96f46c05a2e0800000000000000
+      internalID: -2115270822207002141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_129
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 191
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d45fbf5fd92aecf0800000000000000
+      internalID: -222319192240597801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_130
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 191
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b551a4f24978c4d50800000000000000
+      internalID: 6722897414275601755
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_131
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 189
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4fd076995152a76e0800000000000000
+      internalID: -1839116723129217548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_132
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 179
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: acaf7777702ce12e0800000000000000
+      internalID: -2153070234511607094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_133
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 178
+        width: 19
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b83911bd8a27f1090800000000000000
+      internalID: -8061598738414464117
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_134
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 183
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2b301a68f85a6370800000000000000
+      internalID: 8316557485847624492
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_135
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 176
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5efec7d7ac20c2b0800000000000000
+      internalID: -5566400040038105505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_136
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 182
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c53651ced115de790800000000000000
+      internalID: -7499248615545281700
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_137
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 174
+        width: 12
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba082d729a7004aa0800000000000000
+      internalID: -6178930265653346133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_138
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 170
+        width: 21
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b305839e7f350640800000000000000
+      internalID: 5045508770411905971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_139
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 170
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e59a5362901bda40800000000000000
+      internalID: 5393923199624451559
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_140
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 175
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1054f6dc7f0416ba0800000000000000
+      internalID: -6097520987435219711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_141
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 163
+        width: 11
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fbef37795fcb7af0800000000000000
+      internalID: -397496158932440075
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_142
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 145
+        width: 22
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a5cb79898e539880800000000000000
+      internalID: -8605430518164765273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_143
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 159
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b77b1b5c8a2a63da0800000000000000
+      internalID: -5965401810650679429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_144
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 163
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d0320b2715d7c8020800000000000000
+      internalID: 2345387294723154701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_145
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 160
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29ddbe76e157f5580800000000000000
+      internalID: -8836215170424644206
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_146
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 160
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e9f15e090719a970800000000000000
+      internalID: 8766563477315779043
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_147
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 158
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ffc625aba8f96a0e0800000000000000
+      internalID: -2258942744899457793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_148
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 148
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 72eb58cb5f2484960800000000000000
+      internalID: 7586387195502902823
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_149
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 147
+        width: 19
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4be2683cabe9813e0800000000000000
+      internalID: -2082740302677397836
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_150
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 152
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50a17a36b75ef40f0800000000000000
+      internalID: -1130432663331071483
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_151
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 145
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e30e43bcc4812ca0800000000000000
+      internalID: -6043403210238065692
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_152
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 151
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be5fdafa192c75f20800000000000000
+      internalID: 3411409173729900011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_153
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 143
+        width: 12
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad6f8bed54e342490800000000000000
+      internalID: -7772018587124304166
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_154
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 139
+        width: 21
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef394322290f5b910800000000000000
+      internalID: 1852651332162589694
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_155
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 139
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fc9e3a2fbc2ca080800000000000000
+      internalID: -9174909141301420811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_156
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 144
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c1cc601dc3bfdbc0800000000000000
+      internalID: -3756085870878473785
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_157
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 132
+        width: 11
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4eb0cee5549f273d0800000000000000
+      internalID: -3210229508021154844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_158
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 114
+        width: 22
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b482c1f7b82b91b40800000000000000
+      internalID: 5411552739465111627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_159
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 128
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48a2844fbf9b83ef0800000000000000
+      internalID: -128148097593759100
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_160
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 132
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae47dfbc43b7aeca0800000000000000
+      internalID: -5986837287944751894
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_161
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 129
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c06a172d18a5d8b30800000000000000
+      internalID: 4291185533581895180
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_162
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 129
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9bb4dcf7d0097530800000000000000
+      internalID: 3853111883851938717
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_163
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 127
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea7614d814094e290800000000000000
+      internalID: -7862000438264895570
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_164
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 117
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23c987fc1dd2e5870800000000000000
+      internalID: 8673420311514356786
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_165
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 116
+        width: 19
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff7595fa2328bddd0800000000000000
+      internalID: -2460229617226000385
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_166
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 121
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 146e79bde3d1bad80800000000000000
+      internalID: -8238458937534847423
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_167
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 114
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7f1fc3ef163227c0800000000000000
+      internalID: -4097653200359841923
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_168
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 120
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55f9a280fd9817590800000000000000
+      internalID: -7678204298682261675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_169
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 112
+        width: 12
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bdb76cac49ba13640800000000000000
+      internalID: 5058012512059292635
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_170
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 108
+        width: 21
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0bf1ebf3e422ed2f0800000000000000
+      internalID: -946281152229007440
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_171
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 108
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fae5912e806321e00800000000000000
+      internalID: 1013932277892734639
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_172
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 113
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea1aef8d3464bc6f0800000000000000
+      internalID: -663359262889696850
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_173
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 101
+        width: 11
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bbcfff5b8e0c87d70800000000000000
+      internalID: 9041188357664668859
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_174
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 83
+        width: 22
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d91f1632728ea020800000000000000
+      internalID: 2354963082207238614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_175
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 97
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8933936c04b0a7470800000000000000
+      internalID: 8393033228389790616
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_176
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 101
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b34593f65d2628e90800000000000000
+      internalID: -7024943799910968261
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_177
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 98
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ecf83bf333057dc20800000000000000
+      internalID: 3231139438703906766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_178
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 98
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 877d85f523765b4d0800000000000000
+      internalID: -3119473700838516872
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_179
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 96
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bad866abc72e408c0800000000000000
+      internalID: -4033850340886016597
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_180
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 86
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d15eee24d60ba580800000000000000
+      internalID: -8814944337257410088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_181
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 85
+        width: 19
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa9faa8e4d28bbed0800000000000000
+      internalID: -2397178525696460374
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_182
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 90
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b354ec5ee985fc3c0800000000000000
+      internalID: -4337150476650920645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_183
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 83
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2652db8c452cbab00800000000000000
+      internalID: 840979424835609954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_184
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 89
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09d8b5c0d6b2fe660800000000000000
+      internalID: 7417194858661252496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_185
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 81
+        width: 12
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f67b138a384b0b00800000000000000
+      internalID: 795809175305942768
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_186
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 28
+        height: 86
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18a5a8037141427f0800000000000000
+      internalID: -638363157348590975
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_187
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 77
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a24775ebb6e138cf0800000000000000
+      internalID: -251323706098879446
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_188
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 82
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62dffd3aef79f6ae0800000000000000
+      internalID: -1553856226492678874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_189
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 55
+        width: 9
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74dc25169b238b5f0800000000000000
+      internalID: -740786366919291577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_190
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 68
+        width: 15
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 19af02efad58a2080800000000000000
+      internalID: -9211402912219989359
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_191
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 69
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65728e69bec78f360800000000000000
+      internalID: 7203644955270063958
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_192
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 53
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8582dfaeddb9c030800000000000000
+      internalID: 3515549748269581709
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_193
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 58
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d90e3610e15631640800000000000000
+      internalID: 5049490786759205021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_194
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 47
+        width: 16
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 687b29d5217ffb700800000000000000
+      internalID: 558436537068599174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_195
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 45
+        width: 14
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 284a03201bf6b5630800000000000000
+      internalID: 3916847106965415042
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_196
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 29
+        width: 11
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d6759a02376db780800000000000000
+      internalID: -8665656643367373099
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_197
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 46
+        width: 16
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3532e5a36811175c0800000000000000
+      internalID: -4219572107666906285
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_198
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 45
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 762f265182e36b430800000000000000
+      internalID: 3798291677612012135
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_199
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 37
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8fdca19c8a5ef6ef0800000000000000
+      internalID: -112618952569729544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_200
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 32
+        width: 46
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c255d97b25eea8ad0800000000000000
+      internalID: -2699082987619920596
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_201
+      rect:
+        serializedVersion: 2
+        x: 80
+        y: 46
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 237f7c5971c0d1540800000000000000
+      internalID: 4980150058378327858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_202
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 38
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c377da33c6f41910800000000000000
+      internalID: 1807340668848665536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_203
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 35
+        width: 17
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cdb0d5eacbda62220800000000000000
+      internalID: 2460845272295345116
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_204
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 46
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7788c23cb842f5da0800000000000000
+      internalID: -5953999999666976649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_205
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 46
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c60caf001f10d530800000000000000
+      internalID: 3877633433008867014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_206
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 41
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cab7de4129d859080800000000000000
+      internalID: -9181276606769038420
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_207
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 40
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 097cd7b7d36cff000800000000000000
+      internalID: 71994086428362640
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_208
+      rect:
+        serializedVersion: 2
+        x: 119
+        y: 46
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4372847e4c2cbad50800000000000000
+      internalID: 6749702617494464308
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_209
+      rect:
+        serializedVersion: 2
+        x: 133
+        y: 46
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 264b949f875916690800000000000000
+      internalID: -7610637548468456350
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_210
+      rect:
+        serializedVersion: 2
+        x: 137
+        y: 35
+        width: 10
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9862dfff1139b240800000000000000
+      internalID: 4807928090700441759
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_211
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 40
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 345ce5bdb7adb2b80800000000000000
+      internalID: -8418394852942756541
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_212
+      rect:
+        serializedVersion: 2
+        x: 172
+        y: 44
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d15c411e105f90260800000000000000
+      internalID: 7064446878927340829
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_213
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 24
+        width: 9
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1639712fac8fbf840800000000000000
+      internalID: 5259070540413899617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_214
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 32
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c6f1779c91674860800000000000000
+      internalID: 7514081828474582721
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_215
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 16
+        width: 24
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd9944eb82d3cc670800000000000000
+      internalID: 8560284236924623325
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_216
+      rect:
+        serializedVersion: 2
+        x: 84
+        y: 29
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c20e137f2b0f5dd0800000000000000
+      internalID: -2495263370117250366
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_217
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 35
+        width: 13
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6080b1e279a37ce0800000000000000
+      internalID: -1408595947559026578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_218
+      rect:
+        serializedVersion: 2
+        x: 104
+        y: 28
+        width: 16
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81790cedadb357c10800000000000000
+      internalID: 2050611016563201816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_219
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 35
+        width: 10
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: deffe8b0ef4492ee0800000000000000
+      internalID: -1285420360731262995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_220
+      rect:
+        serializedVersion: 2
+        x: 117
+        y: 38
+        width: 9
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50de9e010f08dee70800000000000000
+      internalID: 9146108186823617797
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_221
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 35
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6245daf2249f052d0800000000000000
+      internalID: -3291857264944786394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_222
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 35
+        width: 12
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 106bb03e070ced050800000000000000
+      internalID: 5827306558942066177
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_223
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 21
+        width: 10
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c16ff50272ee52960800000000000000
+      internalID: 7576723799935022620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_224
+      rect:
+        serializedVersion: 2
+        x: 155
+        y: 33
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e630d4cfcd67c0a00800000000000000
+      internalID: 724084331597595502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_225
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 21
+        width: 10
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe49cbaaca8e22f10800000000000000
+      internalID: 2243611392680432879
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_226
+      rect:
+        serializedVersion: 2
+        x: 168
+        y: 37
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96c6eacab810d8a10800000000000000
+      internalID: 1913187116111522921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_227
+      rect:
+        serializedVersion: 2
+        x: 18
+        y: 22
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96b48e262f8bae150800000000000000
+      internalID: 5902733612803443561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_228
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 27
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a10cae92e0a0b55a0800000000000000
+      internalID: -6531615778621702118
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_229
+      rect:
+        serializedVersion: 2
+        x: 29
+        y: 1
+        width: 30
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d11bf46fba33f080800000000000000
+      internalID: -9154909023806746152
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_230
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 20
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71182d2f5f0f70000800000000000000
+      internalID: 2235263968510231
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_231
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 26
+        width: 12
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fda8e2c9c72b82c90800000000000000
+      internalID: -7194304156458382625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_232
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 14
+        width: 14
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b80262fc46756ef0800000000000000
+      internalID: -115556142571976527
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_233
+      rect:
+        serializedVersion: 2
+        x: 85
+        y: 16
+        width: 12
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 448bdd029d4ce4620800000000000000
+      internalID: 2760360058463041604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_234
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 23
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 335877fbb20507200800000000000000
+      internalID: 175728534293546291
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_235
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 23
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a253cdbd76956610800000000000000
+      internalID: 1613861508280963750
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_236
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 23
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29df3deeda1d27900800000000000000
+      internalID: 680837038652784018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_237
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 15
+        width: 19
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09af0c1de201e1820800000000000000
+      internalID: 2890765804092062352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_238
+      rect:
+        serializedVersion: 2
+        x: 119
+        y: 27
+        width: 13
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3d4ae43587209c50800000000000000
+      internalID: 6669874501207608637
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_239
+      rect:
+        serializedVersion: 2
+        x: 121
+        y: 0
+        width: 26
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad948b30583a928e0800000000000000
+      internalID: -1717661991176746534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_240
+      rect:
+        serializedVersion: 2
+        x: 132
+        y: 23
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a02df4bd92f44fe0800000000000000
+      internalID: -1205572041068175196
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_241
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 15
+        width: 14
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0d99675889877710800000000000000
+      internalID: 1690971403776007435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_242
+      rect:
+        serializedVersion: 2
+        x: 154
+        y: 21
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ed69ac7eac1a9b70800000000000000
+      internalID: 8906462748819942886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_243
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 13
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b0651eb6807573a0800000000000000
+      internalID: -6668299949235150666
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_244
+      rect:
+        serializedVersion: 2
+        x: 21
+        y: 6
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 528b1297b1f426d20800000000000000
+      internalID: 3270263258839365669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_245
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 0
+        width: 46
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60273c66e94cb3fb0800000000000000
+      internalID: -4666920404231425530
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_246
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 0
+        width: 19
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3cc111465a378e470800000000000000
+      internalID: 8424110257182153923
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_247
+      rect:
+        serializedVersion: 2
+        x: 80
+        y: 15
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c031124b20061eca0800000000000000
+      internalID: -5989400464697781492
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_248
+      rect:
+        serializedVersion: 2
+        x: 82
+        y: 7
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c63065f252a30690800000000000000
+      internalID: -7637082065902487872
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_249
+      rect:
+        serializedVersion: 2
+        x: 89
+        y: 0
+        width: 17
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bde7d4a3d911cfcd0800000000000000
+      internalID: -2523122324248625445
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_250
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 15
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 988476cf0d5d16930800000000000000
+      internalID: 4134821026467367049
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_251
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 4
+        width: 13
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53ca0fd4cfc34dcc0800000000000000
+      internalID: -3687255140572550091
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_252
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 15
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8685a0413b0bf9140800000000000000
+      internalID: 4728692416944167016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_253
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 10
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff7244df72b188380800000000000000
+      internalID: -8968888799341565953
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_254
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 9
+        width: 12
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2a8805e397f8cb80800000000000000
+      internalID: -8374171292520642004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_255
+      rect:
+        serializedVersion: 2
+        x: 117
+        y: 7
+        width: 9
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d1c3c411b0a06dfd0800000000000000
+      internalID: -2317653915584414691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_256
+      rect:
+        serializedVersion: 2
+        x: 119
+        y: 15
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da7e28c03bbabf0d0800000000000000
+      internalID: -3387925509168765011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_257
+      rect:
+        serializedVersion: 2
+        x: 133
+        y: 15
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02c0c306bb7c7c710800000000000000
+      internalID: 1713557790825122848
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_258
+      rect:
+        serializedVersion: 2
+        x: 137
+        y: 4
+        width: 10
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5962d60fed52c9d0800000000000000
+      internalID: -2755536740804302502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_259
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 9
+        width: 19
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35826c9a1de69da40800000000000000
+      internalID: 5393463875528435795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_260
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 4
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c3f5f5f39a862eb40800000000000000
+      internalID: 5468047973703180092
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_261
+      rect:
+        serializedVersion: 2
+        x: 153
+        y: 0
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 461ec4eb61614f1d0800000000000000
+      internalID: -3318002738527411868
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_262
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 1
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5868dbb3bc37d2c0800000000000000
+      internalID: -4406986967710406563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_263
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 0
+        width: 12
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a64607b1643cd6f60800000000000000
+      internalID: 8029288416546940010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_264
+      rect:
+        serializedVersion: 2
+        x: 84
+        y: 0
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84e24d1c545927070800000000000000
+      internalID: 8102702806430133832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_265
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 10
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6ddd99d968df54b0800000000000000
+      internalID: -5449399074960843409
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_266
+      rect:
+        serializedVersion: 2
+        x: 104
+        y: 0
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 673f5ce6e7445b0e0800000000000000
+      internalID: -2254820728614030474
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_267
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 4
+        width: 10
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e51734cfff52d3ba0800000000000000
+      internalID: -6107683738265357986
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_268
+      rect:
+        serializedVersion: 2
+        x: 115
+        y: 0
+        width: 14
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f91a4620bca895b0800000000000000
+      internalID: -5361345483827963408
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_269
+      rect:
+        serializedVersion: 2
+        x: 132
+        y: 0
+        width: 13
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4502fbfadad2c21a0800000000000000
+      internalID: -6833036310626754476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: excalibursit_270
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 0
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f0ef9424d2b72f60800000000000000
+      internalID: 8009567086518984945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      excalibursit_0: 8088823615029406807
+      excalibursit_1: 5139223019634733532
+      excalibursit_10: 8282353044429540454
+      excalibursit_100: 8026826715783310989
+      excalibursit_101: -6453582785725046706
+      excalibursit_102: 4571775658202495411
+      excalibursit_103: -7732464894998035459
+      excalibursit_104: -8986351279079964159
+      excalibursit_105: 1926965940614328780
+      excalibursit_106: -4258224478395202245
+      excalibursit_107: 9210977970813050024
+      excalibursit_108: 8040727475620713494
+      excalibursit_109: 8580141915146973961
+      excalibursit_11: 34492110408679728
+      excalibursit_110: -5864116885209211510
+      excalibursit_111: -2452888810003949496
+      excalibursit_112: 2072924115434834718
+      excalibursit_113: -6744076528748114741
+      excalibursit_114: -250989081857087276
+      excalibursit_115: 3260349337513562095
+      excalibursit_116: -3672761547311252662
+      excalibursit_117: -2709096911595895706
+      excalibursit_118: 293942501330069043
+      excalibursit_119: 2149597258100650360
+      excalibursit_12: -4162741187859766844
+      excalibursit_120: -4068184019962697591
+      excalibursit_121: -7480344267649218916
+      excalibursit_122: -4586507423862075615
+      excalibursit_123: 7395242477826014818
+      excalibursit_124: -7248407238052682791
+      excalibursit_125: 2225502624657815032
+      excalibursit_126: 865118591273239240
+      excalibursit_127: -379549479312387974
+      excalibursit_128: -2115270822207002141
+      excalibursit_129: -222319192240597801
+      excalibursit_13: 2190772671283589344
+      excalibursit_130: 6722897414275601755
+      excalibursit_131: -1839116723129217548
+      excalibursit_132: -2153070234511607094
+      excalibursit_133: -8061598738414464117
+      excalibursit_134: 8316557485847624492
+      excalibursit_135: -5566400040038105505
+      excalibursit_136: -7499248615545281700
+      excalibursit_137: -6178930265653346133
+      excalibursit_138: 5045508770411905971
+      excalibursit_139: 5393923199624451559
+      excalibursit_14: -8799771023294765681
+      excalibursit_140: -6097520987435219711
+      excalibursit_141: -397496158932440075
+      excalibursit_142: -8605430518164765273
+      excalibursit_143: -5965401810650679429
+      excalibursit_144: 2345387294723154701
+      excalibursit_145: -8836215170424644206
+      excalibursit_146: 8766563477315779043
+      excalibursit_147: -2258942744899457793
+      excalibursit_148: 7586387195502902823
+      excalibursit_149: -2082740302677397836
+      excalibursit_15: 8654524107976939184
+      excalibursit_150: -1130432663331071483
+      excalibursit_151: -6043403210238065692
+      excalibursit_152: 3411409173729900011
+      excalibursit_153: -7772018587124304166
+      excalibursit_154: 1852651332162589694
+      excalibursit_155: -9174909141301420811
+      excalibursit_156: -3756085870878473785
+      excalibursit_157: -3210229508021154844
+      excalibursit_158: 5411552739465111627
+      excalibursit_159: -128148097593759100
+      excalibursit_16: 5052431249314488857
+      excalibursit_160: -5986837287944751894
+      excalibursit_161: 4291185533581895180
+      excalibursit_162: 3853111883851938717
+      excalibursit_163: -7862000438264895570
+      excalibursit_164: 8673420311514356786
+      excalibursit_165: -2460229617226000385
+      excalibursit_166: -8238458937534847423
+      excalibursit_167: -4097653200359841923
+      excalibursit_168: -7678204298682261675
+      excalibursit_169: 5058012512059292635
+      excalibursit_17: -791642562295154296
+      excalibursit_170: -946281152229007440
+      excalibursit_171: 1013932277892734639
+      excalibursit_172: -663359262889696850
+      excalibursit_173: 9041188357664668859
+      excalibursit_174: 2354963082207238614
+      excalibursit_175: 8393033228389790616
+      excalibursit_176: -7024943799910968261
+      excalibursit_177: 3231139438703906766
+      excalibursit_178: -3119473700838516872
+      excalibursit_179: -4033850340886016597
+      excalibursit_18: 6708294836190206456
+      excalibursit_180: -8814944337257410088
+      excalibursit_181: -2397178525696460374
+      excalibursit_182: -4337150476650920645
+      excalibursit_183: 840979424835609954
+      excalibursit_184: 7417194858661252496
+      excalibursit_185: 795809175305942768
+      excalibursit_186: -638363157348590975
+      excalibursit_187: -251323706098879446
+      excalibursit_188: -1553856226492678874
+      excalibursit_189: -740786366919291577
+      excalibursit_19: 9129176201598096496
+      excalibursit_190: -9211402912219989359
+      excalibursit_191: 7203644955270063958
+      excalibursit_192: 3515549748269581709
+      excalibursit_193: 5049490786759205021
+      excalibursit_194: 558436537068599174
+      excalibursit_195: 3916847106965415042
+      excalibursit_196: -8665656643367373099
+      excalibursit_197: -4219572107666906285
+      excalibursit_198: 3798291677612012135
+      excalibursit_199: -112618952569729544
+      excalibursit_2: 3418089551907475453
+      excalibursit_20: -4345847397573502373
+      excalibursit_200: -2699082987619920596
+      excalibursit_201: 4980150058378327858
+      excalibursit_202: 1807340668848665536
+      excalibursit_203: 2460845272295345116
+      excalibursit_204: -5953999999666976649
+      excalibursit_205: 3877633433008867014
+      excalibursit_206: -9181276606769038420
+      excalibursit_207: 71994086428362640
+      excalibursit_208: 6749702617494464308
+      excalibursit_209: -7610637548468456350
+      excalibursit_21: 5844563849328408996
+      excalibursit_210: 4807928090700441759
+      excalibursit_211: -8418394852942756541
+      excalibursit_212: 7064446878927340829
+      excalibursit_213: 5259070540413899617
+      excalibursit_214: 7514081828474582721
+      excalibursit_215: 8560284236924623325
+      excalibursit_216: -2495263370117250366
+      excalibursit_217: -1408595947559026578
+      excalibursit_218: 2050611016563201816
+      excalibursit_219: -1285420360731262995
+      excalibursit_22: -9152012445686307192
+      excalibursit_220: 9146108186823617797
+      excalibursit_221: -3291857264944786394
+      excalibursit_222: 5827306558942066177
+      excalibursit_223: 7576723799935022620
+      excalibursit_224: 724084331597595502
+      excalibursit_225: 2243611392680432879
+      excalibursit_226: 1913187116111522921
+      excalibursit_227: 5902733612803443561
+      excalibursit_228: -6531615778621702118
+      excalibursit_229: -9154909023806746152
+      excalibursit_23: 8553923206311345263
+      excalibursit_230: 2235263968510231
+      excalibursit_231: -7194304156458382625
+      excalibursit_232: -115556142571976527
+      excalibursit_233: 2760360058463041604
+      excalibursit_234: 175728534293546291
+      excalibursit_235: 1613861508280963750
+      excalibursit_236: 680837038652784018
+      excalibursit_237: 2890765804092062352
+      excalibursit_238: 6669874501207608637
+      excalibursit_239: -1717661991176746534
+      excalibursit_24: 5984659934067116821
+      excalibursit_240: -1205572041068175196
+      excalibursit_241: 1690971403776007435
+      excalibursit_242: 8906462748819942886
+      excalibursit_243: -6668299949235150666
+      excalibursit_244: 3270263258839365669
+      excalibursit_245: -4666920404231425530
+      excalibursit_246: 8424110257182153923
+      excalibursit_247: -5989400464697781492
+      excalibursit_248: -7637082065902487872
+      excalibursit_249: -2523122324248625445
+      excalibursit_25: 7701705225155979246
+      excalibursit_250: 4134821026467367049
+      excalibursit_251: -3687255140572550091
+      excalibursit_252: 4728692416944167016
+      excalibursit_253: -8968888799341565953
+      excalibursit_254: -8374171292520642004
+      excalibursit_255: -2317653915584414691
+      excalibursit_256: -3387925509168765011
+      excalibursit_257: 1713557790825122848
+      excalibursit_258: -2755536740804302502
+      excalibursit_259: 5393463875528435795
+      excalibursit_26: 1004200187553309808
+      excalibursit_260: 5468047973703180092
+      excalibursit_261: -3318002738527411868
+      excalibursit_262: -4406986967710406563
+      excalibursit_263: 8029288416546940010
+      excalibursit_264: 8102702806430133832
+      excalibursit_265: -5449399074960843409
+      excalibursit_266: -2254820728614030474
+      excalibursit_267: -6107683738265357986
+      excalibursit_268: -5361345483827963408
+      excalibursit_269: -6833036310626754476
+      excalibursit_27: -3029822111652702746
+      excalibursit_270: 8009567086518984945
+      excalibursit_28: -7073534285902329623
+      excalibursit_29: -8911714704969101592
+      excalibursit_3: -6210985285721269964
+      excalibursit_30: 3542471846267965821
+      excalibursit_31: -4956796718398510368
+      excalibursit_32: -7710030660191507683
+      excalibursit_33: -5074231007343734846
+      excalibursit_34: -355110621069503895
+      excalibursit_35: 1329176899707974374
+      excalibursit_36: -8441430242934084400
+      excalibursit_37: 9161343446073727800
+      excalibursit_38: -5394040706199948129
+      excalibursit_39: 236731600357636743
+      excalibursit_4: -8131946557476506990
+      excalibursit_40: -857972885970582805
+      excalibursit_41: 6982702505350066855
+      excalibursit_42: 6329740051175267356
+      excalibursit_43: 5108501211001063210
+      excalibursit_44: 5523922463555033446
+      excalibursit_45: 5119687011096516756
+      excalibursit_46: -2100502654055423398
+      excalibursit_47: -851843960967536142
+      excalibursit_48: -2252224297545695833
+      excalibursit_49: -8802056074934674733
+      excalibursit_5: -6687692750118940173
+      excalibursit_50: 6505881614199740797
+      excalibursit_51: -7240149027222776805
+      excalibursit_52: 9106834315646419465
+      excalibursit_53: -3649026566104385727
+      excalibursit_54: -5051201553653990188
+      excalibursit_55: 3277242822281328019
+      excalibursit_56: 8279817644222629959
+      excalibursit_57: 5601584643135007750
+      excalibursit_58: -4706869216523130251
+      excalibursit_59: -3216591619106698655
+      excalibursit_6: -1197299073958279209
+      excalibursit_60: 4387340887022551792
+      excalibursit_61: 5450572844035447077
+      excalibursit_62: 4746601816433933503
+      excalibursit_63: -2378274089122626748
+      excalibursit_64: -3765729992997928173
+      excalibursit_65: 2060781833600819085
+      excalibursit_66: 7597212044354542638
+      excalibursit_67: 8414181779396849257
+      excalibursit_68: -6949685977607381052
+      excalibursit_69: -3939085984579458318
+      excalibursit_7: 7557244429665940141
+      excalibursit_70: -1320459403150159037
+      excalibursit_71: -7984867977939418146
+      excalibursit_72: -7223380988762201669
+      excalibursit_73: -2957684284968986249
+      excalibursit_74: -7436664465190022578
+      excalibursit_75: 87801979066826105
+      excalibursit_76: 7292573693087585027
+      excalibursit_77: -5909665112252416343
+      excalibursit_78: -2221832909919596996
+      excalibursit_79: 2597649630063278377
+      excalibursit_8: -5128958082862954306
+      excalibursit_80: 2004740408850403507
+      excalibursit_81: 1068585318514827316
+      excalibursit_82: -8868329980990043848
+      excalibursit_83: 6286145399047976163
+      excalibursit_84: 6600255992729386274
+      excalibursit_85: 2488970698356297426
+      excalibursit_86: 2859823024394515544
+      excalibursit_87: 485782291082646555
+      excalibursit_88: -9089489579335499895
+      excalibursit_89: -4669751472487029030
+      excalibursit_9: 6158529131706295054
+      excalibursit_90: -6834365319362663289
+      excalibursit_91: -4434434528596651522
+      excalibursit_92: -1561209212215357580
+      excalibursit_93: 8570770780714250955
+      excalibursit_94: -649908301399442492
+      excalibursit_95: 5763576397659099073
+      excalibursit_96: 3279618158742436337
+      excalibursit_97: 4703284909803753564
+      excalibursit_98: -8705007837454167410
+      excalibursit_99: -9103285577404291572
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

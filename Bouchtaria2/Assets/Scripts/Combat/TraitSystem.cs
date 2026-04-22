@@ -2222,7 +2222,7 @@ public class PokemonTier2Effect : IDeckTraitEffect
 
         Debug.Log($"Evolving instant card {card.name}, for {owner}");
         card.MorphTo(GetEvolutionId(card.CurrentEffect));
-        card.ModifyStats(2,2);
+        card.ModifyStats(3,3);
         used = true;
     }
     private int GetEvolutionId(string effect)

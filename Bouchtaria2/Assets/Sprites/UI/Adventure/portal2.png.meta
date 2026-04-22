@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 1d57e13a1a6844048895460c0b1fe1c7
+guid: 85a9648f7cc29f94ca2d278ee9a7b529
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -408630246919777343
-    second: nosebleed_compact_0
+      213: -698595030246881887
+    second: portal2_0
+  - first:
+      213: 856739202502945552
+    second: portal2_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +103,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: nosebleed_compact_0
+      name: portal2_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1023
-        height: 1023
+        x: 65
+        y: 95
+        width: 889
+        height: 864
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +118,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1c3ddd794f0445af0800000000000000
-      internalID: -408630246919777343
+      spriteID: 1a5084475871e46f0800000000000000
+      internalID: -698595030246881887
       vertices: []
       indices: 
       edges: []
@@ -125,7 +128,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: d54bc29f60987554d9b98496a9e0f65c
+    spriteID: 07060a7261ce19e4aabc7d8c5ab6f3f8
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +138,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      nosebleed_compact_0: -408630246919777343
+      portal2_0: -698595030246881887
+      portal2_1: 856739202502945552
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

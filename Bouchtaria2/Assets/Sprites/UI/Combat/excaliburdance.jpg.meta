@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1d57e13a1a6844048895460c0b1fe1c7
+guid: 0cb2832560e32ea45bc7c0402fd8ce45
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -408630246919777343
-    second: nosebleed_compact_0
+      213: -1260187359330798454
+    second: excaliburdance_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: nosebleed_compact_0
+      name: excaliburdance_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1023
-        height: 1023
+        width: 340
+        height: 379
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1c3ddd794f0445af0800000000000000
-      internalID: -408630246919777343
+      spriteID: a8476a0064ae28ee0800000000000000
+      internalID: -1260187359330798454
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: d54bc29f60987554d9b98496a9e0f65c
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      nosebleed_compact_0: -408630246919777343
+      excaliburdance_0: -1260187359330798454
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
