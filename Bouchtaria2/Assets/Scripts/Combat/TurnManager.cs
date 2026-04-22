@@ -78,21 +78,32 @@ public class TurnManager : MonoBehaviour
             AllyCardDropArea allydrop = FindFirstObjectByType<AllyCardDropArea>();
             foreach (GameObject cardGO in allydrop.allyPrefabCards)
             {
+                if (cardGO == null) continue; // destroyed object, skip
+
                 CardInstance ci = cardGO.GetComponent<CardInstance>();
+                if (ci == null) continue;
+
                 CardView view = ci.GetComponent<CardView>();
+                if (view == null) continue;
 
                 view.SetGlow(CardView.CardGlowState.None);
             }
+
             EnemyCardDropArea enemyDrop = FindFirstObjectByType<EnemyCardDropArea>();
             foreach (GameObject cardGO in enemyDrop.enemyPrefabCards)
             {
+                if (cardGO == null) continue; // destroyed object, skip
+
                 CardInstance ci = cardGO.GetComponent<CardInstance>();
+                if (ci == null) continue;
+
                 CardView view = ci.GetComponent<CardView>();
+                if (view == null) continue;
 
                 view.SetGlow(CardView.CardGlowState.None);
             }
-            //Ally EOT Core
-        gameManager.PlayerCore.Bleed();
+
+            gameManager.PlayerCore.Bleed();
         }
         else
         {

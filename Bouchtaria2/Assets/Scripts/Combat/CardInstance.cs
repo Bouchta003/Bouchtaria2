@@ -3596,7 +3596,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             case 331: // Aegislash
                 effectToAppend = "blessed";
                 effectText = "Equipped with Aegislash";
-                ci.ModifyStats(10, 10);
+                ci.ModifyStats(8,8);
                 break;
         }
 
@@ -3611,7 +3611,6 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (ci.Owner == PlayerOwner.Player)
                 gameManager.CheckGlow();
         }
-
         SelfDestroy();
     }
     private void TryExecuteGrantTarget(string completeeffect, CardInstance ci)
@@ -4394,7 +4393,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     }
     public void SelfDestroy()
     {
-        TakeDamage(999);
+        Kill(this);
     }
     #endregion
     public void TakeDamage(int amount)
