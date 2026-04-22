@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -62,9 +62,9 @@ public class DeckManager : MonoBehaviour
     {
         List<CardData> deckList = new List<CardData>();
         if (owner == PlayerOwner.Player)
-            deckList = GetTestDeckForPlayer();
+            deckList = GetDeckForPlayer();
         else
-            deckList = GetTestDeckForEnemy();
+            deckList = GetDeckForEnemy();
 
         Shuffle(deckList);
 
@@ -235,8 +235,17 @@ public class DeckManager : MonoBehaviour
 
         if (deck.Count == 0)
         {
-            Debug.Log($"{owner} deck is empty.");
-            return;
+            InitializeDeck(owner);
+            deck = decks[owner]; // ✅ re-fetch the newly created queue
+            if (owner == PlayerOwner.Player) GameManager.Instance.PlayerFatigue++;
+            else GameManager.Instance.EnemyFatigue++;
+            GameManager.Instance.DisplayFatigue(owner);
+
+            if (deck.Count == 0) // still empty = all IDs were invalid
+            {
+                Debug.LogError($"[Deck] {owner} deck is empty even after re-init. No valid cards.");
+                return;
+            }
         }
 
         HandManager hand = owner == PlayerOwner.Player
@@ -330,9 +339,16 @@ public class DeckManager : MonoBehaviour
         if (deck.Count == 0)
         {
             InitializeDeck(owner);
+            deck = decks[owner]; // ✅ re-fetch the newly created queue
             if (owner == PlayerOwner.Player) GameManager.Instance.PlayerFatigue++;
             else GameManager.Instance.EnemyFatigue++;
             GameManager.Instance.DisplayFatigue(owner);
+
+            if (deck.Count == 0) // still empty = all IDs were invalid
+            {
+                Debug.LogError($"[Deck] {owner} deck is empty even after re-init. No valid cards.");
+                return;
+            }
         }
 
         if (hand.handCards.Count >= hand.maxHandSize)
@@ -554,7 +570,7 @@ public class DeckManager : MonoBehaviour
         }
     }
 
-    private List<CardData> GetTestDeckForPlayer()
+    private List<CardData> GetDeckForPlayer()
     {
         List<CardData> deck = new();
 
@@ -562,11 +578,20 @@ public class DeckManager : MonoBehaviour
         {
             foreach (int id in DeckSelectionCache.SelectedPlayerDeck)
             {
-                deck.Add(CardDatabase.Instance.GetCardById(id));
+                CardData card = CardDatabase.Instance.GetCardById(id);
+                if (card == null)
+                {
+                    Debug.LogWarning($"[Deck] Player: card ID {id} not found in database, skipping.");
+                    continue;
+                }
+                deck.Add(card);
             }
+
+            if (deck.Count == 0)
+                Debug.LogError("[Deck] Player deck built with 0 valid cards!");
+
             return deck;
         }
-
         // Fallback (editor / debug)
         ErrorPopup.Show("Couldn't load deck");
         foreach (CardData card in CardDatabase.Instance.Cards.Values)
@@ -577,7 +602,7 @@ public class DeckManager : MonoBehaviour
         Debug.LogWarning("Selected default deck");
         return deck;
     }
-    private List<CardData> GetTestDeckForEnemy()
+    private List<CardData> GetDeckForEnemy()
     {
         List<CardData> deck = new();
 
@@ -585,7 +610,13 @@ public class DeckManager : MonoBehaviour
         {
             foreach (int id in DeckSelectionCache.SelectedEnemyDeck)
             {
-                deck.Add(CardDatabase.Instance.GetCardById(id));
+                CardData card = CardDatabase.Instance.GetCardById(id);
+                if (card == null)
+                {
+                    Debug.LogWarning($"[Deck] Player: card ID {id} not found in database, skipping.");
+                    continue;
+                }
+                deck.Add(card);
             }
             Debug.Log($"Selected enemy's deck from db");
             return deck;

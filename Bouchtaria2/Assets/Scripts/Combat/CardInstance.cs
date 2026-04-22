@@ -67,7 +67,10 @@ public class CardInstance : MonoBehaviour, IAttackable
 
             // Otherwise apply modifier and clamp to [1,10]
             int raw = BaseManaCost + temporaryManaModifier;
-            return Mathf.Clamp(raw, 0, 10);
+            if(Data.id==332)//Slifer
+                return Mathf.Clamp(raw, 0, 99);
+            else
+                return Mathf.Clamp(raw, 0, 10);
         }
     }
     public int CurrentTotalStats { get { return CurrentAttack + CurrentHealth; } }
@@ -1466,6 +1469,22 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("lebens"))
         {
             StartCoroutine(TriggerBensEffect()); return false;
+        }
+        if (effect.StartsWith("slifer"))
+        {
+            HandManager hand = Owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
+            int handSize = hand.handCards.Count;
+            int sliferStat = handSize * 5;
+            CurrentAttack = sliferStat;
+
+            int damageTaken = CurrentMaxHealth - CurrentHealth;
+            CurrentMaxHealth = sliferStat;
+            CurrentHealth = Mathf.Max(1, sliferStat - damageTaken);
+
+            cardView.UpdateMode();
+            gameManager.CheckGlow(); 
+            gameManager.RefreshSliferCards(Owner);
+            return false;
         }
         if (effect.StartsWith("skipenemydraw"))
         {

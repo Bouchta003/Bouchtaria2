@@ -94,6 +94,9 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
         if (gm != null)
             gm.NotifyCardPlayed(cardInst);
         OnCardPlayed?.Invoke(cardInst);
+
+        if (cardInst.HasKeyword("slifer"))
+            GameManager.GetComponent<GameManager>().RefreshSliferCards(Owner);
     }
     public void CardPlayed(CardInstance cardInst)
     {

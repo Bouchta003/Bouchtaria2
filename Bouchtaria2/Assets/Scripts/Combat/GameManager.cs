@@ -119,7 +119,8 @@ public class GameManager : MonoBehaviour
 
     public int PlayerFatigue = 0;
     public int EnemyFatigue = 0;
-
+    public int PlayerCardsDrawnThisCombat = 0;
+    public int EnemyCardsDrawnThisCombat = 0;
     public int PlayerRandomCount = 0;
     public int EnemyRandomCount = 0;
     public int PlayerHealBonus = 0;
@@ -233,6 +234,7 @@ private sealed class PendingHandReturn
         //Combat setup that might be changed bu Dungeon mode
         startingPlayerCoreHealth = startingCoreHealth;
         startingEnemyCoreHealth = startingCoreHealth;
+
         dungeonStartDrawBonus = 0;
         dungeonStartDrawBonusEnemy = 0;
         adventureBossSecondPhaseTriggered = false;
@@ -272,6 +274,15 @@ private sealed class PendingHandReturn
         DiscoverDiscount = 0;
         deckManager.InitializeDecks();        // build decks
         deckManager.DetectUnlockableTraits(); // analyze decks
+        deckManager.OnCardDrawn += card =>
+        {
+            if (card.Owner == PlayerOwner.Player) PlayerCardsDrawnThisCombat++;
+            else EnemyCardsDrawnThisCombat++;
+            RefreshSliferCards(card.Owner);
+        };
+
+        // Hand size also shrinks when a card is played:
+        OnCardPlayed += card => RefreshSliferCards(card.Owner);
         SetupTraits();                        // create progressions
 
         SetupCores();
@@ -1527,7 +1538,43 @@ private sealed class PendingHandReturn
             action.Invoke();
         }
     }
+    public void RefreshSliferCards(PlayerOwner owner)
+    {
+        HandManager hand = owner == PlayerOwner.Player ? allyHand : enemyHand;
+        int handSize = hand.handCards.Count;
+        int drawnCount = owner == PlayerOwner.Player
+            ? PlayerCardsDrawnThisCombat
+            : EnemyCardsDrawnThisCombat;
 
+        // --- Board: update ATK and MaxHP ---
+        ICardDropArea board = GetBoardForOwner(owner);
+        foreach (GameObject card in board.GetCards())
+        {
+            CardInstance inst = card.GetComponent<CardInstance>();
+            if (!inst.HasKeyword("slifer")) continue;
+
+            int sliferStat = handSize * 5;
+            inst.CurrentAttack = sliferStat;
+
+            int damageTaken = inst.CurrentMaxHealth - inst.CurrentHealth;
+            inst.CurrentMaxHealth = sliferStat;
+            inst.CurrentHealth = Mathf.Max(1, sliferStat - damageTaken);
+
+            inst.cardView.UpdateMode();
+        }
+
+        // --- Hand: update mana cost ---
+        foreach (GameObject go in hand.handCards)
+        {
+            CardInstance card = go.GetComponent<CardInstance>();
+            if (card == null || !card.HasKeyword("slifer")) continue;
+
+            card.ClearTemporaryManaModifiers();
+            card.AddTemporaryManaModifier(-drawnCount);
+            // Re-apply Ideal/Truth effects if they were active at draw time
+            // (see note below)
+        }
+    }
     public bool IsResolvingEffects => ActiveEffectCount > 0;
 
     public event Action OnAllEffectsResolved;
