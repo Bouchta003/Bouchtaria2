@@ -625,7 +625,7 @@ public class SoulForceTier3Effect : IDeckTraitEffect
         if (consumer == null)
             return;
 
-        int consumed = GameManager.Instance.ConsumeSoul(consumer, stock);
+        int consumed = GameManager.Instance.ConsumeSoul(consumer, 5);
         if (consumed <= 0)
             return;
 
