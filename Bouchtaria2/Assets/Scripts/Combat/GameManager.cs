@@ -846,33 +846,44 @@ private sealed class PendingHandReturn
             && link.Source.CurrentZone == CardZone.Board
             && link.Partner.CurrentZone == CardZone.Board;
     }
+    private bool isUpdatingPartnerLinks = false;
+
     private void UpdatePartnerLinks()
     {
-        for (int i = activePartnerLinks.Count - 1; i >= 0; i--)
-        {
-            PartnerLink link = activePartnerLinks[i];
-            bool alive = IsPartnerLinkAlive(link);
+        if (isUpdatingPartnerLinks) return;
+        isUpdatingPartnerLinks = true;
 
-            if (!alive)
+        try
+        {
+            for (int i = activePartnerLinks.Count - 1; i >= 0; i--)
             {
-                if (link != null && link.StatsApplied)
+                PartnerLink link = activePartnerLinks[i];
+                bool alive = IsPartnerLinkAlive(link);
+
+                if (!alive)
                 {
-                    if (link.Source != null && !link.Source.IsDead)
-                        link.Source.ModifyStats(-1, -1);
-                    if (link.Partner != null && !link.Partner.IsDead)
-                        link.Partner.ModifyStats(-1, -1);
+                    if (link != null && link.StatsApplied)
+                    {
+                        if (link.Source != null && !link.Source.IsDead)
+                            link.Source.ModifyStats(-1, -1);
+                        if (link.Partner != null && !link.Partner.IsDead)
+                            link.Partner.ModifyStats(-1, -1);
+                    }
+                    activePartnerLinks.RemoveAt(i);
+                    continue;
                 }
 
-                activePartnerLinks.RemoveAt(i);
-                continue;
+                if (link.BoostMode == 0 && !link.StatsApplied)
+                {
+                    link.Source.ModifyStats(1, 1);
+                    link.Partner.ModifyStats(1, 1);
+                    link.StatsApplied = true;
+                }
             }
-
-            if (link.BoostMode == 0 && !link.StatsApplied)
-            {
-                link.Source.ModifyStats(1, 1);
-                link.Partner.ModifyStats(1, 1);
-                link.StatsApplied = true;
-            }
+        }
+        finally
+        {
+            isUpdatingPartnerLinks = false;
         }
     }
     private void HandlePartnerAttackTriggers(CardInstance attacker)
@@ -948,6 +959,32 @@ private sealed class PendingHandReturn
 
         activePartnerLinks.Add(link);
         UpdatePartnerLinks();
+    }
+    public void LinkPartners(CardInstance cardA, CardInstance cardB, int boostMode)
+    {
+        if (cardA == null || cardB == null) return;
+        if (cardA.IsDead || cardB.IsDead) return;
+        if (cardA.CurrentZone != CardZone.Board || cardB.CurrentZone != CardZone.Board) return;
+
+        // Prevent double-linking the same pair
+        foreach (PartnerLink existing in activePartnerLinks)
+        {
+            bool sameLink = (ReferenceEquals(existing.Source, cardA) && ReferenceEquals(existing.Partner, cardB))
+                         || (ReferenceEquals(existing.Source, cardB) && ReferenceEquals(existing.Partner, cardA));
+            if (sameLink) return;
+        }
+
+        PartnerLink link = new PartnerLink
+        {
+            Source = cardA,
+            Partner = cardB,
+            Owner = cardA.Owner,
+            BoostMode = boostMode,
+            StatsApplied = false
+        };
+
+        activePartnerLinks.Add(link);
+        UpdatePartnerLinks(); // applies the +1/+1 immediately if BoostMode == 0
     }
     private void EndGame()
     {

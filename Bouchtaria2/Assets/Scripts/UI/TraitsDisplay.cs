@@ -174,7 +174,7 @@ public class TraitsDisplay : MonoBehaviour
                 display += $"Killed enemies releses souls. Collect souls with Soul Eater units: {Progression}/{CurrentCap}" +
                     "\nTier 1 : The second soul collected each turn discounts a random card in your hand by 1.";
                 if (tier > 1) display +=
-                        "\nTier 2 : Whenever a character consumes souls, it gains +1/+1 per soul consumed.";
+                        "\nTier 2 : Whenever a unit consumes souls, it gains +1/+1 per soul consumed.";
                 if (tier > 2) display +=
                          "\nTier 3 : End turn with 5+ souls to consume them and gain a random Evangelist Grace.";
                 break;

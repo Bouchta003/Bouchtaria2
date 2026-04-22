@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9f8ee31f8cf17384f9cbadfea6fe38ee
+guid: 3f6266b682e1a984d876404b2e21ca48
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2382885147143165532
-    second: stein_compact_0
+      213: -1279533128289473366
+    second: tsubaki_compact_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: stein_compact_0
+      name: tsubaki_compact_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 480
-        height: 480
+        width: 448
+        height: 448
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4a92aff659a4eeed0800000000000000
-      internalID: -2382885147143165532
+      spriteID: aac26f9266f2e3ee0800000000000000
+      internalID: -1279533128289473366
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 72334dc963302934a86eaf2891c6c3fe
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      stein_compact_0: -2382885147143165532
+      tsubaki_compact_0: -1279533128289473366
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

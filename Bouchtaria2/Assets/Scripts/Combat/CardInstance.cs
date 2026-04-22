@@ -1482,8 +1482,25 @@ public class CardInstance : MonoBehaviour, IAttackable
             CurrentHealth = Mathf.Max(1, sliferStat - damageTaken);
 
             cardView.UpdateMode();
-            gameManager.CheckGlow(); 
+            gameManager.CheckGlow();
             gameManager.RefreshSliferCards(Owner);
+            return false;
+        }
+        if (effect.StartsWith("gainrandombasiceffect"))
+        {
+            List<string> effects = new List<string> {"protect Protect","blessed Blessed","haste Haste", "lifesteal Lifesteal","strikebleed BleedOnStrike" };
+            int neweffect = UnityEngine.Random.Range(0,effects.Count);
+            string[] gaineffect = effects[neweffect].Split(' ');
+            CurrentEffect += " " + gaineffect[0];
+            CurrentEffectText += " " + gaineffect[1];
+            cardView.UpdateMode();
+            gameManager.CheckGlow();
+            return false;
+        }
+        if (effect.StartsWith("soulconsume"))
+        {
+            TryExecuteSoulConsume(effect);
+            gameManager.CheckGlow();
             return false;
         }
         if (effect.StartsWith("skipenemydraw"))
@@ -2231,7 +2248,9 @@ public class CardInstance : MonoBehaviour, IAttackable
             pendingTargetedEffect.StartsWith("gear")
             || pendingTargetedEffect.StartsWith("heal")
             || pendingTargetedEffect.StartsWith("buff")
+            || pendingTargetedEffect.StartsWith("grant")
             || pendingTargetedEffect.StartsWith("refreshattack")
+            || pendingTargetedEffect.StartsWith("choosepartner")
             || pendingTargetedEffect.StartsWith("ally?");
 
         if (forceRandomTarget)
@@ -2294,6 +2313,16 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         if (effect.StartsWith("heal"))
             return ChooseBestFriendlyUnitTargetForHeal();
+
+        if (effect.StartsWith("choosepartner"))
+        {
+            // Pick the strongest ally that isn't this card and has no partner yet
+            return gameManager.GetValidTargets(Owner)
+                .OfType<CardInstance>()
+                .Where(ci => ci != null && !ci.IsDead && !ReferenceEquals(ci, this))
+                .OrderByDescending(ci => ci.CurrentAttack + ci.CurrentHealth)
+                .FirstOrDefault();
+        }
 
         if (effect.StartsWith("ally?"))
         {
@@ -2511,6 +2540,17 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (target != null)
             {
                 TryExecuteDamageBleed(pendingTargetedEffect, target);
+                executed = true;
+            }
+        }
+        else if (pendingTargetedEffect.StartsWith("choosepartner") && target is CardInstance partnerTarget)
+        {
+            if (!partnerTarget.IsDead
+                && partnerTarget.Owner == Owner
+                && partnerTarget.CurrentZone == CardZone.Board
+                && !ReferenceEquals(partnerTarget, this))
+            {
+                gameManager.LinkPartners(this, partnerTarget, boostMode: 0);
                 executed = true;
             }
         }
@@ -3444,6 +3484,59 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
         //Buff self
+    }
+    private void TryExecuteSoulConsume(string effect)
+    {
+        // Expected format: soulconsume(1,selfbuff(0,1))
+        int open = effect.IndexOf('(');
+        int close = effect.LastIndexOf(')');
+
+        if (open < 0 || close <= open)
+        {
+            Debug.LogWarning($"Malformed soulconsume effect '{effect}' on {Data.name}");
+            return;
+        }
+
+        string inner = effect.Substring(open + 1, close - open - 1).Trim();
+
+        // Split only the FIRST comma at depth 0 to separate amount from nested effect
+        int splitIndex = -1;
+        int depth = 0;
+        for (int i = 0; i < inner.Length; i++)
+        {
+            if (inner[i] == '(') depth++;
+            else if (inner[i] == ')') depth--;
+            else if (inner[i] == ',' && depth == 0) { splitIndex = i; break; }
+        }
+
+        if (splitIndex < 0)
+        {
+            Debug.LogWarning($"soulconsume missing comma separator in '{effect}' on {Data.name}");
+            return;
+        }
+
+        string amountStr = inner.Substring(0, splitIndex).Trim();
+        string innerEffect = inner.Substring(splitIndex + 1).Trim();
+
+        if (!int.TryParse(amountStr, out int requiredAmount) || requiredAmount <= 0)
+        {
+            Debug.LogWarning($"soulconsume invalid amount '{amountStr}' on {Data.name}");
+            return;
+        }
+
+        // Check if enough souls are available
+        int availableSouls = gameManager.GetSouls(Owner);
+        if (availableSouls < requiredAmount)
+            return;
+
+        // Consume — this also fires OnSoulConsumed and handles Tier 2 +1/+1
+        int consumed = gameManager.ConsumeSoul(this, requiredAmount);
+        if (consumed <= 0)
+            return;
+
+        // Execute the inner effect on this card
+        if (!string.IsNullOrWhiteSpace(innerEffect))
+            ExecuteEffect(innerEffect);
     }
     private void TryExecuteConsume(string effect)
     {
