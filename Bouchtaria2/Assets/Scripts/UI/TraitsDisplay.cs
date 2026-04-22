@@ -172,7 +172,7 @@ public class TraitsDisplay : MonoBehaviour
                 break;
             case CardData.Trait.SoulForce:
                 display += $"Killed enemies releses souls. Collect souls with Soul Eater units: {Progression}/{CurrentCap}" +
-                    "\nTier 1 : The second soul collected each turn discounts a random card in your hand by 1.";
+                    "\nTier 1 : The first soul collected each turn discounts a random card in your hand by 2.";
                 if (tier > 1) display +=
                         "\nTier 2 : Whenever a unit consumes souls, it gains +1/+1 per soul consumed.";
                 if (tier > 2) display +=

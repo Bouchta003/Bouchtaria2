@@ -3720,6 +3720,14 @@ private sealed class PendingHandReturn
             {
                 thornDamage = targetUnit.ThornsDamage;
             }
+            if (targetUnit.HasKeyword("weaklover") && attacker.CurrentAttack<=3)
+            {
+                targetUnit.ModifyStats(1, 1);
+            }
+            if (attacker.HasKeyword("weaklover") && targetUnit.CurrentAttack <= 3)
+            {
+                attacker.ModifyStats(1, 1);
+            }
             //Apply Bleeding to target
             bool shouldApplyBleed =
                 attacker.HasKeyword("strikebleed") ||

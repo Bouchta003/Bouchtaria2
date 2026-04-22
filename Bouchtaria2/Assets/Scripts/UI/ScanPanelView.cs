@@ -318,6 +318,15 @@ public class ScanPanelView : MonoBehaviour
             keyDescription.text =
                 "Takes 1 damage at the start and end of your turn, lasts 3 turns.";
         }
+        if (effectText.ToLower().Contains(("soul").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Souls";
+            keyDescription.text =
+                "Can be generated with the trait SoulForce when killing enemies and consumed for various effects.";
+        }
         if (effectText.ToLower().Contains(("gear").ToLower()))
         {
             GameObject entry = Instantiate(keywordPrefab, keywordContainer);

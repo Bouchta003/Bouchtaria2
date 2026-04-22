@@ -503,7 +503,7 @@ public class SoulForceProgression : ITraitProgression
         soulsCollectedThisTurn++;
         OnProgressUpdated?.Invoke(Trait, soulsCollected, GetCurrentCap(), Owner);
 
-        if (CurrentTier >= 1 && soulsCollectedThisTurn == 2)
+        if (CurrentTier >= 1 && soulsCollectedThisTurn == 1)
             DiscountRandomCardInHand();
 
         if (soulsCollected >= 4 && CurrentTier < 1 && maxTier >= 1)
@@ -527,7 +527,7 @@ public class SoulForceProgression : ITraitProgression
         if (randomCard == null)
             return;
 
-        randomCard.AddTemporaryManaModifier(-1);
+        randomCard.AddTemporaryManaModifier(-2);
     }
 
     private void UnlockTier1()
