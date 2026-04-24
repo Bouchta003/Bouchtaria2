@@ -5178,7 +5178,7 @@
       "atkValue": 5,
       "hpValue": 6,
       "traits": [ "Neutral" ],
-      "effect": "eot[pure?draw(buffall(0,2)]",
+      "effect": "eot[pure?buffall(0,2)]",
       "effectText": "End of turn : If you have a pure deck, give all allies +2 HP",
       "artPath": "CardArt/pyramad",
       "artCompactPath": "CardArt/pyramad_compact",

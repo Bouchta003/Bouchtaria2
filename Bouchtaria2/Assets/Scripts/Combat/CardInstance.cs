@@ -1466,6 +1466,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             GainExtraTurn();
             gameManager.CheckGlow(); return false;
         }
+        if (effect.StartsWith("unlockexcaliburprovisions"))
+        {
+            gameManager.UnlockProvisions();
+            gameManager.CheckGlow(); return false;
+        }
         if (effect.StartsWith("lebens"))
         {
             StartCoroutine(TriggerBensEffect()); return false;

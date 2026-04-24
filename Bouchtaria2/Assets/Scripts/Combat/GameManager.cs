@@ -110,6 +110,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] public GameObject allySoulCounter;
     [SerializeField] public GameObject enemySoulCounter;
 
+    [Header("Provisions")]
+    [SerializeField] public GameObject ButtonProvisions;
+    [SerializeField] public GameObject ProvisionsPage;
+
     [Header("Camera Shake")]
     [SerializeField] private Camera mainCamera;
 
@@ -387,14 +391,15 @@ private sealed class PendingHandReturn
         consumer.cardView.UpdateMode();
         return consumed;
     }
-    public int DiscardCardsFromHandWithDeferredReturn(
-        PlayerOwner owner,
-        Func<CardInstance, bool> discardPredicate,
-        int turnsUntilReturn,
-        int manaModifier,
-        int attackBonus,
-        int healthBonus
-    )
+    public void ToggleProvisions()
+    {
+        ProvisionsPage.SetActive(!ProvisionsPage.activeSelf);
+    }
+    public void UnlockProvisions()
+    {
+        ButtonProvisions.SetActive(true);
+    }
+    public int DiscardCardsFromHandWithDeferredReturn(        PlayerOwner owner,        Func<CardInstance, bool> discardPredicate,        int turnsUntilReturn,        int manaModifier,        int attackBonus,        int healthBonus)
     {
         HandManager hand = owner == PlayerOwner.Player ? allyHand : enemyHand;
         if (hand == null)
