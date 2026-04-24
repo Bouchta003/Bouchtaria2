@@ -215,7 +215,7 @@ private sealed class PendingHandReturn
     private int dungeonStartDrawBonus;
     private int dungeonStartDrawBonusEnemy;
     public bool adventureBossSecondPhaseTriggered;
-    private bool adventureBossFinalDialogueTriggered;
+    public bool adventureBossFinalDialogueTriggered;
     private void Awake()
     {
         if (Instance != null)
@@ -263,9 +263,13 @@ private sealed class PendingHandReturn
     }
     public void SetupFirstTurn()
     {
-        if (TurnManager.Instance == null ||adventureBossSecondPhaseTriggered ||adventureBossFinalDialogueTriggered)
+        if (TurnManager.Instance == null)
         {
             Debug.LogError("TurnManager missing!");
+            return;
+        }
+        if(adventureBossSecondPhaseTriggered || adventureBossFinalDialogueTriggered){
+            Debug.Log("Adventure phase triggered correctly :)");
             return;
         }
         SetFill(0, PlayerOwner.Player);

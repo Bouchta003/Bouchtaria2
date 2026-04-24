@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +7,7 @@ using TMPro;
 public class CombatDialogue : MonoBehaviour
 {
     public event System.Action OnDialogueEnded;
+
     [Header("Data")]
     [SerializeField] List<DialogueCutscene> Dialogues;
 
@@ -23,11 +24,10 @@ public class CombatDialogue : MonoBehaviour
 
     int currentLine = 0;
     DialogueCutscene currentScene = null;
-
     bool isTyping = false;
     Coroutine typingCoroutine;
     bool resumeCombatAfterDialogue = true;
-    private int adventureFightId = -1; // Store the adventure fight ID
+    private int adventureFightId = -1;
 
     public static CombatDialogue Instance;
 
@@ -41,27 +41,33 @@ public class CombatDialogue : MonoBehaviour
         Instance = this;
     }
 
+    // ─────────────────────────────────────────────────────────────
+    //  Public entry point
+    // ─────────────────────────────────────────────────────────────
+
     public void TriggerCutscene(int id, bool resumeCombat = true)
     {
-        // Pause music when dialogue starts
-        MusicManager.Instance.PauseCurrentMusic();
+        if (Dialogues.Count < id + 1) return;
 
-        // Store adventure fight ID if this is an adventure
-        if (GameRunContext.IsAdventureCombat)
-        {
-            adventureFightId = GameRunContext.AdventureFightId;
-        }
-        if (Dialogues.Count<id+1) return;
+        // Store the adventure fight ID so EndDialogue knows which track to queue.
+        adventureFightId = GameRunContext.IsAdventureCombat ? GameRunContext.AdventureFightId : -1;
 
         currentScene = Dialogues[id];
         currentLine = 0;
         resumeCombatAfterDialogue = resumeCombat;
 
+        // ── Music: gently duck to an underscore level rather than hard-stopping.
+        // This keeps the atmosphere alive while voices play front-and-centre.
+        MusicManager.Instance.DuckForDialogue();
+
         GameManager.Instance.UIparent.SetActive(false);
         StartCoroutine(FadeIn());
-
         DisplayLine();
     }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Input
+    // ─────────────────────────────────────────────────────────────
 
     private void Update()
     {
@@ -70,7 +76,6 @@ public class CombatDialogue : MonoBehaviour
 
         if (isTyping)
         {
-            // Finish instantly
             StopCoroutine(typingCoroutine);
             DialogueText.text = currentScene.Lines[currentLine].Content;
             isTyping = false;
@@ -81,19 +86,20 @@ public class CombatDialogue : MonoBehaviour
         }
     }
 
+    // ─────────────────────────────────────────────────────────────
+    //  Dialogue flow
+    // ─────────────────────────────────────────────────────────────
+
     void NextLine()
     {
         currentLine++;
 
         if (currentLine < currentScene.Lines.Count)
-        {
             DisplayLine();
-        }
         else
-        {
             StartCoroutine(EndDialogue());
-        }
     }
+
     public void SkipDialogue()
     {
         StartCoroutine(FadeOut());
@@ -103,9 +109,14 @@ public class CombatDialogue : MonoBehaviour
 
         GameManager.Instance.UIparent.SetActive(true);
         OnDialogueEnded?.Invoke();
+
+        // ── Music: handle skip the same way as a normal end.
+        ResolveMusicAfterDialogue();
+
         if (resumeCombatAfterDialogue && !GameManager.Instance.adventureBossSecondPhaseTriggered)
             GameManager.Instance.SetupFirstTurn();
     }
+
     void DisplayLine()
     {
         var line = currentScene.Lines[currentLine];
@@ -132,6 +143,58 @@ public class CombatDialogue : MonoBehaviour
 
         isTyping = false;
     }
+
+    IEnumerator EndDialogue()
+    {
+        yield return StartCoroutine(FadeOut());
+
+        currentScene = null;
+        currentLine = 0;
+
+        GameManager.Instance.UIparent.SetActive(true);
+        OnDialogueEnded?.Invoke();
+
+        // ── Music: restore / transition AFTER the visual fade-out completes,
+        // so the new track swells in exactly as the UI returns — cinematic timing.
+        ResolveMusicAfterDialogue();
+
+        if (resumeCombatAfterDialogue)
+            GameManager.Instance.SetupFirstTurn();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Music resolution helper
+    // ─────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Called at the end of a dialogue (or skip).
+    /// If we have an adventure-specific track, crossfade into it from the
+    /// currently-ducked music so the transition feels intentional and smooth.
+    /// Otherwise simply un-duck the existing track back to full volume.
+    /// </summary>
+    private void ResolveMusicAfterDialogue()
+    {
+        if (adventureFightId != -1)
+        {
+            // Crossfade from the ducked track directly into the battle music.
+            // UnduckAndCrossfadeTo handles the case where newClip is null gracefully.
+            AudioClip battleTrack = MusicManager.Instance.GetMusicForAdventure(adventureFightId);
+            if (GameManager.Instance.adventureBossSecondPhaseTriggered || GameManager.Instance.adventureBossFinalDialogueTriggered)
+            {
+                battleTrack = MusicManager.Instance.GetMusicForAdventure(14);
+            }
+            MusicManager.Instance.UnduckAndCrossfadeTo(battleTrack, 2.0f);
+        }
+        else
+        {
+            // No track switch needed — just bring the existing music back up.
+            MusicManager.Instance.UnduckAfterDialogue();
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  UI fades
+    // ─────────────────────────────────────────────────────────────
 
     IEnumerator FadeIn()
     {
@@ -161,40 +224,11 @@ public class CombatDialogue : MonoBehaviour
         dialogueCanvasGroup.alpha = 0;
         dialogueCanvasGroup.gameObject.SetActive(false);
     }
-    private AudioClip GetAdventureMusicForFight(int fightId)
-    {
-        // Get the music for the specific adventure fight ID
-        return MusicManager.Instance.GetMusicForAdventure(fightId);
-    }
-    IEnumerator EndDialogue()
-    {
-        yield return StartCoroutine(FadeOut());
-
-        currentScene = null;
-        currentLine = 0;
-
-        GameManager.Instance.UIparent.SetActive(true);
-        OnDialogueEnded?.Invoke();
-        if (resumeCombatAfterDialogue)
-            GameManager.Instance.SetupFirstTurn();
-
-        // Resume/change music after dialogue ends
-        if (adventureFightId != -1)
-        {
-            // Play the specific adventure music for this fight
-            AudioClip adventureMusic = GetAdventureMusicForFight(adventureFightId);
-            if (adventureMusic != null)
-            {
-                MusicManager.Instance.PlayMusic(adventureMusic, 1.5f);
-            }
-        }
-        else
-        {
-            // Resume normal music
-            MusicManager.Instance.PlayCurrentMusic();
-        }
-    }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Data types
+// ─────────────────────────────────────────────────────────────────────────────
 
 [System.Serializable]
 public class DialogueCutscene
