@@ -5442,7 +5442,7 @@
       "atkValue": 2,
       "hpValue": 2,
       "traits": [ "SoulForce" ],
-      "effect": "eot[soulconsume(1,selfbuff(0,2)]",
+      "effect": "eot[soulconsume(1,selfbuff(0,2))]",
       "effectText": "End of turn : Consume a soul if you have any to gain +2 HP",
       "artPath": "CardArt/soul",
       "artCompactPath": "CardArt/soul_compact",

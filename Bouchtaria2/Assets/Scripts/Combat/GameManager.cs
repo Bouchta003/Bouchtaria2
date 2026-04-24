@@ -391,6 +391,23 @@ private sealed class PendingHandReturn
         consumer.cardView.UpdateMode();
         return consumed;
     }
+    // Ownerless consume:
+    public int ConsumeSoul(PlayerOwner owner, int amount)
+    {
+        if (amount <= 0)
+            return 0;
+
+        int availableSouls = GetSouls(owner);
+        if (availableSouls <= 0)
+            return 0;
+
+        int consumed = Mathf.Min(amount, availableSouls);
+        SetSouls(owner, availableSouls - consumed);
+
+        OnSoulConsumed?.Invoke(null, consumed); // null consumer = no card involved
+
+        return consumed;
+    }
     public void ToggleProvisions()
     {
         ProvisionsPage.SetActive(!ProvisionsPage.activeSelf);

@@ -611,7 +611,6 @@ public class SoulForceTier3Effect : IDeckTraitEffect
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
     }
-
     private void OnTurnEnded(PlayerOwner turnOwner)
     {
         if (turnOwner != owner)
@@ -621,11 +620,8 @@ public class SoulForceTier3Effect : IDeckTraitEffect
         if (stock < 5)
             return;
 
-        CardInstance consumer = FindSoulConsumer();
-        if (consumer == null)
-            return;
-
-        int consumed = GameManager.Instance.ConsumeSoul(consumer, 5);
+        // Use the ownerless overload — no card gets credit, no Tier 2 buff fires
+        int consumed = GameManager.Instance.ConsumeSoul(owner, 5);
         if (consumed <= 0)
             return;
 
@@ -642,36 +638,6 @@ public class SoulForceTier3Effect : IDeckTraitEffect
 
         CardData randomGrace = graceSpells[Random.Range(0, graceSpells.Count)];
         GameManager.Instance.AddCardToHand(owner, randomGrace.id, -1);
-    }
-
-    private CardInstance FindSoulConsumer()
-    {
-        ICardDropArea board = GameManager.Instance.GetBoardForOwner(owner);
-        if (board != null)
-        {
-            foreach (GameObject cardGO in board.GetCards())
-            {
-                CardInstance unit = cardGO?.GetComponent<CardInstance>();
-                if (unit != null && !unit.IsDead && unit.CurrentZone == CardZone.Board)
-                    return unit;
-            }
-        }
-
-        HandManager hand = owner == PlayerOwner.Player
-            ? GameManager.Instance.deckManager.handManager
-            : GameManager.Instance.deckManager.handManagerEnemy;
-
-        if (hand == null)
-            return null;
-
-        foreach (GameObject cardGO in hand.handCards)
-        {
-            CardInstance candidate = cardGO?.GetComponent<CardInstance>();
-            if (candidate != null && !candidate.IsDead)
-                return candidate;
-        }
-
-        return null;
     }
 }
 #endregion
