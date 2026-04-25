@@ -685,7 +685,7 @@ public static class EnemyDecks
                 {
                 // Thibauld : (30)
                 272,272,//Thib
-                272,274, 
+                272,274,
                 274,274, //Maxime M
                 352,352,
                 352,352,
@@ -744,7 +744,7 @@ public static class EnemyDecks
             { 11, new List<int>
                 {
                 //Rhita : 30
-                276,281, 
+                276,281,
                 276,281, //Rhita and rhita team
                 280,280, //RhitaGAteau
                 277,277,
@@ -783,19 +783,42 @@ public static class EnemyDecks
             },
             { 13, new List<int>
                 {
-                // ??? theme: Bouchta
-                44, 44, 109, 109, 64, 64, 63, 63, 60, 60,
-                146, 146, 47, 47, 8, 8, 53, 53, 71, 71,
-                112, 112, 147, 147, 61, 61, 162, 162, 48, 48
+                //Bouchta : SoulForceDeck with knights and free cards
+                374,374,//BouchtaSpell
+                375,375,//KnightsSpell
+                285,361,//PapaRhita
+                360,284,//SaraMama
+                343,343,//Vulcan
+                332,331,//Slifer+Aegislash
+                292,292,//Soul Eater
+                291,291,
+                293,293,
+                289,289,
+                335,335,
+                337,337,
+                333,333,
+                345,345,//Soul Eater end
                 }
             },
             { 14, new List<int>
                 {
-                // ???: Prime curse).
-                44, 44, 109, 109, 64, 64, 63, 63, 60, 60,
-                146, 146, 47, 47, 8, 8, 53, 53, 71, 71,
-                112, 112, 147, 147, 61, 61, 162, 162, 48, 48
-                }
+                // ???: Prime curse.
+                27,28,
+                29,163,//Dialga Palkia GIratina Hooh
+                189,189,
+                189,85,//Triple Le D + colonel
+                120,120,//metronome
+                126,126,//feed the chaos
+                127,127,//Cheater will
+                127,127,
+                128,129,//Le Bens + gmpves
+                239,239,//GonPrime
+                167,167,
+                308,308,//suave
+                128,129,
+                158,158,
+                75,75,    
+            }
             }
         };
     public static List<int> GetFloorDeck(int floor)
