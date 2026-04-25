@@ -603,6 +603,8 @@ public static class EnemyDecks
                 // Thibauld : Healer and food deck + thib cards with maxime medard and moroccan food.
                 272,272, //Thib
                 274,274, //Maxime M
+                352,352,352,352,
+                353,353,353,353
                 }
             },
             { 9, new List<int>
@@ -639,7 +641,6 @@ public static class EnemyDecks
             { 13, new List<int>
                 {
                 // ??? theme: Bouchta
-                
                 44, 44, 109, 109, 64, 64, 63, 63, 60, 60,
                 146, 146, 47, 47, 8, 8, 53, 53, 71, 71,
                 112, 112, 147, 147, 61, 61, 162, 162, 48, 48
@@ -670,5 +671,4 @@ public static class EnemyDecks
         else return null;//Add default deck ? 
     }
 
-    // Future expansion: add more unique packable Gunner/Speedster and pure Chaos control cards to reduce cross-trait overlap in late-floor 50-card decks.
 }

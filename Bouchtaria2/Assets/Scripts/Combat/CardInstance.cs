@@ -1298,6 +1298,16 @@ public class CardInstance : MonoBehaviour, IAttackable
                 TryExecuteGear(effect, CurrentEffectText, target);
                 continue;
             }
+            if (effect.StartsWith("handbuffall"))
+            {
+                TryExecuteHandBuffAll(effect);
+                gameManager.CheckGlow(); continue;
+            }
+            if (effect.StartsWith("handbuffrandom"))
+            {
+                TryExecuteHandBuffRandom(effect);
+                gameManager.CheckGlow(); continue;
+            }
             if (effect.StartsWith("buffall"))
             {
                 (int atk, int hp) = GetTwoIntsFromEffect(effect);
@@ -1493,7 +1503,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         if (effect.StartsWith("gainrandombasiceffect"))
         {
-            List<string> effects = new List<string> {"protect Protect","blessed Blessed","haste Haste", "lifesteal Lifesteal","strikebleed BleedOnStrike" };
+            List<string> effects = new List<string> {"protect Protect", "blessed Blessed", "hidden Hidden", "haste Haste", "lifesteal Lifesteal","strikebleed BleedOnStrike" };
             int neweffect = UnityEngine.Random.Range(0,effects.Count);
             string[] gaineffect = effects[neweffect].Split(' ');
             CurrentEffect += " " + gaineffect[0];
@@ -1985,6 +1995,16 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("investmentunits"))
         {
             ExecuteGamblersInvestmentReturn();
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("handbuffall"))
+        {
+            TryExecuteHandBuffAll(effect);
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("handbuffrandom"))
+        {
+            TryExecuteHandBuffRandom(effect);
             gameManager.CheckGlow(); return false;
         }
         Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
@@ -2758,7 +2778,80 @@ public class CardInstance : MonoBehaviour, IAttackable
             return;
         }
     }
+    /// <summary>
+    /// handbuffrandom(atk,hp) — buffs a single random minion (cardType == "minion") in the owner's hand.
+    /// </summary>
+    private void TryExecuteHandBuffRandom(string effect)
+    {
+        (int atk, int hp) = GetTwoIntsFromEffect(effect);
+        if (atk == 0 && hp == 0)
+        {
+            Debug.LogWarning($"Malformed handbuffrandom effect '{effect}' on {Data.name}");
+            return;
+        }
 
+        HandManager hand = Owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
+        if (hand == null) return;
+
+        List<CardInstance> minionCandidates = new();
+        foreach (GameObject go in hand.handCards)
+        {
+            if (go == null) continue;
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci != null && ci.Data != null &&
+                ci.Data.cardType.Equals("minion", StringComparison.OrdinalIgnoreCase))
+                minionCandidates.Add(ci);
+        }
+
+        if (minionCandidates.Count == 0)
+        {
+            Debug.Log($"[handbuffrandom] No minions in hand for {Owner}.");
+            return;
+        }
+
+        CardInstance chosen = minionCandidates[UnityEngine.Random.Range(0, minionCandidates.Count)];
+        chosen.CurrentAttack += atk;
+        chosen.CurrentMaxHealth += hp;
+        chosen.CurrentHealth += hp;
+        if (chosen.CurrentAttack < 0) chosen.CurrentAttack = 0;
+        chosen.cardView?.UpdateMode();
+        Debug.Log($"[handbuffrandom] Buffed {chosen.Data.name} in hand with +{atk}/+{hp}.");
+    }
+
+    /// <summary>
+    /// handbuffall(atk,hp) — buffs ALL minions (cardType == "minion") in the owner's hand.
+    /// </summary>
+    private void TryExecuteHandBuffAll(string effect)
+    {
+        (int atk, int hp) = GetTwoIntsFromEffect(effect);
+        if (atk == 0 && hp == 0)
+        {
+            Debug.LogWarning($"Malformed handbuffall effect '{effect}' on {Data.name}");
+            return;
+        }
+
+        HandManager hand = Owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
+        if (hand == null) return;
+
+        List<GameObject> snapshot = new(hand.handCards);
+        int buffed = 0;
+        foreach (GameObject go in snapshot)
+        {
+            if (go == null) continue;
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci == null || ci.Data == null) continue;
+            if (!ci.Data.cardType.Equals("minion", StringComparison.OrdinalIgnoreCase)) continue;
+
+            ci.CurrentAttack += atk;
+            ci.CurrentMaxHealth += hp;
+            ci.CurrentHealth += hp;
+            if (ci.CurrentAttack < 0) ci.CurrentAttack = 0;
+            ci.cardView?.UpdateMode();
+            buffed++;
+        }
+
+        Debug.Log($"[handbuffall] Buffed {buffed} minion(s) in hand with +{atk}/+{hp} for {Owner}.");
+    }
     private void TryExecuteSelfHeal(string effect)
     {
         int open = effect.IndexOf('(');

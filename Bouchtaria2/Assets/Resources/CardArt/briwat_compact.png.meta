@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: fe83ed3691f3e3947b16ee03558cabb8
+guid: 1e0a677878e0a784696b440911416e3f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4709972766252254319
-    second: lamama_compact_0
+      213: -3450351986936812458
+    second: briwat_compact_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: lamama_compact_0
+      name: briwat_compact_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 797
-        height: 797
+        width: 1024
+        height: 1024
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 19b35cd39b0d2aeb0800000000000000
-      internalID: -4709972766252254319
+      spriteID: 65c619c0623ed10d0800000000000000
+      internalID: -3450351986936812458
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 7770b668673bade4a9d25d97a0755519
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      lamama_compact_0: -4709972766252254319
+      briwat_compact_0: -3450351986936812458
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
