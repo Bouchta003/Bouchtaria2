@@ -194,16 +194,60 @@ public class EnemyAIController : MonoBehaviour
         }
 
         if (effect.Contains("heal"))
-            score += 20;
+        {
+            int missingHp = gameManager.EnemyCore.MaxHealth - gameManager.EnemyCore.CurrentHealth;
+            score += Mathf.Clamp(missingHp, 5, 30);
+        }
 
         if (effect.Contains("gear"))
-            score += 30;
+            score += 30 + enemyBoard.enemyPrefabCards.Count * 5;
 
-        // If opponent board is threatening, value interaction more.
+        // Kill / removal spells — extremely high value
+        if (effect.Contains("kill") || effect.Contains("killrandom") ||
+            effect.Contains("killlow") || effect.Contains("killhigh"))
+            score += 50 + allyBoard.allyPrefabCards.Count * 8;
+
+        // AOE damage — scales with how many targets exist
+        if (effect.Contains("damageaoe") || effect.Contains("damagerandomenemy"))
+        {
+            int dmgVal = GetSingleIntFromEffectByPrefix(effect, "damageaoe");
+            score += 25 + allyBoard.allyPrefabCards.Count * (dmgVal > 0 ? dmgVal : 5);
+        }
+
+        // Silence — valuable against effect-heavy boards
+        if (effect.Contains("silence"))
+        {
+            int effectfulUnits = allyBoard.allyPrefabCards.Count(go => {
+                if (go == null) return false;
+                CardInstance ci = go.GetComponent<CardInstance>();
+                return ci != null && !string.IsNullOrEmpty(ci.CurrentEffect);
+            });
+            score += 20 + effectfulUnits * 10;
+        }
+
+        // Sleep — high value against high-attack units
+        if (effect.Contains("sleep"))
+            score += 20 + EvaluateAllyBoardThreat() / 4;
+
+        // Wipeboard — massive swing, scale with board size difference
+        if (effect.Contains("wipeboard") || effect.Contains("scrambleallstats"))
+            score += allyBoard.allyPrefabCards.Count * 20;
+
+        // Resource denial
+        if (effect.Contains("discardenemy") || effect.Contains("skipenemydraw"))
+            score += 25;
+        if (effect.Contains("limitenemyspace") || effect.Contains("enemymanaloss"))
+            score += 20;
+
+        // Handbuff — scales with hand size
+        if (effect.Contains("handbuffall") || effect.Contains("handbuffrandom"))
+            score += enemyHand.handCards.Count * 6;
+
+        // If opponent board is threatening, value interaction more
         score += EvaluateAllyBoardThreat() / 3;
 
-        // Penalize low-impact expensive spells
-        score -= spell.CurrentManaCost * 5;
+        // Penalize expensive spells proportionally
+        score -= spell.CurrentManaCost * 4;
 
         return score;
     }
@@ -411,11 +455,15 @@ public class EnemyAIController : MonoBehaviour
         {
             int manaSpent = initialMana - manaLeft;
             int finalScore = currentScore;
+            // Blend score and mana spent so high-value cheap plays can beat
+            // wasteful expensive ones. Weight of 3 per mana keeps efficiency
+            // relevant without completely overriding card quality.
+            int blended = finalScore + manaSpent * 3;
+            int bestBlended = bestScore + bestManaSpent * 3;
 
             bool isBetterPlan =
-                manaSpent > bestManaSpent ||
-                (manaSpent == bestManaSpent && finalScore > bestScore) ||
-                (manaSpent == bestManaSpent && finalScore == bestScore && current.Count > bestPlan.Count);
+                blended > bestBlended ||
+                (blended == bestBlended && current.Count > bestPlan.Count);
 
             if (isBetterPlan)
             {
@@ -578,6 +626,34 @@ public class EnemyAIController : MonoBehaviour
             return false;
 
         if (EnemyHasBoardAdvantage() && (effect.Contains("wipeboard") || effect.Contains("tawakkul")))
+            return false;
+        // Don't silence if no player unit has a meaningful effect
+        if (effect.Contains("silence") && !effect.Contains("silenceall"))
+        {
+            bool hasEffectfulTarget = gameManager.GetValidTargets(PlayerOwner.Player)
+                .OfType<CardInstance>()
+                .Any(u => !string.IsNullOrEmpty(u.CurrentEffect));
+            if (!hasEffectfulTarget) return false;
+        }
+
+        // Don't sleep a unit that's already asleep
+        if (effect.Contains("sleep") && !effect.Contains("sleepall"))
+        {
+            bool hasAwakeTarget = gameManager.GetValidTargets(PlayerOwner.Player)
+                .OfType<CardInstance>()
+                .Any(u => !u.IsAsleep);
+            if (!hasAwakeTarget) return false;
+        }
+
+        // Don't cast kill without a valid target
+        if ((effect.Contains("kill") && effect.Contains("targetunit")) &&
+            !effect.Contains("killrandom") && !effect.Contains("killlow") && !effect.Contains("killhigh"))
+        {
+            if (allyBoard.allyPrefabCards.Count == 0) return false;
+        }
+
+        // Don't discard enemy hand if it's empty
+        if (effect.Contains("discardenemy") && enemyHand.handCards.Count == 0)
             return false;
 
         // =====================================================================
@@ -860,7 +936,6 @@ public class EnemyAIController : MonoBehaviour
         spell.OnPlaySpell(forcedTarget);
         OnCardPlayed?.Invoke(spell);
     }
-
     private IAttackable GetForcedSpellTarget(CardInstance spell)
     {
         if (spell == null || string.IsNullOrWhiteSpace(spell.CurrentEffect))
@@ -868,10 +943,159 @@ public class EnemyAIController : MonoBehaviour
 
         string effect = spell.CurrentEffect.ToLowerInvariant();
 
+        // Spells with no explicit target need no forced target
+        if (!effect.Contains("targetunit") && !effect.Contains("targetcore"))
+            return null;
+
+        if (effect.Contains("targetcore"))
+            return gameManager.PlayerCore;
+
+        // --- targetunit spells: pick the best unit for each effect type ---
+
         if (effect.Contains("catch"))
             return GetBestCatchTarget(spell.CurrentEffect);
 
-        return null;
+        // Buff/heal/grant/gear target our OWN units
+        bool targetsFriendly = effect.Contains("buff") || effect.Contains("heal") ||
+                               effect.Contains("gear") || effect.Contains("grant") ||
+                               effect.Contains("equipself") || effect.Contains("morphto");
+
+        if (targetsFriendly)
+            return GetBestFriendlySpellTarget(effect);
+
+        // Everything else targets the player's units
+        return GetBestHostileSpellTarget(effect);
+    }
+
+    private IAttackable GetBestFriendlySpellTarget(string effect)
+    {
+        CardInstance best = null;
+        int bestScore = int.MinValue;
+
+        foreach (GameObject go in enemyBoard.enemyPrefabCards)
+        {
+            if (go == null) continue;
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci == null || ci.IsDead) continue;
+
+            int score = 0;
+
+            if (effect.Contains("heal"))
+            {
+                // Prefer most damaged unit
+                int missingHp = ci.CurrentMaxHealth - ci.CurrentHealth;
+                if (missingHp <= 0) continue;
+                score += missingHp * 3;
+            }
+
+            if (effect.Contains("buff") || effect.Contains("grant") || effect.Contains("gear"))
+            {
+                // Prefer highest-attack units (they benefit most from buffs)
+                score += ci.CurrentAttack * 2 + ci.CurrentHealth;
+                // Prefer units that haven't attacked yet (buff applies this turn)
+                if (!ci.HasAttackedThisTurn) score += 10;
+            }
+
+            if (effect.Contains("morphto"))
+            {
+                // Prefer copying the highest-stat player unit
+                CardInstance bestAlly = GetHighestStatPlayerUnit();
+                return bestAlly;
+            }
+
+            score += ci.CurrentAttack + ci.CurrentHealth;
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                best = ci;
+            }
+        }
+
+        return best;
+    }
+
+    private IAttackable GetBestHostileSpellTarget(string effect)
+    {
+        CardInstance best = null;
+        int bestScore = int.MinValue;
+
+        List<IAttackable> validTargets = gameManager.GetValidTargets(PlayerOwner.Player);
+
+        foreach (IAttackable t in validTargets)
+        {
+            if (t is not CardInstance unit) continue;
+            if (unit.IsDead) continue;
+
+            int score = 0;
+
+            if (effect.Contains("kill"))
+            {
+                // Kill the highest-value unit
+                score += unit.CurrentAttack * 3 + unit.CurrentHealth;
+                if (unit.HasKeyword("protect")) score += 20;
+                if (unit.HasKeyword("haste")) score += 15;
+            }
+            else if (effect.Contains("silence"))
+            {
+                // Silence units with the most impactful effects — skip vanilla units
+                if (string.IsNullOrEmpty(unit.CurrentEffect)) continue;
+                score += unit.CurrentAttack + unit.CurrentHealth;
+                if (unit.HasKeyword("protect")) score += 25;
+                if (unit.HasKeyword("haste")) score += 20;
+                if (unit.HasKeyword("quickstrike")) score += 15;
+                if (unit.HasKeyword("regeneration")) score += 20;
+                if (unit.HasKeyword("blessed")) score += 10;
+            }
+            else if (effect.Contains("sleep"))
+            {
+                if (unit.IsAsleep) continue;
+                // Prioritize high-attack units we can't kill yet
+                score += unit.CurrentAttack * 3;
+                if (unit.HasKeyword("haste")) score += 10;
+            }
+            else if (effect.Contains("damage"))
+            {
+                // Prefer units we can finish off, or high-attack threats
+                int dmgVal = GetSingleIntFromEffectByPrefix(effect, "damage");
+                if (dmgVal > 0 && unit.CurrentHealth <= dmgVal) score += 50; // kills it
+                score += unit.CurrentAttack * 2 + unit.CurrentHealth;
+            }
+            else if (effect.Contains("applybleed"))
+            {
+                // Prefer high-HP units (bleed hurts them more over time)
+                score += unit.CurrentMaxHealth * 2;
+            }
+            else
+            {
+                score += unit.CurrentAttack + unit.CurrentHealth;
+            }
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                best = unit;
+            }
+        }
+
+        return best;
+    }
+
+    private CardInstance GetHighestStatPlayerUnit()
+    {
+        CardInstance best = null;
+        int bestStats = int.MinValue;
+
+        foreach (GameObject go in allyBoard.allyPrefabCards)
+        {
+            if (go == null) continue;
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci == null || ci.IsDead) continue;
+            int stats = ci.CurrentAttack + ci.CurrentHealth;
+            if (stats > bestStats) { bestStats = stats; best = ci; }
+        }
+
+        return best;
     }
 
     private CardInstance GetBestCatchTarget(string effect)
@@ -1226,27 +1450,30 @@ public class EnemyAIController : MonoBehaviour
 
         return best;
     }
-
     private bool HasLethalThisTurn()
     {
-        int totalAttack = 0;
+        // If any enemy unit (from AI's perspective = player's board) has protect,
+        // the player core cannot be targeted — no lethal possible this turn.
+        bool coreIsBlocked = allyBoard.allyPrefabCards.Any(go =>
+        {
+            if (go == null) return false;
+            CardInstance ci = go.GetComponent<CardInstance>();
+            return ci != null && !ci.IsDead && !ci.HasKeyword("hidden") && ci.HasKeyword("protect");
+        });
+        if (coreIsBlocked) return false;
 
+        int totalAttack = 0;
         foreach (GameObject go in enemyBoard.enemyPrefabCards)
         {
             if (go == null) continue;
-
             CardInstance ci = go.GetComponent<CardInstance>();
             if (ci == null) continue;
-
-            if (!gameManager.CanSelectAttacker(ci))
-                continue;
-
+            if (!gameManager.CanSelectAttacker(ci)) continue;
             totalAttack += ci.CurrentAttack;
         }
 
         return totalAttack >= gameManager.PlayerCore.CurrentHealth;
     }
-
     private IEnumerator EndEnemyTurnSafely()
     {
         if (TurnManager.Instance == null)

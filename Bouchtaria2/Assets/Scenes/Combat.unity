@@ -1394,9 +1394,33 @@ MonoBehaviour:
       Name: Prime Curse
       Avatar: {fileID: -1888874408403687225, guid: 2ad6898d2901eef4c806cba29dfa4cd4, type: 3}
   - Lines:
-    - Content: Louriprime
-      Name: You have bested me
-      Avatar: {fileID: -1888874408403687225, guid: 2ad6898d2901eef4c806cba29dfa4cd4, type: 3}
+    - Content: NOOOOOOOOO
+      Name: Prime Curse
+      Avatar: {fileID: -2853024951006644297, guid: c33dfdafe4f9a774499d279e70e096b1, type: 3}
+    - Content: It...
+      Name: Prime Curse
+      Avatar: {fileID: -2853024951006644297, guid: c33dfdafe4f9a774499d279e70e096b1, type: 3}
+    - Content: Cannot...
+      Name: Prime Curse
+      Avatar: {fileID: -2853024951006644297, guid: c33dfdafe4f9a774499d279e70e096b1, type: 3}
+    - Content: Noo....
+      Name: Prime Curse
+      Avatar: {fileID: -2853024951006644297, guid: c33dfdafe4f9a774499d279e70e096b1, type: 3}
+    - Content: Is it finally over ?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: Did I really win ?
+      Name: Traveler
+      Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
+    - Content: Yes
+      Name: o
+      Avatar: {fileID: -4935250693920927086, guid: e1fbeddc956bdb44992f101500560ad7, type: 3}
+    - Content: Yes you did
+      Name: o
+      Avatar: {fileID: -4935250693920927086, guid: e1fbeddc956bdb44992f101500560ad7, type: 3}
+    - Content: And now maybe, we can finally start healing...
+      Name: o
+      Avatar: {fileID: -4935250693920927086, guid: e1fbeddc956bdb44992f101500560ad7, type: 3}
   dialogueCanvasGroup: {fileID: 2025724818}
   AvatarImage: {fileID: 1974727333}
   UIDialogue: {fileID: 2025724813}

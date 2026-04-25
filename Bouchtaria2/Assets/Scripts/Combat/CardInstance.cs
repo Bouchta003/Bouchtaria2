@@ -4134,7 +4134,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             target.CurrentEffect += " " + subEffect;
             return;
         }
-        // KEYWORD (quickstrike, taunt, etc.)
+        // KEYWORD (quickstrike, protect, etc.)
         if (!subEffect.Contains("("))
         {
             target.CurrentEffect += " " + subEffect;

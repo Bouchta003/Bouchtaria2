@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour
 {
     private const int LossGoldCompensation = 20;
     private const int WinGoldReward = 100;
+    private const int AdventureBossKillGoldBonus = 1000;
     private const int DungeonWinCoinReward = 30;
     private const float AdventureSecondPhaseDelaySeconds = 3f;
 
@@ -1267,6 +1268,7 @@ private sealed class PendingHandReturn
         if (TurnManager.Instance != null)
             TurnManager.Instance.enabled = false;
 
+        // Keep winLoseUI hidden until after the dialogue
         if (winLoseUI != null)
             winLoseUI.gameObject.SetActive(false);
 
@@ -1283,8 +1285,11 @@ private sealed class PendingHandReturn
         }
         else
         {
-            Debug.LogWarning("CombatDialogue.Instance is missing; skipping combat 15 dialogue.");
+            Debug.LogWarning("CombatDialogue.Instance is missing; skipping cutscene 15.");
         }
+
+        // Grant the boss kill bonus AFTER the cinematic, so it feels like a reward reveal
+        ModifyUserGold(AdventureBossKillGoldBonus);
 
         EndGame();
     }
@@ -2525,7 +2530,7 @@ private sealed class PendingHandReturn
         if (options.Count <= 2) return;
         isDiscovering = true;
         discoverDisplay.SetActive(true);
-        discoverLabel.text = "The prime curse commands you to choose !";
+        discoverLabel.text = "The prime cursed you\nThe effect is applied instantly";
         CardData data1 = options[UnityEngine.Random.Range(0, options.Count)];
         CardInstance dataInst1 = CardFactory.Instance.CreateCardInPosition(data1, PlayerOwner.Player, Vector3.zero, new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
         dataInst1.IsDisplay = true;
