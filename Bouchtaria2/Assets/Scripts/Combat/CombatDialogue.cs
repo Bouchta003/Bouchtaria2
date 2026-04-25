@@ -174,6 +174,18 @@ public class CombatDialogue : MonoBehaviour
     /// </summary>
     private void ResolveMusicAfterDialogue()
     {
+        if (MusicManager.Instance == null)
+            return;
+
+        // Final adventure boss dialogue (cutscene 15) should not restart / replay combat music
+        // after phase 2 is completed.
+        if (GameManager.Instance != null &&
+            GameManager.Instance.adventureBossFinalDialogueTriggered &&
+            !resumeCombatAfterDialogue)
+        {
+            return;
+        }
+
         if (adventureFightId != -1)
         {
             // Crossfade from the ducked track directly into the battle music.
