@@ -55,7 +55,7 @@ public class TurnManager : MonoBehaviour
 
     public void EndTurn()
     {
-        if (CurrentPhase != TurnPhase.Main)
+        if (CurrentPhase != TurnPhase.Main ||gameManager.isDiscovering)
             return;
         // inside TurnManager.EndTurn()
         if (gameManager.IsResolvingEffects)
@@ -175,6 +175,11 @@ public class TurnManager : MonoBehaviour
                 gameManager.GainMaxManaCapped(1, PlayerOwner.Enemy);
                 StartCoroutine(deckManager.Draw(1, PlayerOwner.Enemy));
             }
+        }
+        if (GameRunContext.IsAdventureCombat && CurrentPlayer == PlayerOwner.Player && GameManager.Instance.adventureBossSecondPhaseTriggered)
+        {
+            Debug.Log("CURSE");
+            gameManager.ApplyCurse();
         }
 
         // Immediately enter main phase

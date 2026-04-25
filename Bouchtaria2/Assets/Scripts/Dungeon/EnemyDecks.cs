@@ -542,100 +542,243 @@ public static class EnemyDecks
         {
             { 1, new List<int>
                 {
-                //Omri deck : Combo + add discard cards and omri that scales with discards. (14)
-                192,192,196,196,197,197,194,194,93,93,
+                //Omri : (30)
+                192,192,
+                196,196,
+                197,197,
+                194,194,
+                143,143,//Failnaught bows
+                158,158,//jour de fete
+                93,93,
                 302,302,//Gate Discard
                 309,309,//Omri complaint
                 47,47,//BBQ
+                355,355,//discarder
+                356,356,//samurai jack
+                357,357,//kogmaw
+                85,85,
+                85,85//Whatsapp
                 }
             },
             { 2, new List<int>
                 {
-                // Omar : Chaos central + add Omar staple + MH base (20)
-                128,128,166,166,286,286,305,305,//Omar DrBens and Qurupeco bensalmiserable
-                193,51,38,246,193,51,38,246,
-                181,181,/*Deviljho*/
+                // Omar : (30)
+                128,128,
+                166,166,
+                286,286,
+                305,305,//Omar DrBens and Qurupeco bensalmiserable
+                193,51,
+                38,246,
+                193,51,
+                38,246,
+                181,181,
+                346,346,
+                105,105,
+                104,104,//Deviljho Glavenus Arkveld and ReyDau
                 316,316,//Nago
+                332,243,//Slifer+gible
+                246,246,//Elder Dragon
                 }
             },
             { 3, new List<int>
                 {
-                // Othmane : Le D and friends + inazuma othmane mains (28 cards)
-                188,188,189,189,190,190,191,191,69,69,71,72,//Othmane cards and sonic core
+                // Othmane :(30 cards)
+                188,188,
+                189,69,
+                191,191,
+                71,72,//Othmane cards and sonic core
                 214,214,//Luigi
                 307,307,//Doukha Mania
-                317,317,318,318,//Mukla pyramad
-                68,68,68,68,58,58,//Faith and no more music
-                19,19,//Chimchar
+                317,317,//Mukla
+                287,287,//Soccer monster
+                354,354,//WeBallin
+                354,19,//Chimchar
+                68,68,
+                68,68,
+                58,58,//Faith and no more music
+                111,111,
+                60,60,//Tawakkul and duaa
                 }
             },
             { 4, new List<int>
                 {
-                // Amine : Fighter based deck with a berserk logic and charges. (18)
+                // Amine : . (30)
                 168,168,//Agni
-                183,183,184,184,185,185,186,186,187,187,209,209,//Amine Mains
-                299,299,300,300,//Vikingrr and Max
-                }
+                183,183,
+                184,184,
+                185,185,
+                186,186,
+                187,187,
+                209,209,//Amine Mains
+                299,299,
+                300,300,//Vikingrr and Max
+                165,165,//Holly
+                170,170,//Bursts
+                171,171,//Plata
+                36,319,//Greatsword+Lich king
+                88,88,//rainbow card
+                141,141,//lostvayne
+
+            }
             },
             { 5, new List<int>
                 {
-                //Adam : Bring back footballs in inazuma trait (14)
-                275,275,275,275,287,287,271,271,271,271,298,298,298,298,
+                //Adam :  (30)
+                275,275,//football
+                275,275,//football
+                287,287,
+                271,271,
+                271,271,
+                298,298,
+                298,298,
                 312,312,//short rose
+                358,358,//Alfonso
+                359,359,//Adam
+                353,353,//Chbakiya
+                354,354,//Weballin
+                266,266,//Daisuke
+                257,257,//Gouenji
+                259,259,//Fubuki
                 }
             },
             { 6, new List<int>
                 {
-                // Reda : Bring back redox and reda cards, combine faith and neutral for the rest of the archetype. Also add bowser and smash for more buffs.
-                269,269,270,270 //Reda/redox
+                // Reda :  30
+                269,269, //Reda
+                270,270, //Redox
+                269,270, //Reda redox en plus
+                227,227, //Bowser
+                111,111, //Tawakkul
+                162,162, //Gratitude
+                60,60, //duaa
+                63,63, //hijabi
+                67,67, //Awrah
+                106,106,
+                107,107,
+                108,108,//Faith warriors
+                145,145,//Adhan
+                58,58,//no more music
+                68,68,//dans ldin
+
                 }
             },
             { 7, new List<int>
-                {//Count 22
-                173,173,173,173,173,173,173,173,173,173,173,173,// o: Gunner+Fighter 
-                90,90,90,90,90,
-                91,91,91,//troll bouisk
+                {//o : Count 30
+                173,173,
+                173,173,
+                173,173,
+                173,173,
+                173,173,
+                173,173,
+                173,173,// o: Gunner+Fighter 
+                90,90,
+                90,90,
+                90,91,//Plata o pLomo
+                91,91,//troll bouisk
                 158,158,//Jour de fete
+                1,1,//La légende de twice
+                232,232,
+                234,234,//Poly et super poly
                 }
             },
             { 8, new List<int>
                 {
-                // Thibauld : Healer and food deck + thib cards with maxime medard and moroccan food.
-                272,272, //Thib
+                // Thibauld : (30)
+                272,272,//Thib
+                272,274, 
                 274,274, //Maxime M
-                352,352,352,352,
-                353,353,353,353
+                352,352,
+                352,352,
+                353,353,
+                353,353,//Chbakiya and briwat
+                214,215,//Mario and luigi
+                44,44,
+                47,47,//BouchtaBBQ and lasagna
+                51,51,
+                45,46,//Faust en rapport à la chanson
+                175,175,//Macho gym + fighter
+                169,169,//Smash ball for buffs
+                233,233,//Bissara
                 }
             },
             { 9, new List<int>
                 {
-                // Madre : Faith with big stats and taunts + resurrect. Give her her unique spell that will summon random taunts that cost a total of 25 for 10 mana.
-                //  La madre card (6 2 5 protect blessed) has +1+1 for each taunt in graveyard.
-                284,284,//madre card
+                // Madre : 30
+                284,284, //madre card
+                284,284, //madre card
+                110,110, //voice of dhikr
+                60,60,   //Duaa
+                60,60,   //Duaa
+                60,60,   //Duaa
+                60,60,   //Duaa
+                60,60,   //Duaa
+                276,276, //Rhita
+                63,63,//Hijabi
+                64,64,//Hijabi
+                363,363,//Inchaallah
+                229,229,//Ramadan
+                61,61,//Sadaqa
+                44,44,//Lasagna
                 }
             },
             { 10, new List<int>
                 {
-                // Sara : Strong card that self damag her hero but for big payout. in addition to healing and cinnamon cards.
-                283,283,282,282, //Sarito and Cinamoncops
-                304,306,306,304, //Sunday both forms
-                //Add tinkaton evolves when killing with rocks/boulders.
+                // Sara : 30
+                283,283,
+                54,54,//Dormis
+                282,282, //Sarito and Cinamoncops
+                304,306,
+                306,304, //Sunday both forms
+                175,213, //Machop and buzzwole
+                57,57,   //Snorlax
+                207,207, //Lucario
+                360,360, //Sara
+                44,44,   //Lasagna
+                365,365,//Tinkatink
+                231,231,//ultra ball
+                367,367,//Tinkaton
+                369,369,//Yazio
+                156,157,//Boyd and greatball
                 }
             },
             { 11, new List<int>
                 {
-                //Rhita : Cozy + Pokemon cards with the payoff of her signature card.
-                276,281, 276,281, //Rhita and rhita team
-                277,277,278,278,279,279,
+                //Rhita : 30
+                276,281, 
+                276,281, //Rhita and rhita team
+                280,280, //RhitaGAteau
+                277,277,
+                278,278,
+                279,279,
                 320,320, //Poukoupia
-                312,312, //Short rose
                 56,56,  //Wigglytuff
+                54,54,  //Dormis
+                44,44,   //Lasagna
+                47,47, //BBQ
+                8,8, //choupitout
+                324,324, //pneuma
+                52,52, //Blissey
+                361,361, //Rhitout
                 }
             },
             { 12, new List<int>
                 {
-                // Padre : Big monsters some faith cards, a lot of charges and his signature card, a huge 10  15 15 charge.
+                // Padre : 30.
                 285,285, //Padre card
+                285,362,//Padre prime *1
+                277,277, //Redox
+                241,241, //Great rod
+                241,241,//Great rod
+                241,241,//Great rod
+                241,241,//Great rod
+                241,241,//Great rod
+                233,233,//Bissara
+                363,363,//Inchaallah
+                106,106,//Sabr
+                145,145,//Adhan
+                107,107,//Protector of the ummah
+                328,328,//Huge banana
+                61,61,//Sadaqa
                 }
             },
             { 13, new List<int>
@@ -649,7 +792,6 @@ public static class EnemyDecks
             { 14, new List<int>
                 {
                 // ???: Prime curse).
-                
                 44, 44, 109, 109, 64, 64, 63, 63, 60, 60,
                 146, 146, 47, 47, 8, 8, 53, 53, 71, 71,
                 112, 112, 147, 147, 61, 61, 162, 162, 48, 48

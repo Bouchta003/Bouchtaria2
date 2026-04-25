@@ -41,8 +41,6 @@ public class AllyCardDropArea : MonoBehaviour, ICardDropArea
             return;
         }
         //SpellCast
-        //SpellCast
-        // Spell cast
         if (cardInst.Data.cardType == "spell")
         {
             if (cardInst.CurrentEffect.Contains("monsterpart"))

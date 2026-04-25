@@ -1308,6 +1308,29 @@ public class CardInstance : MonoBehaviour, IAttackable
                 TryExecuteHandBuffRandom(effect);
                 gameManager.CheckGlow(); continue;
             }
+            if (effect.StartsWith("undiscard"))
+            {
+                if (TryParseIntEffect(effect, "undiscard", out int undiscardCount))
+                {
+                    List<(PlayerOwner owner, int cardId)> history = gameManager.DiscardHistory;
+                    int returned = 0;
+                    for (int i = history.Count - 1; i >= 0 && returned < undiscardCount; i--)
+                    {
+                        var (discardOwner, cardId) = history[i];
+                        HandManager hand = discardOwner == PlayerOwner.Player
+                            ? gameManager.allyHand : gameManager.enemyHand;
+
+                        if (hand == null || hand.handCards.Count >= hand.maxHandSize)
+                            continue;
+
+                        gameManager.AddCardToHand(discardOwner, cardId);
+                        history.RemoveAt(i);
+                        returned++;
+                    }
+                    Debug.Log($"[undiscard] Returned {returned} card(s) to hand.");
+                }
+                gameManager.CheckGlow(); continue;
+            }
             if (effect.StartsWith("buffall"))
             {
                 (int atk, int hp) = GetTwoIntsFromEffect(effect);
@@ -1474,6 +1497,40 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("extraturn"))
         {
             GainExtraTurn();
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("thediscarder"))
+        {
+            int discards = gameManager.TotalDiscardsThisCombat;
+            if (discards > 0)
+            {
+                ModifyStats(discards, discards);
+                Debug.Log($"[thediscarder] {Data.name} gained +{discards}/+{discards} from {discards} discards.");
+            }
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("undiscard"))
+        {
+            if (TryParseIntEffect(effect, "undiscard", out int undiscardCount))
+            {
+                List<(PlayerOwner owner, int cardId)> history = gameManager.DiscardHistory;
+                // Iterate from most recent discard backwards
+                int returned = 0;
+                for (int i = history.Count - 1; i >= 0 && returned < undiscardCount; i--)
+                {
+                    var (discardOwner, cardId) = history[i];
+                    HandManager hand = discardOwner == PlayerOwner.Player
+                        ? gameManager.allyHand : gameManager.enemyHand;
+
+                    if (hand == null || hand.handCards.Count >= hand.maxHandSize)
+                        continue;
+
+                    gameManager.AddCardToHand(discardOwner, cardId);
+                    history.RemoveAt(i);
+                    returned++;
+                }
+                Debug.Log($"[undiscard] Returned {returned} card(s) to hand.");
+            }
             gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("unlockexcaliburprovisions"))
@@ -1687,7 +1744,15 @@ public class CardInstance : MonoBehaviour, IAttackable
                 gameManager.CheckGlow(); return false;
             }
         }
-
+        if (effect.StartsWith("enemydraw"))
+        {
+            if (TryParseIntEffect(effect, "enemydraw", out int cards))
+            {
+                deckManager.StartCoroutine(deckManager.Draw(cards, OtherPlayer(Owner)));
+                gameManager.CheckGlow();
+            }
+            return false;
+        }
         if (effect.StartsWith("draw"))
         {
             if (effect.StartsWith("draweffect"))
@@ -4730,6 +4795,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         CurrentAttack += atk;
         CurrentHealth += hp;
         CurrentMaxHealth += hp;
+        if (HasKeyword("princeloc")) { CurrentAttack++;CurrentMaxHealth++; CurrentHealth++; }
         if (CurrentAttack < 0) CurrentAttack = 0;
         if (CurrentHealth <= 0)
         {

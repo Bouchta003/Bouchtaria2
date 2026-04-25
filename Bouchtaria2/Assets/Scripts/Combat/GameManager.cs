@@ -120,6 +120,8 @@ public class GameManager : MonoBehaviour
     //Graveyard 
     public Graveyard PlayerGraveyard { get; private set; } = new();
     public Graveyard EnemyGraveyard { get; private set; } = new();
+    //Graveyard for discards
+    public readonly List<(PlayerOwner owner, int cardId)> DiscardHistory = new();
 
     public int PlayerFatigue = 0;
     public int EnemyFatigue = 0;
@@ -129,6 +131,7 @@ public class GameManager : MonoBehaviour
     public int EnemyRandomCount = 0;
     public int PlayerHealBonus = 0;
     public int EnemyHealBonus = 0;
+    public int TotalDiscardsThisCombat = 0;
     public bool PlayerDarkHeal = false;
     public bool EnemyDarkHeal = false;
     public bool DistortionWorld = false;
@@ -210,6 +213,7 @@ private sealed class PendingHandReturn
     PlayerOwner effectOwner;
     [Header("Discovery")]
     [SerializeField] public GameObject discoverDisplay;
+    [SerializeField] public TextMeshProUGUI discoverLabel;
     public bool isDiscovering;
     public int DiscoverDiscount;
     private int dungeonStartDrawBonus;
@@ -448,9 +452,11 @@ private sealed class PendingHandReturn
                 HealthBonus = healthBonus
             });
 
+            DiscardHistory.Add((owner, card.Data.id));
             hand.RemoveCardFromHand(go);
             Destroy(go);
             discardedCount++;
+            TotalDiscardsThisCombat++;
         }
 
         hand.UpdateCardPositions();
@@ -526,21 +532,19 @@ private sealed class PendingHandReturn
                 continue;
             }
 
+            CardInstance discarded = toRemove.GetComponent<CardInstance>();
+            if (discarded != null)
+                DiscardHistory.Add((targetHand.Owner, discarded.Data.id));
             targetHand.RemoveCardFromHand(toRemove);
             Destroy(toRemove);
             discardedCount++;
+            TotalDiscardsThisCombat++;
         }
 
         targetHand.UpdateCardPositions();
         return discardedCount;
     }
-    public CardInstance AddCardToHandWithBonuses(
-        PlayerOwner owner,
-        int id,
-        int manaModifier,
-        int attackBonus,
-        int healthBonus
-    )
+    public CardInstance AddCardToHandWithBonuses(PlayerOwner owner,int id,int manaModifier, int attackBonus,  int healthBonus    )
     {
         HandManager hand = owner == PlayerOwner.Player ? allyHand : enemyHand;
         if (hand == null || hand.handCards.Count >= hand.maxHandSize)
@@ -626,14 +630,24 @@ private sealed class PendingHandReturn
 
     void SetupAdventureFight(int battleId)
     {
-        if(battleId<9)
-            startingEnemyCoreHealth = 30;
-        else if(battleId<13)
-            startingEnemyCoreHealth = 50;
-        else
-            startingEnemyCoreHealth = 80;
-
         startingPlayerCoreHealth = 30;
+        if (battleId < 9)
+            startingEnemyCoreHealth = 30;
+        else if (battleId < 13)
+        {
+            startingPlayerCoreHealth = 40;
+            startingEnemyCoreHealth = 50;
+            EnemyCurrentMana++;
+            EnemyCurrentMaxMana++;
+        }
+        else
+        {
+            startingPlayerCoreHealth = 50;
+            startingEnemyCoreHealth = 80;
+            EnemyCurrentMana++;
+            EnemyCurrentMaxMana++;
+        }
+
         CombatDialogue.Instance.TriggerCutscene(battleId);
     }
     private void OnDestroy()
@@ -1124,14 +1138,19 @@ private sealed class PendingHandReturn
             }
         }
     }
-
     private void OnAllyTraitActivated(CardData.Trait trait, int tier)
     {
-        allyTraitUI.ActivateTrait(trait, tier);
+        if (allyTraitUI == null) return;
+        if (!allyTraitUI.gameObject) return; // destroyed check
+        try { allyTraitUI.ActivateTrait(trait, tier); }
+        catch (MissingReferenceException) { }
     }
     private void OnEnemyTraitActivated(CardData.Trait trait, int tier)
     {
-        enemyTraitUI.ActivateTrait(trait, tier);
+        if (enemyTraitUI == null) return;
+        if (!enemyTraitUI.gameObject) return; // destroyed check
+        try { enemyTraitUI.ActivateTrait(trait, tier); }
+        catch (MissingReferenceException) { }
     }
     #endregion
 
@@ -1185,6 +1204,25 @@ private sealed class PendingHandReturn
         }
 
         EndGame();
+    }
+    private void ClearEnemyBoard()
+    {
+        if (enemyDropArea == null) return;
+
+        foreach (GameObject cardGO in new List<GameObject>(enemyDropArea.enemyPrefabCards))
+        {
+            if (cardGO == null) continue;
+            CardInstance ci = cardGO.GetComponent<CardInstance>();
+            if (ci != null)
+            {
+                ci.IsDead = true;
+                ci.IsDying = true;
+            }
+            Destroy(cardGO);
+        }
+
+        enemyDropArea.enemyPrefabCards.Clear();
+        enemyDropArea.UpdateEnemyCardPositions();
     }
     private void ApplyPlayerWinRewardsAndProgression()
     {
@@ -1254,6 +1292,7 @@ private sealed class PendingHandReturn
     {
         Dictionary<CardData.Trait, int> savedEnemyProgress = SnapshotTraitProgress(PlayerOwner.Enemy);
         RemoveTraitProgressionsForOwner(PlayerOwner.Enemy);
+        ClearEnemyBoard();
         ClearEnemyHand();
         DiscardEnemyDeck();
         EnemyGraveyard = new Graveyard();
@@ -1263,7 +1302,10 @@ private sealed class PendingHandReturn
         SetupPlayerTraits(PlayerOwner.Enemy, deckManager.EnemyTraitsUnlockable, enemyTraitSystem);
         RestoreTraitProgress(PlayerOwner.Enemy, savedEnemyProgress);
         StartCoroutine(deckManager.Draw(5, PlayerOwner.Enemy));
+
+        // Force enemy turn after the dialogue resolves via the OnDialogueEnded callback
     }
+
     private void ClearEnemyHand()
     {
         if (enemyHand == null)
@@ -2476,6 +2518,30 @@ private sealed class PendingHandReturn
         updateLayout?.Invoke();
     }
 
+    public void ApplyCurse()
+    {
+        List<CardData> options = CardDatabase.Instance.GetCurse();
+
+        if (options.Count <= 2) return;
+        isDiscovering = true;
+        discoverDisplay.SetActive(true);
+        discoverLabel.text = "The prime curse commands you to choose !";
+        CardData data1 = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance dataInst1 = CardFactory.Instance.CreateCardInPosition(data1, PlayerOwner.Player, Vector3.zero, new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst1.IsDisplay = true;
+        dataInst1.GetComponent<SortingGroup>().sortingOrder = 201;
+        options.Remove(data1);
+        CardData data2 = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance dataInst2 = CardFactory.Instance.CreateCardInPosition(data2, PlayerOwner.Player, new Vector3(5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst2.IsDisplay = true;
+        dataInst2.GetComponent<SortingGroup>().sortingOrder = 201;
+        options.Remove(data2);
+        CardData data3 = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance dataInst3 = CardFactory.Instance.CreateCardInPosition(data3, PlayerOwner.Player, new Vector3(-5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst3.IsDisplay = true;
+        dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;
+        options.Remove(data3);
+    }
     public void Discover(int id1, int id2, int id3, PlayerOwner owner)
     {
         if(owner == PlayerOwner.Enemy)

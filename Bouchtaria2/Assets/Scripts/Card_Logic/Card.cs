@@ -103,6 +103,22 @@ public class Card : MonoBehaviour
             {
                 gameManager.isDiscovering = false; // lock FIRST
 
+                if (thisInstance.Data.cardType == "curse")
+                {
+                    // Destroy all discover cards first
+                    foreach (Transform child in gameManager.discoverDisplay.transform)
+                        Destroy(child.gameObject);
+
+                    gameManager.discoverDisplay.SetActive(false);
+                    gameManager.discoverLabel.text = "Choose a card !";
+
+                    // Execute the curse effect on the owner who picked it
+                    // (IsDisplay cards are always created as Player, so Owner is always Player here)
+                    thisInstance.OnPlaySpell();
+
+                    return;
+                }
+
                 if (gameManager.OwnerHasTrait(thisInstance.Owner, CardData.Trait.Faith, 2))
                     gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id, -(1+ gameManager.DiscoverDiscount));
                 else
@@ -121,9 +137,9 @@ public class Card : MonoBehaviour
                 return;
             }
             //Drag to play card
-            if (thisInstance.CurrentZone == CardZone.Hand && GetComponent<CardInstance>().Owner==PlayerOwner.Player)
+            if (thisInstance.CurrentZone == CardZone.Hand && GetComponent<CardInstance>().Owner == PlayerOwner.Player && !gameManager.isDiscovering)
             {
-                isDragging = true;isHovered = false;
+                isDragging = true; isHovered = false;
                 startDragPosition = transform.position;
                 transform.position = GetMousePositionInWorldSpace();
 

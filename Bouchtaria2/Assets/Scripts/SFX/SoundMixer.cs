@@ -31,7 +31,9 @@ public class SoundMixer : MonoBehaviour
 
     private void SetVolume(string mixerParameter, string prefKey, float level)
     {
-        float db = Mathf.Log10(level) * 20f;
+        float clampedLevel = Mathf.Clamp(level, 0.0001f, 1f); // prevent 0
+        float db = Mathf.Log10(clampedLevel) * 20f;
+
         audioMixer.SetFloat(mixerParameter, db);
 
         PlayerPrefs.SetFloat(prefKey, level);
