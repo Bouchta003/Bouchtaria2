@@ -32,15 +32,26 @@ public class AudioSystem : MonoBehaviour
         if (SceneManager.GetActiveScene().name == "Firebase") MenuButton.SetActive(false);
         else MenuButton.SetActive(true);
     }
+    private Vector2Int _windowedResolution = new Vector2Int(1920, 1080);
+
     public void ToggleFullscreen()
     {
         if (Screen.fullScreenMode == FullScreenMode.Windowed)
         {
-            Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+            // Save current windowed size before going fullscreen
+            _windowedResolution = new Vector2Int(Screen.width, Screen.height);
+
+            // Use the native desktop resolution for fullscreen — no zoom, no stretch
+            Resolution native = Screen.currentResolution;
+            Screen.SetResolution(native.width, native.height, FullScreenMode.FullScreenWindow);
         }
         else
         {
-            Screen.fullScreenMode = FullScreenMode.Windowed;
+            // Restore the exact windowed resolution we had before
+            Screen.SetResolution(
+                _windowedResolution.x,
+                _windowedResolution.y,
+                FullScreenMode.Windowed);
         }
     }
     public void MainMenu()
