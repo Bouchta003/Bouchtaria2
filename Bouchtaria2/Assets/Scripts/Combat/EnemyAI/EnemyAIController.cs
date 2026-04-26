@@ -628,6 +628,20 @@ public class EnemyAIController : MonoBehaviour
         if (EnemyHasBoardAdvantage() && (effect.Contains("wipeboard") || effect.Contains("tawakkul")))
             return false;
         // Don't silence if no player unit has a meaningful effect
+        if (effect.Contains("sleepall") && allyBoard.allyPrefabCards.Count == 0)
+            return false;
+
+        // Don't silenceall if no player unit has a meaningful effect worth silencing
+        if (effect.Contains("silenceall"))
+        {
+            bool anyEffectful = allyBoard.allyPrefabCards.Any(go => {
+                if (go == null) return false;
+                CardInstance ci = go.GetComponent<CardInstance>();
+                return ci != null && !ci.IsDead && !string.IsNullOrEmpty(ci.CurrentEffect);
+            });
+            if (!anyEffectful) return false;
+        }
+
         if (effect.Contains("silence") && !effect.Contains("silenceall"))
         {
             bool hasEffectfulTarget = gameManager.GetValidTargets(PlayerOwner.Player)
@@ -1190,23 +1204,37 @@ public class EnemyAIController : MonoBehaviour
 
         return true;
     }
-
     private int EvaluateMinion(CardInstance minion)
     {
         int value = 0;
+        bool enemyCoreIsCritical = gameManager.EnemyCore.CurrentHealth <= 8;
+        bool boardUnderPressure = EvaluateAllyBoardThreat() >= 10;
 
         value += minion.CurrentAttack * 2;
         value += minion.CurrentHealth;
 
-        if (minion.HasKeyword("protect")) value += 10;
-        if (minion.HasKeyword("haste")) value += 5;
-        if (minion.HasKeyword("quickstrike")) value += 10;
+        // Protect is extremely valuable when survival matters
+        if (minion.HasKeyword("protect"))
+            value += (enemyCoreIsCritical || boardUnderPressure) ? 30 : 10;
+
+        // Haste is less relevant when we need to survive — prefer bulk
+        if (minion.HasKeyword("haste"))
+            value += enemyCoreIsCritical ? 2 : 5;
+
+        if (minion.HasKeyword("s[")) value += 5;
+
+        // High-health units are more valuable under pressure — they survive trades
+        if (boardUnderPressure && minion.CurrentHealth >= 5)
+            value += 8;
+
+        // Fragile units played into a threatening board just die immediately
+        if (boardUnderPressure && minion.CurrentHealth <= 2 && !minion.HasKeyword("haste"))
+            value -= 10;
 
         value -= minion.CurrentManaCost;
 
         return value;
     }
-
     private IEnumerator TrySummon()
     {
         while (true)
@@ -1403,11 +1431,18 @@ public class EnemyAIController : MonoBehaviour
             {
                 score += 45;
 
-                // If there is no major threat to answer, push face damage.
-                if (!hasMajorThreat)
+                // If enemy core is critically low, prefer defensive trades over face damage
+                bool enemyCoreIsCritical = gameManager.EnemyCore.CurrentHealth <= 8;
+
+                // Only push face when there's no major threat AND we're not in survival mode
+                if (!hasMajorThreat && !enemyCoreIsCritical)
                     score += 180;
 
-                // If this exact hit is lethal, prioritize it heavily.
+                // If we're critical, heavily deprioritize going face — survive first
+                if (enemyCoreIsCritical && hasMajorThreat)
+                    score -= 200;
+
+                // If this exact hit is lethal, always prioritize it
                 if (attacker.CurrentAttack >= gameManager.PlayerCore.CurrentHealth)
                     score += 10000;
 

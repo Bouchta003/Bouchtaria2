@@ -2578,6 +2578,7 @@ private sealed class PendingHandReturn
                 if (randintDisc == 1) AddCardToHand(PlayerOwner.Enemy, id2,-1);
                 if (randintDisc == 2) AddCardToHand(PlayerOwner.Enemy, id3,-1);
                 if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
+                OnDiscover?.Invoke(owner);
                 return;
             }
             int randint = UnityEngine.Random.Range(0, 3);
@@ -2585,6 +2586,7 @@ private sealed class PendingHandReturn
             if (randint == 1) AddCardToHand(PlayerOwner.Enemy, id2);
             if (randint == 2) AddCardToHand(PlayerOwner.Enemy, id3);
             if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
+            OnDiscover?.Invoke(owner);
             return;
         }
         isDiscovering = true;
@@ -2623,6 +2625,7 @@ private sealed class PendingHandReturn
         {
             if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
             {
+                OnDiscover?.Invoke(owner);
                 int numb = UnityEngine.Random.Range(0, 3);
                 switch (numb)
                 {
@@ -2635,7 +2638,6 @@ private sealed class PendingHandReturn
                     case 2:
                         AddCardToHand(PlayerOwner.Enemy, options3[UnityEngine.Random.Range(0, options3.Count)].id, -1);
                         if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner); return;
-
                 }
             }
             else
@@ -2689,7 +2691,8 @@ private sealed class PendingHandReturn
         if (options.Count <= 0) return;
         if (owner == PlayerOwner.Enemy)
         {
-            if(OwnerHasTrait(owner, CardData.Trait.Faith, 2))
+            OnDiscover?.Invoke(owner);
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
             {
                 AddCardToHand(PlayerOwner.Enemy, options[UnityEngine.Random.Range(0, options.Count)].id,-1);
                 if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
@@ -2735,6 +2738,7 @@ private sealed class PendingHandReturn
         if (options.Count <= 0) return;
         if (owner == PlayerOwner.Enemy)
         {
+            OnDiscover?.Invoke(owner);
             if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
             {
                 AddCardToHand(PlayerOwner.Enemy, options[UnityEngine.Random.Range(0, options.Count)].id, -1);
@@ -2779,7 +2783,7 @@ private sealed class PendingHandReturn
 
             if (OwnerHasTrait(owner, CardData.Trait.Faith, 3))
                 GainMana(1, owner);
-
+            OnDiscover?.Invoke(owner);
             return;
         }
 
@@ -2821,6 +2825,7 @@ private sealed class PendingHandReturn
         if (options.Count <= 0) return;
         if (owner == PlayerOwner.Enemy)
         {
+            OnDiscover?.Invoke(owner);
             if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
             {
                 AddCardToHand(PlayerOwner.Enemy, options[UnityEngine.Random.Range(0, options.Count)].id, -(manaDiscount)-1);
@@ -2865,6 +2870,7 @@ private sealed class PendingHandReturn
         if (options.Count <= 0) return;
         if (owner == PlayerOwner.Enemy)
         {
+            OnDiscover?.Invoke(owner);
             if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
             {
                 AddCardToHand(PlayerOwner.Enemy, options[UnityEngine.Random.Range(0, options.Count)].id, -1);
@@ -2987,7 +2993,7 @@ private sealed class PendingHandReturn
 
             if (OwnerHasTrait(owner, CardData.Trait.Faith, 3))
                 GainMana(1, owner);
-
+            OnDiscover?.Invoke(owner);
             return;
         }
 
