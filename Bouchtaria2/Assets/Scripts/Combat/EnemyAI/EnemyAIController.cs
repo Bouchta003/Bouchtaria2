@@ -157,7 +157,18 @@ public class EnemyAIController : MonoBehaviour
         // Attacks
         yield return StartCoroutine(TryAttack());
         yield return StartCoroutine(WaitForEffectsToSettle());
-        yield return StartCoroutine(TryAttack());
+
+        // Second pass only if new attackers might have appeared (e.g. post-combat summons)
+        bool hasUnusedAttackers = enemyBoard.enemyPrefabCards.Any(go => {
+            if (go == null) return false;
+            CardInstance ci = go.GetComponent<CardInstance>();
+            return ci != null && gameManager.CanSelectAttacker(ci);
+        });
+        if (hasUnusedAttackers)
+        {
+            yield return StartCoroutine(TryAttack());
+            yield return StartCoroutine(WaitForEffectsToSettle());
+        }
         yield return StartCoroutine(WaitForEffectsToSettle());
 
         // If combat created new strategic value (e.g. a post-combat summon), try once more.
@@ -174,12 +185,20 @@ public class EnemyAIController : MonoBehaviour
         int score = 0;
         string effect = spell.CurrentEffect.ToLowerInvariant();
 
-        // Damage spells are highly valuable, and even more valuable when they can clear units.
-        if (effect.Contains("damage"))
+        // Damage — single target only (aoe handled separately below)
+        if (effect.Contains("damage") && !effect.Contains("damageaoe") && !effect.Contains("damagerandomenemy"))
         {
             score += 40;
             if (allyBoard.allyPrefabCards.Count > 0) score += 10;
         }
+
+        // Sleep — single target only (sleepall handled below)
+        if (effect.Contains("sleep") && !effect.Contains("sleepall"))
+            score += 20 + EvaluateAllyBoardThreat() / 4;
+
+        // Sleepall — separate scoring
+        if (effect.Contains("sleepall"))
+            score += 15 + allyBoard.allyPrefabCards.Count * 12;
 
         if (effect.Contains("buff"))
             score += enemyBoard.enemyPrefabCards.Count * 10;
@@ -224,10 +243,6 @@ public class EnemyAIController : MonoBehaviour
             });
             score += 20 + effectfulUnits * 10;
         }
-
-        // Sleep — high value against high-attack units
-        if (effect.Contains("sleep"))
-            score += 20 + EvaluateAllyBoardThreat() / 4;
 
         // Wipeboard — massive swing, scale with board size difference
         if (effect.Contains("wipeboard") || effect.Contains("scrambleallstats"))
@@ -483,30 +498,24 @@ public class EnemyAIController : MonoBehaviour
             return;
 
         string cardType = card.Data.cardType.ToLowerInvariant();
-
         if (cardType == "spell")
         {
             if (!CanEnemyActuallyCastSpell(card))
                 return;
 
+            int spellScore = EvaluateSpell(card); // compute once
             current.Add(new PlannedAction
             {
                 Type = PlannedActionType.Spell,
                 Card = card,
-                Score = EvaluateSpell(card)
+                Score = spellScore
             });
 
             BuildBestPlanDfs(
-                candidates,
-                index + 1,
-                initialMana,
-                manaLeft - card.CurrentManaCost,
-                freeSlots,
-                current,
-                currentScore + EvaluateSpell(card),
-                ref bestScore,
-                ref bestManaSpent,
-                ref bestPlan);
+                candidates, index + 1, initialMana,
+                manaLeft - card.CurrentManaCost, freeSlots,
+                current, currentScore + spellScore,
+                ref bestScore, ref bestManaSpent, ref bestPlan);
 
             current.RemoveAt(current.Count - 1);
         }
@@ -1220,8 +1229,8 @@ public class EnemyAIController : MonoBehaviour
         // Haste is less relevant when we need to survive — prefer bulk
         if (minion.HasKeyword("haste"))
             value += enemyCoreIsCritical ? 2 : 5;
-
-        if (minion.HasKeyword("s[")) value += 5;
+        // Reward units with on-strike effects — they generate value every attack
+        if (minion.CurrentEffect != null && minion.CurrentEffect.Contains("s[")) value += 5;
 
         // High-health units are more valuable under pressure — they survive trades
         if (boardUnderPressure && minion.CurrentHealth >= 5)
@@ -1452,28 +1461,24 @@ public class EnemyAIController : MonoBehaviour
             // UNIT
             else if (target is CardInstance unit)
             {
-                // Prefer exact value trades (atk == hp), then normal favorable trades.
-                if (attacker.CurrentAttack == unit.CurrentHealth)
-                    score += 220;
-                else if (attacker.CurrentAttack > unit.CurrentHealth)
-                    score += 80;
-                else
-                    score -= 30;
+                bool attackerDies = unit.CurrentAttack >= attacker.CurrentHealth;
+                bool killsTarget = attacker.CurrentAttack >= unit.CurrentHealth;
 
-                if (unit.HasKeyword("protect"))
-                    score += 30;
+                if (killsTarget && !attackerDies) score += 250; // clean kill, we survive
+                else if (killsTarget && attackerDies) score += 120; // trade — remove a threat
+                else if (!killsTarget && !attackerDies) score -= 20;  // chip, we live
+                else score -= 80;  // suicide for nothing
 
-                if (unit.HasKeyword("quickstrike"))
-                    score += 18;
+                // Quickstrike kills first regardless — treat as clean kill if it finishes the unit
+                if (unit.HasKeyword("quickstrike") && !attacker.HasKeyword("quickstrike"))
+                    score += 15; // they'd hit first, riskier to attack them
 
-                if (unit.CurrentAttack > attacker.CurrentHealth)
-                    score -= 10;
+                if (unit.HasKeyword("protect")) score += 40; // must kill protect units
+                if (unit.HasKeyword("haste")) score += 100; // must answer haste immediately
+                if (unit.HasKeyword("blessed")) score += 15;  // costs 2 hits normally
 
-                if (unit.HasKeyword("haste"))
-                    score += 100;
-
-                score += unit.CurrentAttack;
-                score += Mathf.Max(0, unit.CurrentAttack - unit.CurrentHealth / 2);
+                // Reward removing high-attack threats
+                score += unit.CurrentAttack * 2;
             }
 
             if (score > bestScore)

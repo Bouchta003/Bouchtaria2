@@ -33,7 +33,7 @@ public class AudioSystem : MonoBehaviour
         else MenuButton.SetActive(true);
     }
     private Vector2Int _windowedResolution = new Vector2Int(1920, 1080);
-
+    
     public void ToggleFullscreen()
     {
         if (Screen.fullScreenMode == FullScreenMode.Windowed)
@@ -57,12 +57,44 @@ public class AudioSystem : MonoBehaviour
     public void MainMenu()
     {
         TogglePause();
+
+        // Treat leaving mid-game as a forfeit for both adventure and dungeon
+        bool gameStillInProgress = GameManager.Instance != null &&
+                                   GameManager.Instance.CurrentGameState == GameState.Playing;
+
+        if (gameStillInProgress && GameRunContext.IsAdventureCombat)
+        {
+            AdventureProgressionService.SetAdventureCombatActive(false);
+            AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false);
+        }
+
         if (GameRunContext.IsDungeonRun)
         {
             DungeonManager.Instance.ConcedeRun();
+            DungeonManager.SetDungeonCombatActive(false);
             GameFlowController.Instance.GoToDungeon();
+            return;
         }
-        else
-            GameFlowController.Instance.GoToMainMenu();
+
+        GameFlowController.Instance.GoToMainMenu();
+    }
+
+    private void OnApplicationQuit()
+    {
+        bool gameStillInProgress = GameManager.Instance != null &&
+                                   GameManager.Instance.CurrentGameState == GameState.Playing;
+        if (!gameStillInProgress) return;
+
+        if (GameRunContext.IsAdventureCombat)
+        {
+            AdventureProgressionService.SetAdventureCombatActive(false);
+            AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false);
+        }
+
+        if (GameRunContext.IsDungeonRun)
+        {
+            DungeonManager.Instance?.ConcedeRun();
+            DungeonManager.SetDungeonCombatActive(false);
+        }
     }
 }

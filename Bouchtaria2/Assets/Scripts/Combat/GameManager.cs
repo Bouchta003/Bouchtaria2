@@ -663,6 +663,33 @@ private sealed class PendingHandReturn
             TurnManager.Instance.OnTurnStarted -= HandleTurnStartedForPendingHandReturns;
             TurnManager.Instance.OnTurnEnded -= HandleTurnEnded;
         }
+
+        HandleMidGameAbandon();
+    }
+
+    /// <summary>
+    /// Called when GameManager is destroyed (scene change or app quit) while a game
+    /// is still in progress. Treats this as a forfeit for adventure and dungeon modes.
+    /// </summary>
+    private void HandleMidGameAbandon()
+    {
+        // Only act if the game was still ongoing — normal win/loss already cleaned up
+        if (CurrentGameState != GameState.Playing)
+            return;
+
+        if (GameRunContext.IsAdventureCombat)
+        {
+            // adventureCombatActive in DB signals an unfinished fight — count as a loss
+            AdventureProgressionService.SetAdventureCombatActive(false);
+            AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false);
+        }
+
+        if (GameRunContext.IsDungeonRun)
+        {
+            // Concede clears the run state cleanly just like pressing Concede in the pause menu
+            DungeonManager.Instance?.ConcedeRun();
+            DungeonManager.SetDungeonCombatActive(false);
+        }
     }
     // Update is called once per frame
     void Update()

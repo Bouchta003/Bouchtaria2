@@ -71,7 +71,7 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Speedster, new[] { 4,8,12 } },
             { CardData.Trait.Fighter, new[] { 4, 8, 15 } },
             { CardData.Trait.Gunner, new[] { 4,8,12 } },
-            { CardData.Trait.Faith, new[] { 4,8,10 } },
+            { CardData.Trait.Faith, new[] { 4,8,12 } },
             { CardData.Trait.Avatar, new[] { 4, 8, 12 } },
             { CardData.Trait.Combo, new[] { 4, 8,12 } },
             { CardData.Trait.Healer, new[] { 4, 8, 12 } },

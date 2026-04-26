@@ -766,7 +766,7 @@ public static class EnemyDecks
                 // Padre : 30.
                 285,285, //Padre card
                 285,362,//Padre prime *1
-                277,277, //Redox
+                270,270, //Redox
                 241,241, //Great rod
                 241,241,//Great rod
                 241,241,//Great rod
