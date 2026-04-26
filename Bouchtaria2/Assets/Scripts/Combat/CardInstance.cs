@@ -2946,9 +2946,20 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (!TryParseIntEffect(effect, "summon", out int cardId))
             return;
-        
+
+        // summoncopy(n) — summon ONE copy of this card with n/n stats
         if (effect.StartsWith("summoncopy("))
-        { gameManager.TrySummonForOwner(Owner, Data.id, setAtk: cardId, setHp: cardId); return; }
+        {
+            if (!TryParseIntEffect(effect, "summoncopy", out int statValue) || statValue <= 0)
+                return;
+
+            gameManager.TrySummonForOwner(
+                Owner,
+                Data.id,
+                setAtk: statValue,
+                setHp: statValue);
+            return;
+        }
         // DEPLOY is pre-validated at play time. If there are fewer slots than declared
         // summons, consume only the allowed summon budget and skip the rest.
         if (currentResolvingTrigger == EffectTrigger.Deploy

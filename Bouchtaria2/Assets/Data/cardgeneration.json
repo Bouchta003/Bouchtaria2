@@ -2740,7 +2740,7 @@
       "id": 168,
       "name": "Agni",
       "cardType": "minion",
-      "manaCost": 6,
+      "manaCost": 7,
       "atkValue": 6,
       "hpValue": 6,
       "traits": [ "Fighter" ],

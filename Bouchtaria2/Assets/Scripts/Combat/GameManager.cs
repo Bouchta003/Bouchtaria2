@@ -302,7 +302,9 @@ private sealed class PendingHandReturn
         PlayerCore.GetComponent<CoreView>().Bind(PlayerCore);
         EnemyCore.GetComponent<CoreView>().Bind(EnemyCore);
 
-        //Start turn logic
+        // if SetupFirstTurn is called more than once (e.g. after a cutscene).
+        TurnManager.Instance.OnTurnStarted -= HandleTurnStart;
+        TurnManager.Instance.OnTurnEnded -= HandleTurnEnded;
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
         TurnManager.Instance.OnTurnEnded += HandleTurnEnded;
         TurnManager.Instance.StartFirstTurn();
@@ -319,9 +321,11 @@ private sealed class PendingHandReturn
             progression.ResetProgression();
             progression.PushInitialState();
         }
-
         if (TurnManager.Instance != null)
+        {
+            TurnManager.Instance.OnTurnStarted -= HandleTurnStartedForPendingHandReturns;
             TurnManager.Instance.OnTurnStarted += HandleTurnStartedForPendingHandReturns;
+        }
     }
     private void HandleTurnStartedForPendingHandReturns(PlayerOwner owner)
     {
@@ -1916,7 +1920,16 @@ private sealed class PendingHandReturn
             {
                 cardInst.CurrentHealth = 1;
             }
-        }
+            if (setAtk > -1)
+            {
+                cardInst.CurrentAttack = setAtk;
+            }
+            if (setHp > -1)
+            {
+                cardInst.CurrentMaxHealth = setHp;
+                cardInst.CurrentHealth = setHp;
+            }
+    }
 
         // Verify the card was actually added to board list (AddSummonedCard may early-return when full)
         bool actuallyAdded = parent.GetCards().Contains(cardInst.gameObject);
