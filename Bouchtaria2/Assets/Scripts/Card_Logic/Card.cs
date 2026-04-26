@@ -137,8 +137,9 @@ public class Card : MonoBehaviour
                 return;
             }
             //Drag to play card
-            if (thisInstance.CurrentZone == CardZone.Hand && GetComponent<CardInstance>().Owner == PlayerOwner.Player && !gameManager.isDiscovering)
-            {
+            if(thisInstance.CurrentZone == CardZone.Hand && GetComponent<CardInstance>().Owner == PlayerOwner.Player
+            && !gameManager.isDiscovering && gameManager.CurrentGameState == GameState.Playing)
+        {
                 isDragging = true; isHovered = false;
                 startDragPosition = transform.position;
                 transform.position = GetMousePositionInWorldSpace();

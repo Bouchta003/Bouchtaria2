@@ -475,8 +475,8 @@ public class SoulForceProgression : ITraitProgression
     {
         return CurrentTier switch
         {
-            0 => 4,
-            1 => 8,
+            0 => 3,
+            1 => 6,
             2 => 12,
             _ => 999
         };
@@ -506,10 +506,10 @@ public class SoulForceProgression : ITraitProgression
         if (CurrentTier >= 1 && soulsCollectedThisTurn == 1)
             DiscountRandomCardInHand();
 
-        if (soulsCollected >= 4 && CurrentTier < 1 && maxTier >= 1)
+        if (soulsCollected >= 3 && CurrentTier < 1 && maxTier >= 1)
             UnlockTier1();
 
-        if (soulsCollected >= 8 && CurrentTier < 2 && maxTier >= 2)
+        if (soulsCollected >= 6 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2();
 
         if (soulsCollected >= 12 && CurrentTier < 3 && maxTier >= 3)
@@ -2957,7 +2957,7 @@ public class AvatarProgression : ITraitProgression
         if (praiseCount >= 8 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2();
 
-        if (praiseCount >= 15 && CurrentTier < 3 && maxTier >= 3)
+        if (praiseCount >= 12 && CurrentTier < 3 && maxTier >= 3)
             UnlockTier3();
     }
     private void UnlockTier1()
@@ -2981,7 +2981,7 @@ public class AvatarProgression : ITraitProgression
         {
             0 => 4,
             1 => 8,
-            2 => 15,
+            2 => 12,
             3 => 9999,
             _ => 9999,
         };
@@ -3882,7 +3882,7 @@ public class CozyProgression : ITraitProgression
         {
             0 => 3,
             1 => 6,
-            2 => 12,
+            2 => 10,
             _ => 9999
         };
     }
@@ -3907,7 +3907,7 @@ public class CozyProgression : ITraitProgression
             UnlockTier1();
         if (cozySkippedAttacks >= 6 && CurrentTier < 2 && maxTier >= 2)
             UnlockTier2();
-        if (cozySkippedAttacks >= 12 && CurrentTier < 3 && maxTier >= 3)
+        if (cozySkippedAttacks >= 10 && CurrentTier < 3 && maxTier >= 3)
             UnlockTier3();
     }
 

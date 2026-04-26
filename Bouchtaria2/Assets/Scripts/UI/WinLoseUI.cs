@@ -56,7 +56,7 @@ public class WinLoseUI : MonoBehaviour
         if (GameRunContext.IsAdventureCombat && GameManager.Instance.adventureBossSecondPhaseTriggered)
         {
             restartBtn.SetActive(false);
-            Setup("VICTORY", Color.green, "You completed Bouchtaria 1, but remember this was only the prequel. The true story hasn't even begun !");
+            Setup("VICTORY", Color.green, "You completed Bouchtaria 1, but remember this was only the prequel. The true story hasn't even begun !\n(+2000 Gold btw you deserve it)");
             SFXManager.Instance.PlaySFXClip(GameManager.Instance.winSFX[i], transform, 1f);
             return;
         }

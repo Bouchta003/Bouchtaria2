@@ -55,7 +55,10 @@ public class TurnManager : MonoBehaviour
 
     public void EndTurn()
     {
-        if (CurrentPhase != TurnPhase.Main ||gameManager.isDiscovering)
+        if (CurrentPhase != TurnPhase.Main || gameManager.isDiscovering)
+            return;
+
+        if (gameManager.CurrentGameState != GameState.Playing)
             return;
         // inside TurnManager.EndTurn()
         if (gameManager.IsResolvingEffects)
@@ -164,6 +167,11 @@ public class TurnManager : MonoBehaviour
             if (CurrentPlayer == PlayerOwner.Player) PlayerChaosEventCount++;
             else EnemyChaosEventCount++;
         }
+        // NOW the turn officially starts
+        // Abort if game ended during chaos/setup phase
+        if (gameManager.CurrentGameState != GameState.Playing)
+            yield break;
+
         // NOW the turn officially starts
         OnTurnStarted?.Invoke(CurrentPlayer);
 

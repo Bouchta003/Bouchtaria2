@@ -789,7 +789,7 @@ public static class EnemyDecks
                 285,361,//PapaRhita
                 360,284,//SaraMama
                 343,343,//Vulcan
-                332,331,//Slifer+Aegislash
+                332,368,//Slifer+Aegislash
                 292,292,//Soul Eater
                 291,291,
                 293,293,

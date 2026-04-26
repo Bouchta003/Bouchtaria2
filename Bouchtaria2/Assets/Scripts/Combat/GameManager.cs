@@ -1169,6 +1169,10 @@ private sealed class PendingHandReturn
         if (CurrentGameState != GameState.Playing)
             return; // prevent double fire
 
+        // Freeze the turn system immediately — before any coroutine or dialogue
+        // so the AI cannot start a new turn while a cutscene or transition plays.
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.enabled = false;
         if (owner == PlayerOwner.Player)
         {
             CurrentGameState = GameState.PlayerLost;
@@ -1301,6 +1305,9 @@ private sealed class PendingHandReturn
         ClearEnemyHand();
         DiscardEnemyDeck();
         EnemyGraveyard = new Graveyard();
+        PlayerFatigue = 0;
+        EnemyFatigue = 0;
+        PlayerCore.Heal(10);
         ReplaceEnemyDeckFromAdventureDeck(adventureDeckId);
         deckManager.RefreshUnlockableTraitsForOwner(PlayerOwner.Enemy);
         enemyTraitUI.DetectTraitBorder();

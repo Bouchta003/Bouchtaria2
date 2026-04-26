@@ -2072,7 +2072,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             TryExecuteHandBuffRandom(effect);
             gameManager.CheckGlow(); return false;
         }
-        Debug.LogError($"Unknown effect '{effect}' on card {Data.name}");
+        Debug.LogWarning($"Unknown effect '{effect}' on card {Data.name}");
         return false;
     }
 
@@ -3592,6 +3592,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
             return randomTarget;
         }
+        if (TryParseIntEffect(effect, "damagerandomenemy", out int zeroCheck) && zeroCheck <= 0) return;
 
         if (!TryParseIntEffect(effect, "damagerandomenemy", out int amount))
         {

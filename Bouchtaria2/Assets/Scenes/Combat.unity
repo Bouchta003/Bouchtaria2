@@ -911,25 +911,25 @@ MonoBehaviour:
   - Lines:
     - Content: YOU. FIGHT. NOW.
       Name: Amine
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -5972947456163455152, guid: ff9c7d9bc0d1d8646b951c97016eb574, type: 3}
     - Content: Hello to you too.
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: NO TALK. ONLY BATTLE.
       Name: Amine
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -5972947456163455152, guid: ff9c7d9bc0d1d8646b951c97016eb574, type: 3}
     - Content: You don't waste time huh ?
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: BALLING. BLOOD. BATTLE. VICTORY!
       Name: Amine
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -5972947456163455152, guid: ff9c7d9bc0d1d8646b951c97016eb574, type: 3}
     - Content: "I\u2019m starting to see a pattern."
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: 'ENOUGH! '
       Name: Amine
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -5972947456163455152, guid: ff9c7d9bc0d1d8646b951c97016eb574, type: 3}
     - Content: "Alright, alright\u2014message received."
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
@@ -959,29 +959,29 @@ MonoBehaviour:
   - Lines:
     - Content: "Peace be upon you\u2026 though peace has long left this place."
       Name: Reda
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 4733428613458459727, guid: 5e29f6784353405439d82d8f5d1d2c05, type: 3}
     - Content: "You don\u2019t sound like the others."
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: I remember what we were. That is my burden.
       Name: Reda
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 4733428613458459727, guid: 5e29f6784353405439d82d8f5d1d2c05, type: 3}
     - Content: Then you know this must end.
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: "Yes\u2026 but I will not give up this easily."
       Name: Reda
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 4733428613458459727, guid: 5e29f6784353405439d82d8f5d1d2c05, type: 3}
     - Content: I won't either !
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: He was once good you know. I want to believe there is still some light
         within *Him*
       Name: Reda
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 4733428613458459727, guid: 5e29f6784353405439d82d8f5d1d2c05, type: 3}
     - Content: "\u2026May your light be stronger than his darkness."
       Name: Reda
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 4733428613458459727, guid: 5e29f6784353405439d82d8f5d1d2c05, type: 3}
   - Lines:
     - Content: I guess you're next show me what you got !
       Name: Traveler
@@ -1107,72 +1107,69 @@ MonoBehaviour:
   - Lines:
     - Content: "Stop. Whatever you think you\u2019re here to do\u2026 let it go."
       Name: Sara
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 5341055476614573769, guid: 1a46c689d07e6b84da54059fea52cacd, type: 3}
     - Content: "I\u2019m not turning back."
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: "Then understand this first\u2014you cannot save him."
       Name: Sara
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 5341055476614573769, guid: 1a46c689d07e6b84da54059fea52cacd, type: 3}
     - Content: People seem to disagree on this.
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: Well it's true, you cannot help him.
       Name: Sara
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 5341055476614573769, guid: 1a46c689d07e6b84da54059fea52cacd, type: 3}
     - Content: "There\u2019s always a way."
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: Yes, but you're not it. If he wants to move on he needs to do it himself.
-      Name: La Mama
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Name: Sara
+      Avatar: {fileID: 5341055476614573769, guid: 1a46c689d07e6b84da54059fea52cacd, type: 3}
     - Content: "You\u2019ve given up on him?"
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: No. I believe in him more than anyone. But He chose this path.
       Name: Sara
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -6913559321456108616, guid: 5a1ea12e073c8aa459a929147fdcf8f6, type: 3}
     - Content: "No one chooses to become\u2026 that."
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: He chose to carry everything. For us. For this kingdom. For people
         like me.
       Name: Sara
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -6913559321456108616, guid: 5a1ea12e073c8aa459a929147fdcf8f6, type: 3}
     - Content: "And now he\u2019s lost because of it."
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: "No. Now he\u2019s exactly where that choice led him."
       Name: Sara
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 5341055476614573769, guid: 1a46c689d07e6b84da54059fea52cacd, type: 3}
     - Content: "Then I\u2019ll pull him out of it."
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: "You can\u2019t. Strength won\u2019t reach him. Words won\u2019t reach
         him."
       Name: Sara
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -6913559321456108616, guid: 5a1ea12e073c8aa459a929147fdcf8f6, type: 3}
     - Content: Then what will?
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: Time. Consequence. Himself.
       Name: Sara
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -6913559321456108616, guid: 5a1ea12e073c8aa459a929147fdcf8f6, type: 3}
     - Content: "\u2026And until then?"
       Name: Traveler
       Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
     - Content: I believe in him, he will come to his senses. No one interferes.
       Name: Sara
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: 5341055476614573769, guid: 1a46c689d07e6b84da54059fea52cacd, type: 3}
     - Content: Then I guess there is no changing your mind..
       Name: Traveler
       Avatar: {fileID: 21300000, guid: c9350678610c0aa4298d6a7c2f1a377f, type: 3}
     - Content: If you truly wanted to save him, you'd let his loved ones save him.
       Name: Sara
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
-    - Content: You...won't...bother us...anymore
-      Name: Unkown
-      Avatar: {fileID: 21300000, guid: 312ad9bd6cf4ef445b8a4b3e9865724f, type: 3}
+      Avatar: {fileID: -6913559321456108616, guid: 5a1ea12e073c8aa459a929147fdcf8f6, type: 3}
   - Lines:
     - Content: Careful what you say next. His name is not yours to stain.
       Name: Rhita
@@ -1795,7 +1792,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -3497,8 +3494,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Pick a curse\n(The effect is applied instantly)
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 5f9fc153955699f4eb8e4a9dc09ec3da, type: 2}
-  m_sharedMaterial: {fileID: -6690465110090245793, guid: 5f9fc153955699f4eb8e4a9dc09ec3da, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 382e32f9b5c3b3044af5a78bf8a86c95, type: 2}
+  m_sharedMaterial: {fileID: -6690465110090245793, guid: 382e32f9b5c3b3044af5a78bf8a86c95, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3564,7 +3561,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &619233247
