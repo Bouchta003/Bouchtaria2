@@ -6,204 +6,171 @@ public static class EnemyDecks
     private static readonly Dictionary<int, List<int>> FloorDecks =
         new Dictionary<int, List<int>>
         {
-            { 1, new List<int>
+                        { 1, new List<int>
                 {
-                // Mixed theme: Mixed MonsterHunter-Fighter synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                119, 119, 6, 6, 90, 90, 3, 3, 173, 173,
-                174, 174, 165, 165, 171, 171, 153, 153, 4, 4,
-                5, 5, 186, 186, 175, 175, 34, 34, 72, 72
+                // Trait focus: MonsterHunter early hunt deck with straightforward board pressure.
+                3, 3, 4, 4, 5, 5, 6, 6, 9, 9,
+                30, 30, 32, 32, 34, 34, 36, 36, 37, 37,
+                38, 38, 103, 103, 104, 104, 119, 119, 153, 153
                 }
             },
             { 2, new List<int>
                 {
-                // Mixed theme: Mixed Pokemon-Speedster synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                25, 25, 147, 147, 0, 0, 19, 19, 40, 40,
-                120, 120, 16, 16, 72, 72, 54, 54, 71, 71,
-                91, 91, 22, 22, 26, 26, 148, 148, 1, 1
+                // Theme focus: Speed tempo and quick pivots with evasive pressure tools.
+                1, 1, 69, 69, 71, 71, 72, 72, 73, 73,
+                91, 91, 95, 95, 131, 131, 132, 132, 160, 160,
+                25, 25, 59, 59, 88, 88, 89, 89, 142, 142
                 }
             },
             { 3, new List<int>
                 {
-                // Mixed theme: Mixed Avatar-Combo synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                84, 84, 184, 184, 194, 194, 53, 53, 201, 201,
-                197, 197, 193, 193, 134, 134, 81, 81, 230, 230,
-                196, 196, 137, 137, 80, 80, 82, 82, 83, 83
+                // Trait focus: Faith value deck built around scaling blessings and sustain.
+                58, 58, 60, 60, 61, 61, 63, 63, 64, 64,
+                65, 65, 67, 67, 68, 68, 106, 106, 107, 107,
+                108, 108, 109, 109, 145, 145, 162, 162, 229, 229
                 }
             },
             { 4, new List<int>
                 {
-                // Mixed theme: Mixed Chaos-Gunner synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                158, 158, 126, 126, 159, 159, 164, 164, 119, 119,
-                51, 51, 99, 99, 90, 90, 120, 120, 133, 133,
-                132, 132, 130, 130, 160, 160, 129, 129, 143, 143
+                // Theme focus: Gunner control shell using repeated chip damage and removal.
+                92, 92, 93, 93, 97, 97, 98, 98, 99, 99,
+                119, 119, 143, 143, 151, 151, 159, 159, 160, 160,
+                161, 161, 164, 164, 172, 172, 173, 173, 174, 174
                 }
             },
             { 5, new List<int>
                 {
-                // Pure theme: Pure MonsterHunter ladder deck.
-                // Core card preview: first card in deck list.
-                119, 119, 104, 104, 6, 6, 5, 5, 153, 153,
-                38, 38, 4, 4, 3, 3, 103, 103, 9, 9,
-                34, 34, 32, 32, 37, 37, 36, 36, 30, 30
+                // Trait focus: Avatar midrange deck leveraging elemental units and finishers.
+                80, 80, 81, 81, 82, 82, 83, 83, 84, 84,
+                134, 134, 135, 135, 136, 136, 137, 137, 138, 138,
+                155, 155, 176, 176, 177, 177, 53, 53, 71, 71
                 }
             },
             { 6, new List<int>
                 {
-                // Pure theme: Pure Pokemon ladder deck.
-                // Core card preview: first card in deck list.
-                25, 25, 40, 40, 149, 149, 148, 148, 22, 22,
-                146, 146, 0, 0, 54, 54, 26, 26, 112, 112,
-                133, 133, 19, 19, 16, 16, 120, 120, 147, 147
+                // Theme focus: Neutral toolbox with disruptive tricks and flexible answers.
+                59, 59, 88, 88, 89, 89, 142, 142, 201, 201,
+                202, 202, 205, 205, 208, 208, 141, 141, 126, 126,
+                129, 129, 130, 130, 131, 131, 132, 132, 166, 166
                 }
             },
             { 7, new List<int>
                 {
-                // Mixed theme: Mixed Faith-Healer synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                44, 44, 109, 109, 64, 64, 63, 63, 60, 60,
-                146, 146, 47, 47, 8, 8, 53, 53, 71, 71,
-                112, 112, 147, 147, 61, 61, 162, 162, 48, 48
+                // Trait focus: Healer sustain deck that outlasts through recovery chains.
+                8, 8, 42, 42, 44, 44, 47, 47, 48, 48,
+                49, 49, 51, 51, 52, 52, 71, 71, 93, 93,
+                99, 99, 146, 146, 147, 147, 152, 152, 210, 210
                 }
             },
             { 8, new List<int>
                 {
-                // Mixed theme: Mixed Avatar-MonsterHunter synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                119, 119, 153, 153, 4, 4, 5, 5, 134, 134,
-                3, 3, 34, 34, 53, 53, 137, 137, 36, 36,
-                6, 6, 84, 84, 80, 80, 37, 37, 82, 82
+                // Theme focus: Combo economy deck that snowballs resources into big turns.
+                193, 193, 194, 194, 196, 196, 197, 197, 201, 201,
+                184, 184, 230, 230, 83, 83, 84, 84, 135, 135,
+                137, 137, 138, 138, 155, 155, 176, 176, 177, 177
                 }
             },
             { 9, new List<int>
                 {
-                // Mixed theme: Mixed Healer-Pokemon synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                147, 147, 148, 148, 146, 146, 26, 26, 25, 25,
-                112, 112, 210, 210, 16, 16, 120, 120, 8, 8,
-                52, 52, 0, 0, 44, 44, 40, 40, 54, 54
+                // Trait focus: Chaos deck centered on volatility, random generation, and pressure.
+                85, 85, 126, 126, 128, 128, 129, 129, 130, 130,
+                131, 131, 132, 132, 133, 133, 157, 157, 158, 158,
+                166, 166, 188, 188, 191, 191, 120, 120, 59, 59
                 }
             },
             { 10, new List<int>
                 {
-                // Mixed theme: Mixed Speedster-Gunner synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                96, 96, 119, 119, 90, 90, 160, 160, 69, 69,
-                91, 91, 72, 72, 1, 1, 71, 71, 132, 132,
-                95, 95, 51, 51, 159, 159, 73, 73, 164, 164
+                // Theme focus: Pokemon evolution curve with two non-packable ace threats.
+                16, 16, 19, 19, 22, 22, 25, 25, 26, 26,
+                40, 40, 54, 54, 120, 120, 146, 146, 147, 147,
+                148, 148, 149, 149, 202, 202, 208, 208, 7, 21
                 }
             },
             { 11, new List<int>
                 {
-                // Mixed theme: Mixed MonsterHunter-Neutral synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                10, 10, 103, 103, 39, 39, 5, 5, 202, 202,
-                9, 9, 153, 153, 142, 142, 6, 6, 208, 208,
-                3, 3, 38, 38, 34, 34, 201, 201, 59, 59,
-                32, 32, 104, 104, 36, 36, 89, 89, 37, 37,
-                88, 88, 119, 119, 4, 4, 141, 141, 30, 30
+                // Trait focus: Swordsman weapon specialists with two non-packable power spikes.
+                36, 36, 37, 37, 38, 38, 97, 97, 137, 137,
+                141, 141, 143, 143, 171, 171, 174, 174, 184, 184,
+                186, 186, 90, 90, 98, 98, 119, 119, 10, 39
                 }
             },
             { 12, new List<int>
                 {
-                // Mixed theme: Mixed Avatar-Healer synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                113, 113, 71, 71, 49, 49, 47, 47, 8, 8,
-                44, 44, 99, 99, 152, 152, 82, 82, 146, 146,
-                147, 147, 84, 84, 45, 45, 52, 52, 210, 210,
-                53, 53, 80, 80, 137, 137, 51, 51, 134, 134,
-                24, 24, 42, 42, 166, 166, 48, 48, 10, 10
+                // Theme focus: Fighter brawl deck tuned for board trades and burst finishers.
+                45, 45, 66, 66, 72, 72, 90, 90, 98, 98,
+                165, 165, 171, 171, 173, 173, 174, 174, 175, 175,
+                184, 184, 186, 186, 209, 209, 119, 119, 2, 96
                 }
             },
             { 13, new List<int>
                 {
-                // Mixed theme: Mixed Chaos-Neutral synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                127, 127, 120, 120, 142, 142, 85, 85, 131, 131,
-                205, 205, 208, 208, 201, 201, 128, 128, 188, 188,
-                157, 157, 132, 132, 126, 126, 129, 129, 166, 166,
-                89, 89, 202, 202, 119, 119, 88, 88, 158, 158,
-                133, 133, 141, 141, 59, 59, 191, 191, 130, 130
+                // Trait focus: MonsterHunter advanced hunt list with premium non-packable gear.
+                3, 3, 4, 4, 5, 5, 6, 6, 9, 9,
+                30, 30, 32, 32, 34, 34, 103, 103, 104, 104,
+                119, 119, 153, 153, 36, 37, 10, 31, 141, 142
                 }
             },
             { 14, new List<int>
                 {
-                // Mixed theme: Mixed Faith-Pokemon synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                25, 25, 60, 60, 64, 64, 0, 0, 19, 19,
-                112, 112, 62, 62, 22, 22, 148, 148, 147, 147,
-                109, 109, 40, 40, 120, 120, 63, 63, 162, 162,
-                54, 54, 202, 202, 26, 26, 16, 16, 133, 133,
-                149, 149, 61, 61, 216, 216, 146, 146, 10, 10
+                // Theme focus: Faith fortress deck balancing defense, buffs, and late inevitability.
+                58, 58, 60, 60, 61, 61, 63, 63, 64, 64,
+                65, 65, 67, 67, 68, 68, 106, 106, 107, 107,
+                108, 108, 109, 109, 145, 145, 162, 162, 62, 113
                 }
             },
             { 15, new List<int>
                 {
-                // Mixed theme: Mixed MonsterHunter-Fighter synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                10, 10, 184, 184, 72, 72, 165, 165, 39, 39,
-                36, 36, 5, 5, 37, 37, 45, 45, 66, 66,
-                175, 175, 90, 90, 153, 153, 3, 3, 119, 119,
-                34, 34, 173, 173, 38, 38, 6, 6, 209, 209,
-                174, 174, 171, 171, 186, 186, 4, 4, 98, 98
+                // Trait focus: Avatar masters list with four non-packable incarnations as bosses.
+                80, 80, 81, 81, 82, 82, 83, 83, 84, 84,
+                134, 134, 135, 135, 136, 136, 137, 137, 138, 138,
+                155, 155, 176, 176, 177, 177, 74, 74, 75, 75
                 }
             },
             { 16, new List<int>
                 {
-                // Pure theme: Pure Avatar ladder deck.
-                // Core card preview: first card in deck list.
-                74, 74, 112, 112, 53, 53, 81, 81, 138, 138,
-                84, 84, 120, 120, 119, 119, 75, 75, 132, 132,
-                136, 136, 134, 134, 177, 177, 82, 82, 71, 71,
-                147, 147, 135, 135, 137, 137, 146, 146, 176, 176,
-                133, 133, 80, 80, 155, 155, 201, 201, 10, 10
+                // Theme focus: Gunner kill-zone deck built on traps, walls, and ranged burst.
+                92, 92, 93, 93, 97, 97, 98, 98, 99, 99,
+                119, 119, 143, 143, 151, 151, 159, 159, 160, 160,
+                164, 164, 172, 172, 173, 173, 94, 94,
+                96, 96
                 }
             },
             { 17, new List<int>
                 {
-                // Pure theme: Pure Chaos gimmick flood (Feed The Chaos).
-                // Core card preview: first card in deck list.
-                126, 126, 7, 7, 126, 126, 126, 126, 126, 126,
-                126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-                126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-                126, 126, 126, 126, 126, 126, 126, 126, 126, 126,
-                126, 126, 126, 126, 126, 126, 21, 21, 10, 10
+                // Trait focus: Pokemon legendary lineup with four non-packable endgame bombs.
+                16, 16, 19, 19, 22, 22, 25, 25, 26, 26,
+                40, 40, 54, 54, 120, 120, 146, 146, 147, 147,
+                148, 148, 149, 149, 208, 208, 7, 21,
+                27, 28
                 }
             },
             { 18, new List<int>
                 {
-                // Pure theme: Pure Faith ladder deck.
-                // Core card preview: first card in deck list.
-                60, 60, 145, 145, 107, 107, 71, 71, 65, 65,
-                109, 109, 53, 53, 64, 64, 61, 61, 120, 120,
-                58, 58, 68, 68, 106, 106, 147, 147, 108, 108,
-                113, 113, 63, 63, 162, 162, 229, 229, 111, 111,
-                110, 110, 119, 119, 66, 66, 67, 67, 10, 10
+                // Theme focus: Chaos trickster deck with cursed non-packable swing cards.
+                85, 85, 126, 126, 128, 128, 129, 129, 130, 130,
+                131, 131, 132, 132, 133, 133, 158, 158,
+                166, 166, 188, 188, 191, 191, 120, 120, 127, 86,
+                189, 190
                 }
             },
             { 19, new List<int>
                 {
-                // Mixed theme: Mixed MonsterHunter-Avatar synergy deck (refreshed order).
-                // Core card preview: first card in deck list.
-                10, 10, 84, 84, 53, 53, 119, 119, 34, 34,
-                177, 177, 82, 82, 80, 80, 5, 5, 9, 9,
-                176, 176, 3, 3, 81, 81, 31, 31, 153, 153,
-                134, 134, 38, 38, 6, 6, 36, 36, 39, 39,
-                4, 4, 137, 137, 13, 13, 74, 74, 21, 21
+                // Trait focus: Speedster-Fighter assault deck with four non-packable elite tools.
+                1, 1, 69, 69, 71, 71, 72, 72, 73, 73,
+                91, 91, 95, 95, 131, 131, 132, 132,
+                90, 90, 98, 98, 171, 171, 173, 173, 2, 96,
+                94, 113
                 }
             },
             { 20, new List<int>
                 {
-                // Pure theme: Pure Gunner ladder deck.
-                // Core card preview: first card in deck list.
-                90, 90, 93, 93, 97, 97, 98, 98, 99, 99,
-                143, 143, 151, 151, 159, 159, 160, 160, 161, 161,
-                164, 164, 165, 165, 172, 172, 173, 173, 174, 174,
-                92, 92, 95, 95, 94, 94, 119, 119, 51, 51,
-                10, 10, 21, 21, 39, 39, 74, 74, 96, 96
+                // Theme focus: Final gauntlet of cross-trait legends with six non-packable bosses.
+                3, 3, 5, 5, 6, 6, 16, 16, 22, 22,
+                25, 25, 30, 30, 34, 34, 58, 58, 60, 60,
+                71, 71, 80, 80, 82, 82, 84, 84, 90, 90,
+                92, 92, 97, 97, 103, 103, 119, 119, 126, 126,
+                134, 134, 162, 162, 11, 14, 27, 29,
+                212, 239
                 }
             },
             { 21, new List<int>
@@ -676,7 +643,7 @@ public static class EnemyDecks
                 90,91,//Plata o pLomo
                 91,91,//troll bouisk
                 158,158,//Jour de fete
-                1,1,//La légende de twice
+                1,1,//La lÃ©gende de twice
                 232,232,
                 234,234,//Poly et super poly
                 }
@@ -695,7 +662,7 @@ public static class EnemyDecks
                 44,44,
                 47,47,//BouchtaBBQ and lasagna
                 51,51,
-                45,46,//Faust en rapport à la chanson
+                45,46,//Faust en rapport Ã  la chanson
                 175,175,//Macho gym + fighter
                 169,169,//Smash ball for buffs
                 233,233,//Bissara
