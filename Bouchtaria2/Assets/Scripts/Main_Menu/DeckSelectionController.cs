@@ -34,11 +34,15 @@ public class DeckSelectionController : MonoBehaviour
     {
         DeckBuilding.Instance.OnDecksLoaded += PopulateDropdown;
         DeckBuilding.Instance.FetchDecks();
+        playerDeckDropdown.onValueChanged.AddListener(OnDropdownSelectionChanged);
 
     }
 
     private void OnDestroy()
     {
+        if (playerDeckDropdown != null)
+            playerDeckDropdown.onValueChanged.RemoveListener(OnDropdownSelectionChanged);
+
         if (DeckBuilding.Instance != null)
             DeckBuilding.Instance.OnDecksLoaded -= PopulateDropdown;
     }
@@ -56,7 +60,19 @@ public class DeckSelectionController : MonoBehaviour
         List<string> options = new List<string>(userDecks.Keys);
         playerDeckDropdown.AddOptions(options);
 
-        playerDeckDropdown.value = 0;
+        int selectedIndex = 0;
+        if (!string.IsNullOrWhiteSpace(DeckSelectionCache.LastSelectedDeckName))
+        {
+            int preferredIndex = options.IndexOf(DeckSelectionCache.LastSelectedDeckName);
+            if (preferredIndex >= 0 &&
+                userDecks.TryGetValue(DeckSelectionCache.LastSelectedDeckName, out List<int> preferredDeck) &&
+                DeckSelectionCache.IsDeckValidForStandardCombat(preferredDeck))
+            {
+                selectedIndex = preferredIndex;
+            }
+        }
+
+        playerDeckDropdown.SetValueWithoutNotify(selectedIndex);
         playerDeckDropdown.RefreshShownValue();
 
         Debug.Log($"[DeckSelection] Loaded {options.Count} decks");
@@ -83,24 +99,41 @@ public class DeckSelectionController : MonoBehaviour
     }
     public List<int> GetSelectedUserDeck()
     {
+        if (playerDeckDropdown.options.Count == 0)
+            return new List<int>();
+
         string selectedDeckName =
             playerDeckDropdown.options[playerDeckDropdown.value].text;
 
         List<int> selectedDeck = userDecks[selectedDeckName];
 
+        DeckSelectionCache.RememberDeckSelection(selectedDeckName, selectedDeck);
         DeckSelectionCache.SelectedPlayerDeck = selectedDeck;
         return selectedDeck;
     }
     public void StartBattle()
     {
+        if (playerDeckDropdown.options.Count == 0)
+            return;
+
         string selectedDeckName =
             playerDeckDropdown.options[playerDeckDropdown.value].text;
 
         List<int> selectedDeck = userDecks[selectedDeckName];
 
+        DeckSelectionCache.RememberDeckSelection(selectedDeckName, selectedDeck);
         DeckSelectionCache.SelectedPlayerDeck = selectedDeck;
 
         SceneManager.LoadScene(combatSceneName);
+    }
+    private void OnDropdownSelectionChanged(int index)
+    {
+        if (userDecks == null || index < 0 || index >= playerDeckDropdown.options.Count)
+            return;
+
+        string selectedDeckName = playerDeckDropdown.options[index].text;
+        if (userDecks.TryGetValue(selectedDeckName, out List<int> selectedDeck))
+            DeckSelectionCache.RememberDeckSelection(selectedDeckName, selectedDeck);
     }
     public void MainMenu()
     {
