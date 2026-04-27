@@ -135,6 +135,20 @@ public class ScanPanelView : MonoBehaviour
                 trait2Image.color = color2;
             else trait2Image.color = color;
         }
+        else
+        {
+
+            atkText.text = card.atkValue.ToString();
+            hpText.text = card.hpValue.ToString();
+            manaText.text = card.manaCost.ToString();
+            if (TryGetTraitColor(card.traits[0], out Color color))
+                trait1Image.color = color;
+            if (card.traits.Count > 1 && TryGetTraitColor(card.traits[1], out Color color2))
+                trait2Image.color = color2;
+            else trait2Image.color = color;
+            nameText.text = card.name;
+            effectText.text = card.effectText;
+        }
 
         foreach (Transform child in keywordContainer)
             Destroy(child.gameObject);
@@ -308,6 +322,15 @@ public class ScanPanelView : MonoBehaviour
             keyName.text = "Pierce";
             keyDescription.text =
                 "Excess damage during attack is dealt to the enemy Core.";
+        }
+        if (effectText.ToLower().Contains(("cleave").ToLower()))
+        {
+            GameObject entry = Instantiate(keywordPrefab, keywordContainer);
+            var keyName = entry.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            var keyDescription = entry.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            keyName.text = "Cleave";
+            keyDescription.text =
+                "Unit also hits adjacent enemies.";
         }
         if (effectText.ToLower().Contains(("consume").ToLower()))
         {

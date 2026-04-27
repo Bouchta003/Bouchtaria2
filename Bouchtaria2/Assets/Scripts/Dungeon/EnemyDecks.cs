@@ -757,7 +757,7 @@ public static class EnemyDecks
                 47,47, //BBQ
                 8,8, //choupitout
                 324,324, //pneuma
-                52,52, //Blissey
+                109,109,
                 361,361, //Rhitout
                 }
             },

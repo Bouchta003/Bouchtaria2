@@ -2375,10 +2375,19 @@ public class CardInstance : MonoBehaviour, IAttackable
         else
         {
             IAttackable target = ChooseBestEnemyEffectTarget(type);
-            OnEffectTargetChosen(target);
+            // Defer resolution to the next frame so ExecuteEffect can return true first,
+            // allowing pendingTriggeredEffects to be set before ResumePendingTriggeredEffects runs.
+            // Without this, autoshield and any subsequent deploy effects after a targeted effect
+            // are silently skipped because pendingTriggeredEffects is still null synchronously.
+            gameManager.StartCoroutine(ResolveEnemyTargetNextFrame(target));
         }
+        
     }
-
+    private IEnumerator ResolveEnemyTargetNextFrame(IAttackable target)
+    {
+        yield return null; // wait one frame for ExecuteEffect to return and set pendingTriggeredEffects
+        OnEffectTargetChosen(target);
+    }
     private IAttackable ChooseBestEnemyEffectTarget(EffectTarget type)
     {
         string effect = pendingTargetedEffect?.ToLowerInvariant() ?? string.Empty;
