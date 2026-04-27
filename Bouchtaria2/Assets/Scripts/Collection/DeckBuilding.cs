@@ -156,6 +156,16 @@ public class DeckBuilding : MonoBehaviour
             if (deckIndex >= 0)
                 selectedIndex = deckIndex + 1;
         }
+        else if (!string.IsNullOrWhiteSpace(DeckSelectionCache.LastSelectedDeckName))
+        {
+            int preferredDeckIndex = deckNames.IndexOf(DeckSelectionCache.LastSelectedDeckName);
+            if (preferredDeckIndex >= 0 &&
+                userDecks.TryGetValue(DeckSelectionCache.LastSelectedDeckName, out List<int> preferredDeck) &&
+                DeckSelectionCache.IsDeckValidForStandardCombat(preferredDeck))
+            {
+                selectedIndex = preferredDeckIndex + 1;
+            }
+        }
 
         deckDropdown.SetValueWithoutNotify(selectedIndex);
         deckDropdown.RefreshShownValue();
@@ -180,6 +190,9 @@ public class DeckBuilding : MonoBehaviour
 
         currentDeckIndex = deckIndex;
         LoadDeck(deckNames[currentDeckIndex]);
+
+        if (userDecks.TryGetValue(deckNames[currentDeckIndex], out List<int> selectedDeck))
+            DeckSelectionCache.RememberDeckSelection(deckNames[currentDeckIndex], selectedDeck);
     }
 
     #region CardDropInChest
@@ -357,6 +370,7 @@ public class DeckBuilding : MonoBehaviour
                     }
                     else
                     {
+                        DeckSelectionCache.RememberDeckSelection(deckName, CurrentDeck);
                         ErrorPopup.Show("Deck successfully saved.");
                         if (GameRunContext.IsDungeonRun)
                             GameFlowController.Instance.GoToDungeonAdventure();
@@ -549,6 +563,7 @@ public class DeckBuilding : MonoBehaviour
 
         CurrentDeck = new List<int>(userDecks[deckName]);
         DeckNameInput.text = deckName;
+        DeckSelectionCache.RememberDeckSelection(deckName, CurrentDeck);
 
         collection.ShowPage(collection.currentPage);
         DetectUnlockableTraits();
