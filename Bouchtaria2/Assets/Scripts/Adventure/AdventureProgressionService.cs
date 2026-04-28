@@ -11,11 +11,30 @@ public class AdventureRunData
 {
     public List<int> completedStageOneFightIds = new List<int>();
     public List<int> completedStageTwoFightIds = new List<int>();
+    public List<int> hardCompletedStageOneFightIds = new List<int>();
+    public List<int> hardCompletedStageTwoFightIds = new List<int>();
     public bool secondStageUnlocked;
     public bool thirdStageUnlocked;
+    public bool hardSecondStageUnlocked;
+    public bool hardThirdStageUnlocked;
+    public bool hardModeUnlocked;
+    public bool isHardMode;
 
-    public bool CanReachSecondStage => secondStageUnlocked || completedStageOneFightIds.Count >= 8;
-    public bool CanReachThirdStage => thirdStageUnlocked || completedStageTwoFightIds.Count >= 4;
+    public bool CanReachSecondStage(bool hardMode)
+    {
+        if (hardMode)
+            return hardSecondStageUnlocked || hardCompletedStageOneFightIds.Count >= 8;
+
+        return secondStageUnlocked || completedStageOneFightIds.Count >= 8;
+    }
+
+    public bool CanReachThirdStage(bool hardMode)
+    {
+        if (hardMode)
+            return hardThirdStageUnlocked || hardCompletedStageTwoFightIds.Count >= 4;
+
+        return thirdStageUnlocked || completedStageTwoFightIds.Count >= 4;
+    }
 }
 
 public static class AdventureProgressionService
@@ -33,6 +52,14 @@ public static class AdventureProgressionService
     private const string AdventureThirdStageUnlockedField = "adventurethirdstageunlocked";
     private const string AdventureCanReachSecondStageField = "adventurecanreachsecondstage";
     private const string AdventureCanReachThirdStageField = "adventurecanreachthirdstage";
+    private const string AdventureHardCompletedStageOneField = "adventurehardstageonecompletedfights";
+    private const string AdventureHardCompletedStageTwoField = "adventurehardstagetwocompletedfights";
+    private const string AdventureHardSecondStageUnlockedField = "adventurehardsecondstageunlocked";
+    private const string AdventureHardThirdStageUnlockedField = "adventurehardthirdstageunlocked";
+    private const string AdventureHardCanReachSecondStageField = "adventurehardcanreachsecondstage";
+    private const string AdventureHardCanReachThirdStageField = "adventurehardcanreachthirdstage";
+    private const string AdventureHardModeUnlockedField = "hardmodeunlocked";
+    private const string AdventureIsHardModeField = "adventureishardmode";
 
     public static bool IsStageOneFight(int fightId) => StageOneFightIds.Contains(fightId);
     public static bool IsStageTwoFight(int fightId) => StageTwoFightIds.Contains(fightId);
@@ -54,7 +81,7 @@ public static class AdventureProgressionService
             .ContinueWithOnMainThread(_ => onComplete?.Invoke());
     }
 
-    public static void RecordFightResult(int fightId, bool didWin)
+    public static void RecordFightResult(int fightId, bool didWin, bool isHardMode = false)
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
         if (user == null)
@@ -78,39 +105,51 @@ public static class AdventureProgressionService
             {
                 if (IsStageOneFight(fightId))
                 {
-                    if (!data.completedStageOneFightIds.Contains(fightId))
-                        data.completedStageOneFightIds.Add(fightId);
+                    List<int> stageOneFights = isHardMode ? data.hardCompletedStageOneFightIds : data.completedStageOneFightIds;
+                    if (!stageOneFights.Contains(fightId))
+                        stageOneFights.Add(fightId);
 
-                    data.secondStageUnlocked = data.completedStageOneFightIds.Count >= StageOneFightIds.Length;
+                    if (isHardMode)
+                        data.hardSecondStageUnlocked = stageOneFights.Count >= StageOneFightIds.Length;
+                    else
+                        data.secondStageUnlocked = stageOneFights.Count >= StageOneFightIds.Length;
                 }
                 else if (IsStageTwoFight(fightId))
                 {
-                    if (!data.CanReachSecondStage)
+                    if (!data.CanReachSecondStage(isHardMode))
                     {
                         Persist(userDoc, data);
                         return;
                     }
 
-                    if (!data.completedStageTwoFightIds.Contains(fightId))
-                        data.completedStageTwoFightIds.Add(fightId);
+                    List<int> stageTwoFights = isHardMode ? data.hardCompletedStageTwoFightIds : data.completedStageTwoFightIds;
+                    if (!stageTwoFights.Contains(fightId))
+                        stageTwoFights.Add(fightId);
 
-                    data.thirdStageUnlocked = data.completedStageTwoFightIds.Count >= StageTwoFightIds.Length;
+                    if (isHardMode)
+                        data.hardThirdStageUnlocked = stageTwoFights.Count >= StageTwoFightIds.Length;
+                    else
+                        data.thirdStageUnlocked = stageTwoFights.Count >= StageTwoFightIds.Length;
                 }
                 else if (fightId == UltimateFightId)
                 {
-                    if (!data.CanReachThirdStage)
+                    if (!data.CanReachThirdStage(isHardMode))
                     {
                         Persist(userDoc, data);
                         return;
                     }
+
+                    if (!isHardMode)
+                        data.hardModeUnlocked = true;
                 }
             }
             else
             {
                 if (IsStageTwoFight(fightId))
                 {
-                    if (!data.completedStageTwoFightIds.Contains(fightId))
-                        data.completedStageTwoFightIds.Clear();
+                    List<int> stageTwoFights = isHardMode ? data.hardCompletedStageTwoFightIds : data.completedStageTwoFightIds;
+                    if (!stageTwoFights.Contains(fightId))
+                        stageTwoFights.Clear();
                 }
             }
 
@@ -118,16 +157,19 @@ public static class AdventureProgressionService
         });
     }
 
-    public static bool CanStartFight(AdventureRunData data, int fightId)
+    public static bool CanStartFight(AdventureRunData data, int fightId, bool isHardMode = false)
     {
+        if (isHardMode && !data.hardModeUnlocked)
+            return false;
+
         if (IsStageOneFight(fightId))
             return true;
 
         if (IsStageTwoFight(fightId))
-            return data.CanReachSecondStage;
+            return data.CanReachSecondStage(isHardMode);
 
         if (fightId == UltimateFightId)
-            return data.CanReachThirdStage;
+            return data.CanReachThirdStage(isHardMode);
 
         return false;
     }
@@ -144,6 +186,16 @@ public static class AdventureProgressionService
             .Where(IsStageTwoFight)
             .OrderBy(x => x)
             .ToList();
+        data.hardCompletedStageOneFightIds = data.hardCompletedStageOneFightIds
+            .Distinct()
+            .Where(IsStageOneFight)
+            .OrderBy(x => x)
+            .ToList();
+        data.hardCompletedStageTwoFightIds = data.hardCompletedStageTwoFightIds
+            .Distinct()
+            .Where(IsStageTwoFight)
+            .OrderBy(x => x)
+            .ToList();
 
         var updates = new Dictionary<string, object>
         {
@@ -152,8 +204,16 @@ public static class AdventureProgressionService
             { AdventureSecondStageUnlockedField, data.secondStageUnlocked || data.completedStageOneFightIds.Count >= StageOneFightIds.Length },
             { AdventureSecondStageStreakField, FieldValue.Delete },
             { AdventureThirdStageUnlockedField, data.thirdStageUnlocked || data.completedStageTwoFightIds.Count >= StageTwoFightIds.Length },
-            { AdventureCanReachSecondStageField, data.CanReachSecondStage },
-            { AdventureCanReachThirdStageField, data.CanReachThirdStage },
+            { AdventureCanReachSecondStageField, data.CanReachSecondStage(false) },
+            { AdventureCanReachThirdStageField, data.CanReachThirdStage(false) },
+            { AdventureHardCompletedStageOneField, data.hardCompletedStageOneFightIds },
+            { AdventureHardCompletedStageTwoField, data.hardCompletedStageTwoFightIds },
+            { AdventureHardSecondStageUnlockedField, data.hardSecondStageUnlocked || data.hardCompletedStageOneFightIds.Count >= StageOneFightIds.Length },
+            { AdventureHardThirdStageUnlockedField, data.hardThirdStageUnlocked || data.hardCompletedStageTwoFightIds.Count >= StageTwoFightIds.Length },
+            { AdventureHardCanReachSecondStageField, data.CanReachSecondStage(true) },
+            { AdventureHardCanReachThirdStageField, data.CanReachThirdStage(true) },
+            { AdventureHardModeUnlockedField, data.hardModeUnlocked },
+            { AdventureIsHardModeField, data.isHardMode && data.hardModeUnlocked },
             { AdventureCombatActiveField, false }
         };
 
@@ -184,12 +244,40 @@ public static class AdventureProgressionService
             else if (raw is IEnumerable<int> ints)
                 data.completedStageTwoFightIds = ints.ToList();
         }
+        if (snapshot.ContainsField(AdventureHardCompletedStageOneField))
+        {
+            object raw = snapshot.GetValue<object>(AdventureHardCompletedStageOneField);
+            if (raw is IEnumerable<object> list)
+                data.hardCompletedStageOneFightIds = list.Select(x => Convert.ToInt32(x)).ToList();
+            else if (raw is IEnumerable<int> ints)
+                data.hardCompletedStageOneFightIds = ints.ToList();
+        }
+        if (snapshot.ContainsField(AdventureHardCompletedStageTwoField))
+        {
+            object raw = snapshot.GetValue<object>(AdventureHardCompletedStageTwoField);
+            if (raw is IEnumerable<object> list)
+                data.hardCompletedStageTwoFightIds = list.Select(x => Convert.ToInt32(x)).ToList();
+            else if (raw is IEnumerable<int> ints)
+                data.hardCompletedStageTwoFightIds = ints.ToList();
+        }
 
         data.secondStageUnlocked = snapshot.ContainsField(AdventureSecondStageUnlockedField)
             && snapshot.GetValue<bool>(AdventureSecondStageUnlockedField);
 
         data.thirdStageUnlocked = snapshot.ContainsField(AdventureThirdStageUnlockedField)
             && snapshot.GetValue<bool>(AdventureThirdStageUnlockedField);
+
+        data.hardSecondStageUnlocked = snapshot.ContainsField(AdventureHardSecondStageUnlockedField)
+            && snapshot.GetValue<bool>(AdventureHardSecondStageUnlockedField);
+
+        data.hardThirdStageUnlocked = snapshot.ContainsField(AdventureHardThirdStageUnlockedField)
+            && snapshot.GetValue<bool>(AdventureHardThirdStageUnlockedField);
+
+        data.hardModeUnlocked = snapshot.ContainsField(AdventureHardModeUnlockedField)
+            && snapshot.GetValue<bool>(AdventureHardModeUnlockedField);
+
+        data.isHardMode = snapshot.ContainsField(AdventureIsHardModeField)
+            && snapshot.GetValue<bool>(AdventureIsHardModeField);
 
         return data;
     }

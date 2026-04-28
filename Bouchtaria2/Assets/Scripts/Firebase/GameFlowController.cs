@@ -119,6 +119,7 @@ public class GameFlowController : MonoBehaviour
         GameRunContext.IsDungeonRun = false;
         GameRunContext.IsAdventureCombat = false;
         GameRunContext.AdventureFightId = 0;
+        GameRunContext.IsAdventureHardMode = false;
         SceneManager.LoadScene("QuickMatch");
     }
     public void GoToDungeonCombat(DungeonRunData data)
@@ -127,6 +128,7 @@ public class GameFlowController : MonoBehaviour
         GameRunContext.IsDungeonRun = true;
         GameRunContext.IsAdventureCombat = false;
         GameRunContext.AdventureFightId = 0;
+        GameRunContext.IsAdventureHardMode = false;
         GameRunContext.DungeonData = DungeonManager.Instance.CurrentRun;
         SceneManager.LoadScene("Combat");
     }
@@ -141,6 +143,7 @@ public class GameFlowController : MonoBehaviour
         GameRunContext.IsDungeonRun = true;
         GameRunContext.IsAdventureCombat = false;
         GameRunContext.AdventureFightId = 0;
+        GameRunContext.IsAdventureHardMode = false;
         GameRunContext.DungeonData = DungeonManager.Instance.CurrentRun;
         SceneManager.LoadScene("DungeonAdventure");
     }
@@ -149,6 +152,7 @@ public class GameFlowController : MonoBehaviour
         GameRunContext.IsDungeonRun = true;
         GameRunContext.IsAdventureCombat = false;
         GameRunContext.AdventureFightId = 0;
+        GameRunContext.IsAdventureHardMode = false;
         GameRunContext.DungeonData = data;
 
         if (!isGameReady)
@@ -161,7 +165,7 @@ public class GameFlowController : MonoBehaviour
         SceneManager.LoadScene("Collection");
     }
 
-    public void GoToAdventureCombat(int fightId, System.Collections.Generic.List<int> playerDeck, System.Collections.Generic.List<int> enemyDeck)
+    public void GoToAdventureCombat(int fightId, System.Collections.Generic.List<int> playerDeck, System.Collections.Generic.List<int> enemyDeck, bool isHardMode = false)
     {
         if (!isGameReady)
         {
@@ -175,6 +179,7 @@ public class GameFlowController : MonoBehaviour
         GameRunContext.IsDungeonRun = false;
         GameRunContext.IsAdventureCombat = true;
         GameRunContext.AdventureFightId = fightId;
+        GameRunContext.IsAdventureHardMode = isHardMode;
         AdventureProgressionService.SetAdventureCombatActive(true, () => SceneManager.LoadScene("Combat"));
     }
 
@@ -201,6 +206,7 @@ public class GameFlowController : MonoBehaviour
         GameRunContext.IsDungeonRun = false;
         GameRunContext.IsAdventureCombat = false;
         GameRunContext.AdventureFightId = 0;
+        GameRunContext.IsAdventureHardMode = false;
         SceneManager.LoadScene("Collection");
     }
     public void GoToDungeon()

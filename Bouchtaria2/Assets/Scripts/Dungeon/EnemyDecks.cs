@@ -788,6 +788,10 @@ public static class EnemyDecks
             }
             }
         };
+    // Hard mode uses the same fight IDs as adventure mode.
+    // Populate this dictionary with hard-mode decklists per ID.
+    private static readonly Dictionary<int, List<int>> AdventureHardDecks =
+        new Dictionary<int, List<int>>();
     public static List<int> GetFloorDeck(int floor)
     {
         if (FloorDecks.TryGetValue(floor, out List<int> deck))
@@ -798,6 +802,14 @@ public static class EnemyDecks
     }
     public static List<int> GetAdventureDeck(int id)
     {
+        return GetAdventureDeck(id, false);
+    }
+
+    public static List<int> GetAdventureDeck(int id, bool isHardMode)
+    {
+        if (isHardMode && AdventureHardDecks.TryGetValue(id, out List<int> hardDeck))
+            return hardDeck;
+
         if (AdventureDecks.TryGetValue(id, out List<int> deck))
             return deck;
         else return null;//Add default deck ? 

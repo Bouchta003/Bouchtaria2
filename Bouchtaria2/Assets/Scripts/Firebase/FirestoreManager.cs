@@ -90,6 +90,14 @@ public class FirestoreManager : MonoBehaviour
                     { "adventurethirdstageunlocked", false },
                     { "adventurecanreachsecondstage", false },
                     { "adventurecanreachthirdstage", false },
+                    { "adventurehardstageonecompletedfights", new System.Collections.Generic.List<int>() },
+                    { "adventurehardstagetwocompletedfights", new System.Collections.Generic.List<int>() },
+                    { "adventurehardsecondstageunlocked", false },
+                    { "adventurehardthirdstageunlocked", false },
+                    { "adventurehardcanreachsecondstage", false },
+                    { "adventurehardcanreachthirdstage", false },
+                    { "hardmodeunlocked", false },
+                    { "adventureishardmode", false },
                 })
                 .ContinueWithOnMainThread(setTask =>
                 {
@@ -164,6 +172,30 @@ public class FirestoreManager : MonoBehaviour
 
                 if (!snapshot.ContainsField("adventurecanreachthirdstage"))
                     updates["adventurecanreachthirdstage"] = false;
+
+                if (!snapshot.ContainsField("adventurehardstageonecompletedfights"))
+                    updates["adventurehardstageonecompletedfights"] = new System.Collections.Generic.List<int>();
+
+                if (!snapshot.ContainsField("adventurehardstagetwocompletedfights"))
+                    updates["adventurehardstagetwocompletedfights"] = new System.Collections.Generic.List<int>();
+
+                if (!snapshot.ContainsField("adventurehardsecondstageunlocked"))
+                    updates["adventurehardsecondstageunlocked"] = false;
+
+                if (!snapshot.ContainsField("adventurehardthirdstageunlocked"))
+                    updates["adventurehardthirdstageunlocked"] = false;
+
+                if (!snapshot.ContainsField("adventurehardcanreachsecondstage"))
+                    updates["adventurehardcanreachsecondstage"] = false;
+
+                if (!snapshot.ContainsField("adventurehardcanreachthirdstage"))
+                    updates["adventurehardcanreachthirdstage"] = false;
+
+                if (!snapshot.ContainsField("hardmodeunlocked"))
+                    updates["hardmodeunlocked"] = false;
+
+                if (!snapshot.ContainsField("adventureishardmode"))
+                    updates["adventureishardmode"] = false;
 
                 if (updates.Count > 0)
                 {

@@ -681,7 +681,7 @@ private sealed class PendingHandReturn
         {
             // adventureCombatActive in DB signals an unfinished fight — count as a loss
             AdventureProgressionService.SetAdventureCombatActive(false);
-            AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false);
+            AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false, GameRunContext.IsAdventureHardMode);
         }
 
         if (GameRunContext.IsDungeonRun)
@@ -1214,7 +1214,7 @@ private sealed class PendingHandReturn
             if (GameRunContext.IsAdventureCombat)
             {
                 AdventureProgressionService.SetAdventureCombatActive(false);
-                AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false);
+                AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false, GameRunContext.IsAdventureHardMode);
             }
         }
         else
@@ -1271,7 +1271,7 @@ private sealed class PendingHandReturn
         if (GameRunContext.IsAdventureCombat)
         {
             AdventureProgressionService.SetAdventureCombatActive(false);
-            AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, true);
+            AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, true, GameRunContext.IsAdventureHardMode);
         }
     }
     private IEnumerator HandleAdventureBossSecondPhaseTransition()
