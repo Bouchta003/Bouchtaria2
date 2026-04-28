@@ -6,7 +6,7 @@ public static class EnemyDecks
     private static readonly Dictionary<int, List<int>> FloorDecks =
         new Dictionary<int, List<int>>
         {
-                        { 1, new List<int>
+            { 1, new List<int>
                 {
                 // Trait focus: MonsterHunter early hunt deck with straightforward board pressure.
                 3, 3, 4, 4, 5, 5, 6, 6, 9, 9,
