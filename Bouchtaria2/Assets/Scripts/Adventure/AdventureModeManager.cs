@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using TMPro;
 public class AdventureModeManager : MonoBehaviour
 {
     private const string AdventureCompletedStageOneField = "adventurestageonecompletedfights";
@@ -19,6 +19,9 @@ public class AdventureModeManager : MonoBehaviour
     [SerializeField] GameObject FirstFloorUI;
     [SerializeField] GameObject SecondFloorUI;
     [SerializeField] GameObject ThirdFloorUI;
+    [SerializeField] GameObject DifficultyGO;
+    [SerializeField] Image DifficultyImage;
+    [SerializeField] TextMeshProUGUI DifficultyText;
     [SerializeField] List<GameObject> CheckBoxes;
 
     bool isFirstFloor => FirstFloorUI.activeSelf && !SecondFloorUI.activeSelf && !ThirdFloorUI.activeSelf;
