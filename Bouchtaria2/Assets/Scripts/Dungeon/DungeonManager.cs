@@ -35,6 +35,7 @@ public static class GameRunContext
     public static bool IsDungeonRun;
     public static bool IsAdventureCombat;
     public static int AdventureFightId;
+    public static bool IsAdventureHardMode;
 }
 
 public class DungeonManager : MonoBehaviour

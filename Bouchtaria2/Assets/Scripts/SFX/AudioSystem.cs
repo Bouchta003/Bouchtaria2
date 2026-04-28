@@ -41,8 +41,8 @@ public class AudioSystem : MonoBehaviour
             // Save current windowed size before going fullscreen
             _windowedResolution = new Vector2Int(Screen.width, Screen.height);
 
-            // Use the native desktop resolution for fullscreen — no zoom, no stretch
-            Resolution native = Screen.currentResolution;
+            AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false, GameRunContext.IsAdventureHardMode);
+            AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false, GameRunContext.IsAdventureHardMode);
             Screen.SetResolution(native.width, native.height, FullScreenMode.FullScreenWindow);
         }
         else
