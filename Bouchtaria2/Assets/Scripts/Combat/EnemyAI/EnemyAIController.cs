@@ -211,6 +211,11 @@ public class EnemyAIController : MonoBehaviour
                 .Count(ci => ci != null && ci.CurrentAttack > 0 && !ci.IsAsleep && !ci.HasAttackedThisTurn);
             score += attackersReady * 12;
         }
+        else if (effect.Contains("grant"))
+        {
+            // Grant is always positive, so aggressively value single-target grants too.
+            score += enemyBoard.enemyPrefabCards.Count > 0 ? 40 : -40;
+        }
 
         if (effect.Contains("heal"))
         {
@@ -713,10 +718,12 @@ public class EnemyAIController : MonoBehaviour
         if (
             effect.Contains("gear") ||
             effect.Contains("buff") ||
+            effect.Contains("grant") ||
             (effect.Contains("heal") && !effect.Contains("autoheal"))
         )
         {
-            if (enemyBoard.enemyPrefabCards.Count == 0)
+            bool isCoreOnlySupport = effect.Contains("targetcore") && !effect.Contains("targetunit");
+            if (!isCoreOnlySupport && enemyBoard.enemyPrefabCards.Count == 0)
                 return false;
         }
 
@@ -731,7 +738,7 @@ public class EnemyAIController : MonoBehaviour
             }
             else
             {
-                bool needsEnemyUnits = effect.Contains("heal") || effect.Contains("buff") || effect.Contains("gear");
+                bool needsEnemyUnits = effect.Contains("heal") || effect.Contains("buff") || effect.Contains("gear") || effect.Contains("grant");
                 if (effect.StartsWith("ally?"))
                     needsEnemyUnits = true;
                 PlayerOwner targetOwner = needsEnemyUnits ? PlayerOwner.Enemy : PlayerOwner.Player;
@@ -766,7 +773,8 @@ public class EnemyAIController : MonoBehaviour
         // Targeted core spell → requires core (always true, but explicit)
         if (effect.Contains("targetcore"))
         {
-            if (gameManager.PlayerCore == null)
+            CoreInstance targetCore = GetPreferredCoreTargetForSpell(effect);
+            if (targetCore == null)
                 return false;
         }
 
@@ -966,12 +974,25 @@ public class EnemyAIController : MonoBehaviour
 
         string effect = spell.CurrentEffect.ToLowerInvariant();
 
+        bool hasTargetAny = effect.Contains("targetany");
         // Spells with no explicit target need no forced target
-        if (!effect.Contains("targetunit") && !effect.Contains("targetcore"))
+        if (!hasTargetAny && !effect.Contains("targetunit") && !effect.Contains("targetcore"))
             return null;
 
+        if (hasTargetAny)
+        {
+            if (effect.Contains("damage"))
+                return gameManager.PlayerCore;
+
+            bool targetsFriendly = effect.Contains("buff") || effect.Contains("heal") ||
+                                   effect.Contains("gear") || effect.Contains("grant");
+            return targetsFriendly
+                ? GetBestFriendlySpellTarget(effect)
+                : GetBestHostileSpellTarget(effect);
+        }
+
         if (effect.Contains("targetcore"))
-            return gameManager.PlayerCore;
+            return GetPreferredCoreTargetForSpell(effect);
 
         // --- targetunit spells: pick the best unit for each effect type ---
 
@@ -1036,6 +1057,12 @@ public class EnemyAIController : MonoBehaviour
         }
 
         return best;
+    }
+
+    private CoreInstance GetPreferredCoreTargetForSpell(string effect)
+    {
+        bool targetsFriendlyCore = effect.Contains("heal") || effect.Contains("buff") || effect.Contains("grant") || effect.Contains("gear");
+        return targetsFriendlyCore ? gameManager.EnemyCore : gameManager.PlayerCore;
     }
 
     private IAttackable GetBestHostileSpellTarget(string effect)
@@ -1413,6 +1440,24 @@ public class EnemyAIController : MonoBehaviour
         return false;
     }
 
+    private int EstimateIncomingPlayerBoardDamage()
+    {
+        int damage = 0;
+        foreach (GameObject go in allyBoard.allyPrefabCards)
+        {
+            if (go == null)
+                continue;
+
+            CardInstance unit = go.GetComponent<CardInstance>();
+            if (unit == null || unit.IsDead || unit.IsAsleep || unit.CurrentAttack <= 0)
+                continue;
+
+            damage += unit.CurrentAttack;
+        }
+
+        return damage;
+    }
+
     private IAttackable ChooseBestAttackTarget(CardInstance attacker)
     {
         var targets = gameManager.GetValidTargets(attacker);
@@ -1420,6 +1465,8 @@ public class EnemyAIController : MonoBehaviour
         IAttackable best = null;
         int bestScore = int.MinValue;
         bool hasMajorThreat = HasMajorThreatOnDefendingBoard();
+        int incomingDamage = EstimateIncomingPlayerBoardDamage();
+        bool enemyCoreInDanger = gameManager.EnemyCore.CurrentHealth <= incomingDamage + 2;
 
         foreach (var target in targets)
         {
@@ -1450,6 +1497,8 @@ public class EnemyAIController : MonoBehaviour
                 // If we're critical, heavily deprioritize going face — survive first
                 if (enemyCoreIsCritical && hasMajorThreat)
                     score -= 200;
+                if (enemyCoreInDanger)
+                    score -= 700;
 
                 // If this exact hit is lethal, always prioritize it
                 if (attacker.CurrentAttack >= gameManager.PlayerCore.CurrentHealth)
@@ -1479,6 +1528,8 @@ public class EnemyAIController : MonoBehaviour
 
                 // Reward removing high-attack threats
                 score += unit.CurrentAttack * 2;
+                if (enemyCoreInDanger)
+                    score += unit.CurrentAttack * 8;
             }
 
             if (score > bestScore)
@@ -1492,6 +1543,10 @@ public class EnemyAIController : MonoBehaviour
     }
     private bool HasLethalThisTurn()
     {
+        int spellDamage = EstimatePlayableCoreSpellDamageThisTurn();
+        if (spellDamage >= gameManager.PlayerCore.CurrentHealth)
+            return true;
+
         // If any enemy unit (from AI's perspective = player's board) has protect,
         // the player core cannot be targeted — no lethal possible this turn.
         bool coreIsBlocked = allyBoard.allyPrefabCards.Any(go =>
@@ -1511,8 +1566,52 @@ public class EnemyAIController : MonoBehaviour
             if (!gameManager.CanSelectAttacker(ci)) continue;
             totalAttack += ci.CurrentAttack;
         }
+        return totalAttack + spellDamage >= gameManager.PlayerCore.CurrentHealth;
+    }
 
-        return totalAttack >= gameManager.PlayerCore.CurrentHealth;
+    private int EstimatePlayableCoreSpellDamageThisTurn()
+    {
+        int manaLeft = gameManager.EnemyCurrentMana;
+        int totalDamage = 0;
+
+        List<CardInstance> damageSpells = new();
+        foreach (GameObject cardGO in enemyHand.handCards)
+        {
+            if (cardGO == null)
+                continue;
+
+            CardInstance inst = cardGO.GetComponent<CardInstance>();
+            if (inst == null || inst.Data.cardType.ToLowerInvariant() != "spell")
+                continue;
+
+            string effect = inst.CurrentEffect?.ToLowerInvariant() ?? string.Empty;
+            if (!effect.Contains("damage"))
+                continue;
+
+            bool canHitCore = effect.Contains("targetcore") || effect.Contains("targetany");
+            if (!canHitCore)
+                continue;
+
+            if (!CanEnemyActuallyCastSpell(inst))
+                continue;
+
+            int dmg = GetSingleIntFromEffectByPrefix(effect, "damage");
+            if (dmg <= 0)
+                continue;
+
+            damageSpells.Add(inst);
+        }
+
+        foreach (CardInstance spell in damageSpells.OrderBy(ci => ci.CurrentManaCost))
+        {
+            if (spell.CurrentManaCost > manaLeft)
+                continue;
+
+            manaLeft -= spell.CurrentManaCost;
+            totalDamage += GetSingleIntFromEffectByPrefix(spell.CurrentEffect.ToLowerInvariant(), "damage");
+        }
+
+        return totalDamage;
     }
     private IEnumerator EndEnemyTurnSafely()
     {
