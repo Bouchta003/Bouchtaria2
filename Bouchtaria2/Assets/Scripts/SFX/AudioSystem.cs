@@ -33,7 +33,7 @@ public class AudioSystem : MonoBehaviour
         else MenuButton.SetActive(true);
     }
     private Vector2Int _windowedResolution = new Vector2Int(1920, 1080);
-    
+
     public void ToggleFullscreen()
     {
         if (Screen.fullScreenMode == FullScreenMode.Windowed)
@@ -41,13 +41,19 @@ public class AudioSystem : MonoBehaviour
             // Save current windowed size before going fullscreen
             _windowedResolution = new Vector2Int(Screen.width, Screen.height);
 
-            AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false, GameRunContext.IsAdventureHardMode);
-            AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false, GameRunContext.IsAdventureHardMode);
-            Screen.SetResolution(native.width, native.height, FullScreenMode.FullScreenWindow);
+            AdventureProgressionService.RecordFightResult(
+                GameRunContext.AdventureFightId,
+                false,
+                GameRunContext.IsAdventureHardMode);
+
+            Screen.SetResolution(
+                Screen.currentResolution.width,
+                Screen.currentResolution.height,
+                FullScreenMode.FullScreenWindow);
         }
         else
         {
-            // Restore the exact windowed resolution we had before
+            // Restore previous windowed resolution
             Screen.SetResolution(
                 _windowedResolution.x,
                 _windowedResolution.y,

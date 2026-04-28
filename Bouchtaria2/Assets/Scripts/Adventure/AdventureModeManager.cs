@@ -152,7 +152,11 @@ public class AdventureModeManager : MonoBehaviour
             GameFlowController.Instance.GoToAdventureCombat(fightId, playerDeck, enemyDeck, isHardMode);
         });
     }
-
+    public void ClickDifficulty()
+    {
+        Debug.Log("Toggle mode");
+        ToggleHardMode();
+    }
     public void ToggleHardMode()
     {
         GetAdventureProgression(data =>
