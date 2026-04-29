@@ -150,9 +150,10 @@ public class DeckBuilding : MonoBehaviour
         deckDropdown.AddOptions(options);
 
         int selectedIndex = 0;
-        if (!string.IsNullOrWhiteSpace(DeckNameInput.text))
+        string currentDeckName = DeckNameInput != null ? DeckNameInput.text : string.Empty;
+        if (!string.IsNullOrWhiteSpace(currentDeckName))
         {
-            int deckIndex = deckNames.IndexOf(DeckNameInput.text);
+            int deckIndex = deckNames.IndexOf(currentDeckName);
             if (deckIndex >= 0)
                 selectedIndex = deckIndex + 1;
         }
@@ -551,21 +552,56 @@ public class DeckBuilding : MonoBehaviour
       Debug.Log($"Fetched {deckNames.Count} decks");
       RefreshDeckDropdownOptions();
 
+      if (deckNames.Count > 0)
+      {
+          string preferredDeckName = null;
+
+          if (!string.IsNullOrWhiteSpace(DeckSelectionCache.LastSelectedDeckName) &&
+              userDecks.ContainsKey(DeckSelectionCache.LastSelectedDeckName))
+          {
+              preferredDeckName = DeckSelectionCache.LastSelectedDeckName;
+          }
+          else
+          {
+              preferredDeckName = deckNames[0];
+          }
+
+          currentDeckIndex = Mathf.Max(0, deckNames.IndexOf(preferredDeckName));
+          LoadDeck(preferredDeckName);
+      }
+      else
+      {
+          CurrentDeck.Clear();
+          if (DeckNameInput != null)
+              DeckNameInput.text = string.Empty;
+          currentDeckIndex = 0;
+          RefreshDeckViewIfAvailable();
+          DetectUnlockableTraits();
+      }
+
       // ✅ NOW the data exists
       OnDecksLoaded?.Invoke();
   });
 
     }
+    private void RefreshDeckViewIfAvailable()
+    {
+        if (collection != null)
+            collection.ShowPage(collection.currentPage);
+    }
+
     private void LoadDeck(string deckName)
     {
         if (!userDecks.ContainsKey(deckName))
             return;
 
         CurrentDeck = new List<int>(userDecks[deckName]);
-        DeckNameInput.text = deckName;
+        if (DeckNameInput != null)
+            DeckNameInput.text = deckName;
+
         DeckSelectionCache.RememberDeckSelection(deckName, CurrentDeck);
 
-        collection.ShowPage(collection.currentPage);
+        RefreshDeckViewIfAvailable();
         DetectUnlockableTraits();
     }
     private void LoadDeckDungeon()
