@@ -572,10 +572,9 @@ public class DeckBuilding : MonoBehaviour
       else
       {
           CurrentDeck.Clear();
-          if (DeckNameInput != null)
-              DeckNameInput.text = string.Empty;
+          DeckNameInput.text = string.Empty;
           currentDeckIndex = 0;
-          RefreshDeckViewIfAvailable();
+          collection.ShowPage(collection.currentPage);
           DetectUnlockableTraits();
       }
 
