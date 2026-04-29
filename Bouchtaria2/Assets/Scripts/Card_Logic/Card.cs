@@ -118,11 +118,18 @@ public class Card : MonoBehaviour
 
                     return;
                 }
-
                 if (gameManager.OwnerHasTrait(thisInstance.Owner, CardData.Trait.Faith, 2))
-                    gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id, -(1+ gameManager.DiscoverDiscount));
+                    gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id, -(1 + gameManager.DiscoverDiscount));
                 else
                     gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id, -gameManager.DiscoverDiscount);
+
+                // Add extra copies if this was a discovertrait(trait,n) discover
+                if (gameManager.DiscoverTraitCopiesCount > 0)
+                {
+                    for (int i = 0; i < gameManager.DiscoverTraitCopiesCount; i++)
+                        gameManager.AddCardToHand(thisInstance.Owner, thisInstance.Data.id);
+                    gameManager.DiscoverTraitCopiesCount = 0;
+                }
 
                 //RefreshMana
                 if (gameManager.OwnerHasTrait(thisInstance.Owner, CardData.Trait.Faith, 3))
@@ -130,7 +137,7 @@ public class Card : MonoBehaviour
 
                 // Destroy all discover cards
                 foreach (Transform child in gameManager.discoverDisplay.transform)
-                Destroy(child.gameObject);
+                    Destroy(child.gameObject);
 
                 gameManager.discoverDisplay.SetActive(false);
                 gameManager.DiscoverDiscount = 0;

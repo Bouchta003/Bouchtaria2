@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -730,7 +731,12 @@ public class EnemyAIController : MonoBehaviour
         // Do not spend draw if hand is already almost full (requested threshold: 9+).
         if (effect.Contains("draw") && enemyHand.handCards.Count >= 9)
             return false;
-
+        // Don't summon from deck if board is full or deck has no minions to pull
+        if (effect.Contains("summondeck"))
+        {
+            if (!gameManager.HasBoardSpaceFor(PlayerOwner.Enemy)) return false;
+            if (!FindFirstObjectByType<DeckManager>().HasMinionInDeck(PlayerOwner.Enemy)) return false;
+        }
         // Don't play refreshattack with no ally unit that can actually benefit.
         if (effect.Contains("refreshattack") && !HasRefreshAttackTarget())
             return false;

@@ -2053,7 +2053,14 @@ private sealed class PendingHandReturn
         // successful add -> release reservation
         DecPendingSummons(owner);
     }
-
+    public bool HasBoardSpaceFor(PlayerOwner owner)
+    {
+        var board = GetBoardForOwner(owner);
+        if (board == null) return false;
+        int effectiveCount = board.GetCards().Count + GetPendingSummons(owner);
+        int max = owner == PlayerOwner.Player ? allyDropArea.maxBoardSize : enemyDropArea.maxBoardSize;
+        return effectiveCount < max;
+    }
     public void TrySummonForOwnerEffect(PlayerOwner owner, string effect, bool isTrait = false)
     {
         var board = GetBoardForOwner(owner);
@@ -2070,7 +2077,11 @@ private sealed class PendingHandReturn
         List<CardData> options = CardDatabase.Instance.GetCardsByEffect(effect);
         options = options.FindAll(card => card.cardType == "minion");
         int range = options.Count;
-        if (range <= 0) return;
+        if (range <= 0)
+        {
+            DecPendingSummons(owner); // fix: release reservation before early return
+            return;
+        }
         CardData data = options[UnityEngine.Random.Range(0, range)];
 
         if (data == null)
@@ -2141,8 +2152,7 @@ private sealed class PendingHandReturn
 
         List<CardData> options = CardDatabase.Instance.GetCardsByTraitPackable(trait);
         options = options.FindAll(card => card.cardType == "minion");
-        int range = options.Count;
-        if (range <= 0) return;
+        int range = options.Count; if (range <= 0) { DecPendingSummons(owner); return; }
         CardData data = options[UnityEngine.Random.Range(0, range)];
 
         if (data == null)
@@ -2213,8 +2223,7 @@ private sealed class PendingHandReturn
 
         List<CardData> options = CardDatabase.Instance.GetCardsByManaCost(manaCost);
         options = options.FindAll(card => card.cardType=="minion");
-        int range = options.Count;
-        if (range <= 0) return;
+        int range = options.Count; if (range <= 0) { DecPendingSummons(owner); return; }
         CardData data = options[UnityEngine.Random.Range(0, range)];
 
         if (data == null)
@@ -2928,6 +2937,67 @@ private sealed class PendingHandReturn
         //Call Discover
         OnDiscover?.Invoke(owner);
     }
+    /// <summary>
+    /// discovertrait(trait,n) — player discovers a card from the trait pool,
+    /// then receives n additional free copies of whichever card they picked.
+    /// Enemy picks randomly and receives n copies immediately.
+    /// </summary>
+    /// <summary>
+    /// discovertrait(trait,n) — player discovers a card from the trait pool,
+    /// then receives n additional free copies of whichever card they picked.
+    /// Enemy picks randomly and receives n copies immediately.
+    /// </summary>
+    public int DiscoverTraitCopiesCount = 0;
+    public void DiscoverTraitWithCopies(string trait, int extraCopies, PlayerOwner owner)
+    {
+        List<CardData> options =
+            new List<CardData>(CardDatabase.Instance.GetCardsByTraitPackable(trait));
+
+        if (options.Count <= 0) return;
+
+        if (owner == PlayerOwner.Enemy)
+        {
+            OnDiscover?.Invoke(owner);
+            int pickedId;
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 2))
+            {
+                pickedId = options[UnityEngine.Random.Range(0, options.Count)].id;
+                AddCardToHand(PlayerOwner.Enemy, pickedId, -1);
+                for (int i = 0; i < extraCopies; i++) AddCardToHand(PlayerOwner.Enemy, pickedId);
+                if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
+                return;
+            }
+            pickedId = options[UnityEngine.Random.Range(0, options.Count)].id;
+            AddCardToHand(PlayerOwner.Enemy, pickedId);
+            for (int i = 0; i < extraCopies; i++) AddCardToHand(PlayerOwner.Enemy, pickedId);
+            if (OwnerHasTrait(owner, CardData.Trait.Faith, 3)) GainMana(1, owner);
+            return;
+        }
+
+        // Player path — show discover UI, copies added after pick in Card.cs
+        isDiscovering = true;
+        discoverDisplay.SetActive(true);
+        DiscoverTraitCopiesCount = extraCopies; // store for Card.cs to read after pick
+
+        CardData data1 = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance dataInst1 = CardFactory.Instance.CreateCardInPosition(data1, PlayerOwner.Player, Vector3.zero, new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst1.IsDisplay = true;
+        dataInst1.GetComponent<SortingGroup>().sortingOrder = 201;
+        options.Remove(data1);
+
+        CardData data2 = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance dataInst2 = CardFactory.Instance.CreateCardInPosition(data2, PlayerOwner.Player, new Vector3(5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst2.IsDisplay = true;
+        dataInst2.GetComponent<SortingGroup>().sortingOrder = 201;
+        options.Remove(data2);
+
+        CardData data3 = options[UnityEngine.Random.Range(0, options.Count)];
+        CardInstance dataInst3 = CardFactory.Instance.CreateCardInPosition(data3, PlayerOwner.Player, new Vector3(-5, 0, 0), new Vector3(0.6f, 0.6f, 0.6f), discoverDisplay.transform);
+        dataInst3.IsDisplay = true;
+        dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;
+
+        OnDiscover?.Invoke(owner);
+    }
     public void DiscoverOwnerTrait(PlayerOwner owner)
     {
         // 1️⃣ Get trait pool from DECK (not active effects)
@@ -3443,7 +3513,6 @@ private sealed class PendingHandReturn
 
         card.SetZone(CardZone.Hand);
         card.GetComponent<CardView>().UpdateMode();
-        card.ClearTemporaryManaModifiers();
         card.GetComponent<Card>().ResetCard();
         card.DeployPending = false;
         card.CurrentCastEffect = null;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -84,7 +85,15 @@ public class DeckManager : MonoBehaviour
         if (TurnManager.Instance != null)
             TurnManager.Instance.OnTurnStarted += HandleTurnStart;
     }
-
+    public bool HasMinionInDeck(PlayerOwner owner)
+    {
+        Queue<CardData> deck = decks[owner];
+        if (deck == null || deck.Count == 0) return false;
+        return deck.Any(card => {
+            CardData data = CardDatabase.Instance.GetCardById(card.id);
+            return data != null && data.cardType.Equals("minion", StringComparison.OrdinalIgnoreCase);
+        });
+    }
     private void OnDisable()
     {
         if (TurnManager.Instance != null)

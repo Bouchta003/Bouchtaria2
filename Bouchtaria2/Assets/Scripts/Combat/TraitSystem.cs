@@ -2845,9 +2845,11 @@ public class FaithTier1Effect : IDeckTraitEffect
     {
         if (used) return;
 
-         
-        GameManager.Instance.AddCardToHand(owner, 64);
-        GameManager.Instance.AddCardToHand(owner, 60);
+
+        CardInstance hijab = GameManager.Instance.AddCardToHand(owner, 64);
+        CardInstance duaa = GameManager.Instance.AddCardToHand(owner, 60);
+        hijab?.AddTemporaryManaModifier(-1);
+        duaa?.AddTemporaryManaModifier(1);
         used = true;
     }
 

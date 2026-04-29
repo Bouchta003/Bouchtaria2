@@ -1891,7 +1891,9 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         if (effect.StartsWith("summondeckmaxmana"))
         {
-            if (TryParseIntEffect(effect, "summondeckmaxmana", out int maxMana))
+            if (TryParseIntEffect(effect, "summondeckmaxmana", out int maxMana)
+                && gameManager.HasBoardSpaceFor(Owner)
+                && deckManager.HasMinionInDeck(Owner))
                 deckManager.TrySummonRandomMinionFromDeckByMaxMana(Owner, maxMana);
 
             gameManager.CheckGlow(); return false;
@@ -1899,18 +1901,21 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (effect.StartsWith("summondeckeffect"))
         {
             string effectSearch = ExtractParenthesizedArgs(effect);
-            deckManager.TrySummonRandomMinionFromDeckByEffect(Owner, effectSearch);
+            if (gameManager.HasBoardSpaceFor(Owner) && deckManager.HasMinionInDeck(Owner))
+                deckManager.TrySummonRandomMinionFromDeckByEffect(Owner, effectSearch);
             gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("summondecktrait"))
         {
             string traitSearch = ExtractParenthesizedArgs(effect);
-            deckManager.TrySummonRandomMinionFromDeckByTrait(Owner, traitSearch);
+            if (gameManager.HasBoardSpaceFor(Owner) && deckManager.HasMinionInDeck(Owner))
+                deckManager.TrySummonRandomMinionFromDeckByTrait(Owner, traitSearch);
             gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("summondeck"))
         {
-            deckManager.TrySummonRandomMinionFromDeck(Owner, GetStringValueFromEffect(effect, "summondeck") == "deploy");
+            if (gameManager.HasBoardSpaceFor(Owner) && deckManager.HasMinionInDeck(Owner))
+                deckManager.TrySummonRandomMinionFromDeck(Owner, GetStringValueFromEffect(effect, "summondeck") == "deploy");
             gameManager.CheckGlow(); return false;
         }
         if (effect.StartsWith("summonextinctiondragon"))
@@ -3283,7 +3288,15 @@ public class CardInstance : MonoBehaviour, IAttackable
             {
                 gameManager.Discover(id, idd, iddd, Owner);
             }
-            else if (effect.StartsWith("discovertrait")) { gameManager.DiscoverTrait(valueStr, Owner); }
+            else if (effect.StartsWith("discovertrait"))
+            {
+                // discovertrait(trait,n) — discover from trait pool and add n extra copies
+                string[] traitParts = valueStr.Split(',');
+                if (traitParts.Length == 2 && int.TryParse(traitParts[1].Trim(), out int copies))
+                    gameManager.DiscoverTraitWithCopies(traitParts[0].Trim(), copies, Owner);
+                else
+                    gameManager.DiscoverTrait(valueStr, Owner); // fallback: original single-arg form
+            }
             else 
             {
                 if (discoversCards.Length == 2)
