@@ -652,7 +652,7 @@ private sealed class PendingHandReturn
             EnemyCurrentMana++;
             EnemyCurrentMaxMana++;
         }
-
+        if (GameRunContext.IsAdventureHardMode) { startingEnemyCoreHealth += 20; }
         CombatDialogue.Instance.TriggerCutscene(battleId);
     }
     private void OnDestroy()

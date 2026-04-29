@@ -969,6 +969,7 @@ public class EnemyAIController : MonoBehaviour
     }
     private IAttackable GetForcedSpellTarget(CardInstance spell)
     {
+        bool targetsFriendly = false;
         if (spell == null || string.IsNullOrWhiteSpace(spell.CurrentEffect))
             return null;
 
@@ -984,7 +985,7 @@ public class EnemyAIController : MonoBehaviour
             if (effect.Contains("damage"))
                 return gameManager.PlayerCore;
 
-            bool targetsFriendly = effect.Contains("buff") || effect.Contains("heal") ||
+            targetsFriendly = effect.Contains("buff") || effect.Contains("heal") ||
                                    effect.Contains("gear") || effect.Contains("grant");
             return targetsFriendly
                 ? GetBestFriendlySpellTarget(effect)
@@ -1000,7 +1001,7 @@ public class EnemyAIController : MonoBehaviour
             return GetBestCatchTarget(spell.CurrentEffect);
 
         // Buff/heal/grant/gear target our OWN units
-        bool targetsFriendly = effect.Contains("buff") || effect.Contains("heal") ||
+        targetsFriendly = effect.Contains("buff") || effect.Contains("heal") ||
                                effect.Contains("gear") || effect.Contains("grant") ||
                                effect.Contains("equipself") || effect.Contains("morphto");
 

@@ -791,7 +791,273 @@ public static class EnemyDecks
     // Hard mode uses the same fight IDs as adventure mode.
     // Populate this dictionary with hard-mode decklists per ID.
     private static readonly Dictionary<int, List<int>> AdventureHardDecks =
-        new Dictionary<int, List<int>>();
+        new Dictionary<int, List<int>>(){
+            { 1, new List<int>
+                {
+                //Omri : 
+                192,192,
+                196,196,
+                197,197,
+                194,194,
+                143,143,//Failnaught bows
+                158,158,//jour de fete
+                93,93,
+                302,302,//Gate Discard
+                309,309,//Omri complaint
+                47,47,//BBQ
+                355,355,//discarder
+                356,356,//samurai jack
+                357,357,//kogmaw
+                85,85,
+                85,85//Whatsapp
+                }
+            },
+            { 2, new List<int>
+                {
+                // Omar : (30) Extinction dragon deck with Rods + Revives + Inchaallah
+                246,246,//Extinction dragon
+                210,210,//Max Revive
+                146,146,//Revive
+                241,241,//Great Rod
+                241,241,//Great Rod
+                32,32,//Rathian
+                181,181,//Deviljho
+                9,9,//Odogaron
+                103,103,//Zinogre
+                363,363,//Inchaallah
+                145,145,//Adhan
+                229,6,//Ramadan + own order
+                353,353,//Chbakiya
+                169,169,//SmashBall
+                44,44,//Lasagna
+                }
+            },
+            { 3, new List<int>
+                {
+                // Othmane :(30 cards) chaos deck full randomness.
+                120,120,//Metronome
+                120,120,//Metronome
+                120,120,//Metronome
+                120,120,//Metronome
+                120,120,//Metronome
+                126,126,//Feed The chaos
+                126,126,//Feed The chaos
+                126,126,//Feed The chaos
+                126,126,//Feed The chaos
+                126,126,//Feed The chaos
+                126,126,//Feed The chaos
+                126,126,//Feed The chaos
+                189,189,//Le D
+                128,128,//Le Bens
+                127,127,//Cheater's Will
+                }
+            },
+            { 4, new List<int>
+                {
+                // Amine : buff deck with berserk logic ?
+                168,168,//Agni
+                183,183,
+                184,184,
+                185,185,
+                186,186,
+                187,187,
+                209,209,//Amine Mains
+                299,299,
+                300,300,//Vikingrr and Max
+                165,165,//Holly
+                170,170,//Bursts
+                171,171,//Plata
+                36,319,//Greatsword+Lich king
+                88,88,//rainbow card
+                141,141,//lostvayne
+
+            }
+            },
+            { 5, new List<int>
+                {
+                //Adam :  (18)
+                275,275,//football
+                275,275,//football
+                287,287,//Soccer monster
+                271,271,//Siuu
+                271,271,//Siuu
+                359,359,//Adam
+                354,354,//Weballin
+                354,354,//Weballin
+                354,354,//Weballin
+                }
+            },
+            { 6, new List<int>
+                {
+                // Reda :  24 - full discover highlander deck with Reda and Sara Jackson
+                326,310, //Sara Jackson+Tawhid
+                269,270, //Reda redox en plus
+                60,68,//Duaa and dans ldin
+                88,90,//Rainbow and PlataoPlomo
+                162,209,//Gratitude and Amine Mains
+                58,145,//No more music and Adhan
+                229,111,//Ramadan and Tawakkul
+                308,157,//Suave and Boyd
+                64,65,//Hijabi and Armor Clad Faith
+                106,107,//Bearer of Sabr and Protector of the Ummah
+                171,172,//Plata and plomo
+                173,193,//o + market crasher
+                //Add new highlander card that will discover a card and add a copy of it to your hand.
+                }
+            },
+            { 7, new List<int>
+                {//o :
+                173,173,
+                173,173,
+                173,173,
+                173,173,
+                173,173,
+                173,173,
+                173,173,// o: Gunner+Fighter 
+                90,90,
+                90,90,
+                90,91,//Plata o pLomo
+                91,91,//troll bouisk
+                158,158,//Jour de fete
+                1,1,//La légende de twice
+                232,232,
+                234,234,//Poly et super poly
+                }
+            },
+            { 8, new List<int>
+                {
+                // Thibauld :
+                272,272,//Thib
+                272,274,
+                274,274, //Maxime M
+                352,352,
+                352,352,
+                353,353,
+                353,353,//Chbakiya and briwat
+                214,215,//Mario and luigi
+                44,44,
+                47,47,//BouchtaBBQ and lasagna
+                51,51,
+                45,46,//Faust en rapport à la chanson
+                175,175,//Macho gym + fighter
+                169,169,//Smash ball for buffs
+                233,233,//Bissara
+                }
+            },
+            { 9, new List<int>
+                {
+                // Madre : 22
+                284,284, //madre card
+                284,284, //madre card
+                110,110, //voice of dhikr
+                60,60,   //Duaa
+                60,60,   //Duaa
+                60,60,   //Duaa
+                60,60,   //Duaa
+                60,60,   //Duaa
+                363,363,//Inchaallah
+                229,229,//Ramadan
+                61,61,//Sadaqa
+                //Add card to gain passive EOT +2 HP to all units for the rest of the game.
+                }
+            },
+            { 10, new List<int>
+                {
+                // Sara : 22 : Pokemon killer deck (raichu buzzwole balls tinkaton and garchomp)+core heal with Sarito
+                306,306, //Soundays
+                213,213, //buzzwole
+                57,57,   //Snorlax
+                360,360, //Sara
+                360,360, //Sara
+                44,44,   //Lasagna
+                365,365,//Tinkatink
+                243,243,//Gible
+                231,231,//ultra ball
+                367,367,//Tinkaton
+                227,227,//Bowser
+                }
+            },
+            { 11, new List<int>
+                {
+                //Rhita : 30 : Heal deck with some killers. 
+                276,281,
+                276,281, //Rhita and rhita team
+                280,280, //RhitaGAteau
+                277,277,
+                278,278,
+                279,279,
+                320,320, //Poukoupia
+                56,56,  //Wigglytuff
+                54,54,  //Dormis
+                44,44,   //Lasagna
+                47,47, //BBQ
+                8,8, //choupitout
+                324,324, //pneuma
+                109,109,
+                361,361, //Rhitout
+                //Add a card that will deal damage to enemy core for each heal this game (not overheal)
+                }
+            },
+            { 12, new List<int>
+                {
+                // Padre : 28.
+                285,285, //Padre card
+                285,285,//Padre card
+                362,362,//Padre prime *2
+                270,270, //Redox
+                241,241, //Great rod
+                241,241,//Great rod
+                241,241,//Great rod
+                241,241,//Great rod
+                241,241,//Great rod
+                241,241,//Great rod
+                363,363,//Inchaallah
+                363,363,//Inchaallah
+                106,106,//Sabr
+                145,145,//Adhan
+                //Add unique padre draw card.
+                }
+            },
+            { 13, new List<int>
+                {
+                //Bouchta : SoulForceDeck with knights and free cards
+                374,374,//BouchtaSpell
+                375,375,//KnightsSpell
+                285,361,//PapaRhita
+                360,284,//SaraMama
+                343,343,//Vulcan
+                332,368,//Slifer+Aegislash
+                292,292,//Soul Eater
+                291,291,
+                293,293,
+                289,289,
+                335,335,
+                337,337,
+                333,333,
+                345,345,//Soul Eater end
+                }
+            },
+            { 14, new List<int>
+                {
+                // ???: Prime curse.
+                27,28,
+                29,163,//Dialga Palkia GIratina Hooh
+                189,189,
+                189,85,//Triple Le D + colonel
+                120,120,//metronome
+                126,126,//feed the chaos
+                127,127,//Cheater will
+                127,127,
+                128,129,//Le Bens + gmpves
+                239,239,//GonPrime
+                167,167,
+                308,308,//suave
+                128,129,
+                158,158,
+                75,75,
+            }
+            },
+        };
     public static List<int> GetFloorDeck(int floor)
     {
         if (FloorDecks.TryGetValue(floor, out List<int> deck))

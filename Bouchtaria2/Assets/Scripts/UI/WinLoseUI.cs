@@ -53,10 +53,23 @@ public class WinLoseUI : MonoBehaviour
             SFXManager.Instance.PlaySFXClip(GameManager.Instance.winSFX[i], transform, 1f);
             return;
         }
+        if (GameRunContext.IsAdventureCombat && !GameManager.Instance.adventureBossFinalDialogueTriggered)
+        {
+            restartBtn.SetActive(false);
+            Setup("VICTORY", Color.green, "Congrats !!!\nYou ... Win ?");
+            SFXManager.Instance.PlaySFXClip(GameManager.Instance.winSFX[i], transform, 1f);
+            return;
+        }
         if (GameRunContext.IsAdventureCombat && GameManager.Instance.adventureBossSecondPhaseTriggered)
         {
             restartBtn.SetActive(false);
-            Setup("VICTORY", Color.green, "You completed Bouchtaria 1, but remember this was only the prequel. The true story hasn't even begun !\n(+2000 Gold btw you deserve it)");
+            if(GameRunContext.IsAdventureHardMode)
+            {
+                Setup("VICTORY", Color.green, "You completed Bouchtaria 1 in Hard Mode, but remember this was only the prequel. The true story hasn't even begun !\n(+2000 Gold btw you deserve it)");
+                SFXManager.Instance.PlaySFXClip(GameManager.Instance.winSFX[i], transform, 1f);
+                return;
+            }
+            Setup("VICTORY", Color.green, "You completed Bouchtaria 1...but you know this was only the fun easy mode.\nNow you get to do it in hard mode !");
             SFXManager.Instance.PlaySFXClip(GameManager.Instance.winSFX[i], transform, 1f);
             return;
         }

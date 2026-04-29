@@ -90,7 +90,7 @@ public class CoreInstance : MonoBehaviour, IAttackable
     }
     public void Bleed()
     {
-        if(IsBleeding && CurrentHealth > 1)
+        if(IsBleeding)
         {
             TakeDamage(1);
             BleedingTurns++;
