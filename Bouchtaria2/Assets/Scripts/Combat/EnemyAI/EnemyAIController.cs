@@ -130,6 +130,39 @@ public class EnemyAIController : MonoBehaviour
         }
     }
 
+    private bool HasNonDeployEffect(string effectText)
+    {
+        if (string.IsNullOrWhiteSpace(effectText))
+            return false;
+
+        string[] triggerBlocks = effectText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        foreach (string block in triggerBlocks)
+        {
+            int open = block.IndexOf('[');
+            if (open <= 0)
+                continue;
+
+            string triggerStr = block.Substring(0, open);
+            int parenIndex = triggerStr.IndexOf('(');
+            if (parenIndex > 0)
+                triggerStr = triggerStr.Substring(0, parenIndex);
+
+            // d[...] = deploy trigger, already spent once and not worth silencing now.
+            if (!string.Equals(triggerStr, "d", StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool IsWorthSilencing(CardInstance unit)
+    {
+        if (unit == null || unit.IsDead)
+            return false;
+
+        return HasNonDeployEffect(unit.CurrentEffect);
+    }
+
     private IEnumerator EnemyTurnRoutine()
     {
         yield return StartCoroutine(WaitForEnemyMainPhase());
@@ -244,7 +277,7 @@ public class EnemyAIController : MonoBehaviour
             int effectfulUnits = allyBoard.allyPrefabCards.Count(go => {
                 if (go == null) return false;
                 CardInstance ci = go.GetComponent<CardInstance>();
-                return ci != null && !string.IsNullOrEmpty(ci.CurrentEffect);
+                return IsWorthSilencing(ci);
             });
             score += 20 + effectfulUnits * 10;
         }
@@ -651,7 +684,7 @@ public class EnemyAIController : MonoBehaviour
             bool anyEffectful = allyBoard.allyPrefabCards.Any(go => {
                 if (go == null) return false;
                 CardInstance ci = go.GetComponent<CardInstance>();
-                return ci != null && !ci.IsDead && !string.IsNullOrEmpty(ci.CurrentEffect);
+                return IsWorthSilencing(ci);
             });
             if (!anyEffectful) return false;
         }
@@ -660,7 +693,7 @@ public class EnemyAIController : MonoBehaviour
         {
             bool hasEffectfulTarget = gameManager.GetValidTargets(PlayerOwner.Player)
                 .OfType<CardInstance>()
-                .Any(u => !string.IsNullOrEmpty(u.CurrentEffect));
+                .Any(IsWorthSilencing);
             if (!hasEffectfulTarget) return false;
         }
 
@@ -1090,7 +1123,7 @@ public class EnemyAIController : MonoBehaviour
             else if (effect.Contains("silence"))
             {
                 // Silence units with the most impactful effects — skip vanilla units
-                if (string.IsNullOrEmpty(unit.CurrentEffect)) continue;
+                if (!IsWorthSilencing(unit)) continue;
                 score += unit.CurrentAttack + unit.CurrentHealth;
                 if (unit.HasKeyword("protect")) score += 25;
                 if (unit.HasKeyword("haste")) score += 20;
