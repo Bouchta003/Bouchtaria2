@@ -9,7 +9,8 @@ public class DeckSelectionController : MonoBehaviour
     [SerializeField] private TMP_Dropdown playerDeckDropdown;
     [SerializeField] private string combatSceneName = "Combat";
 
-    private Dictionary<string, List<int>> userDecks;
+    private Dictionary<string, List<int>> userDecks = new();
+    private readonly List<string> dropdownDeckNames = new();
 
     List<int> enemyDeck0 = new List<int>
     {
@@ -29,10 +30,18 @@ public class DeckSelectionController : MonoBehaviour
 
     private void Start()
     {
+        if (playerDeckDropdown != null)
+            playerDeckDropdown.onValueChanged.AddListener(OnDropdownSelectionChanged);
+
+        if (DeckBuilding.Instance == null)
+        {
+            Debug.LogError("[DeckSelection] DeckBuilding instance not found.");
+            ShowEmptyDeckOption();
+            return;
+        }
+
         DeckBuilding.Instance.OnDecksLoaded += PopulateDropdown;
         DeckBuilding.Instance.FetchDecks();
-        playerDeckDropdown.onValueChanged.AddListener(OnDropdownSelectionChanged);
-
     }
 
     private void OnDestroy()
@@ -50,17 +59,28 @@ public class DeckSelectionController : MonoBehaviour
     }
     private void PopulateDropdown()
     {
+        if (playerDeckDropdown == null || DeckBuilding.Instance == null)
+            return;
+
         userDecks = DeckBuilding.Instance.GetUserDecks();
+        dropdownDeckNames.Clear();
+
+        if (userDecks.Count == 0)
+        {
+            ShowEmptyDeckOption();
+            return;
+        }
+
+        dropdownDeckNames.AddRange(userDecks.Keys);
+        dropdownDeckNames.Sort(System.StringComparer.OrdinalIgnoreCase);
 
         playerDeckDropdown.ClearOptions();
-
-        List<string> options = new List<string>(userDecks.Keys);
-        playerDeckDropdown.AddOptions(options);
+        playerDeckDropdown.AddOptions(new List<string>(dropdownDeckNames));
 
         int selectedIndex = 0;
         if (!string.IsNullOrWhiteSpace(DeckSelectionCache.LastSelectedDeckName))
         {
-            int preferredIndex = options.IndexOf(DeckSelectionCache.LastSelectedDeckName);
+            int preferredIndex = dropdownDeckNames.IndexOf(DeckSelectionCache.LastSelectedDeckName);
             if (preferredIndex >= 0 &&
                 userDecks.TryGetValue(DeckSelectionCache.LastSelectedDeckName, out List<int> preferredDeck) &&
                 DeckSelectionCache.IsDeckValidForStandardCombat(preferredDeck))
@@ -71,11 +91,7 @@ public class DeckSelectionController : MonoBehaviour
 
         playerDeckDropdown.SetValueWithoutNotify(selectedIndex);
         playerDeckDropdown.RefreshShownValue();
-
-        Debug.Log($"[DeckSelection] Loaded {options.Count} decks");
-        foreach (var name in userDecks.Keys)
-            Debug.Log($"Deck found: {name}");
-
+        OnDropdownSelectionChanged(selectedIndex);
     }
     public void ChooseEnemy(int index)
     {
@@ -96,41 +112,59 @@ public class DeckSelectionController : MonoBehaviour
     }
     public List<int> GetSelectedUserDeck()
     {
-        if (playerDeckDropdown.options.Count == 0)
+        if (!TryGetSelectedDeck(out string selectedDeckName, out List<int> selectedDeck))
             return new List<int>();
-
-        string selectedDeckName =
-            playerDeckDropdown.options[playerDeckDropdown.value].text;
-
-        List<int> selectedDeck = userDecks[selectedDeckName];
 
         DeckSelectionCache.RememberDeckSelection(selectedDeckName, selectedDeck);
         DeckSelectionCache.SelectedPlayerDeck = selectedDeck;
-        return selectedDeck;
+        return new List<int>(selectedDeck);
     }
     public void StartBattle()
     {
-        if (playerDeckDropdown.options.Count == 0)
+        if (!TryGetSelectedDeck(out string selectedDeckName, out List<int> selectedDeck))
             return;
 
-        string selectedDeckName =
-            playerDeckDropdown.options[playerDeckDropdown.value].text;
-
-        List<int> selectedDeck = userDecks[selectedDeckName];
-
         DeckSelectionCache.RememberDeckSelection(selectedDeckName, selectedDeck);
-        DeckSelectionCache.SelectedPlayerDeck = selectedDeck;
+        DeckSelectionCache.SelectedPlayerDeck = new List<int>(selectedDeck);
 
         SceneManager.LoadScene(combatSceneName);
     }
     private void OnDropdownSelectionChanged(int index)
     {
-        if (userDecks == null || index < 0 || index >= playerDeckDropdown.options.Count)
+        if (userDecks == null || index < 0 || index >= dropdownDeckNames.Count)
             return;
 
-        string selectedDeckName = playerDeckDropdown.options[index].text;
+        string selectedDeckName = dropdownDeckNames[index];
         if (userDecks.TryGetValue(selectedDeckName, out List<int> selectedDeck))
             DeckSelectionCache.RememberDeckSelection(selectedDeckName, selectedDeck);
+    }
+
+    private bool TryGetSelectedDeck(out string selectedDeckName, out List<int> selectedDeck)
+    {
+        selectedDeckName = string.Empty;
+        selectedDeck = null;
+
+        if (playerDeckDropdown == null || dropdownDeckNames.Count == 0)
+            return false;
+
+        int selectedIndex = playerDeckDropdown.value;
+        if (selectedIndex < 0 || selectedIndex >= dropdownDeckNames.Count)
+            return false;
+
+        selectedDeckName = dropdownDeckNames[selectedIndex];
+        return userDecks.TryGetValue(selectedDeckName, out selectedDeck);
+    }
+
+    private void ShowEmptyDeckOption()
+    {
+        if (playerDeckDropdown == null)
+            return;
+
+        dropdownDeckNames.Clear();
+        playerDeckDropdown.ClearOptions();
+        playerDeckDropdown.AddOptions(new List<string> { "No decks found" });
+        playerDeckDropdown.SetValueWithoutNotify(0);
+        playerDeckDropdown.RefreshShownValue();
     }
     public void MainMenu()
     {
