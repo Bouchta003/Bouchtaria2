@@ -447,6 +447,51 @@ private sealed class PendingHandReturn
             if (card == null || !discardPredicate(card))
                 continue;
 
+            // Synergy: card intercepts the discard and fires its effect instead
+            if (card.HasKeyword("voleur"))
+            {
+                // Gains +3/+3 and stays in hand — not invested, not returned
+                card.ModifyStats(3, 3);
+                DiscardHistory.Add((owner, card.Data.id));
+                discardedCount++;
+                TotalDiscardsThisCombat++;
+                continue;
+            }
+
+            if (card.HasKeyword("assassin"))
+            {
+                GetCoreForOwner(CardInstance.OtherPlayer(card.Owner)).TakeDamage(5);
+                DiscardHistory.Add((owner, card.Data.id));
+                hand.RemoveCardFromHand(go);
+                Destroy(go);
+                discardedCount++;
+                TotalDiscardsThisCombat++;
+                continue;
+            }
+
+            if (card.HasKeyword("criminel"))
+            {
+                DiscardRandomCards(card.Owner, true, 1);
+                DiscardHistory.Add((owner, card.Data.id));
+                hand.RemoveCardFromHand(go);
+                Destroy(go);
+                discardedCount++;
+                TotalDiscardsThisCombat++;
+                continue;
+            }
+
+            if (card.HasKeyword("meurtrier"))
+            {
+                KillLowestHealthUnit(CardInstance.OtherPlayer(card.Owner));
+                DiscardHistory.Add((owner, card.Data.id));
+                hand.RemoveCardFromHand(go);
+                Destroy(go);
+                discardedCount++;
+                TotalDiscardsThisCombat++;
+                continue;
+            }
+
+            // Normal investment discard — card returns later with bonuses
             pendingHandReturns.Add(new PendingHandReturn
             {
                 Owner = owner,
@@ -531,6 +576,7 @@ private sealed class PendingHandReturn
             int randomIndex = UnityEngine.Random.Range(0, targetHand.handCards.Count);
             GameObject toRemove = targetHand.handCards[randomIndex];
 
+            // Null guard BEFORE any access
             if (toRemove == null)
             {
                 targetHand.handCards.RemoveAt(randomIndex);
@@ -538,8 +584,63 @@ private sealed class PendingHandReturn
             }
 
             CardInstance discarded = toRemove.GetComponent<CardInstance>();
-            if (discarded != null)
+
+            if (discarded == null)
+            {
+                targetHand.handCards.RemoveAt(randomIndex);
+                continue;
+            }
+
+            // --- Synergy: card stays in hand, effect fires instead of discard ---
+            if (discarded.HasKeyword("voleur"))
+            {
+                // Gains +3/+3 and stays in hand
+                discarded.ModifyStats(3, 3);
+                discardedCount++;
+                TotalDiscardsThisCombat++;
                 DiscardHistory.Add((targetHand.Owner, discarded.Data.id));
+                targetHand.UpdateCardPositions();
+                continue;
+            }
+
+            if (discarded.HasKeyword("assassin"))
+            {
+                // Deals 5 damage to enemy core and is consumed
+                GetCoreForOwner(CardInstance.OtherPlayer(discarded.Owner)).TakeDamage(5);
+                discardedCount++;
+                TotalDiscardsThisCombat++;
+                DiscardHistory.Add((targetHand.Owner, discarded.Data.id));
+                targetHand.RemoveCardFromHand(toRemove);
+                Destroy(toRemove);
+                continue;
+            }
+
+            if (discarded.HasKeyword("criminel"))
+            {
+                // Makes enemy discard a card and is consumed
+                DiscardRandomCards(discarded.Owner, true, 1);
+                discardedCount++;
+                TotalDiscardsThisCombat++;
+                DiscardHistory.Add((targetHand.Owner, discarded.Data.id));
+                targetHand.RemoveCardFromHand(toRemove);
+                Destroy(toRemove);
+                continue;
+            }
+
+            if (discarded.HasKeyword("meurtrier"))
+            {
+                // Kills lowest health enemy unit and is consumed
+                KillLowestHealthUnit(CardInstance.OtherPlayer(discarded.Owner));
+                discardedCount++;
+                TotalDiscardsThisCombat++;
+                DiscardHistory.Add((targetHand.Owner, discarded.Data.id));
+                targetHand.RemoveCardFromHand(toRemove);
+                Destroy(toRemove);
+                continue;
+            }
+
+            // --- Normal discard ---
+            DiscardHistory.Add((targetHand.Owner, discarded.Data.id));
             targetHand.RemoveCardFromHand(toRemove);
             Destroy(toRemove);
             discardedCount++;
@@ -548,6 +649,25 @@ private sealed class PendingHandReturn
 
         targetHand.UpdateCardPositions();
         return discardedCount;
+    }
+    private void KillLowestHealthUnit(PlayerOwner targetOwner)
+    {
+        List<GameObject> board = targetOwner == PlayerOwner.Player
+            ? allyDropArea.allyPrefabCards
+            : enemyDropArea.enemyPrefabCards;
+
+        CardInstance lowest = null;
+        foreach (GameObject go in board)
+        {
+            if (go == null) continue;
+            CardInstance ci = go.GetComponent<CardInstance>();
+            if (ci == null || ci.IsDead) continue;
+            if (lowest == null || ci.CurrentHealth < lowest.CurrentHealth)
+                lowest = ci;
+        }
+
+        if (lowest != null)
+            Kill(lowest);
     }
     public CardInstance AddCardToHandWithBonuses(PlayerOwner owner,int id,int manaModifier, int attackBonus,  int healthBonus    )
     {

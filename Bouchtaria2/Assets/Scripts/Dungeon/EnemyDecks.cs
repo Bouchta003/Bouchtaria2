@@ -795,21 +795,21 @@ public static class EnemyDecks
             { 1, new List<int>
                 {
                 //Omri : 
-                192,192,
-                196,196,
-                197,197,
-                194,194,
-                143,143,//Failnaught bows
+                196,196,//Investment
+                197,197,//GamblerInvestment
+                194,194,//Market Controller
                 158,158,//jour de fete
-                93,93,
                 302,302,//Gate Discard
                 309,309,//Omri complaint
-                47,47,//BBQ
+                309,309,//Omri complaint
                 355,355,//discarder
                 356,356,//samurai jack
                 357,357,//kogmaw
-                85,85,
-                85,85//Whatsapp
+                85,85,//Whatsapp
+                85,85,//Whatsapp
+                283,283,//CinnamonCops
+                379,380,//Voleur&cie
+                381,382,//VOleur 1 cie
                 }
             },
             { 2, new List<int>

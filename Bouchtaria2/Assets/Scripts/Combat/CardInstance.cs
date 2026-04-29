@@ -3541,7 +3541,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         target.TakeDamage(amount);
         gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
     }
-    private void TryExecuteKill(string effect, IAttackable target)
+    public void TryExecuteKill(string effect, IAttackable target)
     {
         if (effect.StartsWith("killrandom"))
         {
