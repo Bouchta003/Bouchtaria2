@@ -150,9 +150,10 @@ public class DeckBuilding : MonoBehaviour
         deckDropdown.AddOptions(options);
 
         int selectedIndex = 0;
-        if (!string.IsNullOrWhiteSpace(DeckNameInput.text))
+        string currentDeckName = DeckNameInput != null ? DeckNameInput.text : string.Empty;
+        if (!string.IsNullOrWhiteSpace(currentDeckName))
         {
-            int deckIndex = deckNames.IndexOf(DeckNameInput.text);
+            int deckIndex = deckNames.IndexOf(currentDeckName);
             if (deckIndex >= 0)
                 selectedIndex = deckIndex + 1;
         }
@@ -582,16 +583,24 @@ public class DeckBuilding : MonoBehaviour
   });
 
     }
+    private void RefreshDeckViewIfAvailable()
+    {
+        if (collection != null)
+            collection.ShowPage(collection.currentPage);
+    }
+
     private void LoadDeck(string deckName)
     {
         if (!userDecks.ContainsKey(deckName))
             return;
 
         CurrentDeck = new List<int>(userDecks[deckName]);
-        DeckNameInput.text = deckName;
+        if (DeckNameInput != null)
+            DeckNameInput.text = deckName;
+
         DeckSelectionCache.RememberDeckSelection(deckName, CurrentDeck);
 
-        collection.ShowPage(collection.currentPage);
+        RefreshDeckViewIfAvailable();
         DetectUnlockableTraits();
     }
     private void LoadDeckDungeon()
