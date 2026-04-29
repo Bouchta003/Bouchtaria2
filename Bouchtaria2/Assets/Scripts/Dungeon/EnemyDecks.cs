@@ -794,11 +794,9 @@ public static class EnemyDecks
         new Dictionary<int, List<int>>(){
             { 1, new List<int>
                 {
-                //Omri : 
-                196,196,//Investment
+                //Omri : 30
+                383,383,//Dakka dagger
                 197,197,//GamblerInvestment
-                194,194,//Market Controller
-                158,158,//jour de fete
                 302,302,//Gate Discard
                 309,309,//Omri complaint
                 309,309,//Omri complaint
@@ -808,6 +806,8 @@ public static class EnemyDecks
                 85,85,//Whatsapp
                 85,85,//Whatsapp
                 283,283,//CinnamonCops
+                379,380,//Voleur&cie
+                381,382,//VOleur 1 cie
                 379,380,//Voleur&cie
                 381,382,//VOleur 1 cie
                 }
@@ -875,7 +875,7 @@ public static class EnemyDecks
             },
             { 5, new List<int>
                 {
-                //Adam :  (18)
+                //Adam :  (22)
                 275,275,//football
                 275,275,//football
                 287,287,//Soccer monster
@@ -885,6 +885,8 @@ public static class EnemyDecks
                 354,354,//Weballin
                 354,354,//Weballin
                 354,354,//Weballin
+                258,258,//Kidou
+                259,259,//Fubuki
                 }
             },
             { 6, new List<int>
