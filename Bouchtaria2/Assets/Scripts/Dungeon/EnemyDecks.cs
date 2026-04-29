@@ -854,28 +854,31 @@ public static class EnemyDecks
             },
             { 4, new List<int>
                 {
-                // Amine : buff deck with berserk logic ?
+                // Amine (30) : buff deck with deathless logic ?
                 168,168,//Agni
-                183,183,
-                184,184,
-                185,185,
-                186,186,
-                187,187,
-                209,209,//Amine Mains
-                299,299,
-                300,300,//Vikingrr and Max
-                165,165,//Holly
+                385,385,//Knight's fury
+                169,169,//SmashBall
+                186,186,//Amyine
+                175,175,//Machop
+                174,174,//WaddleDee
+                183,183,//Tryndamine
+                183,183,//Tryndamine
+                185,185,//Amine badguy
+                209,209,//AmineMain
                 170,170,//Bursts
                 171,171,//Plata
-                36,319,//Greatsword+Lich king
-                88,88,//rainbow card
-                141,141,//lostvayne
-
-            }
+                386,386,//Army of the dead
+                374,374,//King presence
+                187,187,//Kaziziw demon
+                }
             },
             { 5, new List<int>
                 {
-                //Adam :  (22)
+                //Adam :  (30)
+                275,275,//football
+                275,275,//football
+                275,275,//football
+                275,275,//football
                 275,275,//football
                 275,275,//football
                 287,287,//Soccer monster
@@ -884,9 +887,9 @@ public static class EnemyDecks
                 359,359,//Adam
                 354,354,//Weballin
                 354,354,//Weballin
-                354,354,//Weballin
                 258,258,//Kidou
                 259,259,//Fubuki
+                256,256,//Endou
                 }
             },
             { 6, new List<int>
@@ -910,42 +913,41 @@ public static class EnemyDecks
                 }
             },
             { 7, new List<int>
-                {//o :
-                173,173,
-                173,173,
-                173,173,
-                173,173,
-                173,173,
-                173,173,
+                {//o :30
                 173,173,// o: Gunner+Fighter 
-                90,90,
-                90,90,
-                90,91,//Plata o pLomo
-                91,91,//troll bouisk
+                173,173,// o: Gunner+Fighter 
+                173,173,// o: Gunner+Fighter 
+                173,173,// o: Gunner+Fighter 
+                173,173,// o: Gunner+Fighter 
+                173,173,// o: Gunner+Fighter 
+                90,90,//PlataoPlomo
+                90,90,//PlataoPlomo
+                160,160,//Trapwire
+                92,92,//Jinx
                 158,158,//Jour de fete
-                1,1,//La légende de twice
-                232,232,
+                384,384,//True O
+                384,384,//True O
+                384,384,//True O
                 234,234,//Poly et super poly
                 }
             },
             { 8, new List<int>
-                {
-                // Thibauld :
-                272,272,//Thib
-                272,274,
-                274,274, //Maxime M
+                {//Thib gear deack 30
+                216,216,//Chespin
+                292,292,//Joker
+                343,343,//Vulcan
+                343,343,//Vulcan
+                343,343,//Vulcan
+                373,373,//Princeloc
                 352,352,
-                352,352,
-                353,353,
                 353,353,//Chbakiya and briwat
-                214,215,//Mario and luigi
-                44,44,
-                47,47,//BouchtaBBQ and lasagna
-                51,51,
-                45,46,//Faust en rapport à la chanson
-                175,175,//Macho gym + fighter
-                169,169,//Smash ball for buffs
-                233,233,//Bissara
+                49,49,//IO
+                256,256,//Endou
+                143,143,//failnaught
+                142,142,//Warmog
+                229,170,//Ramadan + Burst
+                272,274,//Thib + Maxime M
+                315,369,//Stay at house + Yazio
                 }
             },
             { 9, new List<int>

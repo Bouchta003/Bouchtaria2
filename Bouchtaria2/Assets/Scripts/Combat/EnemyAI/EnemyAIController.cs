@@ -237,6 +237,18 @@ public class EnemyAIController : MonoBehaviour
         if (effect.Contains("buff"))
             score += enemyBoard.enemyPrefabCards.Count * 10;
 
+        // Prefer buffing our own 'princeloc' units when present — they are high priority targets
+        int princelocCount = enemyBoard.enemyPrefabCards.Count(go => {
+            if (go == null) return false;
+            CardInstance ci = go.GetComponent<CardInstance>();
+            return ci != null && ci.HasKeyword("princeloc");
+        });
+        if (princelocCount > 0 && effect.Contains("buff"))
+        {
+            // Increase value of buff spells when we have princeloc units to buff
+            score += princelocCount * 20;
+        }
+
         if (effect.Contains("grantall"))
         {
             score += enemyBoard.enemyPrefabCards.Count * 18;
@@ -244,6 +256,9 @@ public class EnemyAIController : MonoBehaviour
                 .Select(go => go != null ? go.GetComponent<CardInstance>() : null)
                 .Count(ci => ci != null && ci.CurrentAttack > 0 && !ci.IsAsleep && !ci.HasAttackedThisTurn);
             score += attackersReady * 12;
+            // Grant effects also become more valuable if we can buff princeloc units
+            if (princelocCount > 0)
+                score += princelocCount * 18;
         }
         else if (effect.Contains("grant"))
         {
@@ -1086,6 +1101,12 @@ public class EnemyAIController : MonoBehaviour
                 CardInstance bestAlly = GetHighestStatPlayerUnit();
                 return bestAlly;
             }
+            // Prioritize our own 'princeloc' units for buff-like effects
+            if ((effect.Contains("buff") || effect.Contains("grant") || effect.Contains("gear")) && ci.HasKeyword("princeloc"))
+            {
+                // Strong immediate bonus to ensure princeloc units are chosen
+                score += 40;
+            }
 
             score += ci.CurrentAttack + ci.CurrentHealth;
 
@@ -1286,7 +1307,7 @@ public class EnemyAIController : MonoBehaviour
         bool enemyCoreIsCritical = gameManager.EnemyCore.CurrentHealth <= 8;
         bool boardUnderPressure = EvaluateAllyBoardThreat() >= 10;
 
-        value += minion.CurrentAttack * 2;
+        value += minion.CurrentAttack * 3;
         value += minion.CurrentHealth;
 
         // Protect is extremely valuable when survival matters
@@ -1300,65 +1321,21 @@ public class EnemyAIController : MonoBehaviour
         if (minion.CurrentEffect != null && minion.CurrentEffect.Contains("s[")) value += 5;
 
         // High-health units are more valuable under pressure — they survive trades
-        if (boardUnderPressure && minion.CurrentHealth >= 5)
-            value += 8;
-
+        if (boardUnderPressure && minion.HasKeyword("protect"))
+            value += 10;
+        if (boardUnderPressure && minion.HasKeyword("protect") && minion.HasKeyword("blessed"))
+            value += 50;
         // Fragile units played into a threatening board just die immediately
-        if (boardUnderPressure && minion.CurrentHealth <= 2 && !minion.HasKeyword("haste"))
+        if (boardUnderPressure && !minion.HasKeyword("protect"))
             value -= 10;
-
         value -= minion.CurrentManaCost;
 
+        // Card 275 is a priority play — always score it highly
+        if (minion.Data != null && minion.Data.id == 275)
+            value += 15;
+
         return value;
-    }
-    private IEnumerator TrySummon()
-    {
-        while (true)
-        {
-            if (enemyBoard.enemyPrefabCards.Count >=enemyBoard.maxBoardSize)
-                yield break;
-            CardInstance card = GetBestPlayableMinion();
-            if (card == null)
-                yield break;
-            Summon(card.GetComponent<Card>());
-
-            // 🔹 WAIT between summons
-            yield return new WaitForSeconds(0.35f);
-        }
-    }
-    CardInstance GetBestPlayableMinion()
-    {
-        int availableMana = gameManager.EnemyCurrentMana;
-        // Collect playable minions
-        List<CardInstance> playable = new();
-
-        foreach (GameObject cardGO in enemyHand.handCards)
-        {
-            CardInstance inst = cardGO.GetComponent<CardInstance>();
-            if (inst == null)
-                continue;
-
-            if (inst.Data.cardType.ToLower() != "minion")
-                continue;
-
-            if (inst.CurrentManaCost > availableMana)
-                continue;
-
-            if (!CanEnemyPlayMinion(inst))
-                continue;
-
-            playable.Add(inst);
-        }
-
-        // Sort by cheapest first (maximize mana usage)
-        if(playable.Count>0 && playable != null)
-        {
-            playable.Sort((a, b) =>
-                EvaluateMinion(b).CompareTo(EvaluateMinion(a)));
-
-            return playable[0];
-        }
-        return null;
+    
     }
     private void Summon(Card card)
     {
