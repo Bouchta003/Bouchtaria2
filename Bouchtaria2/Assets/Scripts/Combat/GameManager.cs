@@ -296,6 +296,7 @@ private sealed class PendingHandReturn
 
         // Hand size also shrinks when a card is played:
         OnCardPlayed += card => RefreshSliferCards(card.Owner);
+        InitializeSoulCounterVisibility();
         SetupTraits();                        // create progressions
 
         SetupCores();
@@ -359,12 +360,47 @@ private sealed class PendingHandReturn
             );
         }
     }
+    private bool OwnerCanUseSoulForce(PlayerOwner owner)
+    {
+        if (deckManager == null)
+            return false;
+
+        Dictionary<CardData.Trait, int> unlockables = owner == PlayerOwner.Player
+            ? deckManager.AllyTraitsUnlockable
+            : deckManager.EnemyTraitsUnlockable;
+
+        return unlockables != null &&
+               unlockables.TryGetValue(CardData.Trait.SoulForce, out int tier) &&
+               tier > 0;
+    }
+
+    private void InitializeSoulCounterVisibility()
+    {
+        bool playerHasSoulForce = OwnerCanUseSoulForce(PlayerOwner.Player);
+        bool enemyHasSoulForce = OwnerCanUseSoulForce(PlayerOwner.Enemy);
+
+        if (allySoulCounter != null)
+        {
+            allySoulCounter.SetActive(playerHasSoulForce);
+            if (playerHasSoulForce)
+                SetSouls(PlayerOwner.Player, 0);
+        }
+
+        if (enemySoulCounter != null)
+        {
+            enemySoulCounter.SetActive(enemyHasSoulForce);
+            if (enemyHasSoulForce)
+                SetSouls(PlayerOwner.Enemy, 0);
+        }
+    }
     public void SetSouls(PlayerOwner owner, int counter)
     {
-        GameObject soulGO = owner == PlayerOwner.Player ? allySoulCounter : enemySoulCounter;
+        if (!OwnerCanUseSoulForce(owner))
+            return;
 
-        if (!soulGO.activeSelf)
-            soulGO.SetActive(true);
+        GameObject soulGO = owner == PlayerOwner.Player ? allySoulCounter : enemySoulCounter;
+        if (soulGO == null)
+            return;
 
         TextMeshProUGUI[] texts = soulGO.GetComponentsInChildren<TextMeshProUGUI>(true);
 
@@ -375,10 +411,15 @@ private sealed class PendingHandReturn
     }
     public int GetSouls(PlayerOwner owner)
     {
-        GameObject soulGO = owner == PlayerOwner.Player ? allySoulCounter : enemySoulCounter;
-        if (!soulGO.activeSelf) soulGO.SetActive(true);
+        if (!OwnerCanUseSoulForce(owner))
+            return 0;
 
-        return Convert.ToInt32(soulGO.GetComponentInChildren<TextMeshProUGUI>().text);
+        GameObject soulGO = owner == PlayerOwner.Player ? allySoulCounter : enemySoulCounter;
+        if (soulGO == null)
+            return 0;
+
+        TextMeshProUGUI soulText = soulGO.GetComponentInChildren<TextMeshProUGUI>(true);
+        return soulText != null ? Convert.ToInt32(soulText.text) : 0;
     }
     public int ConsumeSoul(CardInstance consumer, int amount)
     {
@@ -386,6 +427,8 @@ private sealed class PendingHandReturn
             return 0;
 
         PlayerOwner owner = consumer.Owner;
+        if (!OwnerCanUseSoulForce(owner))
+            return 0;
         int availableSouls = GetSouls(owner);
         if (availableSouls <= 0)
             return 0;
@@ -407,7 +450,7 @@ private sealed class PendingHandReturn
     // Ownerless consume:
     public int ConsumeSoul(PlayerOwner owner, int amount)
     {
-        if (amount <= 0)
+        if (amount <= 0 || !OwnerCanUseSoulForce(owner))
             return 0;
 
         int availableSouls = GetSouls(owner);

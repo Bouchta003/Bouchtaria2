@@ -551,6 +551,32 @@ public class DeckBuilding : MonoBehaviour
       Debug.Log($"Fetched {deckNames.Count} decks");
       RefreshDeckDropdownOptions();
 
+      if (deckNames.Count > 0)
+      {
+          string preferredDeckName = null;
+
+          if (!string.IsNullOrWhiteSpace(DeckSelectionCache.LastSelectedDeckName) &&
+              userDecks.ContainsKey(DeckSelectionCache.LastSelectedDeckName))
+          {
+              preferredDeckName = DeckSelectionCache.LastSelectedDeckName;
+          }
+          else
+          {
+              preferredDeckName = deckNames[0];
+          }
+
+          currentDeckIndex = Mathf.Max(0, deckNames.IndexOf(preferredDeckName));
+          LoadDeck(preferredDeckName);
+      }
+      else
+      {
+          CurrentDeck.Clear();
+          DeckNameInput.text = string.Empty;
+          currentDeckIndex = 0;
+          collection.ShowPage(collection.currentPage);
+          DetectUnlockableTraits();
+      }
+
       // ✅ NOW the data exists
       OnDecksLoaded?.Invoke();
   });
