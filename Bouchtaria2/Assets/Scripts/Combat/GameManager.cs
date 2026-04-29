@@ -4240,10 +4240,11 @@ private sealed class PendingHandReturn
     private IEnumerator ProcessAttackQueue()
     {
         isResolvingAttack = true;
-
-        while (attackQueue.Count > 0)
+        try
         {
-            AttackRequest req = attackQueue.Dequeue();
+            while (attackQueue.Count > 0)
+            {
+                AttackRequest req = attackQueue.Dequeue();
 
             // Attacker validation
             if (req.Attacker == null ||
@@ -4325,12 +4326,15 @@ private sealed class PendingHandReturn
                 bypassSelectionRules: req.BypassSelectionRules);
 
 
-            // Small pacing delay (FEELS GOOD)
-            yield return new WaitForSeconds(0.05f);
+                // Small pacing delay (FEELS GOOD)
+                yield return new WaitForSeconds(0.05f);
+            }
         }
-
-        isResolvingAttack = false;
-        enemyDropArea.FlushLayoutIfDirty();
+        finally
+        {
+            isResolvingAttack = false;
+            enemyDropArea.FlushLayoutIfDirty();
+        }
 
     }
     public bool IsAwaitingEffectTarget(CardInstance source)
