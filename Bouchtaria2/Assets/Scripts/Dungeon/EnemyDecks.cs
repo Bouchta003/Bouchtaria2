@@ -889,7 +889,7 @@ public static class EnemyDecks
             },
             { 6, new List<int>
                 {
-                // Reda :  24 - full discover highlander deck with Reda and Sara Jackson
+                // Reda :  30 - full discover highlander deck with Reda and Sara Jackson
                 326,310, //Sara Jackson+Tawhid
                 269,270, //Reda redox en plus
                 60,68,//Duaa and dans ldin
@@ -902,7 +902,9 @@ public static class EnemyDecks
                 106,107,//Bearer of Sabr and Protector of the Ummah
                 171,172,//Plata and plomo
                 173,193,//o + market crasher
-                //Add new highlander card that will discover a card and add a copy of it to your hand.
+                377,85,//Coran Reader + Colonel
+                378,109,//Muslim avengers+ilm seeker
+                146,284,//Revive+La Mama
                 }
             },
             { 7, new List<int>

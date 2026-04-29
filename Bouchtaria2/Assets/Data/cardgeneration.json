@@ -6139,6 +6139,39 @@
       "packable": false,
       "token": false,
       "signature": false
+    },
+    "377": {
+      "id": 377,
+      "name": "Coran Reader",
+      "cardType": "spell",
+      "manaCost": 2,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "Faith" ],
+      "effect": "highlander?discovertrait(Faith,2) autoshield(5)",
+      "effectText": "Shield your core for 5\nIf your deck is a singleton deck, discover a Faith card and add two copies of it to your hand.",
+      "artPath": "CardArt/coranreader",
+      "artCompactPath": "CardArt/coranreader_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
+    },
+    "378": {
+      "id": 378,
+      "name": "Faith Avengers",
+      "cardType": "spell",
+      "manaCost": 10,
+      "atkValue": 0,
+      "hpValue": 0,
+      "traits": [ "Faith" ],
+      "effect": "highlander?summoncard(107) highlander?summoncard(108) summoncard(109) summoncard(110) summoncard(66) highlander?summoncard(106)",
+      "effectText": "Summon 3 of the faith warriors, if your deck is a singleton deck summon all 6 of them.",
+      "artPath": "CardArt/muslimavengers",
+      "relatedCards": [ 109,110,66 ],
+      "artCompactPath": "CardArt/muslimavengers_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
     }
   }
 }
