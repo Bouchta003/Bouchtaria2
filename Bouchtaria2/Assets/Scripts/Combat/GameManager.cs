@@ -460,10 +460,9 @@ private sealed class PendingHandReturn
 
             if (card.HasKeyword("assassin"))
             {
+                // Deals 5 damage and stays in hand
                 GetCoreForOwner(CardInstance.OtherPlayer(card.Owner)).TakeDamage(5);
                 DiscardHistory.Add((owner, card.Data.id));
-                hand.RemoveCardFromHand(go);
-                Destroy(go);
                 discardedCount++;
                 TotalDiscardsThisCombat++;
                 continue;
@@ -471,10 +470,9 @@ private sealed class PendingHandReturn
 
             if (card.HasKeyword("criminel"))
             {
+                // Makes enemy discard and stays in hand
                 DiscardRandomCards(card.Owner, true, 1);
                 DiscardHistory.Add((owner, card.Data.id));
-                hand.RemoveCardFromHand(go);
-                Destroy(go);
                 discardedCount++;
                 TotalDiscardsThisCombat++;
                 continue;
@@ -482,10 +480,9 @@ private sealed class PendingHandReturn
 
             if (card.HasKeyword("meurtrier"))
             {
+                // Kills lowest health enemy unit and stays in hand
                 KillLowestHealthUnit(CardInstance.OtherPlayer(card.Owner));
                 DiscardHistory.Add((owner, card.Data.id));
-                hand.RemoveCardFromHand(go);
-                Destroy(go);
                 discardedCount++;
                 TotalDiscardsThisCombat++;
                 continue;
@@ -605,37 +602,34 @@ private sealed class PendingHandReturn
 
             if (discarded.HasKeyword("assassin"))
             {
-                // Deals 5 damage to enemy core and is consumed
+                // Deals 5 damage to enemy core and stays in hand
                 GetCoreForOwner(CardInstance.OtherPlayer(discarded.Owner)).TakeDamage(5);
                 discardedCount++;
                 TotalDiscardsThisCombat++;
                 DiscardHistory.Add((targetHand.Owner, discarded.Data.id));
-                targetHand.RemoveCardFromHand(toRemove);
-                Destroy(toRemove);
+                targetHand.UpdateCardPositions();
                 continue;
             }
 
             if (discarded.HasKeyword("criminel"))
             {
-                // Makes enemy discard a card and is consumed
+                // Makes enemy discard a card and stays in hand
                 DiscardRandomCards(discarded.Owner, true, 1);
                 discardedCount++;
                 TotalDiscardsThisCombat++;
                 DiscardHistory.Add((targetHand.Owner, discarded.Data.id));
-                targetHand.RemoveCardFromHand(toRemove);
-                Destroy(toRemove);
+                targetHand.UpdateCardPositions();
                 continue;
             }
 
             if (discarded.HasKeyword("meurtrier"))
             {
-                // Kills lowest health enemy unit and is consumed
+                // Kills lowest health enemy unit and stays in hand
                 KillLowestHealthUnit(CardInstance.OtherPlayer(discarded.Owner));
                 discardedCount++;
                 TotalDiscardsThisCombat++;
                 DiscardHistory.Add((targetHand.Owner, discarded.Data.id));
-                targetHand.RemoveCardFromHand(toRemove);
-                Destroy(toRemove);
+                targetHand.UpdateCardPositions();
                 continue;
             }
 
