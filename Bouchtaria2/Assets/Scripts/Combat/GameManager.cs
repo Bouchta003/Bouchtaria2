@@ -141,6 +141,11 @@ public class GameManager : MonoBehaviour
     //Trait logic
     private readonly List<ITraitProgression> activeProgressions = new();
     public readonly HashSet<PlayerOwner> swordsmanBleedAppliedThisTurn = new();
+    private readonly Dictionary<PlayerOwner, Vector2Int> permanentTurnEndBuffs = new()
+    {
+        { PlayerOwner.Player, Vector2Int.zero },
+        { PlayerOwner.Enemy, Vector2Int.zero }
+    };
     //Attack logic
     private readonly Queue<AttackRequest> attackQueue = new Queue<AttackRequest>();
     private bool isResolvingAttack = false;
@@ -1059,7 +1064,28 @@ private sealed class PendingHandReturn
     }
     private void HandleTurnEnded(PlayerOwner owner)
     {
+        ApplyPermanentTurnEndBuff(owner);
         UpdatePartnerLinks();
+    }
+    public void AddPermanentTurnEndBuff(PlayerOwner owner, int atk, int hp)
+    {
+        if (atk == 0 && hp == 0)
+            return;
+
+        Vector2Int current = permanentTurnEndBuffs.TryGetValue(owner, out Vector2Int existing)
+            ? existing
+            : Vector2Int.zero;
+        permanentTurnEndBuffs[owner] = new Vector2Int(current.x + atk, current.y + hp);
+    }
+    private void ApplyPermanentTurnEndBuff(PlayerOwner owner)
+    {
+        if (!permanentTurnEndBuffs.TryGetValue(owner, out Vector2Int buff))
+            return;
+
+        if (buff.x == 0 && buff.y == 0)
+            return;
+
+        BuffAllAllies(buff.x, buff.y, owner);
     }
     private bool IsPartnerLinkAlive(PartnerLink link)
     {
