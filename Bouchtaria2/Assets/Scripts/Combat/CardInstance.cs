@@ -1744,6 +1744,14 @@ public class CardInstance : MonoBehaviour, IAttackable
                 gameManager.CheckGlow(); return false;
             }
         }
+        if (effect.StartsWith("discountrandom"))
+        {
+            if (TryParseIntEffect(effect, "discountrandom", out int amount))
+            {
+                DiscountRandomCardInHand(amount);
+                gameManager.CheckGlow(); return false;
+            }
+        }
         if (effect.StartsWith("enemydraw"))
         {
             if (TryParseIntEffect(effect, "enemydraw", out int cards))
@@ -2793,6 +2801,28 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (card != null)
                 card.AddTemporaryManaModifier(amount);
         }
+    }
+
+    private void DiscountRandomCardInHand(int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        HandManager friendlyHand = Owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
+        List<CardInstance> cardsInHand = new();
+
+        foreach (GameObject go in friendlyHand.handCards)
+        {
+            CardInstance card = go.GetComponent<CardInstance>();
+            if (card != null)
+                cardsInHand.Add(card);
+        }
+
+        if (cardsInHand.Count == 0)
+            return;
+
+        int randomIndex = UnityEngine.Random.Range(0, cardsInHand.Count);
+        cardsInHand[randomIndex].AddTemporaryManaModifier(-amount);
     }
     private void ExecuteInvestmentSpellReturn()
     {
