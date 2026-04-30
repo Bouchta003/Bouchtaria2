@@ -1344,6 +1344,15 @@ public class CardInstance : MonoBehaviour, IAttackable
                 gameManager.BuffAllAllies(atk, hp, Owner);
                 gameManager.CheckGlow(); continue;
             }
+            if (effect.StartsWith("permabuff"))
+            {
+                (int atk, int hp) = GetTwoIntsFromEffect(effect);
+                if (atk != -1 || hp != -1)
+                {
+                    gameManager.AddPermanentTurnEndBuff(Owner, atk, hp);
+                }
+                gameManager.CheckGlow(); continue;
+            }
 
             if (effect.StartsWith("buff"))
             {
@@ -1649,6 +1658,13 @@ public class CardInstance : MonoBehaviour, IAttackable
                 gameManager.CheckGlow(); return false;
             } 
             gameManager.BuffAllAllies(atk,hp,Owner);
+            gameManager.CheckGlow(); return false;
+        }
+        if (effect.StartsWith("permabuff"))
+        {
+            (int atk, int hp) = GetTwoIntsFromEffect(effect);
+            if (atk != -1 || hp != -1)
+                gameManager.AddPermanentTurnEndBuff(Owner, atk, hp);
             gameManager.CheckGlow(); return false;
         }
 
