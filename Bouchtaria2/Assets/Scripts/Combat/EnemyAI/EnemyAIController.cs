@@ -251,11 +251,19 @@ public class EnemyAIController : MonoBehaviour
 
         if (effect.Contains("grantall"))
         {
-            score += enemyBoard.enemyPrefabCards.Count * 18;
+            int currentMinions = enemyBoard.enemyPrefabCards.Count;
+            score += currentMinions * 18;
             int attackersReady = enemyBoard.enemyPrefabCards
                 .Select(go => go != null ? go.GetComponent<CardInstance>() : null)
                 .Count(ci => ci != null && ci.CurrentAttack > 0 && !ci.IsAsleep && !ci.HasAttackedThisTurn);
             score += attackersReady * 12;
+            int remainingManaAfterCast = gameManager.EnemyCurrentMana - spell.CurrentManaCost;
+            int playableMinionsBeforeGrant = CountPlayableMinionsWithinBudget(remainingManaAfterCast);
+            if (playableMinionsBeforeGrant > 0)
+                score -= 35 + playableMinionsBeforeGrant * 8;
+
+            if (currentMinions <= 1)
+                score -= playableMinionsBeforeGrant > 0 ? 120 : 45;
             // Grant effects also become more valuable if we can buff princeloc units
             if (princelocCount > 0)
                 score += princelocCount * 18;
@@ -320,7 +328,33 @@ public class EnemyAIController : MonoBehaviour
 
         return score;
     }
+    private int CountPlayableMinionsWithinBudget(int manaBudget)
+    {
+        if (manaBudget <= 0 || enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
+            return 0;
 
+        int freeSlots = enemyBoard.maxBoardSize - enemyBoard.enemyPrefabCards.Count;
+        int playable = 0;
+
+        foreach (GameObject cardGO in enemyHand.handCards)
+        {
+            if (cardGO == null)
+                continue;
+
+            CardInstance inst = cardGO.GetComponent<CardInstance>();
+            if (inst == null || !inst.Data.cardType.Equals("minion", System.StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (inst.CurrentManaCost > manaBudget || !CanEnemyPlayMinion(inst))
+                continue;
+
+            playable++;
+            if (playable >= freeSlots)
+                break;
+        }
+
+        return playable;
+    }
     private int EvaluateAllyBoardThreat()
     {
         int threat = 0;
@@ -684,6 +718,16 @@ public class EnemyAIController : MonoBehaviour
             return false;
 
         string effect = spell.CurrentEffect.ToLowerInvariant();
+
+        if (effect.Contains("grantall"))
+        {
+            int minionCount = enemyBoard.enemyPrefabCards.Count;
+            int remainingMana = gameManager.EnemyCurrentMana - spell.CurrentManaCost;
+            int playableMinionsBeforeGrant = CountPlayableMinionsWithinBudget(remainingMana);
+
+            if (minionCount <= 1 && playableMinionsBeforeGrant > 0)
+                return false;
+        }
 
         if (gameManager.ShouldBlockRandomCardPlay(spell))
             return false;
@@ -1144,7 +1188,7 @@ public class EnemyAIController : MonoBehaviour
             {
                 // Kill the highest-value unit
                 score += unit.CurrentAttack * 3 + unit.CurrentHealth;
-                if (unit.HasKeyword("protect")) score += 20;
+                if (unit.HasKeyword("protect")) score += 10;
                 if (unit.HasKeyword("haste")) score += 15;
             }
             else if (effect.Contains("silence"))
@@ -1322,6 +1366,8 @@ public class EnemyAIController : MonoBehaviour
 
         // High-health units are more valuable under pressure — they survive trades
         if (boardUnderPressure && minion.HasKeyword("protect"))
+            value += 10; 
+        if (boardUnderPressure && minion.HasKeyword("quickstrike"))
             value += 10;
         if (boardUnderPressure && minion.HasKeyword("protect") && minion.HasKeyword("blessed"))
             value += 50;
@@ -1331,7 +1377,7 @@ public class EnemyAIController : MonoBehaviour
         value -= minion.CurrentManaCost;
 
         // Card 275 is a priority play — always score it highly
-        if (minion.Data != null && minion.Data.id == 275)
+        if (!boardUnderPressure && minion.Data != null && minion.Data.id == 275)
             value += 15;
 
         return value;
