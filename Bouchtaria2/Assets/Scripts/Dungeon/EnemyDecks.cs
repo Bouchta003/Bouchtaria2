@@ -978,11 +978,11 @@ public static class EnemyDecks
                 213,213, //buzzwole
                 57,57,   //Snorlax
                 360,360, //Sara
+                360,360, //Sara
                 361,361, //Rhitout
                 44,44,   //Lasagna
                 365,365,//Tinkatink
                 243,243,//Gible
-                231,231,//ultra ball
                 367,367,//Tinkaton
                 227,227,//Bowser
                 389,389,//Earthquake
