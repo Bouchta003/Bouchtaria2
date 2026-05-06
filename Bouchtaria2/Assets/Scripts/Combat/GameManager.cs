@@ -83,6 +83,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI manacounterAlly;
     [SerializeField] GameObject boardDesign;
     [SerializeField] GameObject fatigueDisplay;
+    [SerializeField] TextMeshProUGUI fatigueText;
+    [SerializeField] TextMeshProUGUI fatigueOwnerText;
     private CanvasGroup canvasGroup;
     [SerializeField] public GameObject UIparent;
     [SerializeField] List<Sprite> boards;
@@ -566,9 +568,9 @@ private sealed class PendingHandReturn
 
         int fatigueVal = owner == PlayerOwner.Player ? PlayerFatigue : EnemyFatigue;
 
-        TextMeshProUGUI fatigueTxt = fatigueDisplay.GetComponentInChildren<TextMeshProUGUI>();
-        fatigueTxt.text = $"No more cards in deck.\nRefilling deck.\n{owner} now takes damage equal to the mana of the drawn cards * {fatigueVal}";
-
+        fatigueText.text = $"No more cards in deck.\nRefilling deck.\n{owner} now takes damage equal to the mana of the drawn cards * {fatigueVal}";
+        fatigueOwnerText.text = owner == PlayerOwner.Player ? "Player" : "Enemy";
+        fatigueOwnerText.color = owner == PlayerOwner.Player ? Color.ghostWhite : Color.darkRed;
         StopAllCoroutines();
         StartCoroutine(FadeRoutine());
     }
@@ -859,7 +861,7 @@ private sealed class PendingHandReturn
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.G)) EnemyCore.TakeDamage(999) ;
+        //if (Input.GetKeyDown(KeyCode.G)) EnemyCore.TakeDamage(999) ;
         manacounterAlly.text = $"{AllyCurrentMana}/{AllyCurrentMaxMana}";
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;
