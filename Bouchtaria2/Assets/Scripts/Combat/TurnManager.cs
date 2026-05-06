@@ -44,13 +44,16 @@ public class TurnManager : MonoBehaviour
 
         Instance = this;
     }
-    public void StartFirstTurn()
+    public IEnumerator StartFirstTurn()
     {
-        enemyDungeonTurnCount = 0;
+        enemyDungeonTurnCount = 0; 
+        
         CurrentPlayer = PlayerOwner.Player;
+
+        yield return StartCoroutine(deckManager.Draw(3, PlayerOwner.Player));
+        yield return StartCoroutine(deckManager.Draw(4, PlayerOwner.Enemy));
+
         BeginTurn();
-        StartCoroutine(deckManager.Draw(3, PlayerOwner.Player));
-        StartCoroutine(deckManager.Draw(4, PlayerOwner.Enemy));
     }
 
     public void EndTurn()

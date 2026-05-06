@@ -322,7 +322,7 @@ private sealed class PendingHandReturn
         TurnManager.Instance.OnTurnEnded -= HandleTurnEnded;
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
         TurnManager.Instance.OnTurnEnded += HandleTurnEnded;
-        TurnManager.Instance.StartFirstTurn();
+        StartCoroutine(TurnManager.Instance.StartFirstTurn());
         if (dungeonStartDrawBonus > 0)
         {
             StartCoroutine(deckManager.Draw(dungeonStartDrawBonus, PlayerOwner.Player));
@@ -568,7 +568,7 @@ private sealed class PendingHandReturn
 
         int fatigueVal = owner == PlayerOwner.Player ? PlayerFatigue : EnemyFatigue;
 
-        fatigueText.text = $"No more cards in deck.\nRefilling deck.\n{owner} now takes damage equal to the mana of the drawn cards * {fatigueVal}";
+        fatigueText.text = $"No more cards in deck.\nRefilling deck.\n{owner} now takes damage equal to the mana of the drawn cards X {fatigueVal}";
         fatigueOwnerText.text = owner == PlayerOwner.Player ? "Player" : "Enemy";
         fatigueOwnerText.color = owner == PlayerOwner.Player ? Color.ghostWhite : Color.darkRed;
         StopAllCoroutines();
