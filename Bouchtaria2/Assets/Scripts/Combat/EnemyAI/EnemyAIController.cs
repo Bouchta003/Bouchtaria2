@@ -34,6 +34,13 @@ public class EnemyAIController : MonoBehaviour
         public int Score;
     }
 
+    private class AttackPlan
+    {
+        public IAttackable Target;
+        public List<CardInstance> Attackers = new();
+        public int Score;
+    }
+
     private Coroutine activeEnemyTurnRoutine;
     private void OnEnable()
     {
@@ -1389,6 +1396,52 @@ public class EnemyAIController : MonoBehaviour
     }
     private IEnumerator TryAttack()
     {
+        int safety = 0;
+
+        while (safety++ < 20)
+        {
+            bool lethalThisTurn = HasLethalThisTurn();
+            List<CardInstance> attackers = GetReadyAttackers(lethalThisTurn);
+            if (attackers.Count == 0)
+                yield break;
+
+            AttackPlan plan = BuildBestAttackPlan(attackers, lethalThisTurn);
+            if (plan == null || plan.Target == null || plan.Attackers.Count == 0)
+                yield break;
+
+            bool executedAnyAttack = false;
+            foreach (CardInstance attacker in plan.Attackers.ToList())
+            {
+                if (attacker == null || attacker.IsDead || plan.Target == null)
+                    break;
+
+                if (plan.Target is CardInstance targetUnit && targetUnit.IsDead)
+                    break;
+
+                lethalThisTurn = HasLethalThisTurn();
+                if (!CanAttackerAct(attacker, lethalThisTurn))
+                    continue;
+
+                List<IAttackable> validTargets = gameManager.GetValidTargets(attacker);
+                if (!validTargets.Contains(plan.Target))
+                    break;
+
+                gameManager.QueueAttack(attacker, plan.Target);
+                executedAnyAttack = true;
+                yield return StartCoroutine(WaitForAttackQueueToSettle());
+                yield return new WaitForSeconds(0.25f);
+
+                if (plan.Target is CoreInstance)
+                    break;
+            }
+
+            if (!executedAnyAttack)
+                yield break;
+        }
+    }
+
+    private List<CardInstance> GetReadyAttackers(bool lethalThisTurn)
+    {
         List<CardInstance> attackers = new();
 
         foreach (GameObject go in enemyBoard.enemyPrefabCards)
@@ -1397,68 +1450,425 @@ public class EnemyAIController : MonoBehaviour
                 continue;
 
             CardInstance instance = go.GetComponent<CardInstance>();
-            if (instance == null)
+            if (instance == null || !gameManager.CanSelectAttacker(instance))
                 continue;
 
-            if (instance.CurrentAttack <= 0)
-                continue;
-
-            if (!gameManager.CanSelectAttacker(instance))
+            if (!CanAttackerAct(instance, lethalThisTurn))
                 continue;
 
             attackers.Add(instance);
         }
 
-        if (attackers.Count == 0)
-            yield break;
+        return attackers;
+    }
 
-        bool lethalThisTurn = HasLethalThisTurn();
+    private AttackPlan BuildBestAttackPlan(List<CardInstance> attackers, bool lethalThisTurn)
+    {
+        if (attackers == null || attackers.Count == 0)
+            return null;
 
-        // Weakest first helps force low-value actions (like popping blessed) onto low-value units.
-        attackers.Sort((a, b) => a.CurrentAttack.CompareTo(b.CurrentAttack));
+        int totalReadyAttack = attackers.Sum(a => Mathf.Max(0, a.CurrentAttack));
+        int incomingDamage = EstimateIncomingPlayerBoardDamage();
+        bool enemyCoreInDanger = gameManager.EnemyCore.CurrentHealth <= incomingDamage + 2;
+        bool hasMajorThreat = HasMajorThreatOnDefendingBoard();
 
-        // If any accessible enemy target has blessed, force weakest possible attacker into it first.
-        CardInstance weakestBlessedAttacker = attackers
-            .FirstOrDefault(a => CanAttackerAct(a, lethalThisTurn) &&
-                                 gameManager.GetValidTargets(a).Any(t => t is CardInstance u && u.HasKeyword("blessed")));
+        AttackPlan bestPlan = null;
 
-        if (weakestBlessedAttacker != null)
+        AttackPlan corePlan = BuildCoreAttackPlan(attackers, lethalThisTurn, hasMajorThreat, enemyCoreInDanger, totalReadyAttack);
+        ConsiderAttackPlan(ref bestPlan, corePlan);
+
+        foreach (CardInstance target in GetAttackableEnemyUnits(attackers))
         {
-            IAttackable blessedTarget = gameManager.GetValidTargets(weakestBlessedAttacker)
-                .Where(t => t is CardInstance u && u.HasKeyword("blessed"))
-                .OrderByDescending(t => (t as CardInstance).CurrentAttack + (t as CardInstance).CurrentHealth)
-                .FirstOrDefault();
+            AttackPlan unitPlan = BuildUnitAttackPlan(target, attackers, totalReadyAttack, enemyCoreInDanger);
+            ConsiderAttackPlan(ref bestPlan, unitPlan);
+        }
 
-            if (blessedTarget != null)
+        return bestPlan;
+    }
+
+    private void ConsiderAttackPlan(ref AttackPlan bestPlan, AttackPlan candidate)
+    {
+        if (candidate == null || candidate.Target == null || candidate.Attackers == null || candidate.Attackers.Count == 0)
+            return;
+
+        if (bestPlan == null || candidate.Score > bestPlan.Score)
+            bestPlan = candidate;
+    }
+
+    private AttackPlan BuildCoreAttackPlan(
+        List<CardInstance> attackers,
+        bool lethalThisTurn,
+        bool hasMajorThreat,
+        bool enemyCoreInDanger,
+        int totalReadyAttack)
+    {
+        CoreInstance playerCore = gameManager.PlayerCore;
+        if (playerCore == null || playerCore.CurrentHealth <= 0)
+            return null;
+
+        List<CardInstance> coreAttackers = attackers
+            .Where(a => gameManager.GetValidTargets(a).Any(t => t is CoreInstance))
+            .ToList();
+
+        if (coreAttackers.Count == 0)
+            return null;
+
+        if (lethalThisTurn)
+        {
+            List<CardInstance> lethalCombo = FindMinimumDamageCombination(coreAttackers, playerCore.CurrentHealth, null, false);
+            if (lethalCombo.Count > 0)
             {
-                gameManager.QueueAttack(weakestBlessedAttacker, blessedTarget);
-                yield return StartCoroutine(WaitForAttackQueueToSettle());
-                yield return new WaitForSeconds(0.25f);
+                int committedAttack = lethalCombo.Sum(a => a.CurrentAttack);
+                return new AttackPlan
+                {
+                    Target = playerCore,
+                    Attackers = OrderFaceAttackers(lethalCombo),
+                    Score = 50000 - (committedAttack - playerCore.CurrentHealth) * 20 - lethalCombo.Count * 3
+                };
             }
         }
+
+        if (enemyCoreInDanger)
+            return null;
+
+        CardInstance bestAttacker = coreAttackers
+            .OrderByDescending(a => a.CurrentAttack)
+            .ThenByDescending(GetAttackerPreservationValue)
+            .FirstOrDefault();
+
+        if (bestAttacker == null)
+            return null;
+
+        int score = 55 + bestAttacker.CurrentAttack * 12;
+        if (!hasMajorThreat) score += 150;
+        else score -= 90;
+
+        int remainingDamageAfterPush = totalReadyAttack - bestAttacker.CurrentAttack;
+        score += remainingDamageAfterPush * 2;
+
+        return new AttackPlan
+        {
+            Target = playerCore,
+            Attackers = new List<CardInstance> { bestAttacker },
+            Score = score
+        };
+    }
+
+    private AttackPlan BuildUnitAttackPlan(CardInstance target, List<CardInstance> attackers, int totalReadyAttack, bool enemyCoreInDanger)
+    {
+        if (target == null || target.IsDead)
+            return null;
+
+        List<CardInstance> candidates = attackers
+            .Where(a => gameManager.GetValidTargets(a).Contains(target))
+            .ToList();
+
+        if (candidates.Count == 0)
+            return null;
+
+        int threatScore = EvaluateUnitThreat(target);
+        if (threatScore < 70 && !enemyCoreInDanger && !target.HasKeyword("protect"))
+            return null;
+
+        bool targetBlessed = target.HasKeyword("blessed");
+        List<CardInstance> combo = FindMinimumDamageCombination(candidates, target.CurrentHealth, target, targetBlessed);
+
+        if (combo.Count == 0)
+        {
+            if (!targetBlessed || threatScore < 170)
+                return null;
+
+            CardInstance popper = candidates.OrderBy(GetBlessedPopCost).FirstOrDefault();
+            if (popper == null)
+                return null;
+
+            return new AttackPlan
+            {
+                Target = target,
+                Attackers = new List<CardInstance> { popper },
+                Score = threatScore * 5 - GetBlessedPopCost(popper) * 4 - 120
+            };
+        }
+
+        int committedAttack = combo.Sum(a => a.CurrentAttack);
+        int effectiveDamage = targetBlessed
+            ? combo.Skip(1).Sum(a => a.CurrentAttack)
+            : committedAttack;
+        int overkill = Mathf.Max(0, effectiveDamage - target.CurrentHealth);
+        int remainingDamage = Mathf.Max(0, totalReadyAttack - committedAttack);
+        int attackerLossCost = combo.Sum(a => EstimateAttackerLossCost(a, target));
+        bool cleanKillAvailable = combo.Any(a => a.CurrentAttack >= target.CurrentHealth && !targetBlessed);
+
+        int score = 300 + threatScore * 9;
+        score += remainingDamage * 6;
+        score -= overkill * 28;
+        score -= committedAttack * 3;
+        score -= combo.Count * 18;
+        score -= attackerLossCost;
+
+        if (target.HasKeyword("protect")) score += 350;
+        if (enemyCoreInDanger) score += target.CurrentAttack * 80;
+        if (cleanKillAvailable && combo.Count == 1) score += 70;
+        if (target.CurrentAttack <= 0 && !HasOngoingEffect(target)) score -= 220;
+
+        return new AttackPlan
+        {
+            Target = target,
+            Attackers = OrderTradeAttackers(combo, target),
+            Score = score
+        };
+    }
+
+    private List<CardInstance> FindMinimumDamageCombination(
+        List<CardInstance> candidates,
+        int requiredHealth,
+        CardInstance target,
+        bool targetIsBlessed)
+    {
+        List<CardInstance> best = new();
+        int bestOverkill = int.MaxValue;
+        int bestCommittedAttack = int.MaxValue;
+        int bestLossCost = int.MaxValue;
+        int bestPreservationCost = int.MaxValue;
+        int count = candidates.Count;
+        int subsetCount = 1 << count;
+
+        for (int mask = 1; mask < subsetCount; mask++)
+        {
+            List<CardInstance> subset = new();
+            for (int i = 0; i < count; i++)
+            {
+                if ((mask & (1 << i)) != 0)
+                    subset.Add(candidates[i]);
+            }
+
+            if (targetIsBlessed && subset.Count < 2)
+                continue;
+
+            List<CardInstance> ordered = targetIsBlessed
+                ? OrderBlessedCombo(subset, target)
+                : OrderTradeAttackers(subset, target);
+
+            int effectiveDamage = targetIsBlessed
+                ? ordered.Skip(1).Sum(a => a.CurrentAttack)
+                : ordered.Sum(a => a.CurrentAttack);
+
+            if (effectiveDamage < requiredHealth)
+                continue;
+
+            int committedAttack = ordered.Sum(a => a.CurrentAttack);
+            int overkill = effectiveDamage - requiredHealth;
+            int lossCost = target == null ? 0 : ordered.Sum(a => EstimateAttackerLossCost(a, target));
+            int preservationCost = ordered.Sum(GetAttackerPreservationValue);
+
+            bool isBetter =
+                overkill < bestOverkill ||
+                (overkill == bestOverkill && committedAttack < bestCommittedAttack) ||
+                (overkill == bestOverkill && committedAttack == bestCommittedAttack && subset.Count < best.Count) ||
+                (overkill == bestOverkill && committedAttack == bestCommittedAttack && subset.Count == best.Count && lossCost < bestLossCost) ||
+                (overkill == bestOverkill && committedAttack == bestCommittedAttack && subset.Count == best.Count && lossCost == bestLossCost && preservationCost < bestPreservationCost);
+
+            if (isBetter)
+            {
+                best = ordered;
+                bestOverkill = overkill;
+                bestCommittedAttack = committedAttack;
+                bestLossCost = lossCost;
+                bestPreservationCost = preservationCost;
+            }
+        }
+
+        return best;
+    }
+
+    private List<CardInstance> OrderBlessedCombo(List<CardInstance> attackers, CardInstance target)
+    {
+        CardInstance popper = attackers
+            .OrderBy(GetBlessedPopCost)
+            .ThenBy(a => a.CurrentAttack)
+            .FirstOrDefault();
+
+        List<CardInstance> ordered = new();
+        if (popper != null)
+            ordered.Add(popper);
+
+        ordered.AddRange(attackers
+            .Where(a => a != popper)
+            .OrderByDescending(a => a.CurrentAttack)
+            .ThenBy(a => EstimateAttackerLossCost(a, target)));
+
+        return ordered;
+    }
+
+    private List<CardInstance> OrderTradeAttackers(List<CardInstance> attackers, CardInstance target)
+    {
+        return attackers
+            .OrderByDescending(a => a.CurrentAttack)
+            .ThenBy(a => EstimateAttackerLossCost(a, target))
+            .ThenBy(GetAttackerPreservationValue)
+            .ToList();
+    }
+
+    private List<CardInstance> OrderFaceAttackers(List<CardInstance> attackers)
+    {
+        return attackers
+            .OrderBy(a => a.CurrentAttack)
+            .ThenBy(GetAttackerPreservationValue)
+            .ToList();
+    }
+
+    private List<CardInstance> GetAttackableEnemyUnits(List<CardInstance> attackers)
+    {
+        HashSet<CardInstance> units = new();
 
         foreach (CardInstance attacker in attackers)
         {
-            if (!CanAttackerAct(attacker, lethalThisTurn))
-                continue;
-
-            var targets = gameManager.GetValidTargets(attacker);
-            if (targets.Count == 0)
-                continue;
-
-            IAttackable bestTarget = ChooseBestAttackTarget(attacker);
-            if (bestTarget != null)
+            foreach (IAttackable target in gameManager.GetValidTargets(attacker))
             {
-                gameManager.QueueAttack(attacker, bestTarget);
+                if (target is CardInstance unit && unit != null && !unit.IsDead && !unit.HasKeyword("hidden"))
+                    units.Add(unit);
             }
-
-
-            // 🔹 Wait until THIS attack finishes
-            yield return StartCoroutine(WaitForAttackQueueToSettle());
-
-            // 🔹 Small delay for readability
-            yield return new WaitForSeconds(0.25f);
         }
+
+        return units
+            .OrderByDescending(EvaluateUnitThreat)
+            .ThenByDescending(u => u.CurrentAttack)
+            .ToList();
+    }
+
+    private int EvaluateUnitThreat(CardInstance unit)
+    {
+        if (unit == null || unit.IsDead || unit.HasKeyword("hidden"))
+            return 0;
+
+        string effect = (unit.CurrentEffect ?? string.Empty).ToLowerInvariant();
+        int score = unit.CurrentAttack * 14 + unit.CurrentHealth * 4;
+
+        if (unit.HasKeyword("protect")) score += 220;
+        if ((unit.HasKeyword("haste") || unit.HasKeyword("charge")) && unit.CurrentAttack >= 4) score += 150 + unit.CurrentAttack * 12;
+        if (unit.CurrentAttack >= 5 && unit.CurrentHealth <= 3) score += 115;
+        if (HasProgressionEffect(effect)) score += 130;
+        if (HasStrikeEffect(effect)) score += 95;
+        if (HasTurnCycleEffect(effect)) score += 100;
+        if (unit.HasKeyword("berserk")) score += unit.CurrentHealth <= 4 ? 80 : 35;
+        if (HasValueEngineEffect(effect)) score += 75;
+        if (HasSummonEngineEffect(effect)) score += 70;
+        if (unit.HasKeyword("blessed")) score += 55;
+        if (unit.HasKeyword("quickstrike")) score += 45;
+
+        if (IsDeployOnlyEffect(effect)) score -= 70;
+        if (unit.HasKeyword("requiem") && unit.CurrentAttack + unit.CurrentHealth <= 4) score -= 45;
+        if (unit.CurrentAttack <= 1 && unit.CurrentHealth >= 5 && !HasOngoingEffect(unit)) score -= 80;
+        if (unit.CurrentAttack == 0 && !HasOngoingEffect(unit)) score -= 140;
+
+        return Mathf.Max(0, score);
+    }
+
+    private bool HasProgressionEffect(string effect)
+    {
+        return effect.Contains("progress") || effect.Contains("progresseot") || effect.Contains("progressdamage") || effect.Contains("progressheal");
+    }
+
+    private bool HasStrikeEffect(string effect)
+    {
+        return effect.Contains("s[") || effect.Contains("strike");
+    }
+
+    private bool HasTurnCycleEffect(string effect)
+    {
+        return effect.Contains("eot[") || effect.Contains("sot[") || effect.Contains("startofturn") || effect.Contains("endofturn") || effect.Contains("starter");
+    }
+
+    private bool HasValueEngineEffect(string effect)
+    {
+        return effect.Contains("draw") || effect.Contains("discover") || effect.Contains("copy") || effect.Contains("addcard") || effect.Contains("mana");
+    }
+
+    private bool HasSummonEngineEffect(string effect)
+    {
+        return effect.Contains("summon") || effect.Contains("token") || effect.Contains("spawn") || effect.Contains("monsterpart");
+    }
+
+    private bool IsDeployOnlyEffect(string effect)
+    {
+        if (string.IsNullOrWhiteSpace(effect))
+            return false;
+
+        bool sawTrigger = false;
+        foreach (string block in effect.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            int open = block.IndexOf('[');
+            if (open <= 0)
+                continue;
+
+            sawTrigger = true;
+            string trigger = block.Substring(0, open);
+            int paren = trigger.IndexOf('(');
+            if (paren > 0)
+                trigger = trigger.Substring(0, paren);
+
+            if (!string.Equals(trigger, "d", StringComparison.OrdinalIgnoreCase))
+                return false;
+        }
+
+        return sawTrigger;
+    }
+
+    private bool HasOngoingEffect(CardInstance unit)
+    {
+        if (unit == null)
+            return false;
+
+        string effect = (unit.CurrentEffect ?? string.Empty).ToLowerInvariant();
+        return HasNonDeployEffect(effect) ||
+               HasProgressionEffect(effect) ||
+               HasStrikeEffect(effect) ||
+               HasTurnCycleEffect(effect) ||
+               HasValueEngineEffect(effect) ||
+               HasSummonEngineEffect(effect) ||
+               unit.HasKeyword("protect") ||
+               unit.HasKeyword("berserk") ||
+               unit.HasKeyword("quickstrike") ||
+               unit.HasKeyword("blessed");
+    }
+
+    private int EstimateAttackerLossCost(CardInstance attacker, CardInstance defender)
+    {
+        if (attacker == null || defender == null)
+            return 0;
+
+        int defenderDamage = defender.CurrentAttack;
+
+        if (defenderDamage < attacker.CurrentHealth)
+            return 0;
+
+        return GetAttackerPreservationValue(attacker) + Mathf.Max(0, attacker.CurrentAttack - defender.CurrentHealth) * 2;
+    }
+
+    private int GetAttackerPreservationValue(CardInstance attacker)
+    {
+        if (attacker == null)
+            return 0;
+
+        int value = attacker.CurrentAttack * 12 + attacker.CurrentHealth * 3;
+        if (attacker.HasKeyword("haste") || attacker.HasKeyword("charge")) value += 35;
+        if (attacker.HasKeyword("quickstrike")) value += 30;
+        if (attacker.HasKeyword("lifesteal")) value += 25;
+        if ((attacker.CurrentEffect ?? string.Empty).ToLowerInvariant().Contains("s[")) value += 20;
+        if (attacker.CurrentAttack >= 6 && attacker.CurrentHealth <= 3) value += 45;
+        return value;
+    }
+
+    private int GetBlessedPopCost(CardInstance attacker)
+    {
+        if (attacker == null)
+            return int.MaxValue;
+
+        int cost = GetAttackerPreservationValue(attacker) + attacker.CurrentAttack * 18;
+        if (attacker.CurrentAttack <= 1) cost -= 35;
+        if (attacker.CurrentHealth <= 1) cost -= 15;
+        if (attacker.CurrentAttack >= 6 && attacker.CurrentHealth <= 3) cost += 90;
+        return cost;
     }
 
     private bool CanAttackerAct(CardInstance attacker, bool lethalThisTurn)
@@ -1490,14 +1900,8 @@ public class EnemyAIController : MonoBehaviour
             if (unit == null || unit.IsDead)
                 continue;
 
-            if (unit.CurrentAttack >= 4 ||
-                unit.HasKeyword("protect") ||
-                unit.HasKeyword("quickstrike") ||
-                unit.HasKeyword("haste") ||
-                unit.HasKeyword("blessed"))
-            {
+            if (EvaluateUnitThreat(unit) >= 120)
                 return true;
-            }
         }
 
         return false;
@@ -1523,86 +1927,8 @@ public class EnemyAIController : MonoBehaviour
 
     private IAttackable ChooseBestAttackTarget(CardInstance attacker)
     {
-        var targets = gameManager.GetValidTargets(attacker);
-
-        IAttackable best = null;
-        int bestScore = int.MinValue;
-        bool hasMajorThreat = HasMajorThreatOnDefendingBoard();
-        int incomingDamage = EstimateIncomingPlayerBoardDamage();
-        bool enemyCoreInDanger = gameManager.EnemyCore.CurrentHealth <= incomingDamage + 2;
-
-        foreach (var target in targets)
-        {
-            // 🔒 SUMMON-TURN HARD FILTER
-            if (attacker.IsSummoningSick)
-            {
-                if (target is CoreInstance && !attacker.CanAttackCoreOnSummon())
-                    continue;
-
-                if (target is CardInstance && !attacker.CanAttackUnitOnSummon())
-                    continue;
-            }
-
-            int score = 0;
-
-            // CORE
-            if (target is CoreInstance)
-            {
-                score += 45;
-
-                // If enemy core is critically low, prefer defensive trades over face damage
-                bool enemyCoreIsCritical = gameManager.EnemyCore.CurrentHealth <= 8;
-
-                // Only push face when there's no major threat AND we're not in survival mode
-                if (!hasMajorThreat && !enemyCoreIsCritical)
-                    score += 180;
-
-                // If we're critical, heavily deprioritize going face — survive first
-                if (enemyCoreIsCritical && hasMajorThreat)
-                    score -= 200;
-                if (enemyCoreInDanger)
-                    score -= 700;
-
-                // If this exact hit is lethal, always prioritize it
-                if (attacker.CurrentAttack >= gameManager.PlayerCore.CurrentHealth)
-                    score += 10000;
-
-                if (HasLethalThisTurn())
-                    score += 10000;
-            }
-            // UNIT
-            else if (target is CardInstance unit)
-            {
-                bool attackerDies = unit.CurrentAttack >= attacker.CurrentHealth;
-                bool killsTarget = attacker.CurrentAttack >= unit.CurrentHealth;
-
-                if (killsTarget && !attackerDies) score += 250; // clean kill, we survive
-                else if (killsTarget && attackerDies) score += 120; // trade — remove a threat
-                else if (!killsTarget && !attackerDies) score -= 20;  // chip, we live
-                else score -= 80;  // suicide for nothing
-
-                // Quickstrike kills first regardless — treat as clean kill if it finishes the unit
-                if (unit.HasKeyword("quickstrike") && !attacker.HasKeyword("quickstrike"))
-                    score += 15; // they'd hit first, riskier to attack them
-
-                if (unit.HasKeyword("protect")) score += 40; // must kill protect units
-                if (unit.HasKeyword("haste")) score += 100; // must answer haste immediately
-                if (unit.HasKeyword("blessed")) score += 15;  // costs 2 hits normally
-
-                // Reward removing high-attack threats
-                score += unit.CurrentAttack * 2;
-                if (enemyCoreInDanger)
-                    score += unit.CurrentAttack * 8;
-            }
-
-            if (score > bestScore)
-            {
-                bestScore = score;
-                best = target;
-            }
-        }
-
-        return best;
+        AttackPlan plan = BuildBestAttackPlan(new List<CardInstance> { attacker }, HasLethalThisTurn());
+        return plan?.Target;
     }
     private bool HasLethalThisTurn()
     {
