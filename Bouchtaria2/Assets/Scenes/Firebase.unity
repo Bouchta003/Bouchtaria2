@@ -2594,6 +2594,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SFXManager
   SFXprefab: {fileID: 2421908883657032860, guid: 809c6a6b25d8bda45a960e66905ca8c6, type: 3}
+  sameClipCooldown: 0.05
 --- !u!1 &656705720
 GameObject:
   m_ObjectHideFlags: 0
@@ -4752,6 +4753,12 @@ MonoBehaviour:
     music: {fileID: 8300000, guid: 7b7a1f835f85546409a09501d402b09c, type: 3}
   - sceneName: Adventure14
     music: {fileID: 8300000, guid: 3e51dcab3a7c24c4989969d76857ef60, type: 3}
+  - sceneName: Collection
+    music: {fileID: 8300000, guid: a52d4d5a57b4d3448a2f0cf57949df47, type: 3}
+  - sceneName: Firebase
+    music: {fileID: 8300000, guid: a9521e32661e8384aa789b48345e3283, type: 3}
+  - sceneName: Collection
+    music: {fileID: 8300000, guid: b4d436927d0f12d409a6b5005d057342, type: 3}
   musicDropdown: {fileID: 1476624407}
   musicCurrentlyPlaying: {fileID: 1324277240}
   musicImportedDropdown: {fileID: 812031055}
