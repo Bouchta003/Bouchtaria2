@@ -810,7 +810,7 @@ private sealed class PendingHandReturn
             EnemyCurrentMana++;
             EnemyCurrentMaxMana++;
         }
-        if (GameRunContext.IsAdventureHardMode) { startingEnemyCoreHealth += 20; }
+        if (GameRunContext.IsAdventureHardMode) { startingEnemyCoreHealth += 20; if (GameRunContext.AdventureFightId > 12) startingPlayerCoreHealth += 25; else startingPlayerCoreHealth += 10; }
         CombatDialogue.Instance.TriggerCutscene(battleId);
     }
     private void OnDestroy()
@@ -1439,6 +1439,25 @@ private sealed class PendingHandReturn
         enemyDropArea.enemyPrefabCards.Clear();
         enemyDropArea.UpdateEnemyCardPositions();
     }
+    private void ClearAllyBoard()
+    {
+        if (allyDropArea == null) return;
+
+        foreach (GameObject cardGO in new List<GameObject>(allyDropArea.allyPrefabCards))
+        {
+            if (cardGO == null) continue;
+            CardInstance ci = cardGO.GetComponent<CardInstance>();
+            if (ci != null)
+            {
+                ci.IsDead = true;
+                ci.IsDying = true;
+            }
+            Destroy(cardGO);
+        }
+
+        allyDropArea.allyPrefabCards.Clear();
+        allyDropArea.UpdateAllyCardPositions();
+    }
     private void ApplyPlayerWinRewardsAndProgression()
     {
         ModifyUserGold(WinGoldReward);
@@ -1512,6 +1531,7 @@ private sealed class PendingHandReturn
         Dictionary<CardData.Trait, int> savedEnemyProgress = SnapshotTraitProgress(PlayerOwner.Enemy);
         RemoveTraitProgressionsForOwner(PlayerOwner.Enemy);
         ClearEnemyBoard();
+        if (GameRunContext.IsAdventureHardMode) { ClearAllyBoard(); }
         ClearEnemyHand();
         DiscardEnemyDeck();
         EnemyGraveyard = new Graveyard();

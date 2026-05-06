@@ -816,8 +816,9 @@ public static class EnemyDecks
                 {
                 // Omar : (30) Extinction dragon deck with Rods + Revives + Inchaallah
                 246,246,//Extinction dragon
+                246,246,//Extinction dragon
+                246,246,//Extinction dragon
                 210,210,//Max Revive
-                146,146,//Revive
                 241,241,//Great Rod
                 241,241,//Great Rod
                 32,32,//Rathian
@@ -1039,7 +1040,7 @@ public static class EnemyDecks
                 285,361,//PapaRhita
                 360,284,//SaraMama
                 343,343,//Vulcan
-                332,368,//Slifer+Aegislash
+                395,395,//Bouchtimp
                 292,292,//Soul Eater
                 291,291,
                 293,293,
@@ -1047,27 +1048,31 @@ public static class EnemyDecks
                 335,335,
                 337,337,
                 333,333,
-                345,345,//Soul Eater end
-                }
+                345,345,
+                344,344,//Grace    
+            }
             },
             { 14, new List<int>
                 {
                 // ???: Prime curse.
-                27,28,
-                29,163,//Dialga Palkia GIratina Hooh
-                189,189,
-                189,85,//Triple Le D + colonel
-                120,120,//metronome
-                126,126,//feed the chaos
-                127,127,//Cheater will
-                127,127,
-                128,129,//Le Bens + gmpves
+                374,374,//BouchtaSpell
+                374,374,//BouchtaSpell
+                375,375,//KnightsSpell
+                27,28,//Dialga Palkia
+                29,163,//GIratina Hooh
+                189,189,//Le D
                 239,239,//GonPrime
-                167,167,
-                308,308,//suave
-                128,129,
-                158,158,
-                75,75,
+                167,167,//Shadow wall
+                158,158,//Jour de fete
+                75,75,//Aang
+                285,361,//Padre Rhitout
+                284,360,//Sara Madre
+                285,361,//Padre Rhitout
+                284,360,//Sara Madre
+                390,390,//Masterball
+                345,345,//Grace
+                344,344,//Grace  
+                384,384,//True O
             }
             },
         };
