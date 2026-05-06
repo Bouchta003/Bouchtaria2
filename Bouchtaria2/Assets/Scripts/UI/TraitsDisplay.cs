@@ -76,11 +76,11 @@ public class TraitsDisplay : MonoBehaviour
         {
             case CardData.Trait.Pokemon:
                 display += $"Kill or catch enemies to activate : {Progression}/{CurrentCap}" +
-                    "\nTier 1 : The next Pokemon you play evolves instantly.";
+                    "\nTier 1 : Start of turn: evolve a random Pokemon on your board that can evolve.";
                 if (tier > 1) display +=
-                        "\nTier 2 : The next Pokemon you play evolves instantly and gains +3/+3.";
+                        "\nTier 2 : Add Pokeball, Greatball, and Ultraball to your hand. They cost 2 less.";
                 if (tier > 2) display +=
-                         "\nTier 3 : Discover a LEGENDARY Pokemon.";
+                         "\nTier 3 : Discover a LEGENDARY Pokemon. It costs 3 less.";
                 break;
             case CardData.Trait.Inazuma:
                 display += $"Use Hissatsus to activate : {Progression}/{CurrentCap}" +

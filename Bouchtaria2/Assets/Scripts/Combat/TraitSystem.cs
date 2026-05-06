@@ -2067,7 +2067,6 @@ public class PokemonTier1Effect : IDeckTraitEffect
     public int Tier => 1;
 
     private readonly PlayerOwner owner;
-    private bool used;
 
     public PokemonTier1Effect(PlayerOwner owner)
     {
@@ -2075,47 +2074,53 @@ public class PokemonTier1Effect : IDeckTraitEffect
     }
     public void OnRegister()
     {
-        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
-        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
-
-        if (allyBoard != null)
-            allyBoard.OnCardPlayed += OnCardPlayed;
-
-        if (enemyBoard != null)
-            enemyBoard.OnCardPlayed += OnCardPlayed;
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted += OnTurnStarted;
     }
     public void OnUnregister()
     {
-        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
-        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
-
-        if (allyBoard != null)
-            allyBoard.OnCardPlayed -= OnCardPlayed;
-
-        if (enemyBoard != null)
-            enemyBoard.OnCardPlayed -= OnCardPlayed;
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
     }
-    private void OnCardPlayed(CardInstance card)
+    private void OnTurnStarted(PlayerOwner turnOwner)
     {
-        if (used)
+        if (turnOwner != owner)
             return;
 
-        if (card.Owner != owner)
+        List<CardInstance> evolutionCandidates = GetEvolutionCandidates();
+        if (evolutionCandidates.Count == 0)
             return;
 
-        if (card.Data.cardType != "minion")
-            return;
+        CardInstance card = evolutionCandidates[UnityEngine.Random.Range(0, evolutionCandidates.Count)];
+        int evolutionId = GetEvolutionId(card.CurrentEffect);
 
-        Debug.Log($"Evolving instant card {card.name}, for {owner}");
-        int detectedID = GetEvolutionId(card.CurrentEffect);
-        card.MorphTo(detectedID);
-        used = true;
+        Debug.Log($"[Pokemon T1] Evolving random board Pokemon {card.name} into {evolutionId} for {owner}");
+        card.MorphTo(evolutionId);
+    }
+    private List<CardInstance> GetEvolutionCandidates()
+    {
+        GameManager gm = GameManager.Instance;
+        List<GameObject> boardCards = owner == PlayerOwner.Player
+            ? gm.allyDropArea?.GetCards()
+            : gm.enemyDropArea?.GetCards();
+
+        if (boardCards == null)
+            return new List<CardInstance>();
+
+        return boardCards
+            .Select(go => go != null ? go.GetComponent<CardInstance>() : null)
+            .Where(card => card != null
+                && card.Owner == owner
+                && card.Data.cardType == "minion"
+                && card.HasTrait("Pokemon")
+                && GetEvolutionId(card.CurrentEffect) >= 0)
+            .ToList();
     }
     private int GetEvolutionId(string effect)
     {
         int value = -1;
 
-        if (!effect.Contains("morphto"))
+        if (string.IsNullOrEmpty(effect) || !effect.Contains("morphto"))
         {
             return -1;
         }
@@ -2146,6 +2151,8 @@ public class PokemonTier2Effect : IDeckTraitEffect
     public CardData.Trait Trait => CardData.Trait.Pokemon;
     public int Tier => 2;
 
+    private static readonly int[] PokeballCardIds = { 144, 156, 231 };
+
     private readonly PlayerOwner owner;
     private bool used;
 
@@ -2155,72 +2162,21 @@ public class PokemonTier2Effect : IDeckTraitEffect
     }
     public void OnRegister()
     {
-        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
-        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
-
-        if (allyBoard != null)
-            allyBoard.OnCardPlayed += OnCardPlayed;
-
-        if (enemyBoard != null)
-            enemyBoard.OnCardPlayed += OnCardPlayed;
+        AddDiscountedPokeballs();
     }
     public void OnUnregister()
     {
-        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
-        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
-
-        if (allyBoard != null)
-            allyBoard.OnCardPlayed -= OnCardPlayed;
-
-        if (enemyBoard != null)
-            enemyBoard.OnCardPlayed -= OnCardPlayed;
     }
-    private void OnCardPlayed(CardInstance card)
+    private void AddDiscountedPokeballs()
     {
         if (used)
             return;
 
-        if (card.Owner != owner)
-            return;
+        foreach (int cardId in PokeballCardIds)
+            GameManager.Instance.AddCardToHand(owner, cardId, -2);
 
-        if (card.Data.cardType != "minion" || !card.HasTrait("Pokemon"))
-            return;
-
-        Debug.Log($"Evolving instant card {card.name}, for {owner}");
-        card.MorphTo(GetEvolutionId(card.CurrentEffect));
-        card.ModifyStats(3,3);
         used = true;
     }
-    private int GetEvolutionId(string effect)
-    {
-        int value = -1;
-
-        if (!effect.Contains("morphto"))
-        {
-            return -1;
-        }
-
-        int startEffect = effect.IndexOf("morphto");
-
-        string morphEffect = effect.Substring(startEffect);
-
-        int startID = morphEffect.IndexOf('(');
-        int endID = morphEffect.IndexOf(')');
-
-        if (startID < 0 || endID < 0 || endID <= startID + 1)
-        {
-            return -1;
-        }
-
-        string valueStr = morphEffect.Substring(startID + 1, endID - startID - 1);
-
-        if (int.TryParse(valueStr, out value))
-        {
-            return value;
-        }
-        else return -1;
-    
-}
 }
 public class PokemonTier3Effect : IDeckTraitEffect
 {
@@ -2244,13 +2200,12 @@ public class PokemonTier3Effect : IDeckTraitEffect
     {
 
         if (used) return;
-        GameManager.Instance.DiscoverEffect("legendarypokemon", owner);//FIX IDs
+        GameManager.Instance.DiscoverEffectDiscount("legendarypokemon", owner, 3);
 
         used = true;
     }
     public void OnUnregister()
     {
-        throw new System.NotImplementedException();
     }
 }
 #endregion
