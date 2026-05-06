@@ -7342,16 +7342,13 @@ MonoBehaviour:
     Unlockable with 4 8 or 12 cards in deck
 
     Tiers
-    unlock when killing enemy units 3/6/10 Times in the game with pokemon
+    unlock when killing or catching enemy units 3/6/12 Times in the game with pokemon
 
-    First
-    tier makes the next played pokemon evolve
+    First tier: Start of turn, evolve a random Pokemon on your board that can evolve
 
-    Second tier makes the next played
-    pokemon evolve with +2/+2 in stats
+    Second tier: Add Pokeball, Greatball, and Ultraball to your hand. They cost 2 less
 
-    Third tier allows the player to discover
-    a LEGENDARY pokemon'
+    Third tier: Discover a LEGENDARY pokemon and discount it by 3'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
   m_sharedMaterial: {fileID: -1779797437514033207, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
