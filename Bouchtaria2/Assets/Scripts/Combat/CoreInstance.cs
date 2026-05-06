@@ -38,7 +38,7 @@ public class CoreInstance : MonoBehaviour, IAttackable
         int bonus = 0;
         int preHeal = CurrentHealth;
 
-        SFXManager.Instance.PlaySFXClip(gm.healSFX, transform, 1f);
+        SFXManager.Instance.PlayRandomSFXClip(gm.healSFX, transform, 1f);
         if (Owner == PlayerOwner.Player) bonus = gm.PlayerHealBonus;
         else bonus = gm.EnemyHealBonus;
 
@@ -56,7 +56,7 @@ public class CoreInstance : MonoBehaviour, IAttackable
 
         GameManager gm = FindFirstObjectByType<GameManager>();
         gm.NotifyDamage(Owner, amount);
-        SFXManager.Instance.PlaySFXClip(gm.dmgSFX, transform, 1f);
+        SFXManager.Instance.PlayRandomSFXClip(gm.dmgSFX, transform, 1f);
         int remaining = amount; GetComponentInParent<DamageFeedback>()?.Play();
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position);
         if(Owner==PlayerOwner.Player)
@@ -111,7 +111,7 @@ public class CoreInstance : MonoBehaviour, IAttackable
         int bonus = 0;
         int preHeal = CurrentHealth;
 
-        SFXManager.Instance.PlaySFXClip(gm.healSFX, transform, 1f);
+        SFXManager.Instance.PlayRandomSFXClip(gm.healSFX, transform, 1f);
         if (Owner == PlayerOwner.Player) bonus = gm.PlayerHealBonus;
         else bonus = gm.EnemyHealBonus;
 

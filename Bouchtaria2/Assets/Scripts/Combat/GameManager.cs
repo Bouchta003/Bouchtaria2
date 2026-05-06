@@ -48,10 +48,17 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject spawnEnemyCore;
 
     [Header("SFX")]
-    [SerializeField] public AudioClip healSFX;
-    [SerializeField] public AudioClip dmgSFX;
+    [SerializeField] public List<AudioClip> healSFX;
+    [SerializeField] public List<AudioClip> dmgSFX;//replace by hit
     [SerializeField] public AudioClip fahSFX;
+    [SerializeField] public AudioClip evolveSFX;
+    [SerializeField] public AudioClip statbuffSFX;
+    [SerializeField] public AudioClip statnerfSFX;
+    [SerializeField] public AudioClip killSFX;
+    [SerializeField] public AudioClip magicSFX;
     [SerializeField] public List<AudioClip> winSFX;
+    [SerializeField] public List<AudioClip> drawSFX;
+    [SerializeField] public List<AudioClip> gearSFX;
     public GameState CurrentGameState { get; private set; } = GameState.Playing;
     private int startingPlayerCoreHealth = 50;
     private int startingEnemyCoreHealth = 50;

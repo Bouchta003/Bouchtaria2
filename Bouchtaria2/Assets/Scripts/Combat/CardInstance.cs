@@ -3994,6 +3994,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             ci.CurrentEffectText = AppendToken(ci.CurrentEffectText, effectText, "\n");
         ci.view.UpdateMode();
         ci.ParseEffects();
+
+        SFXManager.Instance.PlaySFXClip(gameManager.magicSFX, transform, 1f);
     }
     private void TryExecuteGrantAll(string completeeffect)
     {
@@ -4026,6 +4028,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 ci.CurrentEffectText = AppendToken(ci.CurrentEffectText, effectText, "\n");
             ci.view.UpdateMode();
             ci.ParseEffects();
+            SFXManager.Instance.PlaySFXClip(gameManager.magicSFX, transform, 1f);
         }
     }
     private void TryExecuteMorphAll(int idMorph)
@@ -4182,6 +4185,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         targetInstance.cardView.UpdateMode();
         targetInstance.ParseEffects();
         targetInstance.InitializeProgressIfAny();
+        SFXManager.Instance.PlayRandomSFXClip(gameManager.gearSFX, transform, 1f);
 
         if (targetInstance.Owner == PlayerOwner.Player)
             gameManager.CheckGlow();
@@ -4435,6 +4439,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         // Notify view
         cardView.UpdateMode();
+        SFXManager.Instance.PlaySFXClip(gameManager.evolveSFX, transform, 1f);
         StartCoroutine(DelayedProgressInit());
 
         // 🔑 Reset deploy eligibility
@@ -4764,7 +4769,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         CurrentHealth -= amount;
         gameManager.NotifyDamage(Owner, amount);
         gameManager.OnDamageWithCardInstance(this);
-        SFXManager.Instance.PlaySFXClip(gameManager.dmgSFX, transform, 1f);
+        SFXManager.Instance.PlayRandomSFXClip(gameManager.dmgSFX, transform, 1f);
 
         //Trigore Logic :
         CardInstance trigore = gameManager.GetBoardForOwner(Owner).BoardHasEffect("trigore");
@@ -4812,6 +4817,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         target.Die();
         if(HasTrait("Pokemon"))
             gameManager.AddPokemonTraitProgress(Owner, 1);
+        SFXManager.Instance.PlaySFXClip(gameManager.killSFX, transform, 1f);
         return;
     }
     public void Heal(int amount)
@@ -4820,7 +4826,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         int bonus = 0;
         int preHeal = CurrentHealth;
 
-        SFXManager.Instance.PlaySFXClip(gameManager.healSFX, transform, 1f);
+        SFXManager.Instance.PlayRandomSFXClip(gameManager.healSFX, transform, 1f);
         //ApplyBonus
         if (Owner == PlayerOwner.Player) bonus = gameManager.PlayerHealBonus;
         else bonus = gameManager.EnemyHealBonus;
@@ -4852,7 +4858,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             int preHeal = CurrentHealth;
 
-            SFXManager.Instance.PlaySFXClip(gameManager.healSFX, transform, 1f);
+            SFXManager.Instance.PlayRandomSFXClip(gameManager.healSFX, transform, 1f);
             CurrentHealth = CurrentMaxHealth;
 
             int healedAmount = CurrentHealth - preHeal;
@@ -4880,6 +4886,13 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (CurrentHealth <= 0)
         {
             Die();
+        }else if (atk+hp > 0)
+        {
+            SFXManager.Instance.PlaySFXClip(gameManager.statbuffSFX, transform, 1f);
+        }
+        else if (atk + hp < 0)
+        {
+            SFXManager.Instance.PlaySFXClip(gameManager.statnerfSFX, transform, 1f);
         }
         view.UpdateMode();
         UpdateStatsColor();

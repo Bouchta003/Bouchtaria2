@@ -710,13 +710,29 @@ MonoBehaviour:
   startingCoreHealth: 50
   spawnPlayerCore: {fileID: 1391987188}
   spawnEnemyCore: {fileID: 2137164847}
-  healSFX: {fileID: 8300000, guid: 4ab00a34eb83c29499c3b8658d31df6c, type: 3}
-  dmgSFX: {fileID: 8300000, guid: dd4aa2160f049ff4bbf23a13e998b4a9, type: 3}
+  healSFX:
+  - {fileID: 8300000, guid: 4ab00a34eb83c29499c3b8658d31df6c, type: 3}
+  - {fileID: 8300000, guid: 5a87d3944a176bf4eb4615bcff440547, type: 3}
+  dmgSFX:
+  - {fileID: 8300000, guid: dd4aa2160f049ff4bbf23a13e998b4a9, type: 3}
+  - {fileID: 8300000, guid: 78854c6819838874cbd60af60107d99c, type: 3}
+  - {fileID: 8300000, guid: 74d9d50f26557b343a403f0f9421229b, type: 3}
   fahSFX: {fileID: 8300000, guid: b00b378052de39b42a332aa85785812a, type: 3}
+  evolveSFX: {fileID: 8300000, guid: dd7a2b8b07ca5654aae1fb196d07c301, type: 3}
+  statbuffSFX: {fileID: 8300000, guid: e597690a3c1faa44d9ea99da7f282d98, type: 3}
+  statnerfSFX: {fileID: 8300000, guid: b3a7387e3ddd7084da853c24916faf74, type: 3}
+  killSFX: {fileID: 8300000, guid: 898cafb6b6e0df046a98a82d6dd1cf1c, type: 3}
+  magicSFX: {fileID: 8300000, guid: e01af44ccffa8a64a90262241ddac9e7, type: 3}
   winSFX:
   - {fileID: 8300000, guid: ade74525de05d0843b122785f422030f, type: 3}
   - {fileID: 8300000, guid: 7c58c20f2868cbf4b97abbc5266ac9cf, type: 3}
   - {fileID: 8300000, guid: 3951e34b20745d24490138bb2380fa83, type: 3}
+  drawSFX:
+  - {fileID: 8300000, guid: ac76ebc9f46eace4ba2ac4e1558a3c33, type: 3}
+  - {fileID: 8300000, guid: 9a6bbb08b4923a04290acf8683543952, type: 3}
+  gearSFX:
+  - {fileID: 8300000, guid: 9b2c2f61fb2f997439c55ae2a4b76264, type: 3}
+  - {fileID: 8300000, guid: 488141e1e20d2d544a5ea2e280994ae5, type: 3}
   deckManager: {fileID: 752328686}
   allyDropArea: {fileID: 1531594430}
   enemyDropArea: {fileID: 1449377217}

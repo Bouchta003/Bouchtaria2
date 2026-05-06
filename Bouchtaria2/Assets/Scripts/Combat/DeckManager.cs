@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening.Core.Easing;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -405,6 +406,7 @@ public class DeckManager : MonoBehaviour
 
         card.SetZone(CardZone.Hand);
         hand.AddCard(card.gameObject);
+        SFXManager.Instance.PlayRandomSFXClip(GameManager.Instance.drawSFX, transform, 1f);
         hand.UpdateCardPositions();
         OnCardDrawn?.Invoke(card);
         //Fatigue effect
