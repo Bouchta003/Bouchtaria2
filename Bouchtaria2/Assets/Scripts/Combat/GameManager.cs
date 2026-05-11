@@ -177,6 +177,7 @@ public class GameManager : MonoBehaviour
     public event System.Action<CardInstance> OnDamageCardInstance;
     public event System.Action<CardInstance> OnSpellPlayed;
     public event System.Action<CardInstance> OnCardPlayed;
+    public event System.Action<CardInstance> OnUnitEnteredBoard;
     public event System.Action<CardInstance, int, int> OnCardBuffed;
     public event System.Action<CardInstance, int> OnSoulConsumed;
 
@@ -1652,7 +1653,7 @@ private sealed class PendingHandReturn
                 SetIntField(progression, "soulsCollected", progress);
                 break;
             case CardData.Trait.Fighter:
-                SetIntField(progression, "FighterPlayed", progress);
+                SetIntField(progression, "allyStatIncreases", progress);
                 break;
             case CardData.Trait.Chaos:
                 SetIntField(progression, "randomPlayed", progress);
@@ -2577,6 +2578,7 @@ private sealed class PendingHandReturn
         if (summonedCard == null)
             return;
 
+        OnUnitEnteredBoard?.Invoke(summonedCard);
         StartCoroutine(TriggerAutoHitAfterSummonDelay(summonedCard));
     }
 
