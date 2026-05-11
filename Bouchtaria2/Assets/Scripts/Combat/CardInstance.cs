@@ -4876,7 +4876,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         Heal(missingHealth);
     }
-    internal void ModifyStats(int atk, int hp)
+    internal void ModifyStats(int atk, int hp, bool notifyStatIncrease = true)
     {
         CurrentAttack += atk;
         CurrentHealth += hp;
@@ -4889,6 +4889,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         }else if (atk+hp > 0)
         {
             SFXManager.Instance.PlaySFXClip(gameManager.statbuffSFX, transform, 1f);
+            if (notifyStatIncrease)
+                gameManager.NotifyCardBuffed(this, atk, hp);
         }
         else if (atk + hp < 0)
         {

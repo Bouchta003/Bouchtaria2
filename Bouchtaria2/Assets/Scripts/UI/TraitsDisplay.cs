@@ -107,12 +107,12 @@ public class TraitsDisplay : MonoBehaviour
                          "\nTier 3 : The first unit you play also has +2 ATK.\nStart of turn, discount a random card in your hand by 1.";
                 break;
             case CardData.Trait.Fighter:
-                display += $"Play fighter units to unlock. Currently played : {Progression}/{CurrentCap}" +
-                    "\nTier 1 : The first unit you play each turn has +1/+1.";
+                display += $"Increase allied stats to unlock (Fighters count twice): {Progression}/{CurrentCap}" +
+                    "\nTier 1 : When a Fighter gains stats, it gains an additional +1/+1.";
                 if (tier > 1) display +=
-                        "\nTier 2 : Discover a Fighter Relic, reduce its cost by 3.";
+                        "\nTier 2 : When a Fighter gains stats, it gains a random basic effect.";
                 if (tier > 2) display +=
-                         "\nTier 3 : End of Turn : Buff all your units by +1/+1.";
+                         "\nTier 3 : When a Fighter is summoned, it gains +3/+3.";
                 break;
             case CardData.Trait.Healer:
                 display += $"Heal ally units or core to unlock : {Progression}/{CurrentCap}" +

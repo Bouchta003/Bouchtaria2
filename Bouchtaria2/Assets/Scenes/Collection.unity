@@ -3520,10 +3520,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Fighter Trait :\nUnlockable with 4 8 or 12 fighter cards in deck\nPlay
-    Fighter units from your hand to activate : \nTier 1 : The first unit you play
-    each turn has +1/+1.\nTier 2 : Discover a Fighter Relic, reduce its cost by 3.\nTier
-    3 : End of Turn : Buff all your units by +1/+1.\n"
+  m_text: "Fighter Trait :\nUnlockable with 4 8 or 12 fighter cards in deck\nIncrease
+    allied stats to activate (Fighters count twice): \nTier 1 : When a Fighter
+    gains stats, it gains an additional +1/+1.\nTier 2 : When a Fighter gains
+    stats, it gains a random basic effect.\nTier 3 : When a Fighter is summoned,
+    it gains +3/+3.\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
   m_sharedMaterial: {fileID: -1779797437514033207, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
