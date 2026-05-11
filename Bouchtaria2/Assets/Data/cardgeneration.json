@@ -6555,8 +6555,8 @@
       "effect": "progressbuffcount(3)[morphtotyrogue]",
       "effectText": "Progress: After this unit has been buffed 3 times, morph into Hitmonlee if it has more ATK than HP, Hitmonchan if it has more HP than ATK, or Hitmontop if they are equal.",
       "relatedCards": [ 403, 404, 405 ],
-      "artPath": "CardArt/default",
-      "artCompactPath": "CardArt/default",
+      "artPath": "CardArt/tyrogue",
+      "artCompactPath": "CardArt/tyrogue_compact",
       "packable": true,
       "token": false,
       "signature": false
@@ -6572,8 +6572,8 @@
       "effect": "",
       "effectText": "",
       "relatedCards": [ 402 ],
-      "artPath": "CardArt/Hitmonlee",
-      "artCompactPath": "CardArt/Hitmonlee",
+      "artPath": "CardArt/hitmonlee",
+      "artCompactPath": "CardArt/hitmonlee",
       "packable": false,
       "token": false,
       "signature": false
@@ -6589,8 +6589,8 @@
       "effect": "",
       "effectText": "",
       "relatedCards": [ 402 ],
-      "artPath": "CardArt/Hitmonchan",
-      "artCompactPath": "CardArt/Hitmonchan",
+      "artPath": "CardArt/hitmonchan",
+      "artCompactPath": "CardArt/hitmonchan",
       "packable": false,
       "token": false,
       "signature": false
@@ -6606,8 +6606,8 @@
       "effect": "",
       "effectText": "",
       "relatedCards": [ 402 ],
-      "artPath": "CardArt/Hitmontop",
-      "artCompactPath": "CardArt/Hitmontop",
+      "artPath": "CardArt/hitmontop",
+      "artCompactPath": "CardArt/hitmontop",
       "packable": false,
       "token": false,
       "signature": false
