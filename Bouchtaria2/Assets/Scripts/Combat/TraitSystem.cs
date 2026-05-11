@@ -1288,7 +1288,7 @@ public class FighterProgression : ITraitProgression
         if (card.Data.cardType != "minion")
             return;
 
-        allyStatIncreases += card.HasTrait("Fighter") ? 2 : 1;
+        allyStatIncreases += 1;
         OnProgressUpdated?.Invoke(Trait, allyStatIncreases, GetCurrentCap(), Owner);
 
         if (allyStatIncreases >= 5 && CurrentTier < 1 && maxTier >= 1)
