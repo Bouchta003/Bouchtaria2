@@ -270,6 +270,28 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         return false;
     }
+    private bool HasExactEffectKeyword(string keyword)
+    {
+        if (EffectsSuppressed)
+            return false;
+        if (Data == null || CurrentEffect == null)
+            return false;
+
+        foreach (string token in CurrentEffect.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (!token.StartsWith(keyword, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (token.Length == keyword.Length)
+                return true;
+
+            char next = token[keyword.Length];
+            if (next == '(' || next == '[')
+                return true;
+        }
+
+        return false;
+    }
     #region Progress
     public void InitializeProgressIfAny()
     {
@@ -368,7 +390,13 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.OnSpellPlayed += OnSpellPlayed;
             cardView.ShowProgress(ProgressionCounter, ProgressionCap);
         }
-        else if (HasKeyword("progressbuff") &&
+        else if (HasExactEffectKeyword("progressbuffcount") &&
+         TryParseProgress("progressbuffcount", out int buffCountCap))
+        {
+            ProgressionCap = buffCountCap;
+            cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+        }
+        else if (HasExactEffectKeyword("progressbuff") &&
          TryParseProgress("progressbuff", out int buffCap))
         {
             ProgressionCap = buffCap;
@@ -482,8 +510,15 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         foreach (string token in tokens)
         {
-            if (!token.StartsWith(keyword))
+            if (!token.StartsWith(keyword, StringComparison.OrdinalIgnoreCase))
                 continue;
+
+            if (token.Length > keyword.Length)
+            {
+                char next = token[keyword.Length];
+                if (next != '(' && next != '[')
+                    continue;
+            }
 
             int start = token.IndexOf('(');
             int end = token.IndexOf(')');
@@ -771,7 +806,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (CurrentZone != CardZone.Board)
             return;
 
-        if (!HasKeyword("progressbuff") || ProgressionCap <= 0)
+        if (!HasExactEffectKeyword("progressbuff") || ProgressionCap <= 0)
             return;
 
         int atkGain = Mathf.Max(0, CurrentAttack - Data.atkValue);
@@ -782,6 +817,37 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         CheckProgressCompletion();
 
+    }
+
+    private void UpdateBuffCountProgressCounter(int atk, int hp)
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+
+        if (!HasExactEffectKeyword("progressbuffcount") || ProgressionCap <= 0)
+            return;
+
+        if (atk <= 0 && hp <= 0)
+            return;
+
+        ProgressionCounter++;
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+
+        CheckProgressCompletion();
+    }
+
+    private void TryExecuteTyrogueMorph()
+    {
+        const int hitmonleeId = 403;
+        const int hitmonchanId = 404;
+        const int hitmontopId = 405;
+
+        if (CurrentAttack > CurrentHealth)
+            MorphTo(hitmonleeId);
+        else if (CurrentHealth > CurrentAttack)
+            MorphTo(hitmonchanId);
+        else
+            MorphTo(hitmontopId);
     }
 
     #endregion
@@ -1730,6 +1796,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
             gameManager.CheckGlow(); return false;
         }
+        if (effect.StartsWith("morphtotyrogue"))
+        {
+            TryExecuteTyrogueMorph();
+            gameManager.CheckGlow(); return false;
+        }
         if (effect.StartsWith("morphto"))
         {
             if (!TryParseIntEffect(effect, "morphto", out int id))
@@ -2340,6 +2411,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "progressspell":
             case "progresseot":
             case "progressbuff":
+            case "progressbuffcount":
                 trigger = EffectTrigger.ProgressComplete;
                 return true;
 
@@ -4899,6 +4971,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         view.UpdateMode();
         UpdateStatsColor();
         UpdateBuffProgressCounter();
+        UpdateBuffCountProgressCounter(atk, hp);
     }
     public void Die()
     {
