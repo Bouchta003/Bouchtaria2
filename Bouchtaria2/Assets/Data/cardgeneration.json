@@ -6527,6 +6527,22 @@
       "packable": true,
       "token": false,
       "signature": false
+    },
+    "401": {
+      "id": 401,
+      "name": "Chuck",
+      "cardType": "minion",
+      "manaCost": 4,
+      "atkValue": 5,
+      "hpValue": 3,
+      "traits": [ "Fighter" ],
+      "effect": "eot[selfbuff(0,2)]",
+      "effectText": "End of turn: Gain +2 HP",
+      "artPath": "CardArt/chuck",
+      "artCompactPath": "CardArt/chuck_compact",
+      "packable": true,
+      "token": false,
+      "signature": false
     }
   }
 }
