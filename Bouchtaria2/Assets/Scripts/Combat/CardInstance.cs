@@ -4023,8 +4023,19 @@ public class CardInstance : MonoBehaviour, IAttackable
             case 331: // Aegislash
                 effectToAppend = "blessed";
                 effectText = "Equipped with Aegislash";
-                ci.ModifyStats(8,8);
+                ci.ModifyStats(8, 8);
                 break;
+            case 409: // Rubilax
+                if(ci.Data.id == 408) 
+                {
+                    ci.MorphTo(410, true);
+                    break;
+                }
+                else { 
+                effectToAppend = " ";
+                effectText = "Equipped with Rubilax";
+                ci.ModifyStats(3, 3);
+                break;}
         }
 
         if (!string.IsNullOrEmpty(effectToAppend))

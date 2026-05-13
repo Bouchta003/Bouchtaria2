@@ -12,11 +12,14 @@ public class LoadCombatInfo : MonoBehaviour
     {
         if (GameRunContext.IsDungeonRun)
         {
+            if (GameRunContext.DungeonData.floor <= 15)
+                infoText.text = $"Floor {GameRunContext.DungeonData.floor}\nNo particular enemy effect.";
+
             if (GameRunContext.DungeonData.floor > 15) 
-                infoText.text = "The enemy units now gain +1/+1 at the end of the turn.";
+                infoText.text = $"Floor {GameRunContext.DungeonData.floor}\nThe enemy units now gain +1/+1 at the end of the turn.";
 
             if (GameRunContext.DungeonData.floor > 30)
-                infoText.text = "The enemy now draws 1 card the end of the turn and heals for 5.\nTheir units still gain +1/+1 at the end of the turn by the way.";
+                infoText.text = $"Floor {GameRunContext.DungeonData.floor}\nThe enemy now draws 1 card the end of the turn and heals for 5.\nTheir units still gain +1/+1 at the end of the turn by the way.";
         }
         else if (GameRunContext.IsAdventureCombat)
         {
