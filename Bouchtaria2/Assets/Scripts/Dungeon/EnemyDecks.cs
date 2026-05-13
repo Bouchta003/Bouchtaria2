@@ -533,7 +533,7 @@ public static class EnemyDecks
                 128,128,
                 166,166,
                 286,286,
-                305,305,//Omar DrBens and Qurupeco bensalmiserable
+                305,305,//Omar DrBens //Qurupeco Bensalmiserable
                 193,51,
                 38,246,
                 193,51,
@@ -696,6 +696,7 @@ public static class EnemyDecks
                 282,282, //Sarito and Cinamoncops
                 304,306,
                 306,304, //Sunday both forms
+                306,304, //Sunday both forms
                 175,213, //Machop and buzzwole
                 57,57,   //Snorlax
                 207,207, //Lucario
@@ -705,7 +706,6 @@ public static class EnemyDecks
                 231,231,//ultra ball
                 367,367,//Tinkaton
                 369,369,//Yazio
-                156,157,//Boyd and greatball
                 }
             },
             { 11, new List<int>

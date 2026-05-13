@@ -145,7 +145,10 @@ public class EnemyCardDropArea : MonoBehaviour, ICardDropArea
             if (GameRunContext.DungeonData.floor > 15)
                 GameManager.GetComponent<GameManager>().BuffAllAllies(1, 1, PlayerOwner.Enemy);
             if (GameRunContext.DungeonData.floor > 30)
-                GameManager.GetComponent<GameManager>().deckManager.Draw(1,PlayerOwner.Enemy);
+            { 
+                GameManager.GetComponent<GameManager>().deckManager.Draw(1, PlayerOwner.Enemy);
+                GameManager.GetComponent<GameManager>().EnemyCore.Heal(5) ;
+            }
         }
         //Trigger during bouchtaria fight
         if (GameRunContext.IsAdventureHardMode && GameRunContext.AdventureFightId>12)

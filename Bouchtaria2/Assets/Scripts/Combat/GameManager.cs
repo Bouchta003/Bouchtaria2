@@ -92,6 +92,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI manacounterEnmy;
     [SerializeField] Transform playerCoreProxy;
     [SerializeField] Transform enemyCoreProxy;
+    [SerializeField] public Transform CombatInfo;
 
     [Header("Cursor")]
     [SerializeField] Image attackCursor;
@@ -268,7 +269,7 @@ private sealed class PendingHandReturn
 
         boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[UnityEngine.Random.Range(0, boards.Count)];
         if (GameRunContext.IsDungeonRun) boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[0];
-
+        CombatInfo.gameObject.SetActive(false);
         //Logic for dungeon runs
         if (GameRunContext.IsDungeonRun)
         {
@@ -280,6 +281,16 @@ private sealed class PendingHandReturn
             SetupAdventureFight(GameRunContext.AdventureFightId);
         }
         else SetupFirstTurn();
+    }
+    /// <summary>
+    /// Toggles the active state of the CombatInfo UI element.  
+    /// </summary>
+    /// <remarks>If the CombatInfo UI element is currently visible, this method hides it; if it is hidden,
+    /// this method makes it visible. This method is typically used to show or hide additional combat information in the
+    /// user interface.</remarks>
+    public void ToggleInfo()
+    {
+        CombatInfo.gameObject.SetActive(!CombatInfo.gameObject.activeSelf);
     }
     public void SetupFirstTurn()
     {
