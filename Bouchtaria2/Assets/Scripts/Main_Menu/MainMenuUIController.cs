@@ -21,6 +21,10 @@ public class MainMenuUIController : MonoBehaviour
     {
         GameFlowController.Instance.GoToDungeon();
     }
+    public void OnPathOfPowerClicked()
+    {
+        GameFlowController.Instance.GoToPathOfPower();
+    }
     public void OnAdventureClicked()
     {
         GameFlowController.Instance.GoAdventureStage1();

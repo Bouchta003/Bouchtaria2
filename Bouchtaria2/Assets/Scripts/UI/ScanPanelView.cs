@@ -30,7 +30,9 @@ public class ScanPanelView : MonoBehaviour
     [SerializeField] private float visibleX = 20f;
 
     private Coroutine slideRoutine;
-    private bool isVisible;
+    public bool isVisible { get; private set; }
+    // true when the panel content is showing a relic (vs a card)
+    public bool isShowingRelic { get; private set; }
     public PlayerOwner owner;
 
     void Awake()
@@ -59,9 +61,9 @@ public class ScanPanelView : MonoBehaviour
         if (card.GetComponent<CardInstance>().CurrentZone == CardZone.Board)
             PopulateBoard(card);
         else PopulateHand(card);
+        isShowingRelic = false;
         Slide(true);
     }
-
     public void Hide()
     {
         Slide(false);
@@ -71,7 +73,7 @@ public class ScanPanelView : MonoBehaviour
     // Animation
     // =========================
 
-    private void Slide(bool show)
+    public void Slide(bool show)
     {
         if (isVisible == show)
             return;
@@ -108,6 +110,22 @@ public class ScanPanelView : MonoBehaviour
     // Content
     // =========================
 
+    public void PopulateRelic(Relic relic)
+    {
+        if (relic == null)
+            return;
+
+        cardSpriteCompact.sprite = relic.sprite;
+        nameText.text = relic.Name;
+        effectText.text = relic.Description;
+
+        isShowingRelic = true;
+
+        foreach (Transform child in keywordContainer)
+            Destroy(child.gameObject);
+        //KeyWordCheck
+        UpdateTexts(relic.Description);
+    }
     private void PopulateHand(CardView cardView)
     {
         if (cardView == null)
@@ -155,6 +173,7 @@ public class ScanPanelView : MonoBehaviour
         //KeyWordCheck
         UpdateTexts(card.effectText);
         DisplayRelatedCards(card);
+        isShowingRelic = false;
     }
     private void PopulateBoard(CardView cardView)
     {
@@ -187,6 +206,7 @@ public class ScanPanelView : MonoBehaviour
 
         UpdateTexts(card.CurrentEffectText);
         DisplayRelatedCards(card.Data);
+        isShowingRelic = false;
     }
     void DisplayRelatedCards(CardData data)
     {

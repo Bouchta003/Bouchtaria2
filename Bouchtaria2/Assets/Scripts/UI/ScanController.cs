@@ -8,7 +8,7 @@ public class ScanController : MonoBehaviour
 
     [SerializeField] private ScanPanelView scanPanelPrefab;
 
-    private ScanPanelView panelInstance;
+    public ScanPanelView panelInstance;
     private CardView hoveredCard;
 
     private void Awake()
@@ -21,10 +21,18 @@ public class ScanController : MonoBehaviour
     }
     private void Update()
     {
-        if (ScanInput.Instance == null || !ScanInput.Instance.IsScanActive)
+        if (ScanInput.Instance == null || !(ScanInput.Instance.IsScanActive && SceneManager.GetActiveScene().name != "PathofPower"))
         {
-            panelInstance.Hide();
-            return;
+            // Allow the panel to remain visible if it's currently showing a relic (used by PathOfPower toggle)
+            if (panelInstance != null && panelInstance.isShowingRelic)
+            {
+                // keep relic visible
+            }
+            else
+            {
+                panelInstance.Hide();
+                return;
+            }
         }
 
         CardView cardUnderMouse = GetCardUnderMouse();
@@ -35,7 +43,7 @@ public class ScanController : MonoBehaviour
             if(panelInstance.owner==PlayerOwner.Player || cardUnderMouse.GetComponent<CardInstance>().CurrentZone != CardZone.Hand)
                 panelInstance.Show(cardUnderMouse);
         }
-        else
+        else if(SceneManager.GetActiveScene().name != "PathofPower")
         {
             panelInstance.Hide();
         }

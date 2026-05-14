@@ -220,6 +220,17 @@ public class GameFlowController : MonoBehaviour
         UserCollectionManager.Instance.RefreshCollection();
         SceneManager.LoadScene("DungeonMenu");
     }
+    public void GoToPathOfPower()
+    {
+        if (!isGameReady)
+        {
+            ErrorPopup.Show("⚠️ Game data not ready yet");
+            return;
+        }
+
+        UserCollectionManager.Instance.RefreshCollection();
+        SceneManager.LoadScene("PathOfPower");
+    }
     public void GoToMainMenu()
     {
         SceneManager.LoadScene("Main_Menu");
