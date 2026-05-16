@@ -1749,41 +1749,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &625138413
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 625138414}
-  m_Layer: 5
-  m_Name: CardDiscover
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &625138414
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 625138413}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 733325518}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1920, y: 1080}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &697240336
 GameObject:
   m_ObjectHideFlags: 0
@@ -2120,9 +2085,6 @@ RectTransform:
   - {fileID: 862458026}
   - {fileID: 756100213}
   - {fileID: 571919739}
-  - {fileID: 625138414}
-  - {fileID: 1916599022}
-  - {fileID: 1345442358}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2412,10 +2374,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 909230d97087b024281b02b9db5e3300, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PathOfPowerManager
+  relicLibrary:
+  - {fileID: 11400000, guid: 8b56ce010d9fbe145aae4e12f34285ea, type: 2}
+  - {fileID: 11400000, guid: 80aa63fba84ed3f48a733e24f8562bf0, type: 2}
+  - {fileID: 11400000, guid: 3e957d92fc1822642a43b58a1c147db2, type: 2}
+  - {fileID: 11400000, guid: bd1c64828e8d7eb4c8635d7a317da5b0, type: 2}
+  - {fileID: 11400000, guid: 2782904f372be90438c7516bea7c1f16, type: 2}
+  eventLibrary:
+  - {fileID: 11400000, guid: 96ba2a58dd560e0499ae8cc60e6cbac3, type: 2}
+  pathLibrary: []
+  encounterLibrary: []
   DiscoverDisplay: {fileID: 82126375}
-  relicSprite: {fileID: -3502033458911581537, guid: 2b2482da8c2a0474ebbbe44bfcaef215, type: 3}
-  relicDescription: Draw 2 extra cards at the start of the fight
-  relicName: Ring of the Snake
+  discoveryCardParent: {fileID: 82126376}
+  discoveryScale: {x: 0.6, y: 0.6, z: 0.6}
+  starterDeckTargetSize: 20
+  fallbackStarterDeck: 030000000300000004000000040000000500000005000000060000000600000009000000090000001e0000001e0000002000000020000000220000002200000024000000240000002500000025000000
 --- !u!4 &937017223
 Transform:
   m_ObjectHideFlags: 0
@@ -3104,41 +3077,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1336494344}
   m_CullTransparentMesh: 1
---- !u!1 &1345442357
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1345442358}
-  m_Layer: 5
-  m_Name: TraitDiscover
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1345442358
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1345442357}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 733325518}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1920, y: 1080}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1362098086
 GameObject:
   m_ObjectHideFlags: 0
@@ -4191,41 +4129,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1772264805}
   m_CullTransparentMesh: 1
---- !u!1 &1916599021
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1916599022}
-  m_Layer: 5
-  m_Name: RelicDiscover
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1916599022
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1916599021}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 733325518}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1920, y: 1080}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1965502174
 GameObject:
   m_ObjectHideFlags: 0
