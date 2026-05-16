@@ -32,7 +32,9 @@ public class DungeonRunData
 public static class GameRunContext
 {
     public static DungeonRunData DungeonData;
+    public static PathOfPowerRunData PathOfPowerData;
     public static bool IsDungeonRun;
+    public static bool IsPathOfPowerRun;
     public static bool IsAdventureCombat;
     public static int AdventureFightId;
     public static bool IsAdventureHardMode;
