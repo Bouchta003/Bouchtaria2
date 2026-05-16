@@ -10,7 +10,14 @@ public class LoadCombatInfo : MonoBehaviour
     }
     void UpdateText()
     {
-        if (GameRunContext.IsDungeonRun)
+        if (GameRunContext.IsPathOfPowerRun)
+        {
+            PathOfPowerRunData run = GameRunContext.PathOfPowerData;
+            PathOfPowerStepData step = run?.CurrentStepData;
+            string stepName = step != null ? step.stepType.ToString() : "Unknown";
+            infoText.text = $"Path Of Power - Floor {run?.currentFloor ?? 1}, Step {run?.currentStep ?? 1}\nEncounter: {stepName}.";
+        }
+        else if (GameRunContext.IsDungeonRun)
         {
             if (GameRunContext.DungeonData.floor <= 15)
                 infoText.text = $"Floor {GameRunContext.DungeonData.floor}\nNo particular enemy effect.";

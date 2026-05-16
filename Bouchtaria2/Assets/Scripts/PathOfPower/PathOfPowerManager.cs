@@ -1,124 +1,466 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
 public class PathOfPowerManager : MonoBehaviour
 {
     public static PathOfPowerManager Instance;
+
+    [Header("Content Libraries")]
+    [SerializeField] private List<RelicDefinition> relicLibrary = new List<RelicDefinition>();
+    [SerializeField] private List<EventDefinition> eventLibrary = new List<EventDefinition>();
+    [SerializeField] private List<PathDefinition> pathLibrary = new List<PathDefinition>();
+    [SerializeField] private List<EnemyEncounterDefinition> encounterLibrary = new List<EnemyEncounterDefinition>();
+
+    [Header("Discovery UI Hooks")]
     [SerializeField] public GameObject DiscoverDisplay;
+    [SerializeField] private Transform discoveryCardParent;
+    [SerializeField] private Vector3 discoveryScale = new Vector3(0.6f, 0.6f, 0.6f);
 
+    [Header("Starter Deck Defaults")]
+    [SerializeField] private int starterDeckTargetSize = 20;
+    [SerializeField] private List<int> fallbackStarterDeck = new List<int>
+    {
+        3, 3, 4, 4, 5, 5, 6, 6, 9, 9,
+        30, 30, 32, 32, 34, 34, 36, 36, 37, 37
+    };
 
+    public PathOfPowerRunData CurrentRun { get; private set; } = new PathOfPowerRunData();
 
-    // Change for relic list so that all of them are written here.
-    public Relic SnakeRelic;
-    public Sprite relicSprite;
-    public string relicDescription;
-    public string relicName;
+    public event Action<PathOfPowerRunData> OnRunLoaded;
+    public event Action<IReadOnlyList<RelicDefinition>> OnStarterRelicChoicesGenerated;
+    public event Action<IReadOnlyList<RelicDefinition>> OnWardenRelicRewardsGenerated;
+    public event Action<IReadOnlyList<int>> OnCardDiscoveryGenerated;
+    public event Action<IReadOnlyList<PathDefinition>> OnPathChoicesRequested;
+    public event Action<PathOfPowerStepData> OnStepReady;
+
+    private PathOfPowerFloorGenerator floorGenerator;
 
     private void Awake()
     {
-        if (Instance != null)
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
 
         Instance = this;
-
     }
-    void Start()
+
+    private void Start()
     {
-        Relic newR = new Relic(relicName, relicDescription, CardData.Trait.None, relicSprite);
-        SnakeRelic = newR;
+        floorGenerator = new PathOfPowerFloorGenerator(eventLibrary, encounterLibrary);
+        if (DiscoverDisplay != null)
+            DiscoverDisplay.SetActive(false);
 
-        DiscoverDisplay.SetActive(false);
+        LoadRun();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.D)) { DiscoverCardForDeck(0, 1, 2); }
-    }
     /// <summary>
-    /// Method assigned to button to toggle Relic info using scan panel view just like for cards. If the panel is already showing this relic, it will hide it. Otherwise it will populate the panel with this relic and show it. 
-    /// This allows players to manually check the relic info without interfering with card hover behavior, since ScanController will only auto-hide when not showing a relic.
+    /// UI hook: call this from the Path Of Power entry button to start a clean run.
+    /// It generates starter relic choices first, then waits for SelectStarterRelic.
     /// </summary>
-    public void ToggleRelic()
+    public void StartNewRun()
     {
-        var panel = ScanController.Instance.panelInstance;
-        if (panel == null)
+        CurrentRun = new PathOfPowerRunData
+        {
+            currentFloor = 1,
+            currentStep = 1,
+            currentDeck = new List<int>(),
+            currentRelics = new List<string>(),
+            currentFloorSeed = GenerateSeed(),
+            currentPathType = PathOfPowerPathType.Simple,
+            currentStreak = 0,
+            phase = PathOfPowerRunPhase.StarterRelicChoice,
+            combatActive = false
+        };
+
+        CurrentRun.pendingStarterRelicChoices = PickRelics(3, relic => relic.CanAppearAsStarter, CurrentRun.currentFloorSeed)
+            .Select(relic => relic.RelicId)
+            .ToList();
+
+        SaveRun();
+        OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
+    }
+
+    public void LoadRun()
+    {
+        PathOfPowerSaveService.Load(runData =>
+        {
+            CurrentRun = runData ?? new PathOfPowerRunData();
+            if (CurrentRun.currentFloor <= 0 || CurrentRun.phase == PathOfPowerRunPhase.None)
+            {
+                OnRunLoaded?.Invoke(CurrentRun);
+                return;
+            }
+
+            if (CurrentRun.combatActive)
+            {
+                Debug.LogWarning("Detected unfinished Path Of Power combat. The run is being marked defeated to avoid progress abuse.");
+                EndRunAsDefeated();
+                return;
+            }
+
+            if (CurrentRun.currentPathType == PathOfPowerPathType.Challenge && CurrentRun.currentStep == 5)
+            {
+                GrantChallengePreWardenRelic();
+                SaveRun();
+            }
+
+            if (CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward && CurrentRun.pendingWardenRelicRewards.Count == 0)
+            {
+                CurrentRun.pendingWardenRelicRewards = PickRelics(2, relic => relic.CanAppearAsWardenReward, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
+                    .Select(relic => relic.RelicId)
+                    .ToList();
+                SaveRun();
+            }
+
+            GameRunContext.PathOfPowerData = CurrentRun;
+            OnRunLoaded?.Invoke(CurrentRun);
+            ResumeCurrentPhaseHooks();
+        });
+    }
+
+
+    /// <summary>
+    /// UI hook: display a relic in the existing scan panel without building a separate relic tooltip system.
+    /// </summary>
+    public void ShowRelicInScanPanel(RelicDefinition relicDefinition)
+    {
+        if (relicDefinition == null || ScanController.Instance == null || ScanController.Instance.panelInstance == null)
             return;
 
-        // If the panel is visible and currently showing this relic, hide it.
-        if (panel.isVisible && panel.isShowingRelic)
+        ScanController.Instance.panelInstance.PopulateRelic(new Relic(relicDefinition));
+        ScanController.Instance.panelInstance.Slide(true);
+    }
+
+    public void SelectStarterRelic(string relicId)
+    {
+        if (CurrentRun.phase != PathOfPowerRunPhase.StarterRelicChoice)
+            return;
+
+        if (!CurrentRun.pendingStarterRelicChoices.Contains(relicId))
         {
-            panel.Slide(false);
+            Debug.LogWarning($"Rejected starter relic '{relicId}' because it was not one of the generated choices.");
             return;
         }
 
-        // Otherwise populate with this relic and show the panel. This won't affect card hover behavior
-        // since ScanController will only auto-hide when not showing a relic.
-        panel.PopulateRelic(SnakeRelic);
-        panel.Slide(true);
+        CurrentRun.currentRelics.Add(relicId);
+        CurrentRun.pendingStarterRelicChoices.Clear();
+        CurrentRun.currentDeck = BuildFallbackStarterDeck();
+        GenerateStartingCardDiscovery();
+        CurrentRun.phase = PathOfPowerRunPhase.StartingDeckDiscovery;
+        SaveRun();
     }
-    public void DiscoverCardForDeck(int id1, int id2, int id3)
+
+    public void GenerateStartingCardDiscovery()
     {
-        // Ensure CardFactory exists before using it
+        CurrentRun.pendingCardChoices = GenerateCardChoices(CurrentRun.currentFloorSeed, 3);
+        ShowCardDiscovery(CurrentRun.pendingCardChoices);
+        OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+    }
+
+    public void SelectStartingCard(int cardId)
+    {
+        if (CurrentRun.phase != PathOfPowerRunPhase.StartingDeckDiscovery)
+            return;
+
+        if (CurrentRun.pendingCardChoices.Contains(cardId) && CurrentRun.currentDeck.Count < starterDeckTargetSize + 1)
+            CurrentRun.currentDeck.Add(cardId);
+
+        CurrentRun.pendingCardChoices.Clear();
+        GenerateFloor(PathOfPowerPathType.Simple);
+        CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+        SaveRun();
+    }
+
+    public void SkipStartingCardDiscovery()
+    {
+        if (CurrentRun.phase != PathOfPowerRunPhase.StartingDeckDiscovery)
+            return;
+
+        CurrentRun.pendingCardChoices.Clear();
+        GenerateFloor(PathOfPowerPathType.Simple);
+        CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+        SaveRun();
+    }
+
+    /// <summary>
+    /// UI hook: call before floor 2+ to expose path buttons. Floor 1 uses Simple path by default.
+    /// </summary>
+    public void RequestPathSelection()
+    {
+        if (CurrentRun.currentFloor < 2)
+        {
+            GenerateFloor(PathOfPowerPathType.Simple);
+            return;
+        }
+
+        CurrentRun.phase = PathOfPowerRunPhase.PathSelection;
+        SaveRun();
+        OnPathChoicesRequested?.Invoke(pathLibrary);
+    }
+
+    public void SelectPath(PathOfPowerPathType pathType)
+    {
+        GenerateFloor(pathType);
+        CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+        SaveRun();
+    }
+
+    /// <summary>
+    /// UI hook: call this from the lobby's "Next" button.
+    /// Fights go to Combat, events notify OnStepReady for future event UI.
+    /// </summary>
+    public void EnterCurrentStep()
+    {
+        PathOfPowerStepData step = CurrentRun.CurrentStepData;
+        if (step == null)
+        {
+            Debug.LogWarning("Path Of Power current step is missing; regenerating floor.");
+            GenerateFloor(CurrentRun.currentPathType);
+            step = CurrentRun.CurrentStepData;
+        }
+
+        OnStepReady?.Invoke(step);
+
+        if (step.stepType == PathOfPowerStepType.Event)
+        {
+            CurrentRun.phase = PathOfPowerRunPhase.Event;
+            SaveRun();
+            return;
+        }
+
+        LaunchCombat(step);
+    }
+
+    public void CompleteCurrentEvent()
+    {
+        PathOfPowerStepData step = CurrentRun.CurrentStepData;
+        if (step == null || step.stepType != PathOfPowerStepType.Event)
+            return;
+
+        step.completed = true;
+        AdvanceToNextStepOrFloor();
+        SaveRun();
+    }
+
+    public void ChooseWardenRelicReward(string relicId)
+    {
+        if (CurrentRun.phase != PathOfPowerRunPhase.AwaitingWardenReward)
+            return;
+
+        if (!string.IsNullOrWhiteSpace(relicId) && CurrentRun.pendingWardenRelicRewards.Contains(relicId))
+            CurrentRun.currentRelics.Add(relicId);
+
+        CurrentRun.pendingWardenRelicRewards.Clear();
+        MoveToNextFloorAfterWardenReward();
+        SaveRun();
+    }
+
+    public void SkipWardenRelicReward()
+    {
+        ChooseWardenRelicReward(string.Empty);
+    }
+
+    public void EndRunAsDefeated()
+    {
+        CurrentRun.phase = PathOfPowerRunPhase.Defeated;
+        CurrentRun.combatActive = false;
+        PathOfPowerSaveService.Save(CurrentRun);
+    }
+
+    private void GenerateFloor(PathOfPowerPathType pathType)
+    {
+        CurrentRun.currentPathType = pathType;
+        CurrentRun.currentStep = 1;
+        CurrentRun.currentFloorSeed = CurrentRun.currentFloorSeed == 0 ? GenerateSeed() : CurrentRun.currentFloorSeed;
+        CurrentRun.currentFloorSteps = floorGenerator.GenerateFloor(CurrentRun.currentFloor, pathType, CurrentRun.currentFloorSeed);
+    }
+
+    private void LaunchCombat(PathOfPowerStepData step)
+    {
+        EnemyEncounterDefinition encounter = ResolveEncounter(step.encounterId);
+        DeckSelectionCache.SelectedPlayerDeck = new List<int>(CurrentRun.currentDeck);
+        DeckSelectionCache.SelectedEnemyDeck = PathOfPowerEnemyDeckBuilder.BuildEnemyDeck(CurrentRun, encounter);
+
+        CurrentRun.phase = PathOfPowerRunPhase.Combat;
+        CurrentRun.combatActive = true;
+        GameRunContext.IsDungeonRun = false;
+        GameRunContext.IsAdventureCombat = false;
+        GameRunContext.IsAdventureHardMode = false;
+        GameRunContext.AdventureFightId = 0;
+        GameRunContext.IsPathOfPowerRun = true;
+        GameRunContext.PathOfPowerData = CurrentRun;
+
+        SaveRun(() => SceneManager.LoadScene("Combat"));
+    }
+
+    public void HandleCombatVictoryFromSave()
+    {
+        PathOfPowerStepData step = CurrentRun.CurrentStepData;
+        if (step != null)
+            step.completed = true;
+
+        CurrentRun.combatActive = false;
+        CurrentRun.currentStreak++;
+
+        if (step != null && step.stepType == PathOfPowerStepType.Warden)
+        {
+            CurrentRun.pendingWardenRelicRewards = PickRelics(2, relic => relic.CanAppearAsWardenReward, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
+                .Select(relic => relic.RelicId)
+                .ToList();
+            CurrentRun.phase = PathOfPowerRunPhase.AwaitingWardenReward;
+            SaveRun();
+            OnWardenRelicRewardsGenerated?.Invoke(ResolveRelics(CurrentRun.pendingWardenRelicRewards));
+            return;
+        }
+
+        AdvanceToNextStepOrFloor();
+        SaveRun();
+    }
+
+    private void AdvanceToNextStepOrFloor()
+    {
+        if (CurrentRun.currentPathType == PathOfPowerPathType.Challenge && CurrentRun.currentStep == 4)
+            GrantChallengePreWardenRelic();
+
+        if (CurrentRun.currentStep < 5)
+        {
+            CurrentRun.currentStep++;
+            CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+            return;
+        }
+
+        CurrentRun.phase = PathOfPowerRunPhase.AwaitingWardenReward;
+    }
+
+    private void GrantChallengePreWardenRelic()
+    {
+        RelicDefinition relic = PickRelics(1, candidate => candidate.CanAppearAsWardenReward && !CurrentRun.currentRelics.Contains(candidate.RelicId), CurrentRun.currentFloorSeed + 404).FirstOrDefault();
+        if (relic == null)
+            return;
+
+        // First foundation: challenge-path pre-warden relic is granted automatically.
+        // TODO(Path Of Power): expose this through a dedicated reward/preview panel.
+        CurrentRun.currentRelics.Add(relic.RelicId);
+    }
+
+    private void MoveToNextFloorAfterWardenReward()
+    {
+        CurrentRun.currentFloor++;
+        CurrentRun.currentStep = 1;
+        CurrentRun.currentFloorSeed = GenerateSeed();
+        CurrentRun.currentFloorSteps.Clear();
+        CurrentRun.phase = CurrentRun.currentFloor >= 2 ? PathOfPowerRunPhase.PathSelection : PathOfPowerRunPhase.Lobby;
+    }
+
+    private void ResumeCurrentPhaseHooks()
+    {
+        switch (CurrentRun.phase)
+        {
+            case PathOfPowerRunPhase.StarterRelicChoice:
+                OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
+                break;
+            case PathOfPowerRunPhase.StartingDeckDiscovery:
+                ShowCardDiscovery(CurrentRun.pendingCardChoices);
+                OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                break;
+            case PathOfPowerRunPhase.PathSelection:
+                OnPathChoicesRequested?.Invoke(pathLibrary);
+                break;
+            case PathOfPowerRunPhase.AwaitingWardenReward:
+                OnWardenRelicRewardsGenerated?.Invoke(ResolveRelics(CurrentRun.pendingWardenRelicRewards));
+                break;
+        }
+    }
+
+    private List<int> BuildFallbackStarterDeck()
+    {
+        List<int> deck = new List<int>(fallbackStarterDeck);
+        while (deck.Count > starterDeckTargetSize)
+            deck.RemoveAt(deck.Count - 1);
+
+        return deck;
+    }
+
+    private List<int> GenerateCardChoices(int seed, int count)
+    {
+        if (CardDatabase.Instance == null || CardDatabase.Instance.Cards == null || CardDatabase.Instance.Cards.Count == 0)
+            return fallbackStarterDeck.Take(count).ToList();
+
+        System.Random rng = new System.Random(seed + CurrentRun.currentDeck.Count + 17);
+        return CardDatabase.Instance.Cards.Values
+            .Where(card => card != null && card.packable && !card.token && !card.signature)
+            .OrderBy(_ => rng.Next())
+            .Take(count)
+            .Select(card => card.id)
+            .ToList();
+    }
+
+    private List<RelicDefinition> PickRelics(int count, Func<RelicDefinition, bool> predicate, int seed)
+    {
+        System.Random rng = new System.Random(seed == 0 ? GenerateSeed() : seed);
+        return relicLibrary
+            .Where(relic => relic != null && predicate(relic))
+            .OrderBy(_ => rng.Next())
+            .Take(count)
+            .ToList();
+    }
+
+    private IReadOnlyList<RelicDefinition> ResolveRelics(IEnumerable<string> relicIds)
+    {
+        HashSet<string> ids = new HashSet<string>(relicIds ?? Enumerable.Empty<string>());
+        return relicLibrary.Where(relic => relic != null && ids.Contains(relic.RelicId)).ToList();
+    }
+
+    private EnemyEncounterDefinition ResolveEncounter(string encounterId)
+    {
+        return encounterLibrary.FirstOrDefault(encounter => encounter != null && encounter.EncounterId == encounterId);
+    }
+
+    private void ShowCardDiscovery(List<int> cardIds)
+    {
+        if (DiscoverDisplay == null || cardIds == null || cardIds.Count == 0)
+            return;
+
         if (CardFactory.Instance == null)
         {
             GameObject factoryObj = new GameObject("CardFactory");
             factoryObj.AddComponent<CardFactory>();
         }
 
+        Transform parent = discoveryCardParent != null ? discoveryCardParent : DiscoverDisplay.transform;
+        for (int i = parent.childCount - 1; i >= 0; i--)
+            Destroy(parent.GetChild(i).gameObject);
+
         DiscoverDisplay.SetActive(true);
+        Vector3[] positions = { new Vector3(-5, 0, 0), Vector3.zero, new Vector3(5, 0, 0) };
 
-        CardData data1 = CardDatabase.Instance.GetCardById(id1);
-        CardInstance dataInst1 = CardFactory.Instance.CreateCardInPosition(
-            data1,
-            PlayerOwner.Player,
-            Vector3.zero,
-            new Vector3(0.6f, 0.6f, 0.6f),
-            DiscoverDisplay.transform
-        );
+        for (int i = 0; i < cardIds.Count && i < positions.Length; i++)
+        {
+            CardData data = CardDatabase.Instance.GetCardById(cardIds[i]);
+            if (data == null)
+                continue;
 
-        dataInst1.IsDisplay = true;
-        dataInst1.GetComponent<SortingGroup>().sortingOrder = 201;
+            CardInstance instance = CardFactory.Instance.CreateCardInPosition(data, PlayerOwner.Player, positions[i], discoveryScale, parent);
+            instance.IsDisplay = true;
+            SortingGroup sortingGroup = instance.GetComponent<SortingGroup>();
+            if (sortingGroup != null)
+                sortingGroup.sortingOrder = 201;
+        }
+    }
 
-        CardData data2 = CardDatabase.Instance.GetCardById(id2);
-        CardInstance dataInst2 = CardFactory.Instance.CreateCardInPosition(
-            data2,
-            PlayerOwner.Player,
-            new Vector3(5, 0, 0),
-            new Vector3(0.6f, 0.6f, 0.6f),
-            DiscoverDisplay.transform
-        );
+    private void SaveRun(Action onComplete = null)
+    {
+        PathOfPowerSaveService.Save(CurrentRun, onComplete);
+    }
 
-        dataInst2.IsDisplay = true;
-        dataInst2.GetComponent<SortingGroup>().sortingOrder = 201;
-
-        CardData data3 = CardDatabase.Instance.GetCardById(id3);
-        CardInstance dataInst3 = CardFactory.Instance.CreateCardInPosition(
-            data3,
-            PlayerOwner.Player,
-            new Vector3(-5, 0, 0),
-            new Vector3(0.6f, 0.6f, 0.6f),
-            DiscoverDisplay.transform
-        );
-
-        dataInst3.IsDisplay = true;
-        dataInst3.GetComponent<SortingGroup>().sortingOrder = 201;
+    private int GenerateSeed()
+    {
+        return UnityEngine.Random.Range(100000, int.MaxValue);
     }
 }
-public class Relic
-{
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public CardData.Trait assignedTrait { get; set; }
-    public Sprite sprite { get; set; }
-    public Relic(string name, string description, CardData.Trait trait, Sprite sprite)
-    {
-        Name = name;
-        Description = description;
-        assignedTrait = trait;
-        this.sprite = sprite;
-    }
-}   

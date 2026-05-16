@@ -270,8 +270,13 @@ private sealed class PendingHandReturn
         boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[UnityEngine.Random.Range(0, boards.Count)];
         if (GameRunContext.IsDungeonRun) boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[0];
         CombatInfo.gameObject.SetActive(false);
-        //Logic for dungeon runs
-        if (GameRunContext.IsDungeonRun)
+        //Logic for roguelite/dungeon runs
+        if (GameRunContext.IsPathOfPowerRun)
+        {
+            SetupPathOfPowerFight(GameRunContext.PathOfPowerData);
+            SetupFirstTurn();
+        }
+        else if (GameRunContext.IsDungeonRun)
         {
             SetupDungeonFight(GameRunContext.DungeonData);
             SetupFirstTurn();
@@ -776,6 +781,12 @@ private sealed class PendingHandReturn
             go.GetComponent<CardInstance>().ModifyStats(newAtk, newHp);
         }
     }
+    void SetupPathOfPowerFight(PathOfPowerRunData runData)
+    {
+        startingPlayerCoreHealth = PathOfPowerCombatService.GetPlayerHealth(runData);
+        startingEnemyCoreHealth = PathOfPowerCombatService.GetEnemyHealth(runData);
+    }
+
     void SetupDungeonFight(DungeonRunData runData)
     {
         startingEnemyCoreHealth = 5 * (runData.floor+4);
@@ -1409,6 +1420,8 @@ private sealed class PendingHandReturn
             CurrentGameState = GameState.PlayerLost;
             Debug.Log("PLAYER LOSES");
             ModifyUserGold(LossGoldCompensation);
+            if (GameRunContext.IsPathOfPowerRun)
+                PathOfPowerCombatService.MarkCombatLost();
             if (GameRunContext.IsDungeonRun)
                 DungeonManager.SetDungeonCombatActive(false);
             if (GameRunContext.IsAdventureCombat)
@@ -1482,6 +1495,10 @@ private sealed class PendingHandReturn
     private void ApplyPlayerWinRewardsAndProgression()
     {
         ModifyUserGold(WinGoldReward);
+        if (GameRunContext.IsPathOfPowerRun)
+        {
+            PathOfPowerCombatService.MarkCombatWon();
+        }
         if (GameRunContext.IsDungeonRun)
         {
             DungeonManager.SetDungeonCombatActive(false);

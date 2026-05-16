@@ -28,7 +28,7 @@ public class AudioSystem : MonoBehaviour
     public void TogglePause()
     {
         PauseCanvas.SetActive(!PauseCanvas.activeSelf);
-        if (GameRunContext.IsDungeonRun) MenuButton.GetComponentInChildren<TextMeshProUGUI>().text = "Concede";
+        if (GameRunContext.IsDungeonRun || GameRunContext.IsPathOfPowerRun) MenuButton.GetComponentInChildren<TextMeshProUGUI>().text = "Concede";
         if (SceneManager.GetActiveScene().name == "Firebase") MenuButton.SetActive(false);
         else MenuButton.SetActive(true);
     }
@@ -74,6 +74,13 @@ public class AudioSystem : MonoBehaviour
             AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false);
         }
 
+        if (GameRunContext.IsPathOfPowerRun)
+        {
+            PathOfPowerCombatService.MarkCombatLost();
+            GameFlowController.Instance.GoToPathOfPower();
+            return;
+        }
+
         if (GameRunContext.IsDungeonRun)
         {
             DungeonManager.Instance.ConcedeRun();
@@ -95,6 +102,11 @@ public class AudioSystem : MonoBehaviour
         {
             AdventureProgressionService.SetAdventureCombatActive(false);
             AdventureProgressionService.RecordFightResult(GameRunContext.AdventureFightId, false);
+        }
+
+        if (GameRunContext.IsPathOfPowerRun)
+        {
+            PathOfPowerCombatService.MarkCombatLost();
         }
 
         if (GameRunContext.IsDungeonRun)
