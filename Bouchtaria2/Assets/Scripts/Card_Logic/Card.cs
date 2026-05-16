@@ -33,15 +33,20 @@ public class Card : MonoBehaviour
     {
         col = GetComponent<Collider2D>();
         col.enabled = true; // ALWAYS enable
-
-        gameManager = FindFirstObjectByType<GameManager>();
-        thisInstance = gameObject.GetComponent<CardInstance>();
+        if (SceneManager.GetActiveScene().name != "PathofPower")
+        {
+            gameManager = FindFirstObjectByType<GameManager>();
+            thisInstance = gameObject.GetComponent<CardInstance>();
+        }
     }
     void Start()
     {
         col = GetComponent<Collider2D>();
-        enemyCardDropArea = FindFirstObjectByType<EnemyCardDropArea>();
-        allyCardDropArea = FindFirstObjectByType<AllyCardDropArea>();
+        if (SceneManager.GetActiveScene().name != "PathofPower")
+        {
+            enemyCardDropArea = FindFirstObjectByType<EnemyCardDropArea>();
+            allyCardDropArea = FindFirstObjectByType<AllyCardDropArea>();
+        }
 
         if (!delayedHover)
             EnableHover();
@@ -64,7 +69,8 @@ public class Card : MonoBehaviour
     #region Pointer-based input (called by CardInputManager)
     public void OnHoverEnter()
     {
-        if (CombatDialogue.Instance != null)
+        if (SceneManager.GetActiveScene().name == "PathofPower") { isHovered = true; return; }
+            if (CombatDialogue.Instance != null)
         {
             if (CombatDialogue.Instance.UIDialogue.activeSelf && CombatDialogue.Instance.UIDialogue != null) return;
         }
@@ -144,9 +150,9 @@ public class Card : MonoBehaviour
                 return;
             }
             //Drag to play card
-            if(thisInstance.CurrentZone == CardZone.Hand && GetComponent<CardInstance>().Owner == PlayerOwner.Player
+            if (thisInstance.CurrentZone == CardZone.Hand && GetComponent<CardInstance>().Owner == PlayerOwner.Player
             && !gameManager.isDiscovering && gameManager.CurrentGameState == GameState.Playing)
-        {
+            {
                 isDragging = true; isHovered = false;
                 startDragPosition = transform.position;
                 transform.position = GetMousePositionInWorldSpace();
@@ -162,6 +168,21 @@ public class Card : MonoBehaviour
                 gameManager.HandleTargetClick(GetComponent<CardInstance>());
             }
         }
+        else if (SceneManager.GetActiveScene().name == "PathofPower")
+        {
+            //Discovery Click validated : Add card to current run deck. 
+            //Verify deck existance, then add card to deck and update on db too.
+            //Replace this placeholder debug by the actual implementation.
+            Debug.Log($"Added {this.GetComponent<CardView>().CardData.name} to the current run deck.");
+
+            // End discovery : destroy and hide :
+            foreach (Transform child in PathOfPowerManager.Instance.DiscoverDisplay.transform)
+                Destroy(child.gameObject);
+
+            PathOfPowerManager.Instance.DiscoverDisplay.SetActive(false);
+            return;
+        } 
+
         else
         {
             if (DeckBuilding.Instance.isCrafting && !UserCollectionManager.Instance.IsOwned(GetComponent<CardView>().CardData.id))
@@ -177,7 +198,7 @@ public class Card : MonoBehaviour
                 return;
             }
 
-            isDragging = true;isHovered = false;
+            isDragging = true; isHovered = false;
             startDragPosition = transform.position;
             transform.position = GetMousePositionInWorldSpace();
         }
@@ -188,7 +209,8 @@ public class Card : MonoBehaviour
         if (!isDragging)
             return;
 
-        if (thisInstance.CurrentZone != CardZone.Hand && SceneManager.GetActiveScene().name == "Combat")
+        if (thisInstance.CurrentZone != CardZone.Hand &&
+        SceneManager.GetActiveScene().name == "Combat" || SceneManager.GetActiveScene().name == "PathofPower")
             return;
 
         transform.position = GetMousePositionInWorldSpace();
