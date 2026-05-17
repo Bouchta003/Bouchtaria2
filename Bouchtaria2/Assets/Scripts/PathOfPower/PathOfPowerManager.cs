@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PathOfPowerManager : MonoBehaviour
 {
@@ -19,6 +20,9 @@ public class PathOfPowerManager : MonoBehaviour
     [SerializeField] public GameObject DiscoverDisplay;
     [SerializeField] private Transform discoveryCardParent;
     [SerializeField] private Vector3 discoveryScale = new Vector3(0.6f, 0.6f, 0.6f);
+
+    [Header("Display UI")]
+    [SerializeField] public List<GameObject> differentDisplays;
 
     [Header("Starter Deck Defaults")]
     [SerializeField] private int starterDeckTargetSize = 20;
@@ -78,6 +82,8 @@ public class PathOfPowerManager : MonoBehaviour
             combatActive = false
         };
 
+
+        SwitchDisplay(5);//Start Relic Discovery.
         CurrentRun.pendingStarterRelicChoices = PickRelics(3, relic => relic.CanAppearAsStarter, CurrentRun.currentFloorSeed)
             .Select(relic => relic.RelicId)
             .ToList();
@@ -85,7 +91,16 @@ public class PathOfPowerManager : MonoBehaviour
         SaveRun();
         OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
     }
-
+    public void SwitchDisplay(int displayIndex)
+    {
+        foreach(GameObject display in differentDisplays)
+        {
+            if (display != null)
+                display.SetActive(false);
+        }
+        differentDisplays[displayIndex].SetActive(true);
+        //0 = Start, 1 = Step, 2 = Combat, 3 = Event, 4 = Path, 5 = DiscoveryDisplay...
+    }
     public void LoadRun()
     {
         PathOfPowerSaveService.Load(runData =>
@@ -93,25 +108,33 @@ public class PathOfPowerManager : MonoBehaviour
             CurrentRun = runData ?? new PathOfPowerRunData();
             if (CurrentRun.currentFloor <= 0 || CurrentRun.phase == PathOfPowerRunPhase.None)
             {
+                Debug.Log("No Data found for Path Of Power run; starting a new run.");
+                SwitchDisplay(0);//New Run
                 OnRunLoaded?.Invoke(CurrentRun);
                 return;
             }
 
             if (CurrentRun.combatActive)
             {
+                //Restart run because concede left combat mid run.
                 Debug.LogWarning("Detected unfinished Path Of Power combat. The run is being marked defeated to avoid progress abuse.");
                 EndRunAsDefeated();
+                SwitchDisplay(0);//StartRun
                 return;
             }
 
             if (CurrentRun.currentPathType == PathOfPowerPathType.Challenge && CurrentRun.currentStep == 5)
             {
+                Debug.Log("Challenge path, step 5, display discovery for free relic.");
                 GrantChallengePreWardenRelic();
+                SwitchDisplay(5);//DiscoveryDisplay
                 SaveRun();
             }
 
             if (CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward && CurrentRun.pendingWardenRelicRewards.Count == 0)
             {
+                Debug.Log("Warden defeated, pending relic rewards.");
+                SwitchDisplay(5);//DiscoveryDisplay
                 CurrentRun.pendingWardenRelicRewards = PickRelics(2, relic => relic.CanAppearAsWardenReward, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
                     .Select(relic => relic.RelicId)
                     .ToList();
@@ -421,7 +444,6 @@ public class PathOfPowerManager : MonoBehaviour
     {
         return encounterLibrary.FirstOrDefault(encounter => encounter != null && encounter.EncounterId == encounterId);
     }
-
     private void ShowCardDiscovery(List<int> cardIds)
     {
         if (DiscoverDisplay == null || cardIds == null || cardIds.Count == 0)
