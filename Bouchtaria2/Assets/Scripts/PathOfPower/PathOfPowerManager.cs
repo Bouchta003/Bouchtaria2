@@ -46,6 +46,7 @@ public class PathOfPowerManager : MonoBehaviour
 
     private PathOfPowerFloorGenerator floorGenerator;
     private readonly List<GameObject> spawnedRelicDiscoveryObjects = new List<GameObject>();
+    private readonly List<GameObject> spawnedRelicGridObjects = new List<GameObject>();
 
     private void Awake()
     {
@@ -61,6 +62,7 @@ public class PathOfPowerManager : MonoBehaviour
     private void Start()
     {
         floorGenerator = new PathOfPowerFloorGenerator(eventLibrary, encounterLibrary);
+        EnsureCardInputManager();
         if (DiscoverDisplay != null)
             DiscoverDisplay.SetActive(false);
 
@@ -107,6 +109,7 @@ public class PathOfPowerManager : MonoBehaviour
                 display.SetActive(false);
         }
         differentDisplays[displayIndex].SetActive(true);
+        UpdateRelicGrid();
         //0 = Start, 1 = Step, 2 = Combat, 3 = Event, 4 = Path, 5 = DiscoveryDisplay...
     }
     public void LoadRun()
@@ -181,6 +184,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         RelicDefinition selectedRelic = ResolveRelic(relicId);
         CurrentRun.currentRelics.Add(relicId);
+        UpdateRelicGrid();
         CurrentRun.pendingStarterRelicChoices.Clear();
         CurrentRun.currentDeck = BuildFallbackStarterDeck();
         CurrentRun.phase = PathOfPowerRunPhase.StartingDeckDiscovery;
@@ -207,8 +211,10 @@ public class PathOfPowerManager : MonoBehaviour
             CurrentRun.currentDeck.Add(cardId);
 
         CurrentRun.pendingCardChoices.Clear();
+        ClearCardDiscovery();
         GenerateFloor(PathOfPowerPathType.Simple);
         CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+        SwitchDisplay(1);
         SaveRun();
     }
 
@@ -218,8 +224,10 @@ public class PathOfPowerManager : MonoBehaviour
             return;
 
         CurrentRun.pendingCardChoices.Clear();
+        ClearCardDiscovery();
         GenerateFloor(PathOfPowerPathType.Simple);
         CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+        SwitchDisplay(1);
         SaveRun();
     }
 
@@ -290,7 +298,10 @@ public class PathOfPowerManager : MonoBehaviour
 
         RelicDefinition selectedRelic = ResolveRelic(relicId);
         if (!string.IsNullOrWhiteSpace(relicId) && CurrentRun.pendingWardenRelicRewards.Contains(relicId))
+        {
             CurrentRun.currentRelics.Add(relicId);
+            UpdateRelicGrid();
+        }
 
         CurrentRun.pendingWardenRelicRewards.Clear();
         MoveToNextFloorAfterWardenReward();
@@ -390,6 +401,7 @@ public class PathOfPowerManager : MonoBehaviour
         // First foundation: challenge-path pre-warden relic is granted automatically.
         // TODO(Path Of Power): expose this through a dedicated reward/preview panel.
         CurrentRun.currentRelics.Add(relic.RelicId);
+        UpdateRelicGrid();
     }
 
     private void MoveToNextFloorAfterWardenReward()
@@ -508,6 +520,7 @@ public class PathOfPowerManager : MonoBehaviour
             relicObject.name = $"Relic Discovery - {relic.DisplayName}";
             PositionRelicForDiscovery(relicObject, positions[i]);
             PopulateRelicPrefab(relicObject, relic);
+            ConfigureRelicScan(relicObject, relic);
 
             Button button = relicObject.GetComponentInChildren<Button>(true);
             if (button == null)
@@ -516,6 +529,7 @@ public class PathOfPowerManager : MonoBehaviour
                 continue;
             }
 
+            button.onClick.RemoveAllListeners();
             string selectedRelicId = relic.RelicId;
             button.onClick.AddListener(() => ValidateRelicChoice(selectedRelicId));
         }
@@ -591,9 +605,9 @@ public class PathOfPowerManager : MonoBehaviour
             factoryObj.AddComponent<CardFactory>();
         }
 
+        EnsureCardInputManager();
         Transform parent = discoveryCardParent != null ? discoveryCardParent : DiscoverDisplay.transform;
-        for (int i = parent.childCount - 1; i >= 0; i--)
-            Destroy(parent.GetChild(i).gameObject);
+        ClearCardDiscovery();
 
         DiscoverDisplay.SetActive(true);
         Vector3[] positions = { new Vector3(-5, 0, 0), Vector3.zero, new Vector3(5, 0, 0) };
@@ -610,6 +624,78 @@ public class PathOfPowerManager : MonoBehaviour
             if (sortingGroup != null)
                 sortingGroup.sortingOrder = 201;
         }
+    }
+
+
+    private void ClearCardDiscovery()
+    {
+        if (DiscoverDisplay == null)
+            return;
+
+        Transform parent = discoveryCardParent != null ? discoveryCardParent : DiscoverDisplay.transform;
+        for (int i = parent.childCount - 1; i >= 0; i--)
+            Destroy(parent.GetChild(i).gameObject);
+
+        DiscoverDisplay.SetActive(false);
+    }
+
+    private void UpdateRelicGrid()
+    {
+        if (relicGridLayout == null || relicPrefab == null)
+            return;
+
+        Transform parent = relicGridLayout.transform;
+        for (int i = parent.childCount - 1; i >= 0; i--)
+            Destroy(parent.GetChild(i).gameObject);
+        spawnedRelicGridObjects.Clear();
+
+        if (CurrentRun == null || CurrentRun.currentRelics == null)
+            return;
+
+        foreach (string relicId in CurrentRun.currentRelics.Where(id => !string.IsNullOrWhiteSpace(id)))
+        {
+            RelicDefinition relic = ResolveRelic(relicId);
+            if (relic == null)
+                continue;
+
+            GameObject relicObject = Instantiate(relicPrefab, parent);
+            spawnedRelicGridObjects.Add(relicObject);
+            relicObject.name = $"Owned Relic - {relic.DisplayName}";
+            PopulateRelicPrefab(relicObject, relic);
+            ConfigureRelicScan(relicObject, relic);
+
+            RectTransform rectTransform = relicObject.GetComponent<RectTransform>();
+            if (rectTransform != null)
+            {
+                rectTransform.localRotation = Quaternion.identity;
+                rectTransform.localScale = Vector3.one;
+            }
+
+            Button button = relicObject.GetComponentInChildren<Button>(true);
+            if (button != null)
+                button.onClick.RemoveAllListeners();
+        }
+    }
+
+    private void ConfigureRelicScan(GameObject relicObject, RelicDefinition relic)
+    {
+        if (relicObject == null || relic == null)
+            return;
+
+        RelicScanTarget scanTarget = relicObject.GetComponentInChildren<RelicScanTarget>(true);
+        if (scanTarget == null)
+            scanTarget = relicObject.AddComponent<RelicScanTarget>();
+
+        scanTarget.Initialize(relic);
+    }
+
+    private void EnsureCardInputManager()
+    {
+        if (FindFirstObjectByType<CardInputManager>() != null)
+            return;
+
+        GameObject inputManagerObject = new GameObject("CardInputManager");
+        inputManagerObject.AddComponent<CardInputManager>();
     }
 
     private void SaveRun(Action onComplete = null)
