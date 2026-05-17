@@ -673,11 +673,7 @@ public class PathOfPowerManager : MonoBehaviour
 
             Button button = relicObject.GetComponentInChildren<Button>(true);
             if (button != null)
-            {
-                RelicDefinition selectedRelic = relic;
                 button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => ShowRelicInScanPanel(selectedRelic));
-            }
         }
     }
 

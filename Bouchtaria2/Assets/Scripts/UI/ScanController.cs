@@ -23,20 +23,12 @@ public class ScanController : MonoBehaviour
     {
         string activeScene = SceneManager.GetActiveScene().name;
         bool pathOfPowerScene = activeScene == "PathofPower";
-        bool cardScanActive = pathOfPowerScene || (ScanInput.Instance != null && ScanInput.Instance.IsScanActive);
+        bool cardScanActive = IsScanActive();
 
         if (!cardScanActive)
         {
-            // Allow the panel to remain visible if it's currently showing a relic (used by PathOfPower hover targets).
-            if (panelInstance != null && panelInstance.isShowingRelic)
-            {
-                // keep relic visible
-            }
-            else
-            {
-                panelInstance.Hide();
-                return;
-            }
+            panelInstance.Hide();
+            return;
         }
 
         CardView cardUnderMouse = GetCardUnderMouse();
@@ -62,6 +54,14 @@ public class ScanController : MonoBehaviour
         {
             panelInstance.Hide();
         }
+    }
+
+    private bool IsScanActive()
+    {
+        if (ScanInput.Instance != null)
+            return ScanInput.Instance.IsScanActive;
+
+        return !UIInputFocusTracker.IsAnyTMPFocused && Input.GetKey(KeyCode.Space);
     }
 
     private CardView GetCardUnderMouse()
