@@ -66,6 +66,7 @@ public class ScanPanelView : MonoBehaviour
     }
     public void Hide()
     {
+        isShowingRelic = false;
         Slide(false);
     }
 
@@ -119,9 +120,14 @@ public class ScanPanelView : MonoBehaviour
         nameText.text = relic.Name;
         effectText.text = relic.Description;
 
+        atkText.text = string.Empty;
+        hpText.text = string.Empty;
+        manaText.text = string.Empty;
         isShowingRelic = true;
 
         foreach (Transform child in keywordContainer)
+            Destroy(child.gameObject);
+        foreach (Transform child in relatedContainer)
             Destroy(child.gameObject);
         //KeyWordCheck
         UpdateTexts(relic.Description);

@@ -170,16 +170,12 @@ public class Card : MonoBehaviour
         }
         else if (SceneManager.GetActiveScene().name == "PathofPower")
         {
-            //Discovery Click validated : Add card to current run deck. 
-            //Verify deck existance, then add card to deck and update on db too.
-            //Replace this placeholder debug by the actual implementation.
-            Debug.Log($"Added {this.GetComponent<CardView>().CardData.name} to the current run deck.");
+            CardView cardView = GetComponent<CardView>();
+            if (cardView == null || cardView.CardData == null || PathOfPowerManager.Instance == null)
+                return;
 
-            // End discovery : destroy and hide :
-            foreach (Transform child in PathOfPowerManager.Instance.DiscoverDisplay.transform)
-                Destroy(child.gameObject);
-
-            PathOfPowerManager.Instance.DiscoverDisplay.SetActive(false);
+            Debug.Log($"Added {cardView.CardData.name} to the current run deck.");
+            PathOfPowerManager.Instance.SelectStartingCard(cardView.CardData.id);
             return;
         } 
 
