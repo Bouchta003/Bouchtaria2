@@ -65,7 +65,10 @@ public class PathOfPowerManager : MonoBehaviour
 
         LoadRun();
     }
-
+    public void BackButton()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
     /// <summary>
     /// UI hook: call this from the Path Of Power entry button to start a clean run.
     /// It generates starter relic choices first, then waits for SelectStarterRelic.
@@ -499,6 +502,7 @@ public class PathOfPowerManager : MonoBehaviour
                 continue;
 
             GameObject relicObject = Instantiate(relicPrefab, parent);
+            relicObject.transform.localScale = new Vector3(5, 5, 1);
             spawnedRelicDiscoveryObjects.Add(relicObject);
             relicObject.name = $"Relic Discovery - {relic.DisplayName}";
             PositionRelicForDiscovery(relicObject, positions[i]);
@@ -543,13 +547,13 @@ public class PathOfPowerManager : MonoBehaviour
         {
             rectTransform.anchoredPosition3D = position;
             rectTransform.localRotation = Quaternion.identity;
-            rectTransform.localScale = Vector3.one;
+            rectTransform.localScale = new Vector3(5, 5, 1);
             return;
         }
 
         relicObject.transform.localPosition = position;
         relicObject.transform.localRotation = Quaternion.identity;
-        relicObject.transform.localScale = Vector3.one;
+        relicObject.transform.localScale = new Vector3(5,5,1);
     }
 
     private void PopulateRelicPrefab(GameObject relicObject, RelicDefinition relic)
