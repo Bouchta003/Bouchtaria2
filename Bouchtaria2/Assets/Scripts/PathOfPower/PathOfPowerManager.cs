@@ -70,7 +70,7 @@ public class PathOfPowerManager : MonoBehaviour
     }
     public void BackButton()
     {
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("Main_Menu");
     }
     /// <summary>
     /// UI hook: call this from the Path Of Power entry button to start a clean run.
