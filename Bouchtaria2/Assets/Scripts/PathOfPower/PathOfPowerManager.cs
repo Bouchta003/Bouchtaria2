@@ -23,6 +23,8 @@ public class PathOfPowerManager : MonoBehaviour
 
     [Header("Display UI")]
     [SerializeField] public List<GameObject> differentDisplays;
+    [SerializeField] public GameObject relicPrefab;//Discovery Positions : 400,540,0 960,540,0 1520,540,0
+    [SerializeField] public GameObject reliPrefabParentDiscovery;
 
     [Header("Starter Deck Defaults")]
     [SerializeField] private int starterDeckTargetSize = 20;
