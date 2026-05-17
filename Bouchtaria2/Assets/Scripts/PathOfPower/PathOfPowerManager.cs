@@ -44,6 +44,7 @@ public class PathOfPowerManager : MonoBehaviour
     public event Action<PathOfPowerStepData> OnStepReady;
 
     private PathOfPowerFloorGenerator floorGenerator;
+    private readonly List<GameObject> spawnedRelicDiscoveryObjects = new List<GameObject>();
 
     private void Awake()
     {
@@ -90,6 +91,7 @@ public class PathOfPowerManager : MonoBehaviour
             .Select(relic => relic.RelicId)
             .ToList();
 
+        ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices);
         SaveRun();
         OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
     }
@@ -173,11 +175,15 @@ public class PathOfPowerManager : MonoBehaviour
             return;
         }
 
+        RelicDefinition selectedRelic = ResolveRelic(relicId);
         CurrentRun.currentRelics.Add(relicId);
         CurrentRun.pendingStarterRelicChoices.Clear();
         CurrentRun.currentDeck = BuildFallbackStarterDeck();
-        GenerateStartingCardDiscovery();
         CurrentRun.phase = PathOfPowerRunPhase.StartingDeckDiscovery;
+        GameRunContext.PathOfPowerData = CurrentRun;
+        Debug.Log($"Relic chosen : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}\nNext step is {CurrentRun.phase}.");
+        ClearRelicDiscovery();
+        GenerateStartingCardDiscovery();
         SaveRun();
     }
 
@@ -278,11 +284,19 @@ public class PathOfPowerManager : MonoBehaviour
         if (CurrentRun.phase != PathOfPowerRunPhase.AwaitingWardenReward)
             return;
 
+        RelicDefinition selectedRelic = ResolveRelic(relicId);
         if (!string.IsNullOrWhiteSpace(relicId) && CurrentRun.pendingWardenRelicRewards.Contains(relicId))
             CurrentRun.currentRelics.Add(relicId);
 
         CurrentRun.pendingWardenRelicRewards.Clear();
         MoveToNextFloorAfterWardenReward();
+
+        GameRunContext.PathOfPowerData = CurrentRun;
+
+        if (!string.IsNullOrWhiteSpace(relicId))
+            Debug.Log($"Relic chosen : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}\nNext step is {CurrentRun.phase}.");
+
+        ClearRelicDiscovery();
         SaveRun();
     }
 
@@ -388,6 +402,7 @@ public class PathOfPowerManager : MonoBehaviour
         switch (CurrentRun.phase)
         {
             case PathOfPowerRunPhase.StarterRelicChoice:
+                ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices);
                 OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
                 break;
             case PathOfPowerRunPhase.StartingDeckDiscovery:
@@ -398,6 +413,7 @@ public class PathOfPowerManager : MonoBehaviour
                 OnPathChoicesRequested?.Invoke(pathLibrary);
                 break;
             case PathOfPowerRunPhase.AwaitingWardenReward:
+                ShowRelicDiscovery(CurrentRun.pendingWardenRelicRewards);
                 OnWardenRelicRewardsGenerated?.Invoke(ResolveRelics(CurrentRun.pendingWardenRelicRewards));
                 break;
         }
@@ -442,10 +458,123 @@ public class PathOfPowerManager : MonoBehaviour
         return relicLibrary.Where(relic => relic != null && ids.Contains(relic.RelicId)).ToList();
     }
 
+    private RelicDefinition ResolveRelic(string relicId)
+    {
+        return relicLibrary.FirstOrDefault(relic => relic != null && relic.RelicId == relicId);
+    }
+
+    private string GetRelicDisplayName(RelicDefinition relic, string fallbackId)
+    {
+        if (relic != null)
+            return relic.DisplayName;
+
+        return string.IsNullOrWhiteSpace(fallbackId) ? "Unknown Relic" : fallbackId;
+    }
+
     private EnemyEncounterDefinition ResolveEncounter(string encounterId)
     {
         return encounterLibrary.FirstOrDefault(encounter => encounter != null && encounter.EncounterId == encounterId);
     }
+
+    private void ShowRelicDiscovery(IReadOnlyList<string> relicIds)
+    {
+        if (DiscoverDisplay == null || relicPrefab == null || relicIds == null || relicIds.Count == 0)
+            return;
+
+        Transform parent = reliPrefabParentDiscovery != null ? reliPrefabParentDiscovery.transform : DiscoverDisplay.transform;
+        ClearRelicDiscovery();
+
+        DiscoverDisplay.SetActive(true);
+        Vector3[] positions =
+        {
+            new Vector3(400f, 540f, 0f),
+            new Vector3(960f, 540f, 0f),
+            new Vector3(1520f, 540f, 0f)
+        };
+
+        for (int i = 0; i < relicIds.Count && i < positions.Length; i++)
+        {
+            RelicDefinition relic = ResolveRelic(relicIds[i]);
+            if (relic == null)
+                continue;
+
+            GameObject relicObject = Instantiate(relicPrefab, parent);
+            spawnedRelicDiscoveryObjects.Add(relicObject);
+            relicObject.name = $"Relic Discovery - {relic.DisplayName}";
+            PositionRelicForDiscovery(relicObject, positions[i]);
+            PopulateRelicPrefab(relicObject, relic);
+
+            Button button = relicObject.GetComponentInChildren<Button>(true);
+            if (button == null)
+            {
+                Debug.LogWarning($"Relic discovery prefab for '{relic.RelicId}' does not contain a Button component.");
+                continue;
+            }
+
+            string selectedRelicId = relic.RelicId;
+            button.onClick.AddListener(() => ValidateRelicChoice(selectedRelicId));
+        }
+    }
+
+    private void ClearRelicDiscovery()
+    {
+        if (reliPrefabParentDiscovery != null)
+        {
+            Transform parent = reliPrefabParentDiscovery.transform;
+            for (int i = parent.childCount - 1; i >= 0; i--)
+                Destroy(parent.GetChild(i).gameObject);
+        }
+        else
+        {
+            foreach (GameObject relicObject in spawnedRelicDiscoveryObjects)
+            {
+                if (relicObject != null)
+                    Destroy(relicObject);
+            }
+        }
+
+        spawnedRelicDiscoveryObjects.Clear();
+    }
+
+    private void PositionRelicForDiscovery(GameObject relicObject, Vector3 position)
+    {
+        RectTransform rectTransform = relicObject.GetComponent<RectTransform>();
+        if (rectTransform != null)
+        {
+            rectTransform.anchoredPosition3D = position;
+            rectTransform.localRotation = Quaternion.identity;
+            rectTransform.localScale = Vector3.one;
+            return;
+        }
+
+        relicObject.transform.localPosition = position;
+        relicObject.transform.localRotation = Quaternion.identity;
+        relicObject.transform.localScale = Vector3.one;
+    }
+
+    private void PopulateRelicPrefab(GameObject relicObject, RelicDefinition relic)
+    {
+        Image relicImage = relicObject.GetComponentInChildren<Image>(true);
+        if (relicImage != null && relic.Icon != null)
+            relicImage.sprite = relic.Icon;
+    }
+
+    private void ValidateRelicChoice(string relicId)
+    {
+        switch (CurrentRun.phase)
+        {
+            case PathOfPowerRunPhase.StarterRelicChoice:
+                SelectStarterRelic(relicId);
+                break;
+            case PathOfPowerRunPhase.AwaitingWardenReward:
+                ChooseWardenRelicReward(relicId);
+                break;
+            default:
+                Debug.LogWarning($"Cannot choose relic '{relicId}' while Path Of Power is in phase {CurrentRun.phase}.");
+                break;
+        }
+    }
+
     private void ShowCardDiscovery(List<int> cardIds)
     {
         if (DiscoverDisplay == null || cardIds == null || cardIds.Count == 0)
