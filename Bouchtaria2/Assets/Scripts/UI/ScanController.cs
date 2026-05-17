@@ -21,9 +21,13 @@ public class ScanController : MonoBehaviour
     }
     private void Update()
     {
-        if (ScanInput.Instance == null || !(ScanInput.Instance.IsScanActive && SceneManager.GetActiveScene().name != "PathofPower"))
+        string activeScene = SceneManager.GetActiveScene().name;
+        bool pathOfPowerScene = activeScene == "PathofPower";
+        bool cardScanActive = pathOfPowerScene || (ScanInput.Instance != null && ScanInput.Instance.IsScanActive);
+
+        if (!cardScanActive)
         {
-            // Allow the panel to remain visible if it's currently showing a relic (used by PathOfPower toggle)
+            // Allow the panel to remain visible if it's currently showing a relic (used by PathOfPower hover targets).
             if (panelInstance != null && panelInstance.isShowingRelic)
             {
                 // keep relic visible
@@ -36,14 +40,25 @@ public class ScanController : MonoBehaviour
         }
 
         CardView cardUnderMouse = GetCardUnderMouse();
+        bool canShowCollectionCard = cardUnderMouse != null &&
+                                     (activeScene != "Collection" ||
+                                      (UserCollectionManager.Instance != null && UserCollectionManager.Instance.IsOwned(cardUnderMouse.CardData.id)));
 
-        if (cardUnderMouse != null && (UserCollectionManager.Instance.IsOwned(cardUnderMouse.CardData.id) || SceneManager.GetActiveScene().name != "Collection"))
+        if (canShowCollectionCard)
         {
-            panelInstance.owner = cardUnderMouse.GetComponent<CardInstance>().Owner;
-            if(panelInstance.owner==PlayerOwner.Player || cardUnderMouse.GetComponent<CardInstance>().CurrentZone != CardZone.Hand)
+            CardInstance cardInstance = cardUnderMouse.GetComponent<CardInstance>();
+            if (cardInstance == null)
+                return;
+
+            panelInstance.owner = cardInstance.Owner;
+            if(panelInstance.owner==PlayerOwner.Player || cardInstance.CurrentZone != CardZone.Hand)
                 panelInstance.Show(cardUnderMouse);
         }
-        else if(SceneManager.GetActiveScene().name != "PathofPower")
+        else if (panelInstance != null && panelInstance.isShowingRelic)
+        {
+            // keep relic hover scans visible until the relic hover target clears them
+        }
+        else if(!pathOfPowerScene || cardUnderMouse == null)
         {
             panelInstance.Hide();
         }
