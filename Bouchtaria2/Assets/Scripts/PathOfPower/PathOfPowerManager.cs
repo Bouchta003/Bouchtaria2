@@ -27,13 +27,9 @@ public class PathOfPowerManager : MonoBehaviour
     [SerializeField] public GameObject reliPrefabParentDiscovery;
     [SerializeField] public GameObject relicGridLayout;
 
-    [Header("Starter Deck Defaults")]
+    [Header("Starter Deck Discovery")]
     [SerializeField] private int starterDeckTargetSize = 20;
-    [SerializeField] private List<int> fallbackStarterDeck = new List<int>
-    {
-        3, 3, 4, 4, 5, 5, 6, 6, 9, 9,
-        30, 30, 32, 32, 34, 34, 36, 36, 37, 37
-    };
+    [SerializeField] private CardData.Trait starterDeckTrait = CardData.Trait.Neutral;
 
     public PathOfPowerRunData CurrentRun { get; private set; } = new PathOfPowerRunData();
 
@@ -87,6 +83,7 @@ public class PathOfPowerManager : MonoBehaviour
             currentFloorSeed = GenerateSeed(),
             currentPathType = PathOfPowerPathType.Simple,
             currentStreak = 0,
+            starterDeckTrait = this.starterDeckTrait,
             phase = PathOfPowerRunPhase.StarterRelicChoice,
             combatActive = false
         };
@@ -186,7 +183,8 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.currentRelics.Add(relicId);
         UpdateRelicGrid();
         CurrentRun.pendingStarterRelicChoices.Clear();
-        CurrentRun.currentDeck = BuildFallbackStarterDeck();
+        CurrentRun.currentDeck.Clear();
+        CurrentRun.starterDeckTrait = this.starterDeckTrait;
         CurrentRun.phase = PathOfPowerRunPhase.StartingDeckDiscovery;
         GameRunContext.PathOfPowerData = CurrentRun;
         Debug.Log($"Relic chosen : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}\nNext step is {CurrentRun.phase}.");
@@ -197,6 +195,12 @@ public class PathOfPowerManager : MonoBehaviour
 
     public void GenerateStartingCardDiscovery()
     {
+        if (CurrentRun.currentDeck.Count >= starterDeckTargetSize)
+        {
+            CompleteStartingDeckDiscovery();
+            return;
+        }
+
         CurrentRun.pendingCardChoices = GenerateCardChoices(CurrentRun.currentFloorSeed, 3);
         ShowCardDiscovery(CurrentRun.pendingCardChoices);
         OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
@@ -207,15 +211,37 @@ public class PathOfPowerManager : MonoBehaviour
         if (CurrentRun.phase != PathOfPowerRunPhase.StartingDeckDiscovery)
             return;
 
-        if (CurrentRun.pendingCardChoices.Contains(cardId) && CurrentRun.currentDeck.Count < starterDeckTargetSize + 1)
-            CurrentRun.currentDeck.Add(cardId);
+        if (!CurrentRun.pendingCardChoices.Contains(cardId))
+        {
+            Debug.LogWarning($"Rejected starter card '{cardId}' because it was not one of the generated choices.");
+            return;
+        }
 
+        if (CurrentRun.currentDeck.Count >= starterDeckTargetSize)
+        {
+            CompleteStartingDeckDiscovery();
+            return;
+        }
+
+        CurrentRun.currentDeck.Add(cardId);
+        CurrentRun.pendingCardChoices.Clear();
+        ClearCardDiscovery();
+
+        if (CurrentRun.currentDeck.Count >= starterDeckTargetSize)
+            CompleteStartingDeckDiscovery();
+        else
+            GenerateStartingCardDiscovery();
+
+        SaveRun();
+    }
+
+    private void CompleteStartingDeckDiscovery()
+    {
         CurrentRun.pendingCardChoices.Clear();
         ClearCardDiscovery();
         GenerateFloor(PathOfPowerPathType.Simple);
         CurrentRun.phase = PathOfPowerRunPhase.Lobby;
         SwitchDisplay(1);
-        SaveRun();
     }
 
     public void SkipStartingCardDiscovery()
@@ -223,12 +249,7 @@ public class PathOfPowerManager : MonoBehaviour
         if (CurrentRun.phase != PathOfPowerRunPhase.StartingDeckDiscovery)
             return;
 
-        CurrentRun.pendingCardChoices.Clear();
-        ClearCardDiscovery();
-        GenerateFloor(PathOfPowerPathType.Simple);
-        CurrentRun.phase = PathOfPowerRunPhase.Lobby;
-        SwitchDisplay(1);
-        SaveRun();
+        Debug.LogWarning("Starter deck discovery cannot be skipped; choose cards until the starter deck reaches its target size.");
     }
 
     /// <summary>
@@ -422,6 +443,20 @@ public class PathOfPowerManager : MonoBehaviour
                 OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
                 break;
             case PathOfPowerRunPhase.StartingDeckDiscovery:
+                if (CurrentRun.currentDeck.Count >= starterDeckTargetSize)
+                {
+                    CompleteStartingDeckDiscovery();
+                    SaveRun();
+                    break;
+                }
+
+                if (CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0)
+                {
+                    GenerateStartingCardDiscovery();
+                    SaveRun();
+                    break;
+                }
+
                 ShowCardDiscovery(CurrentRun.pendingCardChoices);
                 OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
                 break;
@@ -435,27 +470,37 @@ public class PathOfPowerManager : MonoBehaviour
         }
     }
 
-    private List<int> BuildFallbackStarterDeck()
-    {
-        List<int> deck = new List<int>(fallbackStarterDeck);
-        while (deck.Count > starterDeckTargetSize)
-            deck.RemoveAt(deck.Count - 1);
-
-        return deck;
-    }
-
     private List<int> GenerateCardChoices(int seed, int count)
     {
         if (CardDatabase.Instance == null || CardDatabase.Instance.Cards == null || CardDatabase.Instance.Cards.Count == 0)
-            return fallbackStarterDeck.Take(count).ToList();
+        {
+            Debug.LogWarning("Cannot generate Path Of Power starter card choices because the card database is not ready.");
+            return new List<int>();
+        }
 
+        Dictionary<int, int> deckCounts = CurrentRun.currentDeck
+            .GroupBy(cardId => cardId)
+            .ToDictionary(group => group.Key, group => group.Count());
+        string requiredTrait = CurrentRun.starterDeckTrait.ToString();
         System.Random rng = new System.Random(seed + CurrentRun.currentDeck.Count + 17);
+
         return CardDatabase.Instance.Cards.Values
-            .Where(card => card != null && card.packable && !card.token && !card.signature)
+            .Where(card => IsEligibleStarterDeckCard(card, requiredTrait, deckCounts))
             .OrderBy(_ => rng.Next())
             .Take(count)
             .Select(card => card.id)
             .ToList();
+    }
+
+    private bool IsEligibleStarterDeckCard(CardData card, string requiredTrait, IReadOnlyDictionary<int, int> deckCounts)
+    {
+        if (card == null || !card.packable || card.token || card.signature)
+            return false;
+
+        if (deckCounts != null && deckCounts.TryGetValue(card.id, out int ownedCopies) && ownedCopies >= 2)
+            return false;
+
+        return card.traits != null && card.traits.Any(trait => trait.Equals(requiredTrait, StringComparison.OrdinalIgnoreCase));
     }
 
     private List<RelicDefinition> PickRelics(int count, Func<RelicDefinition, bool> predicate, int seed)
