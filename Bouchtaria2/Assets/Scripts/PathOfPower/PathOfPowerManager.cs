@@ -80,6 +80,7 @@ public class PathOfPowerManager : MonoBehaviour
             currentStep = 1,
             currentDeck = new List<int>(),
             currentRelics = new List<string>(),
+            activeEnemyRelics = new List<int>(),
             currentFloorSeed = GenerateSeed(),
             currentPathType = PathOfPowerPathType.Simple,
             currentStreak = 0,
@@ -100,12 +101,25 @@ public class PathOfPowerManager : MonoBehaviour
     }
     public void SwitchDisplay(int displayIndex)
     {
+        Debug.Log($"[PathOfPower] SwitchDisplay requested for index {displayIndex}.");
+
+        if (differentDisplays == null || displayIndex < 0 || displayIndex >= differentDisplays.Count)
+        {
+            Debug.LogWarning($"[PathOfPower] Cannot switch display because index {displayIndex} is outside the configured display list.");
+            return;
+        }
+
         foreach(GameObject display in differentDisplays)
         {
             if (display != null)
                 display.SetActive(false);
         }
-        differentDisplays[displayIndex].SetActive(true);
+
+        if (differentDisplays[displayIndex] != null)
+            differentDisplays[displayIndex].SetActive(true);
+        else
+            Debug.LogWarning($"[PathOfPower] Display index {displayIndex} is configured but the GameObject reference is missing.");
+
         UpdateRelicGrid();
         //0 = Start, 1 = Step, 2 = Combat, 3 = Event, 4 = Path, 5 = DiscoveryDisplay...
     }
@@ -114,6 +128,7 @@ public class PathOfPowerManager : MonoBehaviour
         PathOfPowerSaveService.Load(runData =>
         {
             CurrentRun = runData ?? new PathOfPowerRunData();
+            EnsureRunLists();
             if (CurrentRun.currentFloor <= 0 || CurrentRun.phase == PathOfPowerRunPhase.None)
             {
                 Debug.Log("No Data found for Path Of Power run; starting a new run.");
@@ -277,28 +292,55 @@ public class PathOfPowerManager : MonoBehaviour
 
     /// <summary>
     /// UI hook: call this from the lobby's "Next" button.
-    /// Fights go to Combat, events notify OnStepReady for future event UI.
+    /// Calculates or repairs the next step, logs the selected event/encounter, switches to the matching display,
+    /// and then sets up the event/combat state.
     /// </summary>
-    public void EnterCurrentStep()
+    public void NextStep()
     {
+        Debug.Log($"[PathOfPower] NextStep requested. Floor={CurrentRun?.currentFloor}, Step={CurrentRun?.currentStep}, Phase={CurrentRun?.phase}, Path={CurrentRun?.currentPathType}.");
+
+        if (CurrentRun == null)
+        {
+            Debug.LogError("[PathOfPower] NextStep aborted because CurrentRun is null.");
+            return;
+        }
+
+        EnsureRunLists();
+        EnsureFloorGenerator();
+        EnsureCurrentFloorSteps();
+
         PathOfPowerStepData step = CurrentRun.CurrentStepData;
         if (step == null)
         {
-            Debug.LogWarning("Path Of Power current step is missing; regenerating floor.");
-            GenerateFloor(CurrentRun.currentPathType);
-            step = CurrentRun.CurrentStepData;
+            Debug.LogError($"[PathOfPower] NextStep could not find or generate step {CurrentRun.currentStep} for floor {CurrentRun.currentFloor}.");
+            return;
         }
 
+        Debug.Log($"[PathOfPower] NextStep resolved step {step.stepIndex}: Type={step.stepType}, EventId='{step.eventId}', EncounterId='{step.encounterId}'.");
         OnStepReady?.Invoke(step);
 
         if (step.stepType == PathOfPowerStepType.Event)
         {
+            Debug.Log($"[PathOfPower] Step {step.stepIndex} is an event. Switching to Event display and waiting for event logic to call CompleteCurrentEvent. EventId='{step.eventId}'.");
+            CurrentRun.activeEnemyRelics?.Clear();
             CurrentRun.phase = PathOfPowerRunPhase.Event;
+            SwitchDisplay(3);
+            GameRunContext.PathOfPowerData = CurrentRun;
             SaveRun();
             return;
         }
 
+        Debug.Log($"[PathOfPower] Step {step.stepIndex} is a combat encounter. Switching to Combat display before loading the Combat scene. EncounterId='{step.encounterId}'.");
+        SwitchDisplay(2);
         LaunchCombat(step);
+    }
+
+    /// <summary>
+    /// Backwards-compatible hook for any existing UI buttons still wired to EnterCurrentStep.
+    /// </summary>
+    public void EnterCurrentStep()
+    {
+        NextStep();
     }
 
     public void CompleteCurrentEvent()
@@ -350,15 +392,52 @@ public class PathOfPowerManager : MonoBehaviour
 
     private void GenerateFloor(PathOfPowerPathType pathType)
     {
+        EnsureFloorGenerator();
         CurrentRun.currentPathType = pathType;
         CurrentRun.currentStep = 1;
         CurrentRun.currentFloorSeed = CurrentRun.currentFloorSeed == 0 ? GenerateSeed() : CurrentRun.currentFloorSeed;
         CurrentRun.currentFloorSteps = floorGenerator.GenerateFloor(CurrentRun.currentFloor, pathType, CurrentRun.currentFloorSeed);
+        Debug.Log($"[PathOfPower] Generated floor {CurrentRun.currentFloor} with path {pathType}, seed {CurrentRun.currentFloorSeed}, steps: {DescribeFloorSteps(CurrentRun.currentFloorSteps)}.");
+    }
+
+    private void EnsureFloorGenerator()
+    {
+        if (floorGenerator != null)
+            return;
+
+        Debug.Log("[PathOfPower] Floor generator was not initialized yet; creating it now from the configured event and encounter libraries.");
+        floorGenerator = new PathOfPowerFloorGenerator(eventLibrary, encounterLibrary);
+    }
+
+    private void EnsureRunLists()
+    {
+        CurrentRun.currentDeck ??= new List<int>();
+        CurrentRun.currentRelics ??= new List<string>();
+        CurrentRun.currentFloorSteps ??= new List<PathOfPowerStepData>();
+        CurrentRun.pendingStarterRelicChoices ??= new List<string>();
+        CurrentRun.pendingWardenRelicRewards ??= new List<string>();
+        CurrentRun.pendingCardChoices ??= new List<int>();
+        CurrentRun.activeEnemyRelics ??= new List<int>();
+    }
+
+    private void EnsureCurrentFloorSteps()
+    {
+        if (CurrentRun.currentFloorSteps != null && CurrentRun.CurrentStepData != null)
+            return;
+
+        Debug.LogWarning($"[PathOfPower] Missing step data for floor {CurrentRun.currentFloor}, step {CurrentRun.currentStep}. Regenerating floor with path {CurrentRun.currentPathType}.");
+        int desiredStep = Mathf.Clamp(CurrentRun.currentStep, 1, 5);
+        GenerateFloor(CurrentRun.currentPathType);
+        CurrentRun.currentStep = desiredStep;
     }
 
     private void LaunchCombat(PathOfPowerStepData step)
     {
         EnemyEncounterDefinition encounter = ResolveEncounter(step.encounterId);
+        IReadOnlyList<int> encounterRelics = GetRelicIdsForEncounter(encounter);
+        CurrentRun.activeEnemyRelics = encounterRelics.ToList();
+        Debug.Log($"[PathOfPower] LaunchCombat setup. Encounter='{step.encounterId}', Name='{(encounter != null ? encounter.DisplayName : "Missing Encounter")}', EnemyRelics=[{string.Join(", ", CurrentRun.activeEnemyRelics)}].");
+
         DeckSelectionCache.SelectedPlayerDeck = new List<int>(CurrentRun.currentDeck);
         DeckSelectionCache.SelectedEnemyDeck = PathOfPowerEnemyDeckBuilder.BuildEnemyDeck(CurrentRun, encounter);
 
@@ -381,6 +460,7 @@ public class PathOfPowerManager : MonoBehaviour
             step.completed = true;
 
         CurrentRun.combatActive = false;
+        CurrentRun.activeEnemyRelics?.Clear();
         CurrentRun.currentStreak++;
 
         if (step != null && step.stepType == PathOfPowerStepType.Warden)
@@ -431,6 +511,7 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.currentStep = 1;
         CurrentRun.currentFloorSeed = GenerateSeed();
         CurrentRun.currentFloorSteps.Clear();
+        CurrentRun.activeEnemyRelics?.Clear();
         CurrentRun.phase = CurrentRun.currentFloor >= 2 ? PathOfPowerRunPhase.PathSelection : PathOfPowerRunPhase.Lobby;
     }
 
@@ -535,6 +616,34 @@ public class PathOfPowerManager : MonoBehaviour
     private EnemyEncounterDefinition ResolveEncounter(string encounterId)
     {
         return encounterLibrary.FirstOrDefault(encounter => encounter != null && encounter.EncounterId == encounterId);
+    }
+
+    /// <summary>
+    /// Commentary/helper hook for encounter setup: use this to fetch every relic id assigned to an encounter asset.
+    /// The returned ids are copied into CurrentRun.activeEnemyRelics before combat so combat-only systems do not need
+    /// a direct ScriptableObject reference after the Combat scene loads.
+    /// </summary>
+    public IReadOnlyList<int> GetRelicIdsForEncounter(EnemyEncounterDefinition encounter)
+    {
+        if (encounter == null)
+        {
+            Debug.LogWarning("[PathOfPower] GetRelicIdsForEncounter called with a missing encounter; returning no enemy relics.");
+            return Array.Empty<int>();
+        }
+
+        IReadOnlyList<int> relicIds = encounter.RelicIds ?? Array.Empty<int>();
+        Debug.Log($"[PathOfPower] Encounter '{encounter.EncounterId}' has relic ids: [{string.Join(", ", relicIds)}].");
+        return relicIds;
+    }
+
+    private string DescribeFloorSteps(IEnumerable<PathOfPowerStepData> steps)
+    {
+        if (steps == null)
+            return "no steps";
+
+        return string.Join(" | ", steps.Select(step => step == null
+            ? "null"
+            : $"#{step.stepIndex}:{step.stepType}:event={step.eventId}:encounter={step.encounterId}"));
     }
 
     private void ShowRelicDiscovery(IReadOnlyList<string> relicIds)

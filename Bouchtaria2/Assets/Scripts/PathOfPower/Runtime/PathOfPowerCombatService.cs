@@ -29,6 +29,7 @@ public static class PathOfPowerCombatService
             return;
 
         data.combatActive = false;
+        data.activeEnemyRelics?.Clear();
         data.phase = PathOfPowerRunPhase.Defeated;
         PathOfPowerSaveService.Save(data);
     }
@@ -44,6 +45,7 @@ public static class PathOfPowerCombatService
             step.completed = true;
 
         data.combatActive = false;
+        data.activeEnemyRelics?.Clear();
         data.currentStreak++;
 
         if (step != null && step.stepType == PathOfPowerStepType.Warden)
