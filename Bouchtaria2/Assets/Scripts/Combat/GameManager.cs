@@ -1096,6 +1096,8 @@ private sealed class PendingHandReturn
     }
     private void HandleTurnEnded(PlayerOwner owner)
     {
+        Debug.Log($"[PathOfPower][Relics] Turn ended for {owner}; applying Path Of Power relic hooks if this is a Path Of Power combat.");
+        PathOfPowerRelicEffectService.ApplyEndTurnRelics(owner, this);
         ApplyPermanentTurnEndBuff(owner);
         UpdatePartnerLinks();
     }
