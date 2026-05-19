@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
@@ -26,6 +27,13 @@ public class PathOfPowerManager : MonoBehaviour
     [SerializeField] public GameObject relicPrefab;//Discovery Positions : 400,540,0 960,540,0 1520,540,0
     [SerializeField] public GameObject reliPrefabParentDiscovery;
     [SerializeField] public GameObject relicGridLayout;
+    [SerializeField] public Image nextEnemyImage;
+    [SerializeField] public Image enemyEliteIcon;
+    [SerializeField] public Image enemyWarden;
+    [SerializeField] public TextMeshProUGUI EnemyNameText;
+    [SerializeField] public TextMeshProUGUI DiscoveryText;
+    [SerializeField] public Button EventAcceptBtn;
+    [SerializeField] public Button EventSkipButton;
 
     [Header("Starter Deck Discovery")]
     [SerializeField] private int starterDeckTargetSize = 20;
@@ -44,7 +52,6 @@ public class PathOfPowerManager : MonoBehaviour
     private readonly List<GameObject> spawnedRelicDiscoveryObjects = new List<GameObject>();
     private readonly List<GameObject> spawnedRelicGridObjects = new List<GameObject>();
 
-    private PathOfPowerStepData currentStepData;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -332,6 +339,10 @@ public class PathOfPowerManager : MonoBehaviour
         }
 
         Debug.Log($"[PathOfPower] Step {step.stepIndex} is a combat encounter. Switching to Combat display before loading the Combat scene. EncounterId='{step.encounterId}'.");
+        nextEnemyImage.sprite = ResolveEncounter(step.encounterId)?.DisplaySprite;
+        enemyEliteIcon.gameObject.SetActive(ResolveEncounter(step.encounterId).Elite);
+        enemyWarden.gameObject.SetActive(ResolveEncounter(step.encounterId).Warden);
+        EnemyNameText.text = ResolveEncounter(step.encounterId).DisplayName;
         SwitchDisplay(2);
     }
 
@@ -433,10 +444,10 @@ public class PathOfPowerManager : MonoBehaviour
 
     public void LaunchCombat()
     {
-        EnemyEncounterDefinition encounter = ResolveEncounter(currentStepData.encounterId);
+        EnemyEncounterDefinition encounter = ResolveEncounter(CurrentRun.CurrentStepData.encounterId);
         IReadOnlyList<int> encounterRelics = GetRelicIdsForEncounter(encounter);
         CurrentRun.activeEnemyRelics = encounterRelics.ToList();
-        Debug.Log($"[PathOfPower] LaunchCombat setup. Encounter='{currentStepData.encounterId}', Name='{(encounter != null ? encounter.DisplayName : "Missing Encounter")}', EnemyRelics=[{string.Join(", ", CurrentRun.activeEnemyRelics)}].");
+        Debug.Log($"[PathOfPower] LaunchCombat setup. Encounter='{CurrentRun.CurrentStepData.encounterId}', Name='{(encounter != null ? encounter.DisplayName : "Missing Encounter")}', EnemyRelics=[{string.Join(", ", CurrentRun.activeEnemyRelics)}].");
 
         DeckSelectionCache.SelectedPlayerDeck = new List<int>(CurrentRun.currentDeck);
         DeckSelectionCache.SelectedEnemyDeck = PathOfPowerEnemyDeckBuilder.BuildEnemyDeck(CurrentRun, encounter);
@@ -651,6 +662,8 @@ public class PathOfPowerManager : MonoBehaviour
         if (DiscoverDisplay == null || relicPrefab == null || relicIds == null || relicIds.Count == 0)
             return;
 
+        DiscoveryText.text= "Select a relic (hold 'space bar' to enter scan mode)";
+
         Transform parent = reliPrefabParentDiscovery != null ? reliPrefabParentDiscovery.transform : DiscoverDisplay.transform;
         ClearRelicDiscovery();
 
@@ -753,6 +766,7 @@ public class PathOfPowerManager : MonoBehaviour
         if (DiscoverDisplay == null || cardIds == null || cardIds.Count == 0)
             return;
 
+        DiscoveryText.text = "Select a Card to add to your deck (hold 'space bar' to enter scan mode)";
         if (CardFactory.Instance == null)
         {
             GameObject factoryObj = new GameObject("CardFactory");

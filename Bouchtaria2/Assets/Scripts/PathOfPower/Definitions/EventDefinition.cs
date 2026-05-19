@@ -8,6 +8,7 @@ public class EventDefinition : ScriptableObject
     [TextArea]
     [SerializeField] private string description;
     [SerializeField] private Sprite artwork;
+    [SerializeField] private Sprite bgArtwork;
     [SerializeField] private int minimumFloor = 1;
     [SerializeField] private bool enabledInFirstVersion = true;
 

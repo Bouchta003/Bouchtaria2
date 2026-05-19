@@ -17,4 +17,6 @@ MonoBehaviour:
   minimumFloor: 1
   elite: 0
   warden: 0
+  relicIds: 02000000
+  displaySprite: {fileID: 21300000, guid: bc653da0e146c3f479db2a479563fd0d, type: 3}
   enemyDeckTemplate: 
