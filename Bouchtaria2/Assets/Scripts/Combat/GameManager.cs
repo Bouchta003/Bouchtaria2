@@ -884,7 +884,7 @@ private sealed class PendingHandReturn
     // Update is called once per frame
     void Update()
     {
-        //if (Input.GetKeyDown(KeyCode.G)) EnemyCore.TakeDamage(999) ;
+        if (Input.GetKeyDown(KeyCode.G)) EnemyCore.TakeDamage(999) ;
         manacounterAlly.text = $"{AllyCurrentMana}/{AllyCurrentMaxMana}";
         manacounterEnmy.text = $"{EnemyCurrentMana}/{EnemyCurrentMaxMana}";
         attackCursor.transform.position = Input.mousePosition;

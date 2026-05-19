@@ -3073,8 +3073,9 @@ MonoBehaviour:
   enemyWarden: {fileID: 622376525}
   EnemyNameText: {fileID: 992485259}
   DiscoveryText: {fileID: 120160030}
-  EventAcceptBtn: {fileID: 0}
-  EventSkipButton: {fileID: 0}
+  EventAcceptBtn: {fileID: 1009637634}
+  EventSkipButton: {fileID: 1607924505}
+  eventDialogues: 0000000001000000
   starterDeckTargetSize: 20
   starterDeckTrait: 12
 --- !u!4 &937017223
@@ -3480,7 +3481,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1009637635}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 937017222}
+        m_TargetAssemblyTypeName: PathOfPowerManager, Assembly-CSharp
+        m_MethodName: AcceptEventReward
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1009637635
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5114,7 +5127,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1607924506}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 937017222}
+        m_TargetAssemblyTypeName: PathOfPowerManager, Assembly-CSharp
+        m_MethodName: NextStep
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1607924506
 MonoBehaviour:
   m_ObjectHideFlags: 0

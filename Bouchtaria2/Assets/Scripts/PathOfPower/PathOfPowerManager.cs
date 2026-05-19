@@ -110,6 +110,28 @@ public class PathOfPowerManager : MonoBehaviour
         SaveRun();
         OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
     }
+    public void AcceptEventReward()
+    {
+        if (CurrentRun == null) { Debug.LogError("[PathOfPower] CurrentRun is null."); return; }
+
+        int eventId = 0;
+        int.TryParse(CurrentRun.CurrentStepData.eventId, out eventId);
+        switch(eventId)
+        {
+            case 0:
+                Debug.Log("Accepted reward for event 0 and added Titos");
+                AddRelic("0");//Bound Phylactery);
+                break;
+            case 1:
+                Debug.Log("Accepted reward for event 1");
+                break;
+            case 2:
+                Debug.Log("Accepted reward for event 2");
+                break;
+            // Add more cases as needed
+        }
+        NextStep();
+    }
     public void SwitchDisplay(int displayIndex)
     {
         Debug.Log($"[PathOfPower] SwitchDisplay requested for index {displayIndex}.");
@@ -194,7 +216,14 @@ public class PathOfPowerManager : MonoBehaviour
         ScanController.Instance.panelInstance.PopulateRelic(new Relic(relicDefinition));
         ScanController.Instance.panelInstance.Slide(true);
     }
-
+    public void AddRelic(string relicId)
+    {
+        RelicDefinition selectedRelic = ResolveRelic(relicId);
+        CurrentRun.currentRelics.Add(relicId);
+        UpdateRelicGrid();
+        Debug.Log($"Relic added : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}");
+        SaveRun();
+    }
     public void SelectStarterRelic(string relicId)
     {
         if (CurrentRun.phase != PathOfPowerRunPhase.StarterRelicChoice)
