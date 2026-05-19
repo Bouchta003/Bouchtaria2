@@ -12,7 +12,8 @@ public class EnemyEncounterDefinition : ScriptableObject
     [Tooltip("Relic ids held by this encounter. These are resolved by PathOfPowerManager before combat and applied by PathOfPowerRelicEffectService during combat.")]
     [SerializeField] private List<int> relicIds = new List<int>();
     [SerializeField] private Sprite displaySprite;
-    [SerializeField] private List<int> enemyDeckTemplate = new List<int>();
+    [Tooltip("Deck list encoded as a string, for example: [0,2,3,4,6].")]
+    [SerializeField] private string enemyDeckTemplate = "[]";
 
     public string EncounterId => string.IsNullOrWhiteSpace(encounterId) ? name : encounterId;
     public string DisplayName => string.IsNullOrWhiteSpace(displayName) ? name : displayName;
@@ -21,5 +22,25 @@ public class EnemyEncounterDefinition : ScriptableObject
     public bool Warden => warden;
     public Sprite DisplaySprite => displaySprite;
     public IReadOnlyList<int> RelicIds => relicIds;
-    public IReadOnlyList<int> EnemyDeckTemplate => enemyDeckTemplate;
+    public string EnemyDeckTemplate => enemyDeckTemplate;
+
+    public IReadOnlyList<int> GetParsedEnemyDeckTemplate()
+    {
+        List<int> parsedDeck = new List<int>();
+        if (string.IsNullOrWhiteSpace(enemyDeckTemplate))
+            return parsedDeck;
+
+        string normalized = enemyDeckTemplate.Trim().TrimStart('[').TrimEnd(']');
+        if (string.IsNullOrWhiteSpace(normalized))
+            return parsedDeck;
+
+        string[] parts = normalized.Split(',');
+        foreach (string part in parts)
+        {
+            if (int.TryParse(part.Trim(), out int cardId))
+                parsedDeck.Add(cardId);
+        }
+
+        return parsedDeck;
+    }
 }

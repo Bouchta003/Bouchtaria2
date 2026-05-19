@@ -330,7 +330,12 @@ private sealed class PendingHandReturn
         InitializeSoulCounterVisibility();
         SetupTraits();                        // create progressions
 
-        SetupCores();
+        int playerHpBonus = PathOfPowerRelicEffectService.GetStartingHpModifier(PlayerOwner.Player);
+        int enemyHpBonus = PathOfPowerRelicEffectService.GetStartingHpModifier(PlayerOwner.Enemy);
+
+        SetupCores(startingPlayerCoreHealth + playerHpBonus, startingEnemyCoreHealth + enemyHpBonus);
+        PathOfPowerRelicEffectService.ApplyCombatStartRelics(PlayerOwner.Player, this);
+        PathOfPowerRelicEffectService.ApplyCombatStartRelics(PlayerOwner.Enemy, this);
         PlayerCore.GetComponent<CoreView>().Bind(PlayerCore);
         EnemyCore.GetComponent<CoreView>().Bind(EnemyCore);
 
@@ -1093,6 +1098,7 @@ private sealed class PendingHandReturn
         swordsmanBleedAppliedThisTurn.Remove(owner);
         IncreaseMaxMana(owner);
         RefillMana(owner);
+        PathOfPowerRelicEffectService.ApplyTurnStartRelics(owner, this);
     }
     private void HandleTurnEnded(PlayerOwner owner)
     {
@@ -1400,13 +1406,13 @@ private sealed class PendingHandReturn
     #endregion
 
     #region Core Management
-    private void SetupCores()
+    private void SetupCores(int playerStartingHp, int enemyStartingHp)
     {
         //PlayerCore = Instantiate(corePrefab, spawnPlayerCore.transform).GetComponent<CoreInstance>();
-        PlayerCore.Initialize(PlayerOwner.Player, startingPlayerCoreHealth);
+        PlayerCore.Initialize(PlayerOwner.Player, playerStartingHp);
 
         //EnemyCore = Instantiate(corePrefab, spawnEnemyCore.transform).GetComponent<CoreInstance>();
-        EnemyCore.Initialize(PlayerOwner.Enemy, startingEnemyCoreHealth);
+        EnemyCore.Initialize(PlayerOwner.Enemy, enemyStartingHp);
     }
     public void OnCoreDestroyed(PlayerOwner owner)
     {

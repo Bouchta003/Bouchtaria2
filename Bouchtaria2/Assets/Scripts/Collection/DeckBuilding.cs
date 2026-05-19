@@ -345,10 +345,14 @@ public class DeckBuilding : MonoBehaviour
                     Debug.Log($"Creating new deck '{deckName}'.");
                 }
 
+                string formattedDeck = $"[{string.Join(",", CurrentDeck)}]";
+                Debug.Log($"[DeckBuilding] Validated deck string: {formattedDeck}");
+
                 Dictionary<string, object> deckData = new Dictionary<string, object>
                 {
                 { "name", deckName },
                 { "cardIds", new List<int>(CurrentDeck) },
+                { "deckString", formattedDeck },
                 { "updatedAt", Timestamp.GetCurrentTimestamp() }
                 };
 
