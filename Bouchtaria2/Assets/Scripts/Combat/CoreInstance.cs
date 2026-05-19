@@ -1,5 +1,6 @@
-using DG.Tweening;
 using System.Collections;
+using DG.Tweening;
+using DG.Tweening.Core.Easing;
 using UnityEngine;
 
 public class CoreInstance : MonoBehaviour, IAttackable
@@ -115,6 +116,7 @@ public class CoreInstance : MonoBehaviour, IAttackable
         if (Owner == PlayerOwner.Player) bonus = gm.PlayerHealBonus;
         else bonus = gm.EnemyHealBonus;
 
+        if (GameRunContext.IsPathOfPowerRun && gm.OwnerHasRelic(Owner, 3)) { bonus += 2; }
         int totalHeal = amount + bonus;
         CurrentHealth = Mathf.Min(CurrentHealth + totalHeal, MaxHealth);
         int differenceHp = CurrentHealth - preHeal;

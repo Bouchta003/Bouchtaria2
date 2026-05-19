@@ -10,13 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9bdc60e455ff49c3a9043189edcdf6dc, type: 3}
-  m_Name: BoundPhylactery
+  m_Name: Strawberry
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
-  relicId: 0
-  displayName: Bound Phylactery
-  description: At the start of your turn summon Titos if it's dead, give it +1/+1
-    if it's alive.
-  icon: {fileID: -2702563026279095698, guid: ff08e81908842244ea5010cce80e3b87, type: 3}
+  relicId: 5
+  displayName: Strawberry
+  description: When obtained, this relic grants you +10 HP for the rest of the run
+  icon: {fileID: 1669490993913548592, guid: be87e062409b0684086506a46d4e702f, type: 3}
   assignedTrait: 0
-  canAppearAsStarter: 1
+  canAppearAsStarter: 0
   canAppearAsWardenReward: 1

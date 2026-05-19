@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,12 +9,14 @@ public static class PathOfPowerRelicEffectService
     private const int Mango = 1;
     private const int Orichalcum = 2;
     private const int RegalPillow = 3;
+    private const int RingOfSnakes = 4;
+    private const int Strawberry = 5;
 
     private const int EmptyCoreShieldAmount = 6;
 
-    public static void ApplyCombatStartRelics(PlayerOwner owner, GameManager gameManager)
+    public static void ApplyCombatStartRelics(PlayerOwner owner)
     {
-        if (!GameRunContext.IsPathOfPowerRun || gameManager == null)
+        if (!GameRunContext.IsPathOfPowerRun || GameManager.Instance == null)
             return;
 
         IReadOnlyList<int> relicIds = GetRelicIdsForOwner(owner, GameRunContext.PathOfPowerData);
@@ -23,16 +26,19 @@ public static class PathOfPowerRelicEffectService
         {
             switch (relicId)
             {
-                // TODO(Path Of Power Relics): Add relic id + combat-start effect here.
+                case 4: // Ring of Snakes
+                    GameManager.Instance.StartCoroutine(GameManager.Instance.deckManager.Draw(2, owner));
+                    Debug.Log("[PathOfPower][Relics] Applied combat-start effect of Ring of Snakes.");
+                    break;
                 default:
                     break;
             }
         }
     }
 
-    public static void ApplyTurnStartRelics(PlayerOwner owner, GameManager gameManager)
+    public static void ApplyTurnStartRelics(PlayerOwner owner)
     {
-        if (!GameRunContext.IsPathOfPowerRun || gameManager == null)
+        if (!GameRunContext.IsPathOfPowerRun || GameManager.Instance == null)
             return;
 
         IReadOnlyList<int> relicIds = GetRelicIdsForOwner(owner, GameRunContext.PathOfPowerData);
@@ -43,6 +49,16 @@ public static class PathOfPowerRelicEffectService
             switch (relicId)
             {
                 // TODO(Path Of Power Relics): Add relic id + turn-start effect here.
+                case 0:
+                    if (!GameManager.Instance.GetBoardForOwner(owner).BoardHasEffect("titos"))
+                    {
+                        GameManager.Instance.TrySummonForOwner(owner,411);//Summon titos if not already on board
+                    }
+                    else
+                    {
+                        GameManager.Instance.BuffAllAlliesEffect(1,1, owner, "titos");
+                    }
+                    break;
                 default:
                     break;
             }
@@ -63,6 +79,14 @@ public static class PathOfPowerRelicEffectService
             {
                 // TODO(Path Of Power Relics): Add relic id + starting HP modifier here.
                 // Example: case Mango: bonusHp += 10; break;
+                case Mango: 
+                    bonusHp += 20;
+                    Debug.Log($"[PathOfPower][Relics] Relic {Mango} (Mango) gives +20 starting HP for {owner}.");
+                    break;
+                case Strawberry:
+                    bonusHp += 10;
+                    Debug.Log($"[PathOfPower][Relics] Relic {Strawberry} (Strawberry) gives +10 starting HP for {owner}.");
+                    break;
                 default:
                     break;
             }
@@ -141,5 +165,18 @@ public static class PathOfPowerRelicEffectService
 
         core.AddShield(EmptyCoreShieldAmount);
         Debug.Log($"[PathOfPower][Relics] Relic {Orichalcum} gave {owner} core +{EmptyCoreShieldAmount} shield because it had no shield.");
+    }
+
+    public static bool PlayerHasRelic(PlayerOwner owner, int id)
+    {
+        IReadOnlyList<int> relicIds = GetRelicIdsForOwner(owner, GameRunContext.PathOfPowerData);
+        foreach(int relicId in relicIds)
+        {
+            if (relicId == id)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -334,8 +334,6 @@ private sealed class PendingHandReturn
         int enemyHpBonus = PathOfPowerRelicEffectService.GetStartingHpModifier(PlayerOwner.Enemy);
 
         SetupCores(startingPlayerCoreHealth + playerHpBonus, startingEnemyCoreHealth + enemyHpBonus);
-        PathOfPowerRelicEffectService.ApplyCombatStartRelics(PlayerOwner.Player, this);
-        PathOfPowerRelicEffectService.ApplyCombatStartRelics(PlayerOwner.Enemy, this);
         PlayerCore.GetComponent<CoreView>().Bind(PlayerCore);
         EnemyCore.GetComponent<CoreView>().Bind(EnemyCore);
 
@@ -363,6 +361,8 @@ private sealed class PendingHandReturn
             TurnManager.Instance.OnTurnStarted -= HandleTurnStartedForPendingHandReturns;
             TurnManager.Instance.OnTurnStarted += HandleTurnStartedForPendingHandReturns;
         }
+        PathOfPowerRelicEffectService.ApplyCombatStartRelics(PlayerOwner.Player);
+        PathOfPowerRelicEffectService.ApplyCombatStartRelics(PlayerOwner.Enemy);
     }
     private void HandleTurnStartedForPendingHandReturns(PlayerOwner owner)
     {
@@ -761,6 +761,18 @@ private sealed class PendingHandReturn
         hand.UpdateCardPositions();
         return card;
     }
+    public void BuffAllAlliesEffect(int atk, int hp, PlayerOwner owner, string effect)
+    {
+        List<GameObject> allies;
+        if (owner == PlayerOwner.Player) allies = allyDropArea.allyPrefabCards;
+        else allies = enemyDropArea.enemyPrefabCards;
+
+        foreach (GameObject go in allies)
+        {
+            if(go.GetComponent<CardInstance>().HasKeyword(effect))
+            go.GetComponent<CardInstance>().ModifyStats(atk, hp);
+        }
+    }
     public void BuffAllAllies(int atk, int hp, PlayerOwner owner)
     {
         List<GameObject> allies;
@@ -1098,7 +1110,7 @@ private sealed class PendingHandReturn
         swordsmanBleedAppliedThisTurn.Remove(owner);
         IncreaseMaxMana(owner);
         RefillMana(owner);
-        PathOfPowerRelicEffectService.ApplyTurnStartRelics(owner, this);
+        PathOfPowerRelicEffectService.ApplyTurnStartRelics(owner);
     }
     private void HandleTurnEnded(PlayerOwner owner)
     {
@@ -1374,7 +1386,14 @@ private sealed class PendingHandReturn
 
         return system.HasTraitAtTier(trait, minTier);
     }
-
+    public bool OwnerHasRelic(PlayerOwner owner, int id)
+    {
+        if(GameRunContext.IsPathOfPowerRun)
+        {
+            return PathOfPowerRelicEffectService.PlayerHasRelic(owner, id);
+        }
+        return false;
+    }
     public void AddPokemonTraitProgress(PlayerOwner owner, int amount)
     {
         if (amount <= 0)

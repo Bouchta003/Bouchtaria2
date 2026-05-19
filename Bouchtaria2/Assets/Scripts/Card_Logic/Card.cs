@@ -11,7 +11,7 @@ public class Card : MonoBehaviour
     HandManager handManager;
     GameManager gameManager;
     CardInstance thisInstance;
-    public bool isDragging; // 🔑 NEW
+    public bool isDragging;
     [SerializeField] Rigidbody2D rb;
     //Hover
     [Header("Hover Effect")]
@@ -104,7 +104,7 @@ public class Card : MonoBehaviour
 
     public void OnPointerDown()
     {
-        if (CombatDialogue.Instance != null)
+        if (CombatDialogue.Instance != null && !IsPathOfPowerScene())
         {
             if (CombatDialogue.Instance.UIDialogue.activeSelf) return;
         }

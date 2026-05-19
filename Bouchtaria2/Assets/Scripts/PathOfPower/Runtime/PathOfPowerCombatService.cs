@@ -17,9 +17,10 @@ public static class PathOfPowerCombatService
 
     public static int GetPlayerHealth(PathOfPowerRunData runData)
     {
-        // First foundation: use the same 30 HP player baseline as dungeon/adventure combat.
-        // TODO(Path Of Power): map relic effects to player HP/mana/draw modifiers here.
-        return 30;
+        int floor = Mathf.Max(1, runData?.currentFloor ?? 1);
+        int hp = 20 + ((floor - 1) * 5);
+        hp = Mathf.Min(80, hp);
+        return hp;
     }
 
     public static void MarkCombatLost()

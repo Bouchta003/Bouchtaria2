@@ -4908,11 +4908,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (amount <= 0) return;
         int bonus = 0;
         int preHeal = CurrentHealth;
-
         SFXManager.Instance.PlayRandomSFXClip(gameManager.healSFX, transform, 1f);
         //ApplyBonus
         if (Owner == PlayerOwner.Player) bonus = gameManager.PlayerHealBonus;
         else bonus = gameManager.EnemyHealBonus;
+        if(GameRunContext.IsPathOfPowerRun && gameManager.OwnerHasRelic(Owner, 3)) { bonus += 2; }
         int totalHeal = amount + bonus;
         CurrentHealth = Mathf.Min(CurrentHealth + totalHeal, CurrentMaxHealth);
         int differenceHp = CurrentHealth - preHeal;

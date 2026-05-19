@@ -31,6 +31,9 @@ public class PathOfPowerManager : MonoBehaviour
     [SerializeField] public Image enemyEliteIcon;
     [SerializeField] public Image enemyWarden;
     [SerializeField] public TextMeshProUGUI EnemyNameText;
+    [SerializeField] public TextMeshProUGUI CurrentFloor;
+    [SerializeField] public TextMeshProUGUI CurrentStep;
+    [SerializeField] public TextMeshProUGUI CurrentPathType;
     [SerializeField] public TextMeshProUGUI DiscoveryText;
     [SerializeField] public Button EventAcceptBtn;
     [SerializeField] public Button EventSkipButton;
@@ -74,6 +77,12 @@ public class PathOfPowerManager : MonoBehaviour
             DiscoverDisplay.SetActive(false);
 
         LoadRun();
+    }
+    private void Update()
+    {
+        CurrentFloor.text = $"{CurrentRun.currentFloor}";
+        CurrentStep.text = $"{CurrentRun.currentStep}";
+        CurrentPathType.text = $"Path Type: {CurrentRun.currentPathType}";
     }
     public void BackButton()
     {
@@ -392,11 +401,11 @@ public class PathOfPowerManager : MonoBehaviour
         }
 
         Debug.Log($"[PathOfPower] Step {step.stepIndex} is a combat encounter. Switching to Combat display before loading the Combat scene. EncounterId='{step.encounterId}'.");
-        nextEnemyImage.sprite = ResolveEncounter(step.encounterId)?.DisplaySprite;
-        enemyEliteIcon.gameObject.SetActive(ResolveEncounter(step.encounterId).Elite);
-        enemyWarden.gameObject.SetActive(ResolveEncounter(step.encounterId).Warden);
-        EnemyNameText.text = ResolveEncounter(step.encounterId).DisplayName;
         SwitchDisplay(2);
+        nextEnemyImage.sprite = ResolveEncounter(step.encounterId)?.DisplaySprite;
+        //enemyEliteIcon.gameObject.SetActive(ResolveEncounter(step.encounterId).Elite);
+        //enemyWarden.gameObject.SetActive(ResolveEncounter(step.encounterId).Warden);
+        //EnemyNameText.text = ResolveEncounter(step.encounterId).DisplayName;
     }
 
     /// <summary>
