@@ -8,6 +8,8 @@ public class RelicDefinition : ScriptableObject
     [SerializeField] private string displayName;
     [TextArea]
     [SerializeField] private string description;
+    [TextArea]
+    [SerializeField] private string enemyRelicText;
     [SerializeField] private Sprite icon;
 
     [Header("Design Hooks")]
@@ -18,6 +20,7 @@ public class RelicDefinition : ScriptableObject
     public string RelicId => string.IsNullOrWhiteSpace(relicId) ? name : relicId;
     public string DisplayName => string.IsNullOrWhiteSpace(displayName) ? name : displayName;
     public string Description => description;
+    public string EnemyRelicText => enemyRelicText;
     public Sprite Icon => icon;
     public CardData.Trait AssignedTrait => assignedTrait;
     public bool CanAppearAsStarter => canAppearAsStarter;
