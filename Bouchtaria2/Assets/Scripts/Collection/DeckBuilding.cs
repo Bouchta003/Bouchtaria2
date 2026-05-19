@@ -156,16 +156,6 @@ public class DeckBuilding : MonoBehaviour
             if (deckIndex >= 0)
                 selectedIndex = deckIndex + 1;
         }
-        else if (!string.IsNullOrWhiteSpace(DeckSelectionCache.LastSelectedDeckName))
-        {
-            int preferredDeckIndex = deckNames.IndexOf(DeckSelectionCache.LastSelectedDeckName);
-            if (preferredDeckIndex >= 0 &&
-                userDecks.TryGetValue(DeckSelectionCache.LastSelectedDeckName, out List<int> preferredDeck) &&
-                DeckSelectionCache.IsDeckValidForStandardCombat(preferredDeck))
-            {
-                selectedIndex = preferredDeckIndex + 1;
-            }
-        }
 
         deckDropdown.SetValueWithoutNotify(selectedIndex);
         deckDropdown.RefreshShownValue();

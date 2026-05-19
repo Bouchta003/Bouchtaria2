@@ -29,11 +29,17 @@ public class Card : MonoBehaviour
     [Header("Hover Control")]
     [SerializeField] public bool delayedHover = false;
 
+
+    private bool IsPathOfPowerScene()
+    {
+        string sceneName = SceneManager.GetActiveScene().name;
+        return sceneName == "PathOfPower" || sceneName == "PathofPower";
+    }
     void Awake()
     {
         col = GetComponent<Collider2D>();
         col.enabled = true; // ALWAYS enable
-        if (SceneManager.GetActiveScene().name != "PathofPower")
+        if (!IsPathOfPowerScene())
         {
             gameManager = FindFirstObjectByType<GameManager>();
             thisInstance = gameObject.GetComponent<CardInstance>();
@@ -42,7 +48,7 @@ public class Card : MonoBehaviour
     void Start()
     {
         col = GetComponent<Collider2D>();
-        if (SceneManager.GetActiveScene().name != "PathofPower")
+        if (!IsPathOfPowerScene())
         {
             enemyCardDropArea = FindFirstObjectByType<EnemyCardDropArea>();
             allyCardDropArea = FindFirstObjectByType<AllyCardDropArea>();
@@ -69,7 +75,7 @@ public class Card : MonoBehaviour
     #region Pointer-based input (called by CardInputManager)
     public void OnHoverEnter()
     {
-        if (SceneManager.GetActiveScene().name == "PathofPower") { isHovered = true; return; }
+        if (IsPathOfPowerScene()) { isHovered = true; return; }
             if (CombatDialogue.Instance != null)
         {
             if (CombatDialogue.Instance.UIDialogue.activeSelf && CombatDialogue.Instance.UIDialogue != null) return;
@@ -168,7 +174,7 @@ public class Card : MonoBehaviour
                 gameManager.HandleTargetClick(GetComponent<CardInstance>());
             }
         }
-        else if (SceneManager.GetActiveScene().name == "PathofPower")
+        else if (IsPathOfPowerScene())
         {
             CardView cardView = GetComponent<CardView>();
             if (cardView == null || cardView.CardData == null || PathOfPowerManager.Instance == null)
@@ -206,7 +212,7 @@ public class Card : MonoBehaviour
             return;
 
         if (thisInstance.CurrentZone != CardZone.Hand &&
-        SceneManager.GetActiveScene().name == "Combat" || SceneManager.GetActiveScene().name == "PathofPower")
+        SceneManager.GetActiveScene().name == "Combat" || IsPathOfPowerScene())
             return;
 
         transform.position = GetMousePositionInWorldSpace();

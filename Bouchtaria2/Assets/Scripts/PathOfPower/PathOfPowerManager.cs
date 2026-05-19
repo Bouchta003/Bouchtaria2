@@ -113,6 +113,19 @@ public class PathOfPowerManager : MonoBehaviour
     public void AcceptEventReward(bool skip)
     {
         if (CurrentRun == null) { Debug.LogError("[PathOfPower] CurrentRun is null."); return; }
+        if (CurrentRun.phase != PathOfPowerRunPhase.Event)
+        {
+            Debug.LogWarning($"[PathOfPower] AcceptEventReward ignored because phase is {CurrentRun.phase} instead of Event.");
+            return;
+        }
+
+        PathOfPowerStepData step = CurrentRun.CurrentStepData;
+        if (step == null || step.stepType != PathOfPowerStepType.Event)
+        {
+            Debug.LogWarning("[PathOfPower] AcceptEventReward ignored because there is no active event step.");
+            return;
+        }
+
         if(skip)
         {
             Debug.Log("Event skipped by player choice.");
@@ -120,7 +133,7 @@ public class PathOfPowerManager : MonoBehaviour
             return;
         }
         int eventId = 0;
-        int.TryParse(CurrentRun.CurrentStepData.eventId, out eventId);
+        int.TryParse(step.eventId, out eventId);
         switch(eventId)
         {
             case 0:
@@ -405,6 +418,8 @@ public class PathOfPowerManager : MonoBehaviour
 
         step.completed = true;
         AdvanceToNextStepOrFloor();
+        GameRunContext.PathOfPowerData = CurrentRun;
+        ShowDisplayForCurrentPhase();
         SaveRun();
     }
 
