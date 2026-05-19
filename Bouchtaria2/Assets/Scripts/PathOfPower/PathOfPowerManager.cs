@@ -44,6 +44,7 @@ public class PathOfPowerManager : MonoBehaviour
     private readonly List<GameObject> spawnedRelicDiscoveryObjects = new List<GameObject>();
     private readonly List<GameObject> spawnedRelicGridObjects = new List<GameObject>();
 
+    private PathOfPowerStepData currentStepData;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -332,7 +333,6 @@ public class PathOfPowerManager : MonoBehaviour
 
         Debug.Log($"[PathOfPower] Step {step.stepIndex} is a combat encounter. Switching to Combat display before loading the Combat scene. EncounterId='{step.encounterId}'.");
         SwitchDisplay(2);
-        LaunchCombat(step);
     }
 
     /// <summary>
@@ -431,12 +431,12 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.currentStep = desiredStep;
     }
 
-    private void LaunchCombat(PathOfPowerStepData step)
+    public void LaunchCombat()
     {
-        EnemyEncounterDefinition encounter = ResolveEncounter(step.encounterId);
+        EnemyEncounterDefinition encounter = ResolveEncounter(currentStepData.encounterId);
         IReadOnlyList<int> encounterRelics = GetRelicIdsForEncounter(encounter);
         CurrentRun.activeEnemyRelics = encounterRelics.ToList();
-        Debug.Log($"[PathOfPower] LaunchCombat setup. Encounter='{step.encounterId}', Name='{(encounter != null ? encounter.DisplayName : "Missing Encounter")}', EnemyRelics=[{string.Join(", ", CurrentRun.activeEnemyRelics)}].");
+        Debug.Log($"[PathOfPower] LaunchCombat setup. Encounter='{currentStepData.encounterId}', Name='{(encounter != null ? encounter.DisplayName : "Missing Encounter")}', EnemyRelics=[{string.Join(", ", CurrentRun.activeEnemyRelics)}].");
 
         DeckSelectionCache.SelectedPlayerDeck = new List<int>(CurrentRun.currentDeck);
         DeckSelectionCache.SelectedEnemyDeck = PathOfPowerEnemyDeckBuilder.BuildEnemyDeck(CurrentRun, encounter);

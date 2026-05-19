@@ -59,6 +59,7 @@ public class CollectionScreen : MonoBehaviour
 
         foreach (CardData.Trait trait in Enum.GetValues(typeof(CardData.Trait)))
         {
+            if(trait!= CardData.Trait.None)
             traitOptions.Add(trait.ToString());
         }
 

@@ -3,7 +3,13 @@ using UnityEngine;
 
 public static class PathOfPowerRelicEffectService
 {
-    private const int EmptyCoreShieldRelicId = 1;
+    //Relic IDS
+    private const int BoundPhylactery = 0;
+    private const int Mango = 1;
+    private const int Orichalcum = 2;
+    private const int RegalPillow = 3;
+
+
     private const int EmptyCoreShieldAmount = 6;
 
     public static void ApplyEndTurnRelics(PlayerOwner owner, GameManager gameManager)
@@ -24,8 +30,9 @@ public static class PathOfPowerRelicEffectService
         {
             switch (relicId)
             {
-                case EmptyCoreShieldRelicId:
+                case Orichalcum:
                     ApplyEmptyCoreShield(owner, gameManager);
+                    Debug.Log("[PathOfPower][Relics] Applied end-turn effect of Orichalcum.");
                     break;
                 default:
                     Debug.Log($"[PathOfPower][Relics] Relic id {relicId} has no implemented end-turn effect yet.");
@@ -40,7 +47,7 @@ public static class PathOfPowerRelicEffectService
             return System.Array.Empty<int>();
 
         if (owner == PlayerOwner.Enemy)
-            return runData.activeEnemyRelics ?? System.Array.Empty<int>();
+            return runData.activeEnemyRelics ?? (IReadOnlyList<int>)System.Array.Empty<int>();
 
         List<int> parsedPlayerRelics = new List<int>();
         if (runData.currentRelics == null)
@@ -62,17 +69,17 @@ public static class PathOfPowerRelicEffectService
         CoreInstance core = owner == PlayerOwner.Player ? gameManager.PlayerCore : gameManager.EnemyCore;
         if (core == null)
         {
-            Debug.LogWarning($"[PathOfPower][Relics] Relic {EmptyCoreShieldRelicId} could not find a {owner} core.");
+            Debug.LogWarning($"[PathOfPower][Relics] Relic {Orichalcum} could not find a {owner} core.");
             return;
         }
 
         if (core.Shield > 0)
         {
-            Debug.Log($"[PathOfPower][Relics] Relic {EmptyCoreShieldRelicId} skipped for {owner}: core already has {core.Shield} shield.");
+            Debug.Log($"[PathOfPower][Relics] Relic {Orichalcum} skipped for {owner}: core already has {core.Shield} shield.");
             return;
         }
 
         core.AddShield(EmptyCoreShieldAmount);
-        Debug.Log($"[PathOfPower][Relics] Relic {EmptyCoreShieldRelicId} gave {owner} core +{EmptyCoreShieldAmount} shield because it had no shield.");
+        Debug.Log($"[PathOfPower][Relics] Relic {Orichalcum} gave {owner} core +{EmptyCoreShieldAmount} shield because it had no shield.");
     }
 }

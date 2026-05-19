@@ -1395,7 +1395,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 396376011}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 937017222}
+        m_TargetAssemblyTypeName: PathOfPowerManager, Assembly-CSharp
+        m_MethodName: NextStep
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &396376011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2692,7 +2704,7 @@ MonoBehaviour:
   reliPrefabParentDiscovery: {fileID: 710080417}
   relicGridLayout: {fileID: 2143713384}
   starterDeckTargetSize: 20
-  fallbackStarterDeck: 030000000300000004000000040000000500000005000000060000000600000009000000090000001e0000001e0000002000000020000000220000002200000024000000240000002500000025000000
+  starterDeckTrait: 12
 --- !u!4 &937017223
 Transform:
   m_ObjectHideFlags: 0
@@ -4767,7 +4779,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1667401455}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 937017221}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1667401455
 MonoBehaviour:
   m_ObjectHideFlags: 0
