@@ -12,8 +12,9 @@ public static class PathOfPowerEnemyDeckBuilder
         int targetSize = Mathf.Max(1, runData?.currentDeck?.Count ?? 30);
         bool allowUnpackableAndTier3 = floor >= 3;
 
-        IEnumerable<int> template = encounter != null && encounter.EnemyDeckTemplate != null && encounter.EnemyDeckTemplate.Count > 0
-            ? encounter.EnemyDeckTemplate
+        IReadOnlyList<int> parsedEncounterDeck = encounter?.GetParsedEnemyDeckTemplate();
+        IEnumerable<int> template = parsedEncounterDeck != null && parsedEncounterDeck.Count > 0
+            ? parsedEncounterDeck
             : EnemyDecks.GetFloorDeck(floor);
 
         List<int> result = new List<int>();

@@ -3,14 +3,73 @@ using UnityEngine;
 
 public static class PathOfPowerRelicEffectService
 {
-    //Relic IDS
+    // Relic IDs
     private const int BoundPhylactery = 0;
     private const int Mango = 1;
     private const int Orichalcum = 2;
     private const int RegalPillow = 3;
 
-
     private const int EmptyCoreShieldAmount = 6;
+
+    public static void ApplyCombatStartRelics(PlayerOwner owner, GameManager gameManager)
+    {
+        if (!GameRunContext.IsPathOfPowerRun || gameManager == null)
+            return;
+
+        IReadOnlyList<int> relicIds = GetRelicIdsForOwner(owner, GameRunContext.PathOfPowerData);
+        Debug.Log($"[PathOfPower][Relics] Checking {owner} combat-start relics: [{string.Join(", ", relicIds)}].");
+
+        foreach (int relicId in relicIds)
+        {
+            switch (relicId)
+            {
+                // TODO(Path Of Power Relics): Add relic id + combat-start effect here.
+                default:
+                    break;
+            }
+        }
+    }
+
+    public static void ApplyTurnStartRelics(PlayerOwner owner, GameManager gameManager)
+    {
+        if (!GameRunContext.IsPathOfPowerRun || gameManager == null)
+            return;
+
+        IReadOnlyList<int> relicIds = GetRelicIdsForOwner(owner, GameRunContext.PathOfPowerData);
+        Debug.Log($"[PathOfPower][Relics] Checking {owner} turn-start relics: [{string.Join(", ", relicIds)}].");
+
+        foreach (int relicId in relicIds)
+        {
+            switch (relicId)
+            {
+                // TODO(Path Of Power Relics): Add relic id + turn-start effect here.
+                default:
+                    break;
+            }
+        }
+    }
+
+    public static int GetStartingHpModifier(PlayerOwner owner)
+    {
+        if (!GameRunContext.IsPathOfPowerRun)
+            return 0;
+
+        IReadOnlyList<int> relicIds = GetRelicIdsForOwner(owner, GameRunContext.PathOfPowerData);
+        int bonusHp = 0;
+
+        foreach (int relicId in relicIds)
+        {
+            switch (relicId)
+            {
+                // TODO(Path Of Power Relics): Add relic id + starting HP modifier here.
+                // Example: case Mango: bonusHp += 10; break;
+                default:
+                    break;
+            }
+        }
+
+        return bonusHp;
+    }
 
     public static void ApplyEndTurnRelics(PlayerOwner owner, GameManager gameManager)
     {
@@ -34,6 +93,7 @@ public static class PathOfPowerRelicEffectService
                     ApplyEmptyCoreShield(owner, gameManager);
                     Debug.Log("[PathOfPower][Relics] Applied end-turn effect of Orichalcum.");
                     break;
+                // TODO(Path Of Power Relics): Add relic id + end-turn effect here.
                 default:
                     Debug.Log($"[PathOfPower][Relics] Relic id {relicId} has no implemented end-turn effect yet.");
                     break;

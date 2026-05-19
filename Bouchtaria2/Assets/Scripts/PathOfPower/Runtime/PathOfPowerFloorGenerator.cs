@@ -64,7 +64,14 @@ public class PathOfPowerFloorGenerator
             if (stepType == PathOfPowerStepType.Event)
                 eventCount++;
 
-            steps.Add(CreateStep(step, stepType, floor, rng));
+            PathOfPowerStepData createdStep = CreateStep(step, stepType, floor, rng);
+            if (step == 1 && createdStep.stepType != PathOfPowerStepType.Event)
+            {
+                // First Path Of Power fight in a run is fixed to encounter id 0.
+                createdStep.encounterId = "0";
+            }
+
+            steps.Add(createdStep);
         }
 
         EnsureEventBounds(steps, floor, rng);
