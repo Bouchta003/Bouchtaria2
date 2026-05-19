@@ -77,15 +77,25 @@ public class CollectionScreen : MonoBehaviour
         if (currentFilters.Contains(Filter.None)) ownedButtonLabel.text = "All \nCards";
         else ownedButtonLabel.text = "Owned Cards";
 
-        if (System.Enum.TryParse(traitsDropDown.options[traitsDropDown.value].text, true, out CardData.Trait parsedTrait))
+        // Dropdown value 0 is the explicit "None" option, which should disable trait filtering.
+        if (traitsDropDown.value > 0 && System.Enum.TryParse(traitsDropDown.options[traitsDropDown.value].text, true, out CardData.Trait parsedTrait))
         {
-            if (!currentFilters.Contains(Filter.Trait)) { currentFilters.Add(Filter.Trait); RefreshFilter();
+            if (!currentFilters.Contains(Filter.Trait))
+            {
+                currentFilters.Add(Filter.Trait);
+                traitValue = parsedTrait;
+                RefreshFilter();
             }
-            if (traitValue != parsedTrait)
-            { traitValue = parsedTrait; RefreshFilter(); }
-            
+            else if (traitValue != parsedTrait)
+            {
+                traitValue = parsedTrait;
+                RefreshFilter();
+            }
         }
-        else if (currentFilters.Contains(Filter.Trait)) {currentFilters.Remove(Filter.Trait); NormalizeFilters();
+        else if (currentFilters.Contains(Filter.Trait))
+        {
+            currentFilters.Remove(Filter.Trait);
+            NormalizeFilters();
             currentPage = 0;
             ShowPage(0);
         }
