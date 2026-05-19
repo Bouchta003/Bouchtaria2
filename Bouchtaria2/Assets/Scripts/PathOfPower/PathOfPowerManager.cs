@@ -34,6 +34,9 @@ public class PathOfPowerManager : MonoBehaviour
     [SerializeField] public TextMeshProUGUI DiscoveryText;
     [SerializeField] public Button EventAcceptBtn;
     [SerializeField] public Button EventSkipButton;
+    [SerializeField] private List<int> eventDialogues = new List<int>();
+
+    private bool eventDialogueResolved;
 
     [Header("Starter Deck Discovery")]
     [SerializeField] private int starterDeckTargetSize = 20;
@@ -173,6 +176,7 @@ public class PathOfPowerManager : MonoBehaviour
             }
 
             GameRunContext.PathOfPowerData = CurrentRun;
+            ShowDisplayForCurrentPhase();
             OnRunLoaded?.Invoke(CurrentRun);
             ResumeCurrentPhaseHooks();
         });
@@ -335,6 +339,7 @@ public class PathOfPowerManager : MonoBehaviour
             SwitchDisplay(3);
             GameRunContext.PathOfPowerData = CurrentRun;
             SaveRun();
+            StartEventDialogue(step);
             return;
         }
 
@@ -359,6 +364,9 @@ public class PathOfPowerManager : MonoBehaviour
         PathOfPowerStepData step = CurrentRun.CurrentStepData;
         if (step == null || step.stepType != PathOfPowerStepType.Event)
             return;
+
+        if (CombatDialogue.Instance != null)
+            CombatDialogue.Instance.CloseDialogue();
 
         step.completed = true;
         AdvanceToNextStepOrFloor();
@@ -468,7 +476,12 @@ public class PathOfPowerManager : MonoBehaviour
     {
         PathOfPowerStepData step = CurrentRun.CurrentStepData;
         if (step != null)
+        {
+            if (CombatDialogue.Instance != null)
+                CombatDialogue.Instance.CloseDialogue();
+
             step.completed = true;
+        }
 
         CurrentRun.combatActive = false;
         CurrentRun.activeEnemyRelics?.Clear();
@@ -524,6 +537,71 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.currentFloorSteps.Clear();
         CurrentRun.activeEnemyRelics?.Clear();
         CurrentRun.phase = CurrentRun.currentFloor >= 2 ? PathOfPowerRunPhase.PathSelection : PathOfPowerRunPhase.Lobby;
+    }
+
+
+    private void ShowDisplayForCurrentPhase()
+    {
+        switch (CurrentRun.phase)
+        {
+            case PathOfPowerRunPhase.StarterRelicChoice:
+            case PathOfPowerRunPhase.StartingDeckDiscovery:
+            case PathOfPowerRunPhase.AwaitingWardenReward:
+                SwitchDisplay(5);
+                break;
+            case PathOfPowerRunPhase.PathSelection:
+                SwitchDisplay(4);
+                break;
+            case PathOfPowerRunPhase.Event:
+                SwitchDisplay(3);
+                StartEventDialogue(CurrentRun.CurrentStepData);
+                break;
+            case PathOfPowerRunPhase.Combat:
+                SwitchDisplay(2);
+                break;
+            default:
+                SwitchDisplay(1);
+                break;
+        }
+    }
+
+    private void StartEventDialogue(PathOfPowerStepData step)
+    {
+        eventDialogueResolved = false;
+        SetEventButtonsInteractable(false);
+
+        if (step == null || CombatDialogue.Instance == null)
+        {
+            SetEventButtonsInteractable(true);
+            return;
+        }
+
+        int eventId = 0;
+        int.TryParse(step.eventId, out eventId);
+        int dialogueId = (eventId >= 0 && eventId < eventDialogues.Count) ? eventDialogues[eventId] : eventId;
+
+        void OnDialogueEnded()
+        {
+            if (eventDialogueResolved)
+                return;
+
+            eventDialogueResolved = true;
+            CombatDialogue.Instance.OnDialogueEnded -= OnDialogueEnded;
+            SetEventButtonsInteractable(true);
+        }
+
+        CombatDialogue.Instance.OnDialogueEnded -= OnDialogueEnded;
+        CombatDialogue.Instance.OnDialogueEnded += OnDialogueEnded;
+        CombatDialogue.Instance.TriggerCutscene(dialogueId, false, true);
+    }
+
+    private void SetEventButtonsInteractable(bool value)
+    {
+        if (EventAcceptBtn != null)
+            EventAcceptBtn.interactable = value;
+
+        if (EventSkipButton != null)
+            EventSkipButton.interactable = value;
     }
 
     private void ResumeCurrentPhaseHooks()
