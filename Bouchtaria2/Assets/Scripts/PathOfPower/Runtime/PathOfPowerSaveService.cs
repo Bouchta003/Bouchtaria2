@@ -248,5 +248,7 @@ public static class PathOfPowerSaveService
         runData.pendingStarterRelicChoices ??= new List<string>();
         runData.pendingWardenRelicRewards ??= new List<string>();
         runData.pendingCardChoices ??= new List<int>();
+        runData.activeEnemyRelics ??= new List<int>();
+        runData.activeEnemyRelicTexts ??= new List<string>();
     }
 }

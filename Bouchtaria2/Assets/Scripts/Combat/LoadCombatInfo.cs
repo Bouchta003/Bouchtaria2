@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections.Generic;
 public class LoadCombatInfo : MonoBehaviour
 {
     TextMeshProUGUI infoText;
@@ -15,7 +16,8 @@ public class LoadCombatInfo : MonoBehaviour
             PathOfPowerRunData run = GameRunContext.PathOfPowerData;
             PathOfPowerStepData step = run?.CurrentStepData;
             string stepName = step != null ? step.stepType.ToString() : "Unknown";
-            infoText.text = $"Path Of Power - Floor {run?.currentFloor ?? 1}, Step {run?.currentStep ?? 1}\nEncounter: {stepName}.";
+            string enemyRelicsText = BuildEnemyRelicsText(run?.activeEnemyRelicTexts);
+            infoText.text = $"Path Of Power - Floor {run?.currentFloor ?? 1}, Step {run?.currentStep ?? 1}\nEncounter: {stepName}.\nRelics: {enemyRelicsText}";
         }
         else if (GameRunContext.IsDungeonRun)
         {
@@ -90,5 +92,13 @@ public class LoadCombatInfo : MonoBehaviour
         {
             infoText.text = "This is a quickgame, no particular tips for you.\nEnjoy a chill fight to test out your decks and practice core mechanics.";
         }
+    }
+
+    private string BuildEnemyRelicsText(IReadOnlyList<string> relicTexts)
+    {
+        if (relicTexts == null || relicTexts.Count == 0)
+            return "None";
+
+        return string.Join(", ", relicTexts);
     }
 }

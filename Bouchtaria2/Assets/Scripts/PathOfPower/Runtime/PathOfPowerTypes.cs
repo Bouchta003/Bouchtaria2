@@ -56,6 +56,7 @@ public class PathOfPowerRunData
     public List<string> pendingWardenRelicRewards = new List<string>();
     public List<int> pendingCardChoices = new List<int>();
     public List<int> activeEnemyRelics = new List<int>();
+    public List<string> activeEnemyRelicTexts = new List<string>();
     public CardData.Trait starterDeckTrait = CardData.Trait.Neutral;
     public bool combatActive;
 
@@ -81,6 +82,7 @@ public class PathOfPowerRunData
         pendingWardenRelicRewards ??= new List<string>();
         pendingCardChoices ??= new List<int>();
         activeEnemyRelics ??= new List<int>();
+        activeEnemyRelicTexts ??= new List<string>();
 
         currentDeck.Clear();
         currentRelics.Clear();
@@ -89,6 +91,7 @@ public class PathOfPowerRunData
         pendingWardenRelicRewards.Clear();
         pendingCardChoices.Clear();
         activeEnemyRelics.Clear();
+        activeEnemyRelicTexts.Clear();
         currentFloorSeed = 0;
         currentPathType = PathOfPowerPathType.Simple;
         currentStreak = 0;

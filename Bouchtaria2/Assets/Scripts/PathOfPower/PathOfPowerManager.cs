@@ -101,6 +101,7 @@ public class PathOfPowerManager : MonoBehaviour
             currentDeck = new List<int>(),
             currentRelics = new List<string>(),
             activeEnemyRelics = new List<int>(),
+            activeEnemyRelicTexts = new List<string>(),
             currentFloorSeed = GenerateSeed(),
             currentPathType = PathOfPowerPathType.Simple,
             currentStreak = 0,
@@ -392,6 +393,7 @@ public class PathOfPowerManager : MonoBehaviour
         {
             Debug.Log($"[PathOfPower] Step {step.stepIndex} is an event. Switching to Event display and waiting for event logic to call CompleteCurrentEvent. EventId='{step.eventId}'.");
             CurrentRun.activeEnemyRelics?.Clear();
+            CurrentRun.activeEnemyRelicTexts?.Clear();
             CurrentRun.phase = PathOfPowerRunPhase.Event;
             SwitchDisplay(3);
             GameRunContext.PathOfPowerData = CurrentRun;
@@ -402,10 +404,11 @@ public class PathOfPowerManager : MonoBehaviour
 
         Debug.Log($"[PathOfPower] Step {step.stepIndex} is a combat encounter. Switching to Combat display before loading the Combat scene. EncounterId='{step.encounterId}'.");
         SwitchDisplay(2);
-        nextEnemyImage.sprite = ResolveEncounter(step.encounterId)?.DisplaySprite;
-        //enemyEliteIcon.gameObject.SetActive(ResolveEncounter(step.encounterId).Elite);
-        //enemyWarden.gameObject.SetActive(ResolveEncounter(step.encounterId).Warden);
-        //EnemyNameText.text = ResolveEncounter(step.encounterId).DisplayName;
+        EnemyEncounterDefinition encounter = ResolveEncounter(step.encounterId);
+        nextEnemyImage.sprite = encounter?.DisplaySprite;
+        enemyEliteIcon.gameObject.SetActive(encounter != null && encounter.Elite);
+        enemyWarden.gameObject.SetActive(encounter != null && encounter.Warden);
+        EnemyNameText.text = encounter != null ? encounter.DisplayName : "Unknown Encounter";
     }
 
     /// <summary>
@@ -514,6 +517,10 @@ public class PathOfPowerManager : MonoBehaviour
         EnemyEncounterDefinition encounter = ResolveEncounter(CurrentRun.CurrentStepData.encounterId);
         IReadOnlyList<int> encounterRelics = GetRelicIdsForEncounter(encounter);
         CurrentRun.activeEnemyRelics = encounterRelics.ToList();
+        CurrentRun.activeEnemyRelicTexts = encounterRelics
+            .Select(GetEnemyRelicText)
+            .Where(text => !string.IsNullOrWhiteSpace(text))
+            .ToList();
         Debug.Log($"[PathOfPower] LaunchCombat setup. Encounter='{CurrentRun.CurrentStepData.encounterId}', Name='{(encounter != null ? encounter.DisplayName : "Missing Encounter")}', EnemyRelics=[{string.Join(", ", CurrentRun.activeEnemyRelics)}].");
 
         DeckSelectionCache.SelectedPlayerDeck = new List<int>(CurrentRun.currentDeck);
@@ -544,6 +551,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         CurrentRun.combatActive = false;
         CurrentRun.activeEnemyRelics?.Clear();
+        CurrentRun.activeEnemyRelicTexts?.Clear();
         CurrentRun.currentStreak++;
 
         if (step != null && step.stepType == PathOfPowerStepType.Warden)
@@ -595,6 +603,7 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.currentFloorSeed = GenerateSeed();
         CurrentRun.currentFloorSteps.Clear();
         CurrentRun.activeEnemyRelics?.Clear();
+        CurrentRun.activeEnemyRelicTexts?.Clear();
         CurrentRun.phase = CurrentRun.currentFloor >= 2 ? PathOfPowerRunPhase.PathSelection : PathOfPowerRunPhase.Lobby;
     }
 
@@ -759,6 +768,20 @@ public class PathOfPowerManager : MonoBehaviour
             return relic.DisplayName;
 
         return string.IsNullOrWhiteSpace(fallbackId) ? "Unknown Relic" : fallbackId;
+    }
+
+    private string GetEnemyRelicText(int relicId)
+    {
+        RelicDefinition relic = ResolveRelic(relicId.ToString());
+        if (relic == null)
+            return $"Unknown enemy relic ({relicId})";
+
+        if (!string.IsNullOrWhiteSpace(relic.EnemyRelicText))
+            return relic.EnemyRelicText;
+
+        return !string.IsNullOrWhiteSpace(relic.DisplayName)
+            ? relic.DisplayName
+            : $"Relic {relicId}";
     }
 
     private EnemyEncounterDefinition ResolveEncounter(string encounterId)

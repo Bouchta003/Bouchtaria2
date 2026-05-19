@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 public static class PathOfPowerRelicEffectService
@@ -26,8 +27,8 @@ public static class PathOfPowerRelicEffectService
         {
             switch (relicId)
             {
-                case 4: // Ring of Snakes
-                    GameManager.Instance.StartCoroutine(GameManager.Instance.deckManager.Draw(2, owner));
+                case RingOfSnakes:
+                    GameManager.Instance.StartCoroutine(DrawAfterInitialStart(owner, 2, 0.5f));
                     Debug.Log("[PathOfPower][Relics] Applied combat-start effect of Ring of Snakes.");
                     break;
                 default:
@@ -178,5 +179,12 @@ public static class PathOfPowerRelicEffectService
             }
         }
         return false;
+    }
+
+    private static IEnumerator DrawAfterInitialStart(PlayerOwner owner, int count, float delaySeconds)
+    {
+        yield return new WaitForSeconds(delaySeconds);
+        if (GameManager.Instance != null && GameManager.Instance.deckManager != null)
+            yield return GameManager.Instance.deckManager.Draw(count, owner);
     }
 }
