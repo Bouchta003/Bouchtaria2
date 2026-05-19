@@ -110,10 +110,15 @@ public class PathOfPowerManager : MonoBehaviour
         SaveRun();
         OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
     }
-    public void AcceptEventReward()
+    public void AcceptEventReward(bool skip)
     {
         if (CurrentRun == null) { Debug.LogError("[PathOfPower] CurrentRun is null."); return; }
-
+        if(skip)
+        {
+            Debug.Log("Event skipped by player choice.");
+            CompleteCurrentEvent();
+            return;
+        }
         int eventId = 0;
         int.TryParse(CurrentRun.CurrentStepData.eventId, out eventId);
         switch(eventId)
@@ -123,14 +128,15 @@ public class PathOfPowerManager : MonoBehaviour
                 AddRelic("0");//Bound Phylactery);
                 break;
             case 1:
-                Debug.Log("Accepted reward for event 1");
+                Debug.Log("Accepted reward for event 1 and added other");
+                AddRelic("1");
                 break;
             case 2:
                 Debug.Log("Accepted reward for event 2");
                 break;
             // Add more cases as needed
         }
-        NextStep();
+        CompleteCurrentEvent();
     }
     public void SwitchDisplay(int displayIndex)
     {

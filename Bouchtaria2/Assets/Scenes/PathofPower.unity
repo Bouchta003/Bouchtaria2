@@ -3049,6 +3049,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2782904f372be90438c7516bea7c1f16, type: 2}
   eventLibrary:
   - {fileID: 11400000, guid: 96ba2a58dd560e0499ae8cc60e6cbac3, type: 2}
+  - {fileID: 11400000, guid: 5183369f7b62c844a9d25efe5b68ab55, type: 2}
   pathLibrary:
   - {fileID: 11400000, guid: 5b007ec07168c4e41874defd58e2ccf3, type: 2}
   - {fileID: 11400000, guid: 53095873e8a0f6542993a4b06c46c970, type: 2}
@@ -3126,6 +3127,13 @@ MonoBehaviour:
     - Content: p2
       Name: dialogue 2
       Avatar: {fileID: 21300000, guid: 0543f99c704aab947aaab13d91a3e32f, type: 3}
+  - Lines:
+    - Content: Necrobinder
+      Name: Take Titos with you please
+      Avatar: {fileID: 21300000, guid: 39cc1e95f2924c44db8a808148798b9c, type: 3}
+    - Content: p2
+      Name: ok
+      Avatar: {fileID: 21300000, guid: 2b3e879bb0c33e141905644aa47b81c6, type: 3}
   dialogueCanvasGroup: {fileID: 1517084938}
   AvatarImage: {fileID: 376532168}
   UIDialogue: {fileID: 1517084936}
@@ -3485,7 +3493,7 @@ MonoBehaviour:
       - m_Target: {fileID: 937017222}
         m_TargetAssemblyTypeName: PathOfPowerManager, Assembly-CSharp
         m_MethodName: AcceptEventReward
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -5130,15 +5138,15 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 937017222}
         m_TargetAssemblyTypeName: PathOfPowerManager, Assembly-CSharp
-        m_MethodName: NextStep
-        m_Mode: 1
+        m_MethodName: AcceptEventReward
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &1607924506
 MonoBehaviour:
