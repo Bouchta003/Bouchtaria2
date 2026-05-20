@@ -393,6 +393,15 @@ public class CollectionScreen : MonoBehaviour
         { GameFlowController.Instance.GoToDungeonAdventure(); }
         else if (GameRunContext.IsPathOfPowerDeckViewMode)
         {
+            if (DeckBuilding.Instance != null && DeckBuilding.Instance.CurrentDeck != null && GameRunContext.PathOfPowerData != null)
+            {
+                int requiredDeckSize = Mathf.Max(5, GameRunContext.PathOfPowerData.currentDeckSize);
+                if (DeckBuilding.Instance.CurrentDeck.Count != requiredDeckSize)
+                {
+                    ErrorPopup.Show($"You must finish Path of Power deck adjustment first ({DeckBuilding.Instance.CurrentDeck.Count}/{requiredDeckSize}).");
+                    return;
+                }
+            }
             GameFlowController.Instance.GoToPathOfPower();
         }
         else

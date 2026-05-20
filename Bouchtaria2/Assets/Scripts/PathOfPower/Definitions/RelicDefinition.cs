@@ -3,6 +3,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "RelicDefinition", menuName = "Bouchtaria/Path Of Power/Relic Definition")]
 public class RelicDefinition : ScriptableObject
 {
+    public enum RelicType
+    {
+        CombatRelic = 0,
+        DeckRelic = 1
+    }
     [Header("Identity")]
     [SerializeField] private string relicId;
     [SerializeField] private string displayName;
@@ -16,6 +21,8 @@ public class RelicDefinition : ScriptableObject
     [SerializeField] private CardData.Trait assignedTrait = CardData.Trait.None;
     [SerializeField] private bool canAppearAsStarter = true;
     [SerializeField] private bool canAppearAsWardenReward = true;
+    [SerializeField] private bool discoverable = true;
+    [SerializeField] private RelicType relicType = RelicType.CombatRelic;
 
     public string RelicId => string.IsNullOrWhiteSpace(relicId) ? name : relicId;
     public string DisplayName => string.IsNullOrWhiteSpace(displayName) ? name : displayName;
@@ -25,6 +32,8 @@ public class RelicDefinition : ScriptableObject
     public CardData.Trait AssignedTrait => assignedTrait;
     public bool CanAppearAsStarter => canAppearAsStarter;
     public bool CanAppearAsWardenReward => canAppearAsWardenReward;
+    public bool Discoverable => discoverable;
+    public RelicType Type => relicType;
 
     // TODO(Path Of Power): add typed effect hooks here once relic effects are implemented.
 }

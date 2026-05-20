@@ -99,7 +99,7 @@ public class PathOfPowerManager : MonoBehaviour
         GameRunContext.IsPathOfPowerRun = true;
         GameRunContext.PathOfPowerData = CurrentRun;
         GameRunContext.IsPathOfPowerDeckViewMode = true;
-        GameRunContext.CanEditPathOfPowerViewedDeck = CurrentRun.currentDeck != null && CurrentRun.currentDeck.Count != Mathf.Max(5, CurrentRun.currentDeckSize);
+        GameRunContext.CanEditPathOfPowerViewedDeck = CurrentRun.currentDeck != null && CurrentRun.currentDeck.Count > Mathf.Max(5, CurrentRun.currentDeckSize);
         SceneManager.LoadScene("Collection");
     }
 
@@ -140,7 +140,7 @@ public class PathOfPowerManager : MonoBehaviour
             .Select(relic => relic.RelicId)
             .ToList();
 
-        ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices);
+        ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic);
         SaveRun();
         OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
     }
@@ -239,7 +239,7 @@ public class PathOfPowerManager : MonoBehaviour
             {
                 Debug.Log("Warden defeated, pending relic rewards.");
                 SwitchDisplay(5);//DiscoveryDisplay
-                CurrentRun.pendingWardenRelicRewards = PickRelics(3, relic => relic.CanAppearAsWardenReward, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
+                CurrentRun.pendingWardenRelicRewards = PickRelics(3, relic => relic.CanAppearAsWardenReward && relic.Type == RelicDefinition.RelicType.DeckRelic, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
                     .Select(relic => relic.RelicId)
                     .ToList();
                 SaveRun();
@@ -268,6 +268,7 @@ public class PathOfPowerManager : MonoBehaviour
     {
         RelicDefinition selectedRelic = ResolveRelic(relicId);
         CurrentRun.currentRelics.Add(relicId);
+        ApplyInstantDeckRelicEffect(selectedRelic);
         UpdateRelicGrid();
         Debug.Log($"Relic added : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}");
         SaveRun();
@@ -285,6 +286,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         RelicDefinition selectedRelic = ResolveRelic(relicId);
         CurrentRun.currentRelics.Add(relicId);
+        ApplyInstantDeckRelicEffect(selectedRelic);
         UpdateRelicGrid();
         CurrentRun.pendingStarterRelicChoices.Clear();
         CurrentRun.currentDeck.Clear();
@@ -405,6 +407,12 @@ public class PathOfPowerManager : MonoBehaviour
         }
 
         EnsureRunLists();
+        int requiredDeckSize = Mathf.Max(5, CurrentRun.currentDeckSize);
+        if (CurrentRun.currentDeck == null || CurrentRun.currentDeck.Count != requiredDeckSize)
+        {
+            Debug.LogWarning($"[PathOfPower] NextStep blocked: deck size is {CurrentRun?.currentDeck?.Count ?? 0} but required is {requiredDeckSize}.");
+            return;
+        }
         EnsureFloorGenerator();
         EnsureCurrentFloorSteps();
 
@@ -473,6 +481,7 @@ public class PathOfPowerManager : MonoBehaviour
         if (!string.IsNullOrWhiteSpace(relicId) && CurrentRun.pendingWardenRelicRewards.Contains(relicId))
         {
             CurrentRun.currentRelics.Add(relicId);
+            ApplyInstantDeckRelicEffect(selectedRelic);
             UpdateRelicGrid();
         }
 
@@ -587,7 +596,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         if (step != null && step.stepType == PathOfPowerStepType.Warden)
         {
-            CurrentRun.pendingWardenRelicRewards = PickRelics(3, relic => relic.CanAppearAsWardenReward, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
+            CurrentRun.pendingWardenRelicRewards = PickRelics(3, relic => relic.CanAppearAsWardenReward && relic.Type == RelicDefinition.RelicType.DeckRelic, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
                 .Select(relic => relic.RelicId)
                 .ToList();
             CurrentRun.phase = PathOfPowerRunPhase.AwaitingWardenReward;
@@ -617,15 +626,43 @@ public class PathOfPowerManager : MonoBehaviour
 
     private void GrantChallengePreWardenRelic()
     {
-        RelicDefinition relic = PickRelics(1, candidate => candidate.CanAppearAsStarter && !CurrentRun.currentRelics.Contains(candidate.RelicId), CurrentRun.currentFloorSeed + 404).FirstOrDefault();
-        if (relic == null)
+        CurrentRun.pendingStarterRelicChoices = PickRelics(3, candidate => candidate.CanAppearAsStarter, CurrentRun.currentFloorSeed + 404)
+            .Select(candidate => candidate.RelicId)
+            .ToList();
+        CurrentRun.phase = PathOfPowerRunPhase.StarterRelicChoice;
+        ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic);
+        OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
+    }
+
+    private void ApplyInstantDeckRelicEffect(RelicDefinition relic)
+    {
+        if (relic == null || relic.Type != RelicDefinition.RelicType.DeckRelic)
             return;
 
-        // First foundation: challenge-path pre-warden relic is granted automatically.
-        // TODO(Path Of Power): expose this through a dedicated reward/preview panel.
-        CurrentRun.currentRelics.Add(relic.RelicId);
-        UpdateRelicGrid();
+        // TODO(Path Of Power Deck Relics): Add immediate deck relic effects here.
+        // This is the dedicated place where each Deck Relic should execute its instant grant logic upon acquisition.
+        if (relic.RelicId == "10")
+        {
+            List<int> rewards = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1010 + CurrentRun.currentDeck.Count, 5, CardData.Trait.Neutral);
+            CurrentRun.currentDeck.AddRange(rewards);
+            Debug.Log($"[PathOfPower] Applied Deck Relic 10: granted {rewards.Count} Neutral cards instantly.");
+        }
+    }
 
+    private List<int> GenerateCardChoicesForTrait(int seed, int count, CardData.Trait trait)
+    {
+        if (CardDatabase.Instance == null || CardDatabase.Instance.Cards == null)
+            return new List<int>();
+
+        System.Random rng = new System.Random(seed);
+        string requiredTrait = trait.ToString();
+        return CardDatabase.Instance.Cards.Values
+            .Where(card => card != null && card.packable && !card.token && !card.signature && card.traits != null &&
+                           card.traits.Any(t => t.Equals(requiredTrait, StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(_ => rng.Next())
+            .Take(count)
+            .Select(card => card.id)
+            .ToList();
     }
 
     private void MoveToNextFloorAfterWardenReward()
@@ -738,7 +775,7 @@ public class PathOfPowerManager : MonoBehaviour
         switch (CurrentRun.phase)
         {
             case PathOfPowerRunPhase.StarterRelicChoice:
-                ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices);
+                ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic);
                 OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
                 break;
             case PathOfPowerRunPhase.StartingDeckDiscovery:
@@ -763,7 +800,7 @@ public class PathOfPowerManager : MonoBehaviour
                 OnPathChoicesRequested?.Invoke(pathLibrary);
                 break;
             case PathOfPowerRunPhase.AwaitingWardenReward:
-                ShowRelicDiscovery(CurrentRun.pendingWardenRelicRewards);
+                ShowRelicDiscovery(CurrentRun.pendingWardenRelicRewards, RelicDefinition.RelicType.DeckRelic);
                 OnWardenRelicRewardsGenerated?.Invoke(ResolveRelics(CurrentRun.pendingWardenRelicRewards));
                 break;
         }
@@ -805,9 +842,10 @@ public class PathOfPowerManager : MonoBehaviour
     private List<RelicDefinition> PickRelics(int count, Func<RelicDefinition, bool> predicate, int seed)
     {
         System.Random rng = new System.Random(seed == 0 ? GenerateSeed() : seed);
+        HashSet<string> ownedRelics = new HashSet<string>(CurrentRun?.currentRelics ?? new List<string>());
         return relicLibrary
-            .Where(relic => relic != null && predicate(relic))
-            .OrderBy(_ => rng.Next())
+            .Where(relic => relic != null && relic.Discoverable && predicate(relic))
+            .OrderBy(relic => ownedRelics.Contains(relic.RelicId) ? rng.Next(1000, 2000) : rng.Next(0, 100))
             .Take(count)
             .ToList();
     }
@@ -878,12 +916,14 @@ public class PathOfPowerManager : MonoBehaviour
             : $"#{step.stepIndex}:{step.stepType}:event={step.eventId}:encounter={step.encounterId}"));
     }
 
-    private void ShowRelicDiscovery(IReadOnlyList<string> relicIds)
+    private void ShowRelicDiscovery(IReadOnlyList<string> relicIds, RelicDefinition.RelicType discoveryType = RelicDefinition.RelicType.CombatRelic)
     {
         if (DiscoverDisplay == null || relicPrefab == null || relicIds == null || relicIds.Count == 0)
             return;
 
-        DiscoveryText.text= "Select a relic (hold 'space bar' to enter scan mode)";
+        DiscoveryText.text = discoveryType == RelicDefinition.RelicType.DeckRelic
+            ? "Select a deck relic (instant effect on pick, not shown in relic grid). Hold 'space bar' for scan mode."
+            : "Select a combat relic (hold 'space bar' to enter scan mode)";
 
         Transform parent = reliPrefabParentDiscovery != null ? reliPrefabParentDiscovery.transform : DiscoverDisplay.transform;
         ClearRelicDiscovery();
@@ -929,7 +969,11 @@ public class PathOfPowerManager : MonoBehaviour
         {
             Transform parent = reliPrefabParentDiscovery.transform;
             for (int i = parent.childCount - 1; i >= 0; i--)
-                Destroy(parent.GetChild(i).gameObject);
+            {
+                Transform child = parent.GetChild(i);
+                if (child != null && child.gameObject != DiscoveryText?.gameObject)
+                    Destroy(child.gameObject);
+            }
         }
         else
         {
@@ -1045,6 +1089,8 @@ public class PathOfPowerManager : MonoBehaviour
         {
             RelicDefinition relic = ResolveRelic(relicId);
             if (relic == null)
+                continue;
+            if (relic.Type == RelicDefinition.RelicType.DeckRelic)
                 continue;
 
             GameObject relicObject = Instantiate(relicPrefab, parent);
