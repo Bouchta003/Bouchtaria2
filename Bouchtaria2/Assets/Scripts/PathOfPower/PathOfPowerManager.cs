@@ -84,7 +84,7 @@ public class PathOfPowerManager : MonoBehaviour
     {
         CurrentFloor.text = $"{CurrentRun.currentFloor}";
         CurrentStep.text = $"{CurrentRun.currentStep}";
-        CurrentPathType.text = $"Path Type: {CurrentRun.currentPathType}";
+        CurrentPathType.text = $"{CurrentRun.currentPathType}";
     }
     public void BackButton()
     {
@@ -402,7 +402,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         if (CurrentRun == null)
         {
-            Debug.LogError("[PathOfPower] NextStep aborted because CurrentRun is null.");
+            ErrorPopup.Show("[PathOfPower] NextStep aborted because CurrentRun is null.");
             return;
         }
 
@@ -410,7 +410,8 @@ public class PathOfPowerManager : MonoBehaviour
         int requiredDeckSize = Mathf.Max(5, CurrentRun.currentDeckSize);
         if (CurrentRun.currentDeck == null || CurrentRun.currentDeck.Count != requiredDeckSize)
         {
-            Debug.LogWarning($"[PathOfPower] NextStep blocked: deck size is {CurrentRun?.currentDeck?.Count ?? 0} but required is {requiredDeckSize}.");
+
+            ErrorPopup.Show($"NextStep blocked: deck size is {CurrentRun?.currentDeck?.Count ?? 0} but required is {requiredDeckSize}.");
             return;
         }
         EnsureFloorGenerator();
@@ -419,7 +420,7 @@ public class PathOfPowerManager : MonoBehaviour
         PathOfPowerStepData step = CurrentRun.CurrentStepData;
         if (step == null)
         {
-            Debug.LogError($"[PathOfPower] NextStep could not find or generate step {CurrentRun.currentStep} for floor {CurrentRun.currentFloor}.");
+            ErrorPopup.Show($"[PathOfPower] NextStep could not find or generate step {CurrentRun.currentStep} for floor {CurrentRun.currentFloor}.");
             return;
         }
 

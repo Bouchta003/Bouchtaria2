@@ -463,7 +463,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 374.29}
-  m_SizeDelta: {x: 1200, y: 150}
+  m_SizeDelta: {x: 800, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &120160030
 MonoBehaviour:
@@ -512,8 +512,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 120
-  m_fontSizeBase: 120
+  m_fontSize: 60
+  m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3212,6 +3212,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: bd1c64828e8d7eb4c8635d7a317da5b0, type: 2}
   - {fileID: 11400000, guid: 2782904f372be90438c7516bea7c1f16, type: 2}
   - {fileID: 11400000, guid: 27e1be6f4d9b0b2449a5784b8304c257, type: 2}
+  - {fileID: 11400000, guid: ffacb086e6d19cf4a9e603be8b3fbccd, type: 2}
+  - {fileID: 11400000, guid: 9838b10444c2e474184c50ab6d7a2cd1, type: 2}
+  - {fileID: 11400000, guid: 6fb71e039dc4fb04fb5bf950d0bc9ea4, type: 2}
   eventLibrary:
   - {fileID: 11400000, guid: 96ba2a58dd560e0499ae8cc60e6cbac3, type: 2}
   - {fileID: 11400000, guid: 5183369f7b62c844a9d25efe5b68ab55, type: 2}
@@ -3251,7 +3254,7 @@ MonoBehaviour:
   EventSkipButton: {fileID: 1607924505}
   eventDialogues: 0000000001000000
   starterDeckTargetSize: 20
-  starterDeckTrait: 12
+  starterDeckTrait: 4
 --- !u!4 &937017223
 Transform:
   m_ObjectHideFlags: 0
@@ -6173,7 +6176,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Simple Path
+  m_text: Challenge Path
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5f9fc153955699f4eb8e4a9dc09ec3da, type: 2}
   m_sharedMaterial: {fileID: -6690465110090245793, guid: 5f9fc153955699f4eb8e4a9dc09ec3da, type: 2}
