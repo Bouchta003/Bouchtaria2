@@ -14,7 +14,7 @@ public class PathOfPowerManager : MonoBehaviour
     public static PathOfPowerManager Instance;
 
     [Header("Content Libraries")]
-    [SerializeField] private List<RelicDefinition> relicLibrary = new List<RelicDefinition>();
+    [SerializeField] public List<RelicDefinition> relicLibrary = new List<RelicDefinition>();
     [SerializeField] private List<EventDefinition> eventLibrary = new List<EventDefinition>();
     [SerializeField] private List<PathDefinition> pathLibrary = new List<PathDefinition>();
     [SerializeField] private List<EnemyEncounterDefinition> encounterLibrary = new List<EnemyEncounterDefinition>();
@@ -358,7 +358,9 @@ public class PathOfPowerManager : MonoBehaviour
     public void SelectPath(PathOfPowerPathType pathType)
     {
         GenerateFloor(pathType);
-        CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+        AdvanceToNextStepOrFloor();
+        GameRunContext.PathOfPowerData = CurrentRun;
+        ShowDisplayForCurrentPhase();
         SaveRun();
     }
 

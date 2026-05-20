@@ -93,6 +93,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] Transform playerCoreProxy;
     [SerializeField] Transform enemyCoreProxy;
     [SerializeField] public Transform CombatInfo;
+    [SerializeField] public GameObject RelicGrid;
+    [SerializeField] public GameObject RelicPrefab;
+    [SerializeField] public GameObject BagButton;
 
     [Header("Cursor")]
     [SerializeField] Image attackCursor;
@@ -265,6 +268,7 @@ private sealed class PendingHandReturn
         adventureBossSecondPhaseTriggered = false;
         adventureBossFinalDialogueTriggered = false;
         isTargettingAttack = false;
+        BagButton.SetActive(false);
         InitializeMana();
 
         boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[UnityEngine.Random.Range(0, boards.Count)];
@@ -275,6 +279,8 @@ private sealed class PendingHandReturn
         {
             SetupPathOfPowerFight(GameRunContext.PathOfPowerData);
             SetupFirstTurn();
+            BagButton.SetActive(true);
+            UpdateRelicGrid();
         }
         else if (GameRunContext.IsDungeonRun)
         {
@@ -297,6 +303,68 @@ private sealed class PendingHandReturn
     {
         CombatInfo.gameObject.SetActive(!CombatInfo.gameObject.activeSelf);
     }
+    #region PathOfPower
+    public void ToggleRelics()
+    {
+        RelicGrid.SetActive(!RelicGrid.activeSelf);
+    }
+    private void UpdateRelicGrid()
+    {
+        if (RelicGrid == null || RelicPrefab == null || !GameRunContext.IsPathOfPowerRun)
+            return;
+
+        Transform parent = RelicGrid.transform;
+        for (int i = parent.childCount - 1; i >= 0; i--)
+            Destroy(parent.GetChild(i).gameObject);
+
+        if (GameRunContext.PathOfPowerData == null || GameRunContext.PathOfPowerData.currentRelics == null)
+            return;
+
+        foreach (string relicId in GameRunContext.PathOfPowerData.currentRelics.Where(id => !string.IsNullOrWhiteSpace(id)))
+        {
+            RelicDefinition relic = ResolveRelic(relicId);
+            if (relic == null)
+                continue;
+
+            GameObject relicObject = Instantiate(RelicPrefab, parent);
+            relicObject.name = $"Owned Relic - {relic.DisplayName}";
+            PopulateRelicPrefab(relicObject, relic);
+            ConfigureRelicScan(relicObject, relic);
+
+            RectTransform rectTransform = relicObject.GetComponent<RectTransform>();
+            if (rectTransform != null)
+            {
+                rectTransform.localRotation = Quaternion.identity;
+                rectTransform.localScale = Vector3.one;
+            }
+
+            Button button = relicObject.GetComponentInChildren<Button>(true);
+            if (button != null)
+                button.onClick.RemoveAllListeners();
+        }
+    }
+    private RelicDefinition ResolveRelic(string relicId)
+    {
+        return PathOfPowerManager.Instance.relicLibrary.FirstOrDefault(relic => relic != null && relic.RelicId == relicId);
+    }
+    private void PopulateRelicPrefab(GameObject relicObject, RelicDefinition relic)
+    {
+        Image relicImage = relicObject.GetComponentInChildren<Image>(true);
+        if (relicImage != null && relic.Icon != null)
+            relicImage.sprite = relic.Icon;
+    }
+    private void ConfigureRelicScan(GameObject relicObject, RelicDefinition relic)
+    {
+        if (relicObject == null || relic == null)
+            return;
+
+        RelicScanTarget scanTarget = relicObject.GetComponentInChildren<RelicScanTarget>(true);
+        if (scanTarget == null)
+            scanTarget = relicObject.AddComponent<RelicScanTarget>();
+
+        scanTarget.Initialize(relic);
+    }
+    #endregion
     public void SetupFirstTurn()
     {
         if (TurnManager.Instance == null)

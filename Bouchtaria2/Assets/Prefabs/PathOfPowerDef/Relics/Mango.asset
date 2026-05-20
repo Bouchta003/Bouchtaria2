@@ -15,6 +15,7 @@ MonoBehaviour:
   relicId: 1
   displayName: Mango
   description: When obtained, this relic grants you +20 HP for the rest of the game
+  enemyRelicText: Has +20 max hp
   icon: {fileID: 8617278338890539712, guid: 021aed46cc911be429ed7326a6709ac4, type: 3}
   assignedTrait: 0
   canAppearAsStarter: 0
