@@ -130,12 +130,24 @@ public class PathOfPowerFloorGenerator
     {
         bool wantsElite = stepType == PathOfPowerStepType.Elite;
         bool wantsWarden = stepType == PathOfPowerStepType.Warden;
+        if (wantsWarden)
+        {
+            EnemyEncounterDefinition forcedWarden = encounters.FirstOrDefault(encounter =>
+                encounter != null && encounter.Warden && encounter.SpecificFloorEncounter == floor);
+            if (forcedWarden != null)
+                return forcedWarden.EncounterId;
+        }
+
         List<EnemyEncounterDefinition> valid = encounters
             .Where(encounter => encounter != null
                 && encounter.MinimumFloor <= floor
                 && encounter.Elite == wantsElite
-                && encounter.Warden == wantsWarden)
+                && encounter.Warden == wantsWarden
+                && (!wantsWarden || encounter.SpecificFloorEncounter == 0 || encounter.SpecificFloorEncounter == floor))
             .ToList();
+
+        if (!wantsWarden)
+            valid = valid.Where(encounter => encounter.EncounterId != "0").ToList();
 
         if (valid.Count == 0)
             return string.Empty;
