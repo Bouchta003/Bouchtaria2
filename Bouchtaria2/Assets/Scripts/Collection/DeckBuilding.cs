@@ -59,6 +59,8 @@ public class DeckBuilding : MonoBehaviour
     public event System.Action OnDecksLoaded;
 
     int maxDeckSize = 30;
+    private int pathOfPowerRequiredRemovals;
+    private int pathOfPowerRemovedCount;
     private void Awake()
     {
         if (Instance != null)
@@ -111,6 +113,8 @@ public class DeckBuilding : MonoBehaviour
         {
             CurrentDeck = new List<int>(GameRunContext.PathOfPowerData.currentDeck ?? new List<int>());
             maxDeckSize = Mathf.Max(5, GameRunContext.PathOfPowerData.currentDeckSize);
+            pathOfPowerRequiredRemovals = Mathf.Max(0, CurrentDeck.Count - maxDeckSize);
+            pathOfPowerRemovedCount = 0;
             if (DeckNameInput != null)
             {
                 DeckNameInput.text = "PathOfPowerDeck";
@@ -153,6 +157,14 @@ public class DeckBuilding : MonoBehaviour
     private bool CanModifyPathOfPowerViewedDeck()
     {
         return !GameRunContext.IsPathOfPowerDeckViewMode || GameRunContext.CanEditPathOfPowerViewedDeck;
+    }
+
+    private bool IsPathOfPowerDeckAdjustmentValid()
+    {
+        if (!GameRunContext.IsPathOfPowerDeckViewMode)
+            return true;
+
+        return CurrentDeck.Count == maxDeckSize && pathOfPowerRemovedCount == pathOfPowerRequiredRemovals;
     }
 
     private void SetupDeckDropdown()
@@ -245,7 +257,14 @@ public class DeckBuilding : MonoBehaviour
         }
         if (CurrentDeck.Contains(card.GetComponent<CardView>().CardData.id))
         {
+            if (GameRunContext.IsPathOfPowerDeckViewMode && pathOfPowerRemovedCount >= pathOfPowerRequiredRemovals)
+            {
+                ShowWarning($"You must remove exactly {pathOfPowerRequiredRemovals} card(s), no more.");
+                return;
+            }
             CurrentDeck.Remove(card.GetComponent<CardView>().CardData.id);
+            if (GameRunContext.IsPathOfPowerDeckViewMode)
+                pathOfPowerRemovedCount++;
             collection.ShowPage(collection.currentPage);
             SFXManager.Instance.PlaySFXClip(removeCardSFX, transform, 1f);
             ShowProgress(CurrentDeck.Count, maxDeckSize);
@@ -259,6 +278,12 @@ public class DeckBuilding : MonoBehaviour
     }
     private bool CanAddCard(int cardId)
     {
+        if (GameRunContext.IsPathOfPowerDeckViewMode)
+        {
+            ShowWarning("Path of Power deck edit only allows removing cards.");
+            return false;
+        }
+
         // Ownership
         if (!IsCardOwned(cardId))
         {
@@ -310,9 +335,9 @@ public class DeckBuilding : MonoBehaviour
     {
         if (GameRunContext.IsPathOfPowerDeckViewMode)
         {
-            if (CurrentDeck.Count != maxDeckSize)
+            if (!IsPathOfPowerDeckAdjustmentValid())
             {
-                ShowWarning($"Deck must contain exactly {maxDeckSize} cards (currently {CurrentDeck.Count}).");
+                ShowWarning($"Deck must remove exactly {pathOfPowerRequiredRemovals} card(s) and contain exactly {maxDeckSize} cards (currently {CurrentDeck.Count}, removed {pathOfPowerRemovedCount}).");
                 return;
             }
 
