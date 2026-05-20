@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8b65621ccf9b41ecbcc369540d18971e, type: 3}
-  m_Name: Palico
+  m_Name: Let It Ride
   m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
-  encounterId: 1
-  displayName: Palico
+  encounterId: 3
+  displayName: Let It Ride
   minimumFloor: 1
-  elite: 0
+  elite: 1
   warden: 0
-  relicIds: 05000000
-  displaySprite: {fileID: 21300000, guid: bc653da0e146c3f479db2a479563fd0d, type: 3}
-  enemyDeckTemplate: '[103,103,286,286,3,3,153,153,30,30,32,32,36,36,37,37,38,38,6,6,5,5,4,4,397,397,346,346,181,181]'
+  relicIds: 01000000
+  displaySprite: {fileID: 21300000, guid: 2188b834647693745a4cc1e21fe57e6d, type: 3}
+  enemyDeckTemplate: '[120,120,120,120,120,120,120,120,120,120,126,126,126,126,126,126,126,126,126,126,126,189,189,128,128,127,127]'

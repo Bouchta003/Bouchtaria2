@@ -15,7 +15,7 @@ public class LoadCombatInfo : MonoBehaviour
         {
             PathOfPowerRunData run = GameRunContext.PathOfPowerData;
             PathOfPowerStepData step = run?.CurrentStepData;
-            string stepName = step != null ? step.stepType.ToString() : "Unknown";
+            string stepName = step != null ? step.stepType.ToString() : "Unknown step";
             string enemyRelicsText = BuildEnemyRelicsText(run?.activeEnemyRelicTexts);
             infoText.text = $"Path Of Power - Floor {run?.currentFloor ?? 1}, Step {run?.currentStep ?? 1}\nEncounter: {stepName}.\nRelics: {enemyRelicsText}";
         }

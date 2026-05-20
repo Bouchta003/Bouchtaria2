@@ -3198,6 +3198,8 @@ MonoBehaviour:
   encounterLibrary:
   - {fileID: 11400000, guid: d8e081162c4a69e46988fb3fe3625516, type: 2}
   - {fileID: 11400000, guid: a5c0ee15115f098409d9afeea56facc7, type: 2}
+  - {fileID: 11400000, guid: 8250467689be38c45b89574b092f48f6, type: 2}
+  - {fileID: 11400000, guid: 69c0ca4938dc9854e9564bdbd2cc9910, type: 2}
   DiscoverDisplay: {fileID: 82126375}
   discoveryCardParent: {fileID: 82126376}
   discoveryScale: {x: 0.6, y: 0.6, z: 0.6}

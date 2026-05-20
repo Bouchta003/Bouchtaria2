@@ -16,7 +16,8 @@ MonoBehaviour:
   displayName: Bound Phylactery
   description: At the start of your turn summon Titos if it's dead, give it +1/+1
     if it's alive.
+  enemyRelicText: 
   icon: {fileID: -2702563026279095698, guid: ff08e81908842244ea5010cce80e3b87, type: 3}
   assignedTrait: 0
   canAppearAsStarter: 1
-  canAppearAsWardenReward: 1
+  canAppearAsWardenReward: 0
