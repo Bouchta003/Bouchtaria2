@@ -59,6 +59,7 @@ public class PathOfPowerRunData
     public List<string> activeEnemyRelicTexts = new List<string>();
     public CardData.Trait starterDeckTrait = CardData.Trait.Neutral;
     public bool combatActive;
+    public int currentDeckSize = 20;
 
     public PathOfPowerStepData CurrentStepData
     {
@@ -98,5 +99,6 @@ public class PathOfPowerRunData
         starterDeckTrait = CardData.Trait.Neutral;
         phase = PathOfPowerRunPhase.None;
         combatActive = false;
+        currentDeckSize = 20;
     }
 }

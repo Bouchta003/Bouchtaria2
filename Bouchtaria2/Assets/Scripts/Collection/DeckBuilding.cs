@@ -106,6 +106,25 @@ public class DeckBuilding : MonoBehaviour
             ChestSpriteBot.color = new Color(1, 0.8f, 0.3f);
             ChestSpriteTop.color = new Color(1, 0.8f, 0.3f);
         }
+
+        if (GameRunContext.IsPathOfPowerDeckViewMode && GameRunContext.PathOfPowerData != null)
+        {
+            CurrentDeck = new List<int>(GameRunContext.PathOfPowerData.currentDeck ?? new List<int>());
+            maxDeckSize = Mathf.Max(5, GameRunContext.PathOfPowerData.currentDeckSize);
+            if (DeckNameInput != null)
+            {
+                DeckNameInput.text = "PathOfPowerDeck";
+                DeckNameInput.interactable = false;
+            }
+            if (DeleteDeckButton != null)
+                DeleteDeckButton.SetActive(false);
+            if (ChangeDecksDropDown != null)
+                ChangeDecksDropDown.SetActive(false);
+            if (chestCOllider != null)
+                chestCOllider.enabled = CanModifyPathOfPowerViewedDeck();
+            if (collection != null)
+                collection.ShowPage(collection.currentPage);
+        }
     }
     private void Update()
     {
@@ -123,6 +142,17 @@ public class DeckBuilding : MonoBehaviour
     public Dictionary<string, List<int>> GetUserDecks()
     {
         return new Dictionary<string, List<int>>(userDecks);
+    }
+
+
+    private bool IsPathOfPowerDeckViewReadOnly()
+    {
+        return GameRunContext.IsPathOfPowerDeckViewMode && !GameRunContext.CanEditPathOfPowerViewedDeck;
+    }
+
+    private bool CanModifyPathOfPowerViewedDeck()
+    {
+        return !GameRunContext.IsPathOfPowerDeckViewMode || GameRunContext.CanEditPathOfPowerViewedDeck;
     }
 
     private void SetupDeckDropdown()
@@ -188,6 +218,11 @@ public class DeckBuilding : MonoBehaviour
     #region CardDropInChest
     public void DropCardToChest(Card card)
     {
+        if (!CanModifyPathOfPowerViewedDeck())
+        {
+            ShowWarning("Deck is read-only in this view.");
+            return;
+        }
         int cardId = card.GetComponent<CardView>().CardData.id;
 
         if (!CanAddCard(cardId))
@@ -203,6 +238,11 @@ public class DeckBuilding : MonoBehaviour
     }
     public void RemoveCardFromChest(Card card)
     {
+        if (!CanModifyPathOfPowerViewedDeck())
+        {
+            ShowWarning("Deck is read-only in this view.");
+            return;
+        }
         if (CurrentDeck.Contains(card.GetComponent<CardView>().CardData.id))
         {
             CurrentDeck.Remove(card.GetComponent<CardView>().CardData.id);
@@ -268,6 +308,24 @@ public class DeckBuilding : MonoBehaviour
     }
     public void RegisterDeck()
     {
+        if (GameRunContext.IsPathOfPowerDeckViewMode)
+        {
+            if (CurrentDeck.Count != maxDeckSize)
+            {
+                ShowWarning($"Deck must contain exactly {maxDeckSize} cards (currently {CurrentDeck.Count}).");
+                return;
+            }
+
+            GameRunContext.PathOfPowerData.currentDeck = new List<int>(CurrentDeck);
+            GameRunContext.PathOfPowerData.currentDeckSize = maxDeckSize;
+            PathOfPowerSaveService.Save(GameRunContext.PathOfPowerData, () =>
+            {
+                GameRunContext.IsPathOfPowerDeckViewMode = false;
+                GameRunContext.CanEditPathOfPowerViewedDeck = false;
+                GameFlowController.Instance.GoToPathOfPower();
+            });
+            return;
+        }
         if (GameRunContext.IsDungeonRun)
         {
             RegisterDungeonDeck();
@@ -435,6 +493,11 @@ public class DeckBuilding : MonoBehaviour
     }
     public void DeleteDeck()
     {
+        if (IsPathOfPowerDeckViewReadOnly())
+        {
+            ShowWarning("Deck is read-only in this view.");
+            return;
+        }
         string deckName = DeckNameInput.text;
         if (string.IsNullOrWhiteSpace(deckName))
         {
@@ -736,6 +799,8 @@ public class DeckBuilding : MonoBehaviour
     }
     public void ToggleCraftMode()
     {
+        if (IsPathOfPowerDeckViewReadOnly())
+            return;
         isCrafting = !isCrafting;
         if (isCrafting)
         {

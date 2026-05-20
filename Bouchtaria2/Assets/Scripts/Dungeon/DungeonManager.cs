@@ -38,6 +38,8 @@ public static class GameRunContext
     public static bool IsAdventureCombat;
     public static int AdventureFightId;
     public static bool IsAdventureHardMode;
+    public static bool IsPathOfPowerDeckViewMode;
+    public static bool CanEditPathOfPowerViewedDeck;
 }
 
 public class DungeonManager : MonoBehaviour
