@@ -22,6 +22,7 @@ public static class PathOfPowerSaveService
     public const string PendingCardChoicesField = "pathofpower_pendingcardchoices";
     public const string StarterDeckTraitField = "pathofpower_starterdecktrait";
     public const string CombatActiveField = "pathofpower_combatactive";
+    public const string CurrentDeckSizeField = "pathofpower_currentdecksize";
     public const string BestFloorField = "pathofpower_bestfloor";
     public const string BestStepField = "pathofpower_beststep";
     public const string BestDeckField = "pathofpower_bestdeck";
@@ -52,7 +53,8 @@ public static class PathOfPowerSaveService
             { WardenRelicRewardsField, runData.pendingWardenRelicRewards },
             { PendingCardChoicesField, runData.pendingCardChoices },
             { StarterDeckTraitField, runData.starterDeckTrait.ToString() },
-            { CombatActiveField, runData.combatActive }
+            { CombatActiveField, runData.combatActive },
+            { CurrentDeckSizeField, runData.currentDeckSize }
         };
 
         FirebaseFirestore.DefaultInstance
@@ -136,7 +138,8 @@ public static class PathOfPowerSaveService
             pendingWardenRelicRewards = ParseStringList(snapshot, WardenRelicRewardsField),
             pendingCardChoices = ParseIntList(snapshot, PendingCardChoicesField),
             starterDeckTrait = ParseEnum(ReadString(snapshot, StarterDeckTraitField, CardData.Trait.Neutral.ToString()), CardData.Trait.Neutral),
-            combatActive = ReadBool(snapshot, CombatActiveField, false)
+            combatActive = ReadBool(snapshot, CombatActiveField, false),
+            currentDeckSize = Mathf.Max(5, ReadInt(snapshot, CurrentDeckSizeField, 20))
         };
 
         runData.currentPathType = ParseEnum(ReadString(snapshot, CurrentPathTypeField, PathOfPowerPathType.Simple.ToString()), PathOfPowerPathType.Simple);

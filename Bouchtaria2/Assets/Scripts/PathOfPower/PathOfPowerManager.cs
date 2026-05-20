@@ -90,6 +90,27 @@ public class PathOfPowerManager : MonoBehaviour
     {
         SceneManager.LoadScene("Main_Menu");
     }
+
+    public void SeeDeck()
+    {
+        if (CurrentRun == null)
+            return;
+
+        GameRunContext.IsPathOfPowerRun = true;
+        GameRunContext.PathOfPowerData = CurrentRun;
+        GameRunContext.IsPathOfPowerDeckViewMode = true;
+        GameRunContext.CanEditPathOfPowerViewedDeck = CurrentRun.currentDeck != null && CurrentRun.currentDeck.Count != Mathf.Max(5, CurrentRun.currentDeckSize);
+        SceneManager.LoadScene("Collection");
+    }
+
+    public void ReduceDeckSize(int amount)
+    {
+        if (CurrentRun == null || amount <= 0)
+            return;
+
+        CurrentRun.currentDeckSize = Mathf.Max(5, CurrentRun.currentDeckSize - amount);
+        SaveRun();
+    }
     /// <summary>
     /// UI hook: call this from the Path Of Power entry button to start a clean run.
     /// It generates starter relic choices first, then waits for SelectStarterRelic.
@@ -109,7 +130,8 @@ public class PathOfPowerManager : MonoBehaviour
             currentStreak = 0,
             starterDeckTrait = this.starterDeckTrait,
             phase = PathOfPowerRunPhase.StarterRelicChoice,
-            combatActive = false
+            combatActive = false,
+            currentDeckSize = starterDeckTargetSize
         };
 
 
@@ -210,13 +232,7 @@ public class PathOfPowerManager : MonoBehaviour
                 return;
             }
 
-            if (CurrentRun.currentPathType == PathOfPowerPathType.Challenge && CurrentRun.currentStep == 5)
-            {
-                Debug.Log("Challenge path, step 5, display discovery for free relic.");
-                GrantChallengePreWardenRelic();
-                SwitchDisplay(5);//DiscoveryDisplay
-                SaveRun();
-            }
+    
 
             if (CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward && CurrentRun.pendingWardenRelicRewards.Count == 0)
             {
@@ -479,7 +495,7 @@ public class PathOfPowerManager : MonoBehaviour
 
     public void EndRunAsDefeated()
     {
-        SaveBestRunIfNeeded();
+        SaveBestRunIfNeeded(forceSaveCurrentProgress: true);
         CurrentRun.phase = PathOfPowerRunPhase.Defeated;
         CurrentRun.combatActive = false;
         PathOfPowerSaveService.Save(CurrentRun);
@@ -600,7 +616,7 @@ public class PathOfPowerManager : MonoBehaviour
 
     private void GrantChallengePreWardenRelic()
     {
-        RelicDefinition relic = PickRelics(1, candidate => candidate.CanAppearAsWardenReward && !CurrentRun.currentRelics.Contains(candidate.RelicId), CurrentRun.currentFloorSeed + 404).FirstOrDefault();
+        RelicDefinition relic = PickRelics(1, candidate => candidate.CanAppearAsStarter && !CurrentRun.currentRelics.Contains(candidate.RelicId), CurrentRun.currentFloorSeed + 404).FirstOrDefault();
         if (relic == null)
             return;
 
@@ -608,6 +624,9 @@ public class PathOfPowerManager : MonoBehaviour
         // TODO(Path Of Power): expose this through a dedicated reward/preview panel.
         CurrentRun.currentRelics.Add(relic.RelicId);
         UpdateRelicGrid();
+
+        if (string.Equals(relic.RelicId, "SuperScissors", StringComparison.OrdinalIgnoreCase))
+            ReduceDeckSize(3);
     }
 
     private void MoveToNextFloorAfterWardenReward()
@@ -621,7 +640,7 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.phase = CurrentRun.currentFloor >= 2 ? PathOfPowerRunPhase.PathSelection : PathOfPowerRunPhase.Lobby;
     }
 
-    private void SaveBestRunIfNeeded()
+    private void SaveBestRunIfNeeded(bool forceSaveCurrentProgress = false)
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
         if (user == null)
@@ -637,13 +656,13 @@ public class PathOfPowerManager : MonoBehaviour
             int bestFloor = snap.ContainsField(PathOfPowerSaveService.BestFloorField) ? snap.GetValue<int>(PathOfPowerSaveService.BestFloorField) : 0;
             int bestStep = snap.ContainsField(PathOfPowerSaveService.BestStepField) ? snap.GetValue<int>(PathOfPowerSaveService.BestStepField) : 0;
             bool isBetter = CurrentRun.currentFloor > bestFloor || (CurrentRun.currentFloor == bestFloor && CurrentRun.currentStep > bestStep);
-            if (!isBetter)
+            if (!isBetter && !forceSaveCurrentProgress)
                 return;
 
             Dictionary<string, object> update = new Dictionary<string, object>
             {
-                { PathOfPowerSaveService.BestFloorField, CurrentRun.currentFloor },
-                { PathOfPowerSaveService.BestStepField, CurrentRun.currentStep },
+                { PathOfPowerSaveService.BestFloorField, Mathf.Max(bestFloor, CurrentRun.currentFloor) },
+                { PathOfPowerSaveService.BestStepField, isBetter ? CurrentRun.currentStep : bestStep },
                 { PathOfPowerSaveService.BestDeckField, CurrentRun.currentDeck ?? new List<int>() }
             };
             doc.UpdateAsync(update);

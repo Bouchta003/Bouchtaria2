@@ -149,6 +149,15 @@ public class PathOfPowerFloorGenerator
         if (!wantsWarden)
             valid = valid.Where(encounter => encounter.EncounterId != "0").ToList();
 
+        if (valid.Count == 0 && wantsWarden)
+        {
+            valid = encounters
+                .Where(encounter => encounter != null
+                    && encounter.MinimumFloor <= floor
+                    && encounter.Warden)
+                .ToList();
+        }
+
         if (valid.Count == 0)
             return string.Empty;
 
