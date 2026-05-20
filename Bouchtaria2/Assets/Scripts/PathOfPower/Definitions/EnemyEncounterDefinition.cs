@@ -9,6 +9,8 @@ public class EnemyEncounterDefinition : ScriptableObject
     [SerializeField] private int minimumFloor = 1;
     [SerializeField] private bool elite;
     [SerializeField] private bool warden;
+    [Tooltip("If > 0 and this encounter is a warden, this encounter will always be used as that floor's warden.")]
+    [SerializeField] private int specificFloorEncounter;
     [Tooltip("Relic ids held by this encounter. These are resolved by PathOfPowerManager before combat and applied by PathOfPowerRelicEffectService during combat.")]
     [SerializeField] private List<int> relicIds = new List<int>();
     [SerializeField] private Sprite displaySprite;
@@ -20,6 +22,7 @@ public class EnemyEncounterDefinition : ScriptableObject
     public int MinimumFloor => Mathf.Max(1, minimumFloor);
     public bool Elite => elite;
     public bool Warden => warden;
+    public int SpecificFloorEncounter => Mathf.Max(0, specificFloorEncounter);
     public Sprite DisplaySprite => displaySprite;
     public IReadOnlyList<int> RelicIds => relicIds;
     public string EnemyDeckTemplate => enemyDeckTemplate;

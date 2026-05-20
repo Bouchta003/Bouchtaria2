@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Firebase.Auth;
+using Firebase.Firestore;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -220,7 +222,7 @@ public class PathOfPowerManager : MonoBehaviour
             {
                 Debug.Log("Warden defeated, pending relic rewards.");
                 SwitchDisplay(5);//DiscoveryDisplay
-                CurrentRun.pendingWardenRelicRewards = PickRelics(2, relic => relic.CanAppearAsWardenReward, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
+                CurrentRun.pendingWardenRelicRewards = PickRelics(3, relic => relic.CanAppearAsWardenReward, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
                     .Select(relic => relic.RelicId)
                     .ToList();
                 SaveRun();
@@ -360,6 +362,14 @@ public class PathOfPowerManager : MonoBehaviour
         SaveRun();
     }
 
+    public void SelectPathByIndex(int index)
+    {
+        if (pathLibrary == null || index < 0 || index >= pathLibrary.Count || pathLibrary[index] == null)
+            return;
+
+        SelectPath(pathLibrary[index].PathType);
+    }
+
     /// <summary>
     /// UI hook: call this from the lobby's "Next" button.
     /// Calculates or repairs the next step, logs the selected event/encounter, switches to the matching display,
@@ -456,6 +466,7 @@ public class PathOfPowerManager : MonoBehaviour
             Debug.Log($"Relic chosen : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}\nNext step is {CurrentRun.phase}.");
 
         ClearRelicDiscovery();
+        ShowDisplayForCurrentPhase();
         SaveRun();
     }
 
@@ -466,6 +477,7 @@ public class PathOfPowerManager : MonoBehaviour
 
     public void EndRunAsDefeated()
     {
+        SaveBestRunIfNeeded();
         CurrentRun.phase = PathOfPowerRunPhase.Defeated;
         CurrentRun.combatActive = false;
         PathOfPowerSaveService.Save(CurrentRun);
@@ -556,7 +568,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         if (step != null && step.stepType == PathOfPowerStepType.Warden)
         {
-            CurrentRun.pendingWardenRelicRewards = PickRelics(2, relic => relic.CanAppearAsWardenReward, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
+            CurrentRun.pendingWardenRelicRewards = PickRelics(3, relic => relic.CanAppearAsWardenReward, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
                 .Select(relic => relic.RelicId)
                 .ToList();
             CurrentRun.phase = PathOfPowerRunPhase.AwaitingWardenReward;
@@ -605,6 +617,35 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.activeEnemyRelics?.Clear();
         CurrentRun.activeEnemyRelicTexts?.Clear();
         CurrentRun.phase = CurrentRun.currentFloor >= 2 ? PathOfPowerRunPhase.PathSelection : PathOfPowerRunPhase.Lobby;
+    }
+
+    private void SaveBestRunIfNeeded()
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null)
+            return;
+
+        DocumentReference doc = FirebaseFirestore.DefaultInstance.Collection("users").Document(user.UserId);
+        doc.GetSnapshotAsync().ContinueWith(task =>
+        {
+            if (task.IsFaulted || task.Result == null || !task.Result.Exists)
+                return;
+
+            DocumentSnapshot snap = task.Result;
+            int bestFloor = snap.ContainsField(PathOfPowerSaveService.BestFloorField) ? snap.GetValue<int>(PathOfPowerSaveService.BestFloorField) : 0;
+            int bestStep = snap.ContainsField(PathOfPowerSaveService.BestStepField) ? snap.GetValue<int>(PathOfPowerSaveService.BestStepField) : 0;
+            bool isBetter = CurrentRun.currentFloor > bestFloor || (CurrentRun.currentFloor == bestFloor && CurrentRun.currentStep > bestStep);
+            if (!isBetter)
+                return;
+
+            Dictionary<string, object> update = new Dictionary<string, object>
+            {
+                { PathOfPowerSaveService.BestFloorField, CurrentRun.currentFloor },
+                { PathOfPowerSaveService.BestStepField, CurrentRun.currentStep },
+                { PathOfPowerSaveService.BestDeckField, CurrentRun.currentDeck ?? new List<int>() }
+            };
+            doc.UpdateAsync(update);
+        });
     }
 
 

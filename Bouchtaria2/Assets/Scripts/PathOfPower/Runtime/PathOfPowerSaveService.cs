@@ -22,6 +22,9 @@ public static class PathOfPowerSaveService
     public const string PendingCardChoicesField = "pathofpower_pendingcardchoices";
     public const string StarterDeckTraitField = "pathofpower_starterdecktrait";
     public const string CombatActiveField = "pathofpower_combatactive";
+    public const string BestFloorField = "pathofpower_bestfloor";
+    public const string BestStepField = "pathofpower_beststep";
+    public const string BestDeckField = "pathofpower_bestdeck";
 
     public static void Save(PathOfPowerRunData runData, Action onComplete = null)
     {

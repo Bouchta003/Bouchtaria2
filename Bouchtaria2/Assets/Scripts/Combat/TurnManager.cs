@@ -50,8 +50,10 @@ public class TurnManager : MonoBehaviour
         
         CurrentPlayer = PlayerOwner.Player;
 
-        yield return StartCoroutine(deckManager.Draw(3, PlayerOwner.Player));
-        yield return StartCoroutine(deckManager.Draw(4, PlayerOwner.Enemy));
+        int playerStartDraw = 3 + PathOfPowerRelicEffectService.GetStartOfCombatDrawBonus(PlayerOwner.Player);
+        int enemyStartDraw = 4 + PathOfPowerRelicEffectService.GetStartOfCombatDrawBonus(PlayerOwner.Enemy);
+        yield return StartCoroutine(deckManager.Draw(playerStartDraw, PlayerOwner.Player));
+        yield return StartCoroutine(deckManager.Draw(enemyStartDraw, PlayerOwner.Enemy));
 
         BeginTurn();
     }
