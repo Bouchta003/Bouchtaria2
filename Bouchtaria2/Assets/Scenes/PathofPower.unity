@@ -3215,6 +3215,7 @@ MonoBehaviour:
   eventLibrary:
   - {fileID: 11400000, guid: 96ba2a58dd560e0499ae8cc60e6cbac3, type: 2}
   - {fileID: 11400000, guid: 5183369f7b62c844a9d25efe5b68ab55, type: 2}
+  - {fileID: 11400000, guid: 9a2a944f185a62647ae92f42d3294f51, type: 2}
   pathLibrary:
   - {fileID: 11400000, guid: 5b007ec07168c4e41874defd58e2ccf3, type: 2}
   - {fileID: 11400000, guid: 53095873e8a0f6542993a4b06c46c970, type: 2}
@@ -3306,6 +3307,11 @@ MonoBehaviour:
     - Content: p2
       Name: ok
       Avatar: {fileID: 21300000, guid: 2b3e879bb0c33e141905644aa47b81c6, type: 3}
+  - Lines:
+    - Content: If you want I can give you a nice cut , and I'm not talking about
+        your hair
+      Name: The Barber
+      Avatar: {fileID: 21300000, guid: 36b25a9c536c56342bb046dd5ed53b72, type: 3}
   dialogueCanvasGroup: {fileID: 1517084938}
   AvatarImage: {fileID: 376532168}
   UIDialogue: {fileID: 1517084936}
@@ -5086,7 +5092,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1527810409
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5150,9 +5156,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: DungeonManager, Assembly-CSharp
-        m_MethodName: GoToDeck
+      - m_Target: {fileID: 937017222}
+        m_TargetAssemblyTypeName: PathOfPowerManager, Assembly-CSharp
+        m_MethodName: SeeDeck
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

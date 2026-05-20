@@ -391,6 +391,10 @@ public class CollectionScreen : MonoBehaviour
     {
         if (GameRunContext.IsDungeonRun)
         { GameFlowController.Instance.GoToDungeonAdventure(); }
+        else if (GameRunContext.IsPathOfPowerDeckViewMode)
+        {
+            GameFlowController.Instance.GoToPathOfPower();
+        }
         else
             SceneManager.LoadScene("Main_Menu");
     }

@@ -179,7 +179,8 @@ public class PathOfPowerManager : MonoBehaviour
                 AddRelic("1");
                 break;
             case 2:
-                Debug.Log("Accepted reward for event 2");
+                Debug.Log("Accepted reward for event 2 reduced deck size");
+                ReduceDeckSize(3);
                 break;
             // Add more cases as needed
         }
@@ -625,8 +626,6 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.currentRelics.Add(relic.RelicId);
         UpdateRelicGrid();
 
-        if (string.Equals(relic.RelicId, "SuperScissors", StringComparison.OrdinalIgnoreCase))
-            ReduceDeckSize(3);
     }
 
     private void MoveToNextFloorAfterWardenReward()
