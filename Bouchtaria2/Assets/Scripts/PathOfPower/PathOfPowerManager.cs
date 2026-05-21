@@ -60,6 +60,8 @@ public class PathOfPowerManager : MonoBehaviour
     private bool isResolvingRelicChoice;
     private readonly List<GameObject> spawnedRelicDiscoveryObjects = new List<GameObject>();
     private readonly List<GameObject> spawnedRelicGridObjects = new List<GameObject>();
+    private bool currentCardDiscoverySkippable = true;
+    private bool currentRelicDiscoverySkippable = true;
 
     private void Awake()
     {
@@ -141,7 +143,7 @@ public class PathOfPowerManager : MonoBehaviour
             .Select(relic => relic.RelicId)
             .ToList();
 
-        ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic);
+        ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic, skippable: false);
         SaveRun();
         OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
     }
@@ -309,7 +311,7 @@ public class PathOfPowerManager : MonoBehaviour
         }
 
         CurrentRun.pendingCardChoices = GenerateCardChoices(CurrentRun.currentFloorSeed, 3);
-        ShowCardDiscovery(CurrentRun.pendingCardChoices);
+        ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
         OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
     }
 
@@ -319,6 +321,20 @@ public class PathOfPowerManager : MonoBehaviour
         bool isDeckRelicDiscovery = CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward && isResolvingRelicChoice;
         if (!isStarterDeckDiscovery && !isDeckRelicDiscovery)
             return;
+
+        if (cardId <= 0)
+        {
+            if (isStarterDeckDiscovery || !currentCardDiscoverySkippable)
+            {
+                Debug.LogWarning("This card discovery cannot be skipped.");
+                return;
+            }
+
+            CurrentRun.pendingCardChoices.Clear();
+            ClearCardDiscovery();
+            SaveRun();
+            return;
+        }
 
         if (!CurrentRun.pendingCardChoices.Contains(cardId))
         {
@@ -333,6 +349,8 @@ public class PathOfPowerManager : MonoBehaviour
         }
 
         CurrentRun.currentDeck.Add(cardId);
+        if (CurrentRun.currentDeck.Count > CurrentRun.currentDeckSize)
+            CurrentRun.currentDeckSize = CurrentRun.currentDeck.Count;
         CurrentRun.pendingCardChoices.Clear();
         ClearCardDiscovery();
 
@@ -513,6 +531,54 @@ public class PathOfPowerManager : MonoBehaviour
         ChooseWardenRelicReward(string.Empty);
     }
 
+    public void SkipDiscovery()
+    {
+        if (CurrentRun == null)
+            return;
+
+        if (CurrentRun.phase == PathOfPowerRunPhase.StartingDeckDiscovery)
+        {
+            SkipStartingCardDiscovery();
+            return;
+        }
+
+        if (CurrentRun.phase == PathOfPowerRunPhase.StarterRelicChoice || CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward)
+        {
+            SkipRelicDiscovery();
+            return;
+        }
+
+        if (CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
+        {
+            if (!currentCardDiscoverySkippable)
+            {
+                Debug.LogWarning("Card discovery is not skippable right now.");
+                return;
+            }
+
+            CurrentRun.pendingCardChoices.Clear();
+            ClearCardDiscovery();
+            SaveRun();
+        }
+    }
+
+    private void SkipRelicDiscovery()
+    {
+        if (!currentRelicDiscoverySkippable)
+        {
+            Debug.LogWarning("Relic discovery is not skippable right now.");
+            return;
+        }
+
+        if (CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward)
+        {
+            SkipWardenRelicReward();
+            return;
+        }
+
+        Debug.LogWarning("Starter relic discovery cannot be skipped.");
+    }
+
     public void EndRunAsDefeated()
     {
         SaveBestRunIfNeeded(forceSaveCurrentProgress: true);
@@ -644,7 +710,7 @@ public class PathOfPowerManager : MonoBehaviour
             .ToList();
         CurrentRun.phase = PathOfPowerRunPhase.StarterRelicChoice;
         isResolvingRelicChoice = false;
-        ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic);
+        ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic, skippable: true);
         OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
     }
 
@@ -784,7 +850,7 @@ public class PathOfPowerManager : MonoBehaviour
         switch (CurrentRun.phase)
         {
             case PathOfPowerRunPhase.StarterRelicChoice:
-                ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic);
+                ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic, skippable: true);
                 OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
                 break;
             case PathOfPowerRunPhase.StartingDeckDiscovery:
@@ -802,14 +868,14 @@ public class PathOfPowerManager : MonoBehaviour
                     break;
                 }
 
-                ShowCardDiscovery(CurrentRun.pendingCardChoices);
+                ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
                 OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
                 break;
             case PathOfPowerRunPhase.PathSelection:
                 OnPathChoicesRequested?.Invoke(pathLibrary);
                 break;
             case PathOfPowerRunPhase.AwaitingWardenReward:
-                ShowRelicDiscovery(CurrentRun.pendingWardenRelicRewards, RelicDefinition.RelicType.DeckRelic);
+                ShowRelicDiscovery(CurrentRun.pendingWardenRelicRewards, RelicDefinition.RelicType.DeckRelic, skippable: true);
                 OnWardenRelicRewardsGenerated?.Invoke(ResolveRelics(CurrentRun.pendingWardenRelicRewards));
                 break;
         }
@@ -925,14 +991,17 @@ public class PathOfPowerManager : MonoBehaviour
             : $"#{step.stepIndex}:{step.stepType}:event={step.eventId}:encounter={step.encounterId}"));
     }
 
-    private void ShowRelicDiscovery(IReadOnlyList<string> relicIds, RelicDefinition.RelicType discoveryType = RelicDefinition.RelicType.CombatRelic)
+    private void ShowRelicDiscovery(IReadOnlyList<string> relicIds, RelicDefinition.RelicType discoveryType = RelicDefinition.RelicType.CombatRelic, bool skippable = true)
     {
         if (DiscoverDisplay == null || relicPrefab == null || relicIds == null || relicIds.Count == 0)
             return;
+        currentRelicDiscoverySkippable = skippable;
 
         DiscoveryText.text = discoveryType == RelicDefinition.RelicType.DeckRelic
             ? "Select a deck relic (instant effect on pick, not shown in relic grid). Hold 'space bar' for scan mode."
             : "Select a combat relic (hold 'space bar' to enter scan mode)";
+        if (currentRelicDiscoverySkippable)
+            DiscoveryText.text += "\nYou can skip this discovery.";
 
         Transform parent = reliPrefabParentDiscovery != null ? reliPrefabParentDiscovery.transform : DiscoverDisplay.transform;
         ClearRelicDiscovery();
@@ -1047,11 +1116,14 @@ public class PathOfPowerManager : MonoBehaviour
         RelicDefinition relic = ResolveRelic(relicId);
         if (relic != null && relic.RelicId == "10")
         {
-            List<int> rewards = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1010 + CurrentRun.currentDeck.Count, 5, CardData.Trait.Neutral);
-            CurrentRun.pendingCardChoices = rewards ?? new List<int>();
-            ShowCardDiscovery(CurrentRun.pendingCardChoices);
-            OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
-            yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+            for (int i = 0; i < 5; i++)
+            {
+                List<int> rewards = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1010 + CurrentRun.currentDeck.Count + i, 3, CardData.Trait.Neutral);
+                CurrentRun.pendingCardChoices = rewards ?? new List<int>();
+                ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
+                OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+            }
         }
 
         // Unlock the reward resolution gate before applying the warden reward choice.
@@ -1060,12 +1132,15 @@ public class PathOfPowerManager : MonoBehaviour
         ChooseWardenRelicReward(relicId);
     }
 
-    private void ShowCardDiscovery(List<int> cardIds)
+    private void ShowCardDiscovery(List<int> cardIds, bool skippable = true)
     {
         if (DiscoverDisplay == null || cardIds == null || cardIds.Count == 0)
             return;
+        currentCardDiscoverySkippable = skippable;
 
         DiscoveryText.text = "Select a Card to add to your deck (hold 'space bar' to enter scan mode)";
+        if (currentCardDiscoverySkippable)
+            DiscoveryText.text += "\nYou can skip this discovery.";
         if (CardFactory.Instance == null)
         {
             GameObject factoryObj = new GameObject("CardFactory");
