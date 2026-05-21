@@ -20,6 +20,7 @@ public static class PathOfPowerSaveService
     public const string StarterRelicChoicesField = "pathofpower_starterrelicchoices";
     public const string WardenRelicRewardsField = "pathofpower_wardenrelicrewards";
     public const string PendingCardChoicesField = "pathofpower_pendingcardchoices";
+    public const string StarterTraitChoicesField = "pathofpower_startertraitchoices";
     public const string StarterDeckTraitField = "pathofpower_starterdecktrait";
     public const string CombatActiveField = "pathofpower_combatactive";
     public const string CurrentDeckSizeField = "pathofpower_currentdecksize";
@@ -53,6 +54,7 @@ public static class PathOfPowerSaveService
             { StarterRelicChoicesField, runData.pendingStarterRelicChoices },
             { WardenRelicRewardsField, runData.pendingWardenRelicRewards },
             { PendingCardChoicesField, runData.pendingCardChoices },
+            { StarterTraitChoicesField, runData.pendingStarterTraitChoices },
             { StarterDeckTraitField, runData.starterDeckTrait.ToString() },
             { CombatActiveField, runData.combatActive },
             { CurrentDeckSizeField, runData.currentDeckSize }
@@ -138,6 +140,7 @@ public static class PathOfPowerSaveService
             pendingStarterRelicChoices = ParseStringList(snapshot, StarterRelicChoicesField),
             pendingWardenRelicRewards = ParseStringList(snapshot, WardenRelicRewardsField),
             pendingCardChoices = ParseIntList(snapshot, PendingCardChoicesField),
+            pendingStarterTraitChoices = ParseStringList(snapshot, StarterTraitChoicesField),
             starterDeckTrait = ParseEnum(ReadString(snapshot, StarterDeckTraitField, CardData.Trait.Neutral.ToString()), CardData.Trait.Neutral),
             combatActive = ReadBool(snapshot, CombatActiveField, false),
             currentDeckSize = Mathf.Max(5, ReadInt(snapshot, CurrentDeckSizeField, 20))
