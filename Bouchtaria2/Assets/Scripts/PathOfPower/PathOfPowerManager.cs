@@ -31,6 +31,7 @@ public class PathOfPowerManager : MonoBehaviour
     [SerializeField] public GameObject relicPrefab;//Discovery Positions : 400,540,0 960,540,0 1520,540,0
     [SerializeField] public GameObject reliPrefabParentDiscovery;
     [SerializeField] public GameObject relicGridLayout;
+    [SerializeField] public GameObject traitreference;
     [SerializeField] public GameObject skipDiscoveryBtn;
     [SerializeField] public Image nextEnemyImage;
     [SerializeField] public Image enemyEliteIcon;
@@ -148,7 +149,7 @@ public class PathOfPowerManager : MonoBehaviour
             combatActive = false,
             currentDeckSize = starterDeckTargetSize
         };
-
+        ClearCardDiscovery();ClearRelicDiscovery();ClearTraitDiscovery();
 
         SwitchDisplay(5);//Start Relic Discovery.
         CurrentRun.pendingStarterRelicChoices = PickRelics(3, relic => relic.CanAppearAsStarter, CurrentRun.currentFloorSeed)
@@ -996,10 +997,10 @@ public class PathOfPowerManager : MonoBehaviour
             Transform iconChild = traitObject.transform.childCount > 2 ? traitObject.transform.GetChild(2) : null;
             if (iconChild != null)
             {
-                TraitsDisplay traitsDisplay = traitObject.GetComponent<TraitsDisplay>();
+                TraitsDisplay traitsDisplay = traitreference.GetComponent<TraitsDisplay>();
                 Image iconImage = iconChild.GetComponent<Image>();
                 if (traitsDisplay != null && iconImage != null)
-                    iconImage.sprite = GetTraitSprite(traitsDisplay, trait);
+                    iconImage.sprite = traitsDisplay.GetSpriteForTrait(trait);
             }
         }
     }
@@ -1012,30 +1013,6 @@ public class PathOfPowerManager : MonoBehaviour
                 Destroy(traitObject);
         }
         spawnedTraitDiscoveryObjects.Clear();
-    }
-
-    private Sprite GetTraitSprite(TraitsDisplay traitsDisplay, CardData.Trait trait)
-    {
-        return trait switch
-        {
-            CardData.Trait.Pokemon => traitsDisplay.pokemonIcon,
-            CardData.Trait.Inazuma => traitsDisplay.inazumaIcon,
-            CardData.Trait.MonsterHunter => traitsDisplay.monsterhunterIcon,
-            CardData.Trait.Healer => traitsDisplay.healIcon,
-            CardData.Trait.Gunner => traitsDisplay.gunnerIcon,
-            CardData.Trait.Fighter => traitsDisplay.FighterIcon,
-            CardData.Trait.Faith => traitsDisplay.faithIcon,
-            CardData.Trait.Avatar => traitsDisplay.AvatarIcon,
-            CardData.Trait.SpellFocus => traitsDisplay.spellFocusIcon,
-            CardData.Trait.Neutral => traitsDisplay.neutralIcon,
-            CardData.Trait.Combo => traitsDisplay.comboIcon,
-            CardData.Trait.Chaos => traitsDisplay.chaosIcon,
-            CardData.Trait.Speedster => traitsDisplay.speedsterIcon,
-            CardData.Trait.SoulForce => traitsDisplay.soulForceIcon,
-            CardData.Trait.Cozy => traitsDisplay.cozyIcon,
-            CardData.Trait.Swordsman => traitsDisplay.swordsmanIcon,
-            _ => traitsDisplay.memeIcon
-        };
     }
 
     public void SelectStarterTrait(CardData.Trait selectedTrait)

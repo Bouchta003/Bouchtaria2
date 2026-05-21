@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class TraitsDisplay : MonoBehaviour
@@ -18,7 +19,6 @@ public class TraitsDisplay : MonoBehaviour
     [SerializeField] public Sprite neutralIcon;//
     [SerializeField] public Sprite comboIcon;//
     [SerializeField] public Sprite chaosIcon;//
-    [SerializeField] public Sprite spellFocusIcon;//
     [SerializeField] public Sprite speedsterIcon;
     [SerializeField] public Sprite soulForceIcon;
     [SerializeField] public Sprite cozyIcon;
@@ -46,10 +46,36 @@ public class TraitsDisplay : MonoBehaviour
     public int CurrentCap;
     private void Start()
     {
+        if (SceneManager.GetActiveScene().name == "PathofPower") return;
+        
         frameRaritySlot.gameObject.SetActive(false);
         if (transform.parent.tag == "Enemy")
             traitEffect.transform.localPosition *= -1;
         traitEffect.SetActive(false);
+    }
+    public Sprite GetSpriteForTrait(CardData.Trait trait)
+    {
+        switch (trait)
+        {
+            case CardData.Trait.Pokemon: return iconSlot.sprite = pokemonIcon;
+            case CardData.Trait.Inazuma: return iconSlot.sprite = inazumaIcon;
+            case CardData.Trait.Chaos: return iconSlot.sprite = chaosIcon;
+            case CardData.Trait.Neutral: return iconSlot.sprite = neutralIcon;
+            case CardData.Trait.Fighter: return iconSlot.sprite = FighterIcon;
+            case CardData.Trait.Healer: return iconSlot.sprite = healIcon;
+            case CardData.Trait.Faith: return iconSlot.sprite = faithIcon;
+            case CardData.Trait.Speedster: return iconSlot.sprite = speedsterIcon;
+            case CardData.Trait.MonsterHunter: return iconSlot.sprite = monsterhunterIcon;
+            case CardData.Trait.Avatar: return iconSlot.sprite = AvatarIcon;
+            case CardData.Trait.Gunner: return iconSlot.sprite = gunnerIcon;
+            case CardData.Trait.Combo: return iconSlot.sprite = comboIcon;
+            case CardData.Trait.SoulForce: return iconSlot.sprite = soulForceIcon;
+            case CardData.Trait.Swordsman: return iconSlot.sprite = swordsmanIcon;
+            case CardData.Trait.Cozy: return iconSlot.sprite = cozyIcon;
+            default:
+                Debug.LogWarning($"No sprite defined for trait {trait}");
+                return iconSlot.sprite = memeIcon;
+        }
     }
     public void Activate(int tier)
     {

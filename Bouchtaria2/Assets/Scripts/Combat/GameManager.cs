@@ -1421,7 +1421,6 @@ private sealed class PendingHandReturn
                 CardData.Trait.Chaos => new ChaosProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
                 CardData.Trait.Fighter => new FighterProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
                 CardData.Trait.Inazuma => new InazumaProgression(owner, maxTier, traitSystem),
-                CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
                 CardData.Trait.Cozy => new CozyProgression(owner, maxTier, traitSystem),
                 CardData.Trait.Swordsman => new SwordsmanProgression(owner, maxTier, traitSystem),
                 CardData.Trait.Combo => new ComboProgression(owner, maxTier, traitSystem),

@@ -403,7 +403,7 @@
       "manaCost": 7,
       "atkValue": 5,
       "hpValue": 9,
-      "traits": [ "Pokemon", "SpellFocus" ],
+      "traits": [ "Pokemon", "Combo" ],
       "effect": "eot[draw(1)] thorns(2)",
       "effectText": "Plant Starter, Thorns(2)\nEnd of turn : Draw 1 card",
       "artPath": "CardArt/serperior",
