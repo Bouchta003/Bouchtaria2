@@ -345,6 +345,9 @@ public class PathOfPowerManager : MonoBehaviour
         if (!isStarterDeckDiscovery && !isDeckRelicDiscovery)
             return;
 
+        if (CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0)
+            return;
+
         if (cardId <= 0)
         {
             if (isStarterDeckDiscovery || !currentCardDiscoverySkippable)
@@ -1078,6 +1081,44 @@ public class PathOfPowerManager : MonoBehaviour
         }
     }
 
+    private bool IsProtectedDiscoveryUiObject(GameObject candidate)
+    {
+        if (candidate == null)
+            return true;
+
+        if (skipDiscoveryBtn != null && candidate == skipDiscoveryBtn)
+            return true;
+
+        if (DiscoveryText != null && candidate == DiscoveryText.gameObject)
+            return true;
+
+        return false;
+    }
+
+    private bool ShouldDestroyCardDiscoveryChild(Transform child)
+    {
+        if (child == null)
+            return false;
+
+        GameObject childObject = child.gameObject;
+        if (IsProtectedDiscoveryUiObject(childObject))
+            return false;
+
+        return child.GetComponent<CardInstance>() != null;
+    }
+
+    private bool ShouldDestroyRelicDiscoveryChild(Transform child)
+    {
+        if (child == null)
+            return false;
+
+        GameObject childObject = child.gameObject;
+        if (IsProtectedDiscoveryUiObject(childObject))
+            return false;
+
+        return true;
+    }
+
     private void ClearRelicDiscovery()
     {
         if (reliPrefabParentDiscovery != null)
@@ -1086,7 +1127,7 @@ public class PathOfPowerManager : MonoBehaviour
             for (int i = parent.childCount - 1; i >= 0; i--)
             {
                 Transform child = parent.GetChild(i);
-                if (child != null && child.gameObject != DiscoveryText?.gameObject && child.gameObject != skipDiscoveryBtn)
+                if (ShouldDestroyRelicDiscoveryChild(child))
                     Destroy(child.gameObject);
             }
         }
@@ -1230,8 +1271,11 @@ public class PathOfPowerManager : MonoBehaviour
 
         Transform parent = discoveryCardParent != null ? discoveryCardParent : DiscoverDisplay.transform;
         for (int i = parent.childCount - 1; i >= 0; i--)
-            if (parent.GetChild(i) != null && parent.GetChild(i).gameObject != DiscoveryText?.gameObject && parent.GetChild(i).gameObject != skipDiscoveryBtn)
-            Destroy(parent.GetChild(i).gameObject);
+        {
+            Transform child = parent.GetChild(i);
+            if (ShouldDestroyCardDiscoveryChild(child))
+                Destroy(child.gameObject);
+        }
 
         DiscoverDisplay.SetActive(false);
     }
