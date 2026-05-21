@@ -15,14 +15,6 @@ public static class PathOfPowerCombatService
         return hp;
     }
 
-    public static int GetPlayerHealth(PathOfPowerRunData runData)
-    {
-        int floor = Mathf.Max(1, runData?.currentFloor ?? 1);
-        int hp = 20 + ((floor - 1) * 5);
-        hp = Mathf.Min(80, hp);
-        return hp;
-    }
-
     public static void MarkCombatLost()
     {
         PathOfPowerRunData data = GameRunContext.PathOfPowerData;

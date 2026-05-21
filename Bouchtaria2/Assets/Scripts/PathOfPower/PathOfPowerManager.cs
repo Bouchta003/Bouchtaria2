@@ -873,7 +873,7 @@ public class PathOfPowerManager : MonoBehaviour
         switch (CurrentRun.phase)
         {
             case PathOfPowerRunPhase.StarterRelicChoice:
-                ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic, skippable: true);
+                ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic, skippable: false);
                 OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
                 break;
             case PathOfPowerRunPhase.StartingDeckDiscovery:
@@ -1074,7 +1074,7 @@ public class PathOfPowerManager : MonoBehaviour
             for (int i = parent.childCount - 1; i >= 0; i--)
             {
                 Transform child = parent.GetChild(i);
-                if (child != null && child.gameObject != DiscoveryText?.gameObject)
+                if (child != null && child.gameObject != DiscoveryText?.gameObject && child.gameObject != skipDiscoveryBtn)
                     Destroy(child.gameObject);
             }
         }
@@ -1164,9 +1164,11 @@ public class PathOfPowerManager : MonoBehaviour
         currentCardDiscoverySkippable = skippable;
 
         DiscoveryText.text = "Select a Card to add to your deck (hold 'space bar' to enter scan mode)";
+
         if (currentCardDiscoverySkippable)
             skipDiscoveryBtn.SetActive(true);
         else skipDiscoveryBtn.SetActive(false);
+
         if (CardFactory.Instance == null)
         {
             GameObject factoryObj = new GameObject("CardFactory");
@@ -1202,6 +1204,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         Transform parent = discoveryCardParent != null ? discoveryCardParent : DiscoverDisplay.transform;
         for (int i = parent.childCount - 1; i >= 0; i--)
+            if (parent.GetChild(i) != null && parent.GetChild(i).gameObject != DiscoveryText?.gameObject && parent.GetChild(i).gameObject != skipDiscoveryBtn)
             Destroy(parent.GetChild(i).gameObject);
 
         DiscoverDisplay.SetActive(false);

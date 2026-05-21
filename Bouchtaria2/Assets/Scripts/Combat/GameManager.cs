@@ -868,7 +868,7 @@ private sealed class PendingHandReturn
     }
     void SetupPathOfPowerFight(PathOfPowerRunData runData)
     {
-        startingPlayerCoreHealth = PathOfPowerCombatService.GetPlayerHealth(runData);
+        startingPlayerCoreHealth = 30;//Starting Hp for player is always 30 in Path of Power without relics, but enemy hp scales based on the floor
         startingEnemyCoreHealth = PathOfPowerCombatService.GetEnemyHealth(runData);
     }
 
@@ -964,6 +964,12 @@ private sealed class PendingHandReturn
             // Concede clears the run state cleanly just like pressing Concede in the pause menu
             DungeonManager.Instance?.ConcedeRun();
             DungeonManager.SetDungeonCombatActive(false);
+        }
+
+        if (GameRunContext.IsPathOfPowerRun)
+        {
+            // Concede clears the run state cleanly just like pressing Concede in the pause menu
+            PathOfPowerManager.Instance.StartNewRun();
         }
     }
     // Update is called once per frame
