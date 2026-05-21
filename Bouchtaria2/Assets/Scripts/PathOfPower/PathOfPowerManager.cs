@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Firebase.Auth;
@@ -29,6 +30,7 @@ public class PathOfPowerManager : MonoBehaviour
     [SerializeField] public GameObject relicPrefab;//Discovery Positions : 400,540,0 960,540,0 1520,540,0
     [SerializeField] public GameObject reliPrefabParentDiscovery;
     [SerializeField] public GameObject relicGridLayout;
+    [SerializeField] public GameObject skipDiscoveryBtn;
     [SerializeField] public Image nextEnemyImage;
     [SerializeField] public Image enemyEliteIcon;
     [SerializeField] public Image enemyWarden;
@@ -80,7 +82,7 @@ public class PathOfPowerManager : MonoBehaviour
         EnsureCardInputManager();
         if (DiscoverDisplay != null)
             DiscoverDisplay.SetActive(false);
-
+        skipDiscoveryBtn.SetActive(false);
         LoadRun();
     }
     private void Update()
@@ -998,10 +1000,12 @@ public class PathOfPowerManager : MonoBehaviour
         currentRelicDiscoverySkippable = skippable;
 
         DiscoveryText.text = discoveryType == RelicDefinition.RelicType.DeckRelic
-            ? "Select a deck relic (instant effect on pick, not shown in relic grid). Hold 'space bar' for scan mode."
-            : "Select a combat relic (hold 'space bar' to enter scan mode)";
-        if (currentRelicDiscoverySkippable)
-            DiscoveryText.text += "\nYou can skip this discovery.";
+            ? "Select a deck relic.\n(hold 'space bar' for scan mode)"
+            : "Select a combat relic.\n(hold 'space bar' to enter scan mode)";
+
+        if (currentCardDiscoverySkippable)
+            skipDiscoveryBtn.SetActive(true);
+        else skipDiscoveryBtn.SetActive(false);
 
         Transform parent = reliPrefabParentDiscovery != null ? reliPrefabParentDiscovery.transform : DiscoverDisplay.transform;
         ClearRelicDiscovery();
@@ -1140,7 +1144,8 @@ public class PathOfPowerManager : MonoBehaviour
 
         DiscoveryText.text = "Select a Card to add to your deck (hold 'space bar' to enter scan mode)";
         if (currentCardDiscoverySkippable)
-            DiscoveryText.text += "\nYou can skip this discovery.";
+            skipDiscoveryBtn.SetActive(true);
+        else skipDiscoveryBtn.SetActive(false);
         if (CardFactory.Instance == null)
         {
             GameObject factoryObj = new GameObject("CardFactory");
