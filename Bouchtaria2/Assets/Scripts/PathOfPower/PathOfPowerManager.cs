@@ -27,6 +27,7 @@ public class PathOfPowerManager : MonoBehaviour
 
     [Header("Display UI")]
     [SerializeField] public List<GameObject> differentDisplays;
+    [SerializeField] public GameObject traitPrefab;//Instantiation Positions : 500,200,0 -500,200,0 500,-200,0 -500,-200,0 0,0,0
     [SerializeField] public GameObject relicPrefab;//Discovery Positions : 400,540,0 960,540,0 1520,540,0
     [SerializeField] public GameObject reliPrefabParentDiscovery;
     [SerializeField] public GameObject relicGridLayout;
