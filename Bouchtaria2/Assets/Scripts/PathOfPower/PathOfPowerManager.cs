@@ -572,12 +572,8 @@ public class PathOfPowerManager : MonoBehaviour
             return;
         }
 
-        if (CurrentRun.phase == PathOfPowerRunPhase.StarterRelicChoice || CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward)
-        {
-            SkipRelicDiscovery();
-            return;
-        }
-
+        // While relic validation discovery is showing cards (e.g. relic 10), skip must skip that card pick,
+        // not the enclosing relic reward phase.
         if (CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
         {
             if (!currentCardDiscoverySkippable)
@@ -586,9 +582,14 @@ public class PathOfPowerManager : MonoBehaviour
                 return;
             }
 
-            CurrentRun.pendingCardChoices.Clear();
-            ClearCardDiscovery();
-            SaveRun();
+            SelectStartingCard(0);
+            return;
+        }
+
+        if (CurrentRun.phase == PathOfPowerRunPhase.StarterRelicChoice || CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward)
+        {
+            SkipRelicDiscovery();
+            return;
         }
     }
 
@@ -1200,6 +1201,7 @@ public class PathOfPowerManager : MonoBehaviour
         RelicDefinition relic = ResolveRelic(relicId);
         if (relic != null && relic.RelicId == "10")
         {
+            ClearRelicDiscovery();
             CurrentRun.pendingValidationRelicId = relicId;
             CurrentRun.pendingValidationDiscoveriesRemaining = Mathf.Max(1, CurrentRun.pendingValidationDiscoveriesRemaining);
             while (CurrentRun.pendingValidationDiscoveriesRemaining > 0)
