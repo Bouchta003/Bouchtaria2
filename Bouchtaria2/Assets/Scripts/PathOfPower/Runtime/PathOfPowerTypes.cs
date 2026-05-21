@@ -60,6 +60,8 @@ public class PathOfPowerRunData
     public CardData.Trait starterDeckTrait = CardData.Trait.Neutral;
     public bool combatActive;
     public int currentDeckSize = 20;
+    public string pendingValidationRelicId;
+    public int pendingValidationDiscoveriesRemaining;
 
     public PathOfPowerStepData CurrentStepData
     {
@@ -100,5 +102,7 @@ public class PathOfPowerRunData
         phase = PathOfPowerRunPhase.None;
         combatActive = false;
         currentDeckSize = 20;
+        pendingValidationRelicId = string.Empty;
+        pendingValidationDiscoveriesRemaining = 0;
     }
 }
