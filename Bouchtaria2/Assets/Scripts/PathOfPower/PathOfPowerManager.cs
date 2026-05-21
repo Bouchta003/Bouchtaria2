@@ -292,13 +292,34 @@ public class PathOfPowerManager : MonoBehaviour
         ApplyInstantDeckRelicEffect(selectedRelic);
         UpdateRelicGrid();
         CurrentRun.pendingStarterRelicChoices.Clear();
-        CurrentRun.currentDeck.Clear();
-        CurrentRun.starterDeckTrait = this.starterDeckTrait;
-        CurrentRun.phase = PathOfPowerRunPhase.StartingDeckDiscovery;
+
+        bool isNewRunStarterChoice = CurrentRun.currentFloor <= 1
+            && CurrentRun.currentStep <= 1
+            && (CurrentRun.currentDeck == null || CurrentRun.currentDeck.Count == 0);
+
+        if (isNewRunStarterChoice)
+        {
+            CurrentRun.currentDeck.Clear();
+            CurrentRun.starterDeckTrait = this.starterDeckTrait;
+            CurrentRun.phase = PathOfPowerRunPhase.StartingDeckDiscovery;
+            GameRunContext.PathOfPowerData = CurrentRun;
+            Debug.Log($"Relic chosen : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}\nNext step is {CurrentRun.phase}.");
+            ClearRelicDiscovery();
+            GenerateStartingCardDiscovery();
+            SaveRun();
+            return;
+        }
+
+        if (CurrentRun.currentPathType == PathOfPowerPathType.Challenge && CurrentRun.currentStep == 4)
+        {
+            CurrentRun.currentStep = 5;
+        }
+
+        CurrentRun.phase = PathOfPowerRunPhase.Lobby;
         GameRunContext.PathOfPowerData = CurrentRun;
-        Debug.Log($"Relic chosen : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}\nNext step is {CurrentRun.phase}.");
+        Debug.Log($"Relic chosen : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}\nContinuing run without restarting starter deck discovery.");
         ClearRelicDiscovery();
-        GenerateStartingCardDiscovery();
+        ShowDisplayForCurrentPhase();
         SaveRun();
     }
 
