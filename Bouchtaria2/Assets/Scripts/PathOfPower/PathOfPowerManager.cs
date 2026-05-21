@@ -65,6 +65,15 @@ public class PathOfPowerManager : MonoBehaviour
     private readonly List<GameObject> spawnedRelicGridObjects = new List<GameObject>();
     private bool currentCardDiscoverySkippable = true;
     private bool currentRelicDiscoverySkippable = true;
+    private readonly List<GameObject> spawnedTraitDiscoveryObjects = new List<GameObject>();
+    private static readonly Vector3[] TraitDiscoveryPositions =
+    {
+        new Vector3(500f, 200f, 0f),
+        new Vector3(-500f, 200f, 0f),
+        new Vector3(500f, -200f, 0f),
+        new Vector3(-500f, -200f, 0f),
+        new Vector3(0f, 0f, 0f)
+    };
 
     private void Awake()
     {
@@ -303,12 +312,12 @@ public class PathOfPowerManager : MonoBehaviour
         if (isNewRunStarterChoice)
         {
             CurrentRun.currentDeck.Clear();
-            CurrentRun.starterDeckTrait = this.starterDeckTrait;
-            CurrentRun.phase = PathOfPowerRunPhase.StartingDeckDiscovery;
+            CurrentRun.pendingStarterTraitChoices = GenerateStarterTraitChoices(CurrentRun.currentFloorSeed + 2026, 5);
+            CurrentRun.phase = PathOfPowerRunPhase.StarterTraitChoice;
             GameRunContext.PathOfPowerData = CurrentRun;
             Debug.Log($"Relic chosen : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}\nNext step is {CurrentRun.phase}.");
             ClearRelicDiscovery();
-            GenerateStartingCardDiscovery();
+            ShowTraitDiscovery(CurrentRun.pendingStarterTraitChoices, skippable: false);
             SaveRun();
             return;
         }
@@ -646,6 +655,7 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.pendingStarterRelicChoices ??= new List<string>();
         CurrentRun.pendingWardenRelicRewards ??= new List<string>();
         CurrentRun.pendingCardChoices ??= new List<int>();
+        CurrentRun.pendingStarterTraitChoices ??= new List<string>();
         CurrentRun.activeEnemyRelics ??= new List<int>();
     }
 
@@ -818,6 +828,7 @@ public class PathOfPowerManager : MonoBehaviour
         switch (CurrentRun.phase)
         {
             case PathOfPowerRunPhase.StarterRelicChoice:
+            case PathOfPowerRunPhase.StarterTraitChoice:
             case PathOfPowerRunPhase.StartingDeckDiscovery:
             case PathOfPowerRunPhase.AwaitingWardenReward:
                 SwitchDisplay(5);
@@ -903,6 +914,11 @@ public class PathOfPowerManager : MonoBehaviour
                 ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
                 OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
                 break;
+            case PathOfPowerRunPhase.StarterTraitChoice:
+                if (CurrentRun.pendingStarterTraitChoices == null || CurrentRun.pendingStarterTraitChoices.Count == 0)
+                    CurrentRun.pendingStarterTraitChoices = GenerateStarterTraitChoices(CurrentRun.currentFloorSeed + 2026, 5);
+                ShowTraitDiscovery(CurrentRun.pendingStarterTraitChoices, skippable: false);
+                break;
             case PathOfPowerRunPhase.PathSelection:
                 OnPathChoicesRequested?.Invoke(pathLibrary);
                 break;
@@ -919,6 +935,124 @@ public class PathOfPowerManager : MonoBehaviour
                 OnWardenRelicRewardsGenerated?.Invoke(ResolveRelics(CurrentRun.pendingWardenRelicRewards));
                 break;
         }
+    }
+
+    private List<string> GenerateStarterTraitChoices(int seed, int count)
+    {
+        System.Random rng = new System.Random(seed);
+        return Enum.GetValues(typeof(CardData.Trait))
+            .Cast<CardData.Trait>()
+            .Where(trait => trait != CardData.Trait.None && !trait.ToString().Equals("Random", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(_ => rng.Next())
+            .Take(Mathf.Max(1, count))
+            .Select(trait => trait.ToString())
+            .ToList();
+    }
+
+    private void ShowTraitDiscovery(IReadOnlyList<string> traitNames, bool skippable)
+    {
+        if (DiscoverDisplay == null || traitPrefab == null || traitNames == null || traitNames.Count == 0)
+            return;
+
+        DiscoveryText.text = "Select your starting trait.\n(hold 'space bar' to enter scan mode)";
+        skipDiscoveryBtn.SetActive(skippable);
+        ClearCardDiscovery();
+        ClearRelicDiscovery();
+        ClearTraitDiscovery();
+        DiscoverDisplay.SetActive(true);
+
+        Transform parent = reliPrefabParentDiscovery != null ? reliPrefabParentDiscovery.transform : DiscoverDisplay.transform;
+        for (int i = 0; i < traitNames.Count && i < TraitDiscoveryPositions.Length; i++)
+        {
+            if (!Enum.TryParse(traitNames[i], true, out CardData.Trait trait))
+                continue;
+
+            GameObject traitObject = Instantiate(traitPrefab, parent);
+            spawnedTraitDiscoveryObjects.Add(traitObject);
+            traitObject.name = $"Trait Discovery - {trait}";
+
+            RectTransform rectTransform = traitObject.GetComponent<RectTransform>();
+            if (rectTransform != null)
+                rectTransform.anchoredPosition3D = TraitDiscoveryPositions[i];
+            else
+                traitObject.transform.localPosition = TraitDiscoveryPositions[i];
+
+            Transform buttonChild = traitObject.transform.childCount > 1 ? traitObject.transform.GetChild(1) : null;
+            if (buttonChild != null)
+            {
+                Image colorImage = buttonChild.GetComponent<Image>();
+                if (colorImage != null)
+                    colorImage.color = TraitColorDatabase.Get(trait);
+
+                Button button = buttonChild.GetComponent<Button>();
+                if (button != null)
+                {
+                    button.onClick.RemoveAllListeners();
+                    CardData.Trait selectedTrait = trait;
+                    button.onClick.AddListener(() => SelectStarterTrait(selectedTrait));
+                }
+            }
+
+            Transform iconChild = traitObject.transform.childCount > 2 ? traitObject.transform.GetChild(2) : null;
+            if (iconChild != null)
+            {
+                TraitsDisplay traitsDisplay = traitObject.GetComponent<TraitsDisplay>();
+                Image iconImage = iconChild.GetComponent<Image>();
+                if (traitsDisplay != null && iconImage != null)
+                    iconImage.sprite = GetTraitSprite(traitsDisplay, trait);
+            }
+        }
+    }
+
+    private void ClearTraitDiscovery()
+    {
+        foreach (GameObject traitObject in spawnedTraitDiscoveryObjects)
+        {
+            if (traitObject != null)
+                Destroy(traitObject);
+        }
+        spawnedTraitDiscoveryObjects.Clear();
+    }
+
+    private Sprite GetTraitSprite(TraitsDisplay traitsDisplay, CardData.Trait trait)
+    {
+        return trait switch
+        {
+            CardData.Trait.Pokemon => traitsDisplay.pokemonIcon,
+            CardData.Trait.Inazuma => traitsDisplay.inazumaIcon,
+            CardData.Trait.MonsterHunter => traitsDisplay.monsterhunterIcon,
+            CardData.Trait.Healer => traitsDisplay.healIcon,
+            CardData.Trait.Gunner => traitsDisplay.gunnerIcon,
+            CardData.Trait.Fighter => traitsDisplay.FighterIcon,
+            CardData.Trait.Faith => traitsDisplay.faithIcon,
+            CardData.Trait.Avatar => traitsDisplay.AvatarIcon,
+            CardData.Trait.SpellFocus => traitsDisplay.spellFocusIcon,
+            CardData.Trait.Neutral => traitsDisplay.neutralIcon,
+            CardData.Trait.Combo => traitsDisplay.comboIcon,
+            CardData.Trait.Chaos => traitsDisplay.chaosIcon,
+            CardData.Trait.Speedster => traitsDisplay.speedsterIcon,
+            CardData.Trait.SoulForce => traitsDisplay.soulForceIcon,
+            CardData.Trait.Cozy => traitsDisplay.cozyIcon,
+            CardData.Trait.Swordsman => traitsDisplay.swordsmanIcon,
+            _ => traitsDisplay.memeIcon
+        };
+    }
+
+    public void SelectStarterTrait(CardData.Trait selectedTrait)
+    {
+        if (CurrentRun.phase != PathOfPowerRunPhase.StarterTraitChoice)
+            return;
+
+        if (CurrentRun.pendingStarterTraitChoices == null || !CurrentRun.pendingStarterTraitChoices.Contains(selectedTrait.ToString()))
+            return;
+
+        CurrentRun.starterDeckTrait = selectedTrait;
+        starterDeckTrait = selectedTrait;
+        CurrentRun.pendingStarterTraitChoices.Clear();
+        ClearTraitDiscovery();
+        CurrentRun.phase = PathOfPowerRunPhase.StartingDeckDiscovery;
+        GenerateStartingCardDiscovery();
+        SaveRun();
     }
 
     private List<int> GenerateCardChoices(int seed, int count)

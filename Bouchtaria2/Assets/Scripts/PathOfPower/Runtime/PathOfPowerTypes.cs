@@ -20,6 +20,7 @@ public enum PathOfPowerRunPhase
 {
     None,
     StarterRelicChoice,
+    StarterTraitChoice,
     StartingDeckDiscovery,
     Lobby,
     PathSelection,
@@ -55,6 +56,7 @@ public class PathOfPowerRunData
     public List<string> pendingStarterRelicChoices = new List<string>();
     public List<string> pendingWardenRelicRewards = new List<string>();
     public List<int> pendingCardChoices = new List<int>();
+    public List<string> pendingStarterTraitChoices = new List<string>();
     public List<int> activeEnemyRelics = new List<int>();
     public List<string> activeEnemyRelicTexts = new List<string>();
     public CardData.Trait starterDeckTrait = CardData.Trait.Neutral;
@@ -84,6 +86,7 @@ public class PathOfPowerRunData
         pendingStarterRelicChoices ??= new List<string>();
         pendingWardenRelicRewards ??= new List<string>();
         pendingCardChoices ??= new List<int>();
+        pendingStarterTraitChoices ??= new List<string>();
         activeEnemyRelics ??= new List<int>();
         activeEnemyRelicTexts ??= new List<string>();
 
@@ -93,6 +96,7 @@ public class PathOfPowerRunData
         pendingStarterRelicChoices.Clear();
         pendingWardenRelicRewards.Clear();
         pendingCardChoices.Clear();
+        pendingStarterTraitChoices.Clear();
         activeEnemyRelics.Clear();
         activeEnemyRelicTexts.Clear();
         currentFloorSeed = 0;
