@@ -25,6 +25,7 @@ public static class PathOfPowerSaveService
     public const string CurrentDeckSizeField = "pathofpower_currentdecksize";
     public const string BestFloorField = "pathofpower_bestfloor";
     public const string BestStepField = "pathofpower_beststep";
+    public const string BestFloorStepField = "pathofpower_bestfloorstep";
     public const string BestDeckField = "pathofpower_bestdeck";
 
     public static void Save(PathOfPowerRunData runData, Action onComplete = null)

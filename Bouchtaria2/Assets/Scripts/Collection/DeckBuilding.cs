@@ -205,6 +205,13 @@ public class DeckBuilding : MonoBehaviour
 
     private void OnDeckDropdownChanged(int index)
     {
+        if (GameRunContext.IsPathOfPowerDeckViewMode)
+        {
+            if (deckDropdown != null)
+                deckDropdown.SetValueWithoutNotify(0);
+            return;
+        }
+
         if (index <= 0)
         {
             CurrentDeck ??= new List<int>();

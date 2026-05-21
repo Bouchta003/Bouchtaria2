@@ -57,6 +57,7 @@ public class PathOfPowerManager : MonoBehaviour
     public event Action<PathOfPowerStepData> OnStepReady;
 
     private PathOfPowerFloorGenerator floorGenerator;
+    private bool isResolvingRelicChoice;
     private readonly List<GameObject> spawnedRelicDiscoveryObjects = new List<GameObject>();
     private readonly List<GameObject> spawnedRelicGridObjects = new List<GameObject>();
 
@@ -314,7 +315,9 @@ public class PathOfPowerManager : MonoBehaviour
 
     public void SelectStartingCard(int cardId)
     {
-        if (CurrentRun.phase != PathOfPowerRunPhase.StartingDeckDiscovery)
+        bool isStarterDeckDiscovery = CurrentRun.phase == PathOfPowerRunPhase.StartingDeckDiscovery;
+        bool isDeckRelicDiscovery = CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward && isResolvingRelicChoice;
+        if (!isStarterDeckDiscovery && !isDeckRelicDiscovery)
             return;
 
         if (!CurrentRun.pendingCardChoices.Contains(cardId))
@@ -323,7 +326,7 @@ public class PathOfPowerManager : MonoBehaviour
             return;
         }
 
-        if (CurrentRun.currentDeck.Count >= starterDeckTargetSize)
+        if (isStarterDeckDiscovery && CurrentRun.currentDeck.Count >= starterDeckTargetSize)
         {
             CompleteStartingDeckDiscovery();
             return;
@@ -333,10 +336,13 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.pendingCardChoices.Clear();
         ClearCardDiscovery();
 
-        if (CurrentRun.currentDeck.Count >= starterDeckTargetSize)
-            CompleteStartingDeckDiscovery();
-        else
-            GenerateStartingCardDiscovery();
+        if (isStarterDeckDiscovery)
+        {
+            if (CurrentRun.currentDeck.Count >= starterDeckTargetSize)
+                CompleteStartingDeckDiscovery();
+            else
+                GenerateStartingCardDiscovery();
+        }
 
         SaveRun();
     }
@@ -475,6 +481,8 @@ public class PathOfPowerManager : MonoBehaviour
 
     public void ChooseWardenRelicReward(string relicId)
     {
+        if (isResolvingRelicChoice)
+            return;
         if (CurrentRun.phase != PathOfPowerRunPhase.AwaitingWardenReward)
             return;
 
@@ -487,6 +495,7 @@ public class PathOfPowerManager : MonoBehaviour
         }
 
         CurrentRun.pendingWardenRelicRewards.Clear();
+        isResolvingRelicChoice = false;
         MoveToNextFloorAfterWardenReward();
 
         GameRunContext.PathOfPowerData = CurrentRun;
@@ -613,7 +622,10 @@ public class PathOfPowerManager : MonoBehaviour
     private void AdvanceToNextStepOrFloor()
     {
         if (CurrentRun.currentPathType == PathOfPowerPathType.Challenge && CurrentRun.currentStep == 4)
+        {
             GrantChallengePreWardenRelic();
+            return;
+        }
 
         if (CurrentRun.currentStep < 5)
         {
@@ -631,6 +643,7 @@ public class PathOfPowerManager : MonoBehaviour
             .Select(candidate => candidate.RelicId)
             .ToList();
         CurrentRun.phase = PathOfPowerRunPhase.StarterRelicChoice;
+        isResolvingRelicChoice = false;
         ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic);
         OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
     }
@@ -641,13 +654,7 @@ public class PathOfPowerManager : MonoBehaviour
             return;
 
         // TODO(Path Of Power Deck Relics): Add immediate deck relic effects here.
-        // This is the dedicated place where each Deck Relic should execute its instant grant logic upon acquisition.
-        if (relic.RelicId == "10")
-        {
-            List<int> rewards = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1010 + CurrentRun.currentDeck.Count, 5, CardData.Trait.Neutral);
-            CurrentRun.currentDeck.AddRange(rewards);
-            Debug.Log($"[PathOfPower] Applied Deck Relic 10: granted {rewards.Count} Neutral cards instantly.");
-        }
+        // Relic 10 is handled as a validation-gated discovery in ValidateRelicChoice.
     }
 
     private List<int> GenerateCardChoicesForTrait(int seed, int count, CardData.Trait trait)
@@ -700,6 +707,7 @@ public class PathOfPowerManager : MonoBehaviour
             {
                 { PathOfPowerSaveService.BestFloorField, Mathf.Max(bestFloor, CurrentRun.currentFloor) },
                 { PathOfPowerSaveService.BestStepField, isBetter ? CurrentRun.currentStep : bestStep },
+                { PathOfPowerSaveService.BestFloorStepField, $"{Mathf.Max(bestFloor, CurrentRun.currentFloor)} - {(isBetter ? CurrentRun.currentStep : bestStep)}" },
                 { PathOfPowerSaveService.BestDeckField, CurrentRun.currentDeck ?? new List<int>() }
             };
             doc.UpdateAsync(update);
@@ -1013,18 +1021,43 @@ public class PathOfPowerManager : MonoBehaviour
 
     private void ValidateRelicChoice(string relicId)
     {
+        if (isResolvingRelicChoice)
+            return;
+
+        if (string.IsNullOrWhiteSpace(relicId))
+            return;
+
         switch (CurrentRun.phase)
         {
             case PathOfPowerRunPhase.StarterRelicChoice:
                 SelectStarterRelic(relicId);
                 break;
             case PathOfPowerRunPhase.AwaitingWardenReward:
-                ChooseWardenRelicReward(relicId);
+                StartCoroutine(ResolveDeckRelicChoiceThenContinue(relicId));
                 break;
             default:
                 Debug.LogWarning($"Cannot choose relic '{relicId}' while Path Of Power is in phase {CurrentRun.phase}.");
                 break;
         }
+    }
+
+    private IEnumerator ResolveDeckRelicChoiceThenContinue(string relicId)
+    {
+        isResolvingRelicChoice = true;
+        RelicDefinition relic = ResolveRelic(relicId);
+        if (relic != null && relic.RelicId == "10")
+        {
+            List<int> rewards = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1010 + CurrentRun.currentDeck.Count, 5, CardData.Trait.Neutral);
+            CurrentRun.pendingCardChoices = rewards ?? new List<int>();
+            ShowCardDiscovery(CurrentRun.pendingCardChoices);
+            OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+            yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+        }
+
+        // Unlock the reward resolution gate before applying the warden reward choice.
+        // Otherwise ChooseWardenRelicReward returns early and the run stays stuck on discovery.
+        isResolvingRelicChoice = false;
+        ChooseWardenRelicReward(relicId);
     }
 
     private void ShowCardDiscovery(List<int> cardIds)
@@ -1136,6 +1169,7 @@ public class PathOfPowerManager : MonoBehaviour
 
     private void SaveRun(Action onComplete = null)
     {
+        SaveBestRunIfNeeded();
         PathOfPowerSaveService.Save(CurrentRun, onComplete);
     }
 
