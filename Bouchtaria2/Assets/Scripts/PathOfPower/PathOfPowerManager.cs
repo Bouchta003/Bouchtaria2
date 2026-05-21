@@ -1054,6 +1054,9 @@ public class PathOfPowerManager : MonoBehaviour
             yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
         }
 
+        // Unlock the reward resolution gate before applying the warden reward choice.
+        // Otherwise ChooseWardenRelicReward returns early and the run stays stuck on discovery.
+        isResolvingRelicChoice = false;
         ChooseWardenRelicReward(relicId);
     }
 
