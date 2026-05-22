@@ -231,7 +231,12 @@ public class PathOfPowerManager : MonoBehaviour
     {
         PathOfPowerSaveService.Load(runData =>
         {
-            CurrentRun = runData ?? new PathOfPowerRunData();
+            PathOfPowerRunData contextRun = GameRunContext.IsPathOfPowerRun ? GameRunContext.PathOfPowerData : null;
+            bool shouldPreferContextRun = contextRun != null &&
+                                         contextRun.pendingCombatVictoryResolution &&
+                                         (runData == null || !runData.pendingCombatVictoryResolution);
+
+            CurrentRun = shouldPreferContextRun ? contextRun : (runData ?? new PathOfPowerRunData());
             EnsureRunLists();
             if (CurrentRun.currentFloor <= 0 || CurrentRun.phase == PathOfPowerRunPhase.None)
             {
@@ -254,7 +259,10 @@ public class PathOfPowerManager : MonoBehaviour
             {
                 CurrentRun.pendingCombatVictoryResolution = false;
                 HandleCombatVictoryFromSave();
+                GameRunContext.PathOfPowerData = CurrentRun;
+                ShowDisplayForCurrentPhase();
                 OnRunLoaded?.Invoke(CurrentRun);
+                ResumeCurrentPhaseHooks();
                 return;
             }
 
@@ -775,9 +783,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         System.Random rng = new System.Random(CurrentRun.currentFloorSeed + CurrentRun.currentStep + CurrentRun.currentDeck.Count);
         CurrentRun.pendingCardChoices = options.OrderBy(_ => rng.Next()).Take(Mathf.Min(3, options.Count)).ToList();
-        ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
-        OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
-        return true;
+        return CurrentRun.pendingCardChoices.Count > 0;
     }
 
     private void AdvanceToNextStepOrFloor()
