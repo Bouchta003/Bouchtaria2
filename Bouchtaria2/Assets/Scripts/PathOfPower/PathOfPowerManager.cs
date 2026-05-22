@@ -266,7 +266,18 @@ public class PathOfPowerManager : MonoBehaviour
                 return;
             }
 
-    
+            // Recovery path: if the run got back to Path Of Power with a Combat phase but no active combat,
+            // resolve the combat rewards immediately instead of showing the empty combat display.
+            if (CurrentRun.phase == PathOfPowerRunPhase.Combat && !CurrentRun.combatActive)
+            {
+                Debug.LogWarning("[PathOfPower] Found inactive Combat phase while loading Path Of Power. Resolving post-combat rewards now.");
+                HandleCombatVictoryFromSave();
+                GameRunContext.PathOfPowerData = CurrentRun;
+                ShowDisplayForCurrentPhase();
+                OnRunLoaded?.Invoke(CurrentRun);
+                ResumeCurrentPhaseHooks();
+                return;
+            }
 
             if (CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward && CurrentRun.pendingWardenRelicRewards.Count == 0)
             {
