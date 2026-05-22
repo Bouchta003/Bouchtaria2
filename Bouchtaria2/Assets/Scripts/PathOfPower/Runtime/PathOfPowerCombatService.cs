@@ -39,21 +39,8 @@ public static class PathOfPowerCombatService
 
         data.combatActive = false;
         data.activeEnemyRelics?.Clear();
-        data.currentStreak++;
-
-        if (step != null && step.stepType == PathOfPowerStepType.Warden)
-        {
-            data.phase = PathOfPowerRunPhase.AwaitingWardenReward;
-        }
-        else if (data.currentStep < 5)
-        {
-            data.currentStep++;
-            data.phase = PathOfPowerRunPhase.Lobby;
-        }
-        else
-        {
-            data.phase = PathOfPowerRunPhase.AwaitingWardenReward;
-        }
+        data.pendingCombatVictoryResolution = true;
+        data.phase = PathOfPowerRunPhase.Combat;
 
         PathOfPowerSaveService.Save(data);
     }

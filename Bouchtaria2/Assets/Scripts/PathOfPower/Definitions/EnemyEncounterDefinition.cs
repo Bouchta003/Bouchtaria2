@@ -13,6 +13,8 @@ public class EnemyEncounterDefinition : ScriptableObject
     [SerializeField] private int specificFloorEncounter;
     [Tooltip("Relic ids held by this encounter. These are resolved by PathOfPowerManager before combat and applied by PathOfPowerRelicEffectService during combat.")]
     [SerializeField] private List<int> relicIds = new List<int>();
+    [Tooltip("Card ids that can be discovered after defeating this encounter.")]
+    [SerializeField] private List<int> droppablePool = new List<int>();
     [SerializeField] private Sprite displaySprite;
     [Tooltip("Deck list encoded as a string, for example: [0,2,3,4,6].")]
     [SerializeField] private string enemyDeckTemplate = "[]";
@@ -25,6 +27,7 @@ public class EnemyEncounterDefinition : ScriptableObject
     public int SpecificFloorEncounter => Mathf.Max(0, specificFloorEncounter);
     public Sprite DisplaySprite => displaySprite;
     public IReadOnlyList<int> RelicIds => relicIds;
+    public IReadOnlyList<int> DroppablePool => droppablePool;
     public string EnemyDeckTemplate => enemyDeckTemplate;
 
     public IReadOnlyList<int> GetParsedEnemyDeckTemplate()
