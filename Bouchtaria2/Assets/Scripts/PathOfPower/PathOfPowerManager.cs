@@ -354,7 +354,8 @@ public class PathOfPowerManager : MonoBehaviour
     {
         bool isStarterDeckDiscovery = CurrentRun.phase == PathOfPowerRunPhase.StartingDeckDiscovery;
         bool isDeckRelicDiscovery = CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward && isResolvingRelicChoice;
-        if (!isStarterDeckDiscovery && !isDeckRelicDiscovery)
+        bool isEncounterRewardDiscovery = CurrentRun.phase == PathOfPowerRunPhase.EncounterCardReward;
+        if (!isStarterDeckDiscovery && !isDeckRelicDiscovery && !isEncounterRewardDiscovery)
             return;
 
         if (CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0)
@@ -362,7 +363,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         if (cardId <= 0)
         {
-            if (isStarterDeckDiscovery || !currentCardDiscoverySkippable)
+            if (isStarterDeckDiscovery || isEncounterRewardDiscovery || !currentCardDiscoverySkippable)
             {
                 Debug.LogWarning("This card discovery cannot be skipped.");
                 return;
@@ -402,6 +403,23 @@ public class PathOfPowerManager : MonoBehaviour
                 CompleteStartingDeckDiscovery();
             else
                 GenerateStartingCardDiscovery();
+        }
+        else if (isEncounterRewardDiscovery)
+        {
+            if (CurrentRun.pendingWardenRewardAfterEncounterDiscovery)
+            {
+                CurrentRun.pendingWardenRewardAfterEncounterDiscovery = false;
+                CurrentRun.pendingWardenRelicRewards = PickRelics(3, relic => relic.CanAppearAsWardenReward && relic.Type == RelicDefinition.RelicType.DeckRelic, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
+                    .Select(relic => relic.RelicId)
+                    .ToList();
+                CurrentRun.phase = PathOfPowerRunPhase.AwaitingWardenReward;
+                ShowRelicDiscovery(CurrentRun.pendingWardenRelicRewards, RelicDefinition.RelicType.DeckRelic, skippable: true);
+            }
+            else
+            {
+                AdvanceToNextStepOrFloor();
+                ShowDisplayForCurrentPhase();
+            }
         }
 
         SaveRun();
@@ -714,7 +732,14 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.activeEnemyRelics?.Clear();
         CurrentRun.activeEnemyRelicTexts?.Clear();
         CurrentRun.currentStreak++;
-        QueueEncounterDroppableDiscovery(encounter);
+        bool hasEncounterDiscovery = QueueEncounterDroppableDiscovery(encounter);
+        if (hasEncounterDiscovery)
+        {
+            CurrentRun.pendingWardenRewardAfterEncounterDiscovery = step != null && step.stepType == PathOfPowerStepType.Warden;
+            CurrentRun.phase = PathOfPowerRunPhase.EncounterCardReward;
+            SaveRun();
+            return;
+        }
 
         if (step != null && step.stepType == PathOfPowerStepType.Warden)
         {
@@ -731,19 +756,20 @@ public class PathOfPowerManager : MonoBehaviour
         SaveRun();
     }
 
-    private void QueueEncounterDroppableDiscovery(EnemyEncounterDefinition encounter)
+    private bool QueueEncounterDroppableDiscovery(EnemyEncounterDefinition encounter)
     {
         if (encounter?.DroppablePool == null || encounter.DroppablePool.Count == 0)
-            return;
+            return false;
 
         List<int> options = encounter.DroppablePool.Where(id => id > 0).Distinct().ToList();
         if (options.Count == 0)
-            return;
+            return false;
 
         System.Random rng = new System.Random(CurrentRun.currentFloorSeed + CurrentRun.currentStep + CurrentRun.currentDeck.Count);
         CurrentRun.pendingCardChoices = options.OrderBy(_ => rng.Next()).Take(Mathf.Min(3, options.Count)).ToList();
         ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
         OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+        return true;
     }
 
     private void AdvanceToNextStepOrFloor()
@@ -877,6 +903,7 @@ public class PathOfPowerManager : MonoBehaviour
             case PathOfPowerRunPhase.StarterRelicChoice:
             case PathOfPowerRunPhase.StarterTraitChoice:
             case PathOfPowerRunPhase.StartingDeckDiscovery:
+            case PathOfPowerRunPhase.EncounterCardReward:
             case PathOfPowerRunPhase.AwaitingWardenReward:
                 SwitchDisplay(5);
                 break;
@@ -980,6 +1007,13 @@ public class PathOfPowerManager : MonoBehaviour
 
                 ShowRelicDiscovery(CurrentRun.pendingWardenRelicRewards, RelicDefinition.RelicType.DeckRelic, skippable: true);
                 OnWardenRelicRewardsGenerated?.Invoke(ResolveRelics(CurrentRun.pendingWardenRelicRewards));
+                break;
+            case PathOfPowerRunPhase.EncounterCardReward:
+                if (CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
+                {
+                    ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
+                    OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                }
                 break;
         }
     }
@@ -1397,17 +1431,17 @@ public class PathOfPowerManager : MonoBehaviour
                 .ToList();
             ShowTraitDiscovery(traitChoices, skippable: false, prompt: "Book of Polyvalence: discover a trait.", onTraitSelected: selectedTrait =>
             {
-                CurrentRun.pendingCardChoices = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1112 + CurrentRun.currentDeck.Count, 5, selectedTrait);
-                ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
-                OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                CurrentRun.pendingValidationDiscoveriesRemaining = 5;
+                StartCoroutine(RunPolyvalenceDiscoveries(selectedTrait));
                 traitSelected = true;
             });
             yield return new WaitUntil(() => traitSelected);
-            yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+            yield return new WaitUntil(() => CurrentRun.pendingValidationDiscoveriesRemaining <= 0);
         }
         else if (relic != null && relic.RelicId == "12")
         {
-            CurrentRun.pendingCardChoices = GenerateCheaterScrollChoices(CurrentRun.currentFloorSeed + 1212, 1);
+            ClearRelicDiscovery();
+            CurrentRun.pendingCardChoices = GenerateCheaterScrollChoices(CurrentRun.currentFloorSeed + 1212, 3);
             if (CurrentRun.pendingCardChoices.Count > 0)
             {
                 ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
@@ -1420,6 +1454,19 @@ public class PathOfPowerManager : MonoBehaviour
         // Otherwise ChooseWardenRelicReward returns early and the run stays stuck on discovery.
         isResolvingRelicChoice = false;
         ChooseWardenRelicReward(relicId);
+    }
+
+    private IEnumerator RunPolyvalenceDiscoveries(CardData.Trait selectedTrait)
+    {
+        while (CurrentRun.pendingValidationDiscoveriesRemaining > 0)
+        {
+            int iteration = 5 - CurrentRun.pendingValidationDiscoveriesRemaining;
+            CurrentRun.pendingCardChoices = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1112 + CurrentRun.currentDeck.Count + iteration, 3, selectedTrait);
+            ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
+            OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+            yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+            CurrentRun.pendingValidationDiscoveriesRemaining--;
+        }
     }
 
     private void ShowCardDiscovery(List<int> cardIds, bool skippable = true)
