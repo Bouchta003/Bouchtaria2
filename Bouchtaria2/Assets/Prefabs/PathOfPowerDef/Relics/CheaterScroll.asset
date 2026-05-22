@@ -13,11 +13,12 @@ MonoBehaviour:
   m_Name: CheaterScroll
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
   relicId: 12
-  displayName: Bb
-  description: When obtained, you can discover 5 neutral cards to add to your deck.
-  enemyRelicText: 
-  icon: {fileID: -8052849475328423915, guid: 21067a63274b2fe4d8b012a948de6973, type: 3}
-  assignedTrait: 1
+  displayName: Cheater's Scroll
+  description: When obtained, you can discover 1 non packable card from your archetype
+    (Excluding tokens and useless ones)
+  enemyRelicText: Has some unpackable cards in deck
+  icon: {fileID: 7259616386481422345, guid: 5ef7d5a38d101ca46b0770a9209a4c26, type: 3}
+  assignedTrait: 12
   canAppearAsStarter: 0
   canAppearAsWardenReward: 1
   discoverable: 1
