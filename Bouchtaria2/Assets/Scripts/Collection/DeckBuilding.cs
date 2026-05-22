@@ -111,6 +111,10 @@ public class DeckBuilding : MonoBehaviour
 
         if (GameRunContext.IsPathOfPowerDeckViewMode && GameRunContext.PathOfPowerData != null)
         {
+            if (collection != null)
+                collection.isDeck = true;
+            if (DeckUI != null)
+                DeckUI.SetActive(true);
             CurrentDeck = new List<int>(GameRunContext.PathOfPowerData.currentDeck ?? new List<int>());
             maxDeckSize = Mathf.Max(5, GameRunContext.PathOfPowerData.currentDeckSize);
             pathOfPowerRequiredRemovals = Mathf.Max(0, CurrentDeck.Count - maxDeckSize);

@@ -174,7 +174,8 @@ public class CardView : MonoBehaviour,
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
-        bool owned = UserCollectionManager.Instance.IsOwned(cardId);
+        bool bypassOwnership = GameRunContext.IsPathOfPowerDeckViewMode && SceneManager.GetActiveScene().name == "Collection";
+        bool owned = bypassOwnership || UserCollectionManager.Instance.IsOwned(cardId);
         if (ScanController.Instance == null || (!owned && SceneManager.GetActiveScene().name == "Collection"))
             return;
 
@@ -558,7 +559,8 @@ public class CardView : MonoBehaviour,
     public void Refresh()
     {
         if (SceneManager.GetActiveScene().name != "Collection") return;
-        bool owned = UserCollectionManager.Instance.IsOwned(cardId);
+        bool bypassOwnership = GameRunContext.IsPathOfPowerDeckViewMode;
+        bool owned = bypassOwnership || UserCollectionManager.Instance.IsOwned(cardId);
         //Only in collection
         lockOverlay.SetActive(!owned);
 

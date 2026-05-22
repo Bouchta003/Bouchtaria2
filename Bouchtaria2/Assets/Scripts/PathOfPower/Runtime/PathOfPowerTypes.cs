@@ -26,6 +26,7 @@ public enum PathOfPowerRunPhase
     PathSelection,
     Combat,
     Event,
+    EncounterCardReward,
     AwaitingWardenReward,
     Completed,
     Defeated
@@ -64,6 +65,7 @@ public class PathOfPowerRunData
     public int currentDeckSize = 20;
     public string pendingValidationRelicId;
     public int pendingValidationDiscoveriesRemaining;
+    public bool pendingWardenRewardAfterEncounterDiscovery;
 
     public PathOfPowerStepData CurrentStepData
     {
@@ -108,5 +110,6 @@ public class PathOfPowerRunData
         currentDeckSize = 20;
         pendingValidationRelicId = string.Empty;
         pendingValidationDiscoveriesRemaining = 0;
+        pendingWardenRewardAfterEncounterDiscovery = false;
     }
 }
