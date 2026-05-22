@@ -250,6 +250,14 @@ public class PathOfPowerManager : MonoBehaviour
                 return;
             }
 
+            if (CurrentRun.pendingCombatVictoryResolution)
+            {
+                CurrentRun.pendingCombatVictoryResolution = false;
+                HandleCombatVictoryFromSave();
+                OnRunLoaded?.Invoke(CurrentRun);
+                return;
+            }
+
     
 
             if (CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward && CurrentRun.pendingWardenRelicRewards.Count == 0)
@@ -370,7 +378,7 @@ public class PathOfPowerManager : MonoBehaviour
             }
 
             CurrentRun.pendingCardChoices.Clear();
-            if (isDeckRelicDiscovery && CurrentRun.pendingValidationDiscoveriesRemaining > 0)
+            if (isDeckRelicDiscovery && CurrentRun.pendingValidationRelicId == "10" && CurrentRun.pendingValidationDiscoveriesRemaining > 0)
                 CurrentRun.pendingValidationDiscoveriesRemaining--;
             ClearCardDiscovery();
             SaveRun();
@@ -393,7 +401,7 @@ public class PathOfPowerManager : MonoBehaviour
         if (CurrentRun.currentDeck.Count > CurrentRun.currentDeckSize)
             CurrentRun.currentDeckSize = CurrentRun.currentDeck.Count;
         CurrentRun.pendingCardChoices.Clear();
-        if (isDeckRelicDiscovery && CurrentRun.pendingValidationDiscoveriesRemaining > 0)
+        if (isDeckRelicDiscovery && CurrentRun.pendingValidationRelicId == "10" && CurrentRun.pendingValidationDiscoveriesRemaining > 0)
             CurrentRun.pendingValidationDiscoveriesRemaining--;
         ClearCardDiscovery();
 

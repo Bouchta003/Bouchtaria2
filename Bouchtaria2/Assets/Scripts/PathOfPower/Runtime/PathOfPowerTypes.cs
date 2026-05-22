@@ -66,6 +66,7 @@ public class PathOfPowerRunData
     public string pendingValidationRelicId;
     public int pendingValidationDiscoveriesRemaining;
     public bool pendingWardenRewardAfterEncounterDiscovery;
+    public bool pendingCombatVictoryResolution;
 
     public PathOfPowerStepData CurrentStepData
     {
@@ -111,5 +112,6 @@ public class PathOfPowerRunData
         pendingValidationRelicId = string.Empty;
         pendingValidationDiscoveriesRemaining = 0;
         pendingWardenRewardAfterEncounterDiscovery = false;
+        pendingCombatVictoryResolution = false;
     }
 }
