@@ -175,7 +175,7 @@
       "artPath": "CardArt/odogaronclaws",
       "artCompactPath": "CardArt/odogaronclaws_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "11": {
@@ -209,7 +209,7 @@
       "artPath": "CardArt/sharaishvaldaform",
       "artCompactPath": "CardArt/sharaishvaldaform_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "13": {
@@ -225,7 +225,7 @@
       "artPath": "CardArt/ishvaldasoul",
       "artCompactPath": "CardArt/ishvaldasoul_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "14": {
@@ -259,7 +259,7 @@
       "artPath": "CardArt/bioenergycrystal",
       "artCompactPath": "CardArt/bioenergycrystal_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "16": {
@@ -293,7 +293,7 @@
       "artPath": "CardArt/marshtomp",
       "artCompactPath": "CardArt/marshtomp_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "18": {
@@ -343,7 +343,7 @@
       "artPath": "CardArt/monferno",
       "artCompactPath": "CardArt/monferno_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "21": {
@@ -393,7 +393,7 @@
       "artPath": "CardArt/servine",
       "artCompactPath": "CardArt/servine_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "24": {
@@ -525,7 +525,7 @@
       "artPath": "CardArt/rathalosscale",
       "artCompactPath": "CardArt/rathalosscale_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "32": {
@@ -558,7 +558,7 @@
       "artPath": "CardArt/rathianspike",
       "artCompactPath": "CardArt/rathianspike_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "34": {
@@ -591,7 +591,7 @@
       "artPath": "CardArt/balaharatail",
       "artCompactPath": "CardArt/balaharatail_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "36": {
@@ -655,7 +655,7 @@
       "artPath": "CardArt/monstergear",
       "artCompactPath": "CardArt/monstergear_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "40": {
@@ -689,7 +689,7 @@
       "artPath": "CardArt/metang",
       "artCompactPath": "CardArt/metang_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "42": {
@@ -835,7 +835,7 @@
       "artPath": "CardArt/luna",
       "artCompactPath": "CardArt/luna_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "51": {
@@ -1023,13 +1023,13 @@
       "manaCost": 0,
       "atkValue": 0,
       "hpValue": 0,
-      "traits": [ "SpellFocus" ],
+      "traits": [ "Neutral" ],
       "effect": "managain(1)",
       "effectText": "Gain 1 mana for this turn",
       "artPath": "CardArt/coin",
       "artCompactPath": "CardArt/coin_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "63": {
@@ -1159,7 +1159,7 @@
       "artPath": "CardArt/spindash",
       "artCompactPath": "CardArt/spindash_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "71": {
@@ -1225,7 +1225,7 @@
       "artPath": "CardArt/aang",
       "artCompactPath": "CardArt/aang_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "75": {
@@ -1290,7 +1290,7 @@
       "artPath": "CardArt/korra",
       "artCompactPath": "CardArt/korra_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "79": {
@@ -1418,7 +1418,7 @@
       "artPath": "CardArt/giratinaorigin",
       "artCompactPath": "CardArt/giratinaorigin_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "87": {
@@ -1547,7 +1547,7 @@
       "artPath": "CardArt/sagewall",
       "artCompactPath": "CardArt/sagewall_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "95": {
@@ -1580,7 +1580,7 @@
       "artPath": "CardArt/yoruclone",
       "artCompactPath": "CardArt/yoruclone_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "97": {
@@ -1592,7 +1592,7 @@
       "hpValue": 6,
       "traits": [ "Gunner", "Swordsman" ],
       "effect": "d[damagebleed(1),targetany] regeneration",
-      "effectText": "Deploy : Deals 2 damage to anything\nRegeneration",
+      "effectText": "Deploy : Deals 1 damage to anything and applies bleed\nRegeneration",
       "artPath": "CardArt/deadpool",
       "artCompactPath": "CardArt/deadpool_compact",
       "packable": true,
@@ -1635,9 +1635,9 @@
       "id": 100,
       "name": "Safi'Jiiva.",
       "cardType": "minion",
-      "manaCost": 20,
-      "atkValue": 13,
-      "hpValue": 13,
+      "manaCost": 10,
+      "atkValue": 15,
+      "hpValue": 15,
       "traits": [ "MonsterHunter" ],
       "effect": "d[emperorsapphire] regeneration r[addcard(43)]",
       "relatedCards": [ 43 ],
@@ -1669,7 +1669,7 @@
       "id": 102,
       "name": "Jin Dahaad",
       "cardType": "minion",
-      "manaCost": 8,
+      "manaCost": 6,
       "atkValue": 8,
       "hpValue": 5,
       "traits": [ "MonsterHunter" ],
@@ -1859,7 +1859,7 @@
       "artPath": "CardArt/freshwater",
       "artCompactPath": "CardArt/freshwater_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "114": {
@@ -1989,7 +1989,7 @@
       "artPath": "CardArt/reydauwingtalon",
       "artCompactPath": "CardArt/reydauwingtalon_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "122": {
@@ -2005,7 +2005,7 @@
       "artPath": "CardArt/zinogrefang",
       "artCompactPath": "CardArt/zinogrefang_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "123": {
@@ -2021,7 +2021,7 @@
       "artPath": "CardArt/jindahaadscale",
       "artCompactPath": "CardArt/jindahaadscale_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "124": {
@@ -2053,7 +2053,7 @@
       "artPath": "CardArt/arkveldcalloushell",
       "artCompactPath": "CardArt/arkveldcalloushell_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "126": {
@@ -2292,7 +2292,7 @@
       "hpValue": 0,
       "traits": [ "Healer" ],
       "effect": "gear(regeneration),targetunit",
-      "effectText": "Gear\nEnd of turn : Fully heal owner.",
+      "effectText": "Gear\nRegeneration.",
       "artPath": "CardArt/niablade",
       "artCompactPath": "CardArt/niablade_compact",
       "packable": false,
@@ -2910,7 +2910,7 @@
       "artPath": "CardArt/wan",
       "artCompactPath": "CardArt/wan_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "179": {
@@ -2932,7 +2932,7 @@
     },
     "180": {
       "id": 180,
-      "name": "Avatar Wan",
+      "name": "Unknown",
       "cardType": "minion",
       "manaCost": 6,
       "atkValue": 3,
@@ -2941,8 +2941,8 @@
       "effect": "avatar sot[draw(2)] s[buffall(2,2)] eot[summon(77)] b[autoheal(5)]",
       "effectText": "Avatar State.\nStart of turn : Draw 2\nStrike : Give all allies +1/+1\nEnd of turn : Summon a golem\nBerserk : Heal your core for 5",
       "relatedCards": [ 77 ],
-      "artPath": "CardArt/wanavatar",
-      "artCompactPath": "CardArt/wanavatar_compact",
+      "artPath": "CardArt/fff",
+      "artCompactPath": "CardArt/ffffffff",
       "packable": false,
       "token": false,
       "signature": false
@@ -2977,7 +2977,7 @@
       "artPath": "CardArt/deviljhotooth",
       "artCompactPath": "CardArt/deviljhotooth_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "183": {
@@ -3250,7 +3250,7 @@
       "relatedCards": [ 200 ],
       "artCompactPath": "CardArt/machoke_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "200": {
@@ -3266,7 +3266,7 @@
       "artPath": "CardArt/machamp",
       "artCompactPath": "CardArt/machamp_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "201": {
@@ -3316,7 +3316,7 @@
       "artPath": "CardArt/herdier",
       "artCompactPath": "CardArt/herdier_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "204": {
@@ -3325,7 +3325,7 @@
       "cardType": "minion",
       "manaCost": 7,
       "atkValue": 8,
-      "hpValue": 8,
+      "hpValue": 9,
       "traits": [ "Pokemon", "Neutral" ],
       "effect": "quickstrike",
       "effectText": "Quickstrike.",
@@ -3373,7 +3373,7 @@
       "id": 207,
       "name": "Lucario",
       "cardType": "minion",
-      "manaCost": 6,
+      "manaCost": 5,
       "atkValue": 6,
       "hpValue": 6,
       "traits": [ "Pokemon", "Fighter" ],
@@ -3544,7 +3544,7 @@
       "artPath": "CardArt/quilladin",
       "artCompactPath": "CardArt/quilladin_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "218": {
@@ -3594,7 +3594,7 @@
       "artPath": "CardArt/frogadier",
       "artCompactPath": "CardArt/frogadier_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "221": {
@@ -3644,7 +3644,7 @@
       "artPath": "CardArt/braixen",
       "artCompactPath": "CardArt/braixen_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "224": {
@@ -3684,10 +3684,10 @@
       "id": 226,
       "name": "Butterfree",
       "cardType": "minion",
-      "manaCost": 5,
+      "manaCost": 4,
       "atkValue": 5,
       "hpValue": 4,
-      "traits": [ "Pokemon" ],
+      "traits": [ "Pokemon","Healer" ],
       "effect": "eot[autoheal(4)]",
       "effectText": "End of turn : Heal your core by 4 HP",
       "artPath": "CardArt/butterfree",
@@ -3837,7 +3837,7 @@
       "artPath": "CardArt/amalgam",
       "artCompactPath": "CardArt/amalgam_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "236": {
@@ -3861,7 +3861,7 @@
       "id": 237,
       "name": "Pitou",
       "cardType": "minion",
-      "manaCost": 9,
+      "manaCost": 7,
       "atkValue": 7,
       "hpValue": 7,
       "traits": [ "Fighter", "Chaos" ],
@@ -3987,14 +3987,14 @@
       "artPath": "CardArt/gabite",
       "artCompactPath": "CardArt/gabite_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "245": {
       "id": 245,
       "name": "Garchomp",
       "cardType": "minion",
-      "manaCost": 10,
+      "manaCost": 9,
       "atkValue": 8,
       "hpValue": 7,
       "traits": [ "Pokemon" ],
@@ -4035,7 +4035,7 @@
       "artPath": "CardArt/nergihorn",
       "artCompactPath": "CardArt/nergihorn_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "248": {
@@ -4156,7 +4156,7 @@
       "id": 255,
       "name": "Crossfire",
       "cardType": "spell",
-      "manaCost": 5,
+      "manaCost": 4,
       "atkValue": 0,
       "hpValue": 0,
       "traits": [ "Inazuma" ],
@@ -4800,7 +4800,7 @@
       "artPath": "CardArt/liz",
       "artCompactPath": "CardArt/liz_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "295": {
@@ -4816,7 +4816,7 @@
       "artPath": "CardArt/patty",
       "artCompactPath": "CardArt/patty_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "296": {
@@ -5064,7 +5064,7 @@
       "id": 311,
       "name": "Excalibur",
       "cardType": "minion",
-      "manaCost": 10,
+      "manaCost": 20,
       "atkValue": 1,
       "hpValue": 1,
       "traits": [ "Swordsman", "SoulForce" ],
@@ -5252,7 +5252,7 @@
       "artCompactPath": "CardArt/pyra_compact",
       "relatedcards": [ 321, 323, 324 ],
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "323": {
@@ -5269,7 +5269,7 @@
       "artCompactPath": "CardArt/mythra_compact",
       "relatedcards": [ 321, 322, 324 ],
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "324": {
@@ -5334,7 +5334,7 @@
       "artPath": "CardArt/banana",
       "artCompactPath": "CardArt/banana_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "328": {
@@ -5350,7 +5350,7 @@
       "artPath": "CardArt/hugebanana",
       "artCompactPath": "CardArt/hugebanana_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "329": {
@@ -5384,7 +5384,7 @@
       "artCompactPath": "CardArt/doublade_compact",
       "relatedcards": [ 329, 331 ],
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "331": {
@@ -5451,7 +5451,7 @@
       "artCompactPath": "CardArt/soul_compact",
       "relatedcards": [ 333 ],
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "335": {
@@ -5485,7 +5485,7 @@
       "artCompactPath": "CardArt/tsubaki_compact",
       "relatedcards": [ 335 ],
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "337": {
@@ -5518,7 +5518,7 @@
       "artPath": "CardArt/infernal",
       "artCompactPath": "CardArt/infernal_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "339": {
@@ -5664,7 +5664,7 @@
       "artPath": "CardArt/glavenustail",
       "artCompactPath": "CardArt/glavenustail_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "348": {
@@ -5714,7 +5714,7 @@
       "relatedCards": [ 349 ],
       "artCompactPath": "CardArt/burnsdoppelganger_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "351": {
@@ -5909,7 +5909,7 @@
       "artPath": "CardArt/daronprime",
       "artCompactPath": "CardArt/daronprime_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "363": {
@@ -5941,7 +5941,7 @@
       "artPath": "CardArt/rockthrow",
       "artCompactPath": "CardArt/rockthrow_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "365": {
@@ -5975,7 +5975,7 @@
       "artPath": "CardArt/tinkatuff",
       "artCompactPath": "CardArt/tinkatuff_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "367": {
@@ -6041,7 +6041,7 @@
       "artPath": "CardArt/defeated",
       "artCompactPath": "CardArt/defeated_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "371": {
@@ -6057,7 +6057,7 @@
       "artPath": "CardArt/despair",
       "artCompactPath": "CardArt/despair_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "372": {
@@ -6073,7 +6073,7 @@
       "artPath": "CardArt/madness",
       "artCompactPath": "CardArt/madness_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "373": {
@@ -6442,7 +6442,7 @@
       "artPath": "CardArt/bouchtimp",
       "artCompactPath": "CardArt/bouchtimp_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "396": {
@@ -6575,7 +6575,7 @@
       "artPath": "CardArt/hitmonlee",
       "artCompactPath": "CardArt/hitmonlee_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "404": {
@@ -6592,7 +6592,7 @@
       "artPath": "CardArt/hitmonchan",
       "artCompactPath": "CardArt/hitmonchan_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "405": {
@@ -6609,7 +6609,7 @@
       "artPath": "CardArt/hitmontop",
       "artCompactPath": "CardArt/hitmontop_compact",
       "packable": false,
-      "token": false,
+      "token": true,
       "signature": false
     },
     "406": {
@@ -6681,7 +6681,7 @@
       "id": 410,
       "name": "Tristebeast",
       "cardType": "minion",
-      "manaCost": 6,
+      "manaCost": 8,
       "atkValue": 10,
       "hpValue": 10,
       "traits": [ "Fighter" ],
