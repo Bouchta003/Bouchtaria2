@@ -130,6 +130,10 @@ public class DeckBuilding : MonoBehaviour
                 ChangeDecksDropDown.SetActive(false);
             if (chestCOllider != null)
                 chestCOllider.enabled = CanModifyPathOfPowerViewedDeck();
+
+            // Ensure trait panels are computed immediately in Path Of Power deck view.
+            DetectUnlockableTraits();
+
             if (collection != null)
                 collection.ShowPage(collection.currentPage);
         }

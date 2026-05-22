@@ -1186,10 +1186,20 @@ public class PathOfPowerManager : MonoBehaviour
         System.Random rng = new System.Random(seed == 0 ? GenerateSeed() : seed);
         HashSet<string> ownedRelics = new HashSet<string>(CurrentRun?.currentRelics ?? new List<string>());
         return relicLibrary
-            .Where(relic => relic != null && relic.Discoverable && predicate(relic))
+            .Where(relic => IsRelicDiscoverableForCurrentRun(relic) && predicate(relic))
             .OrderBy(relic => ownedRelics.Contains(relic.RelicId) ? rng.Next(1000, 2000) : rng.Next(0, 100))
             .Take(count)
             .ToList();
+    }
+
+    private bool IsRelicDiscoverableForCurrentRun(RelicDefinition relic)
+    {
+        if (relic == null || !relic.Discoverable)
+            return false;
+
+        // AssignedTrait is informational/design metadata; it should not hard-gate discovery.
+        // Relics with assigned traits must remain discoverable even if that trait is not active yet.
+        return true;
     }
 
     private IReadOnlyList<RelicDefinition> ResolveRelics(IEnumerable<string> relicIds)
