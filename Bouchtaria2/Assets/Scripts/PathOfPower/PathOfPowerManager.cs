@@ -231,7 +231,12 @@ public class PathOfPowerManager : MonoBehaviour
     {
         PathOfPowerSaveService.Load(runData =>
         {
-            CurrentRun = runData ?? new PathOfPowerRunData();
+            PathOfPowerRunData contextRun = GameRunContext.IsPathOfPowerRun ? GameRunContext.PathOfPowerData : null;
+            bool shouldPreferContextRun = contextRun != null &&
+                                         contextRun.pendingCombatVictoryResolution &&
+                                         (runData == null || !runData.pendingCombatVictoryResolution);
+
+            CurrentRun = shouldPreferContextRun ? contextRun : (runData ?? new PathOfPowerRunData());
             EnsureRunLists();
             if (CurrentRun.currentFloor <= 0 || CurrentRun.phase == PathOfPowerRunPhase.None)
             {
