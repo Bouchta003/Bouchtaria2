@@ -3521,10 +3521,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "Fighter Trait :\nUnlockable with 4 8 or 12 fighter cards in deck\nIncrease
-    allied stats to activate (Fighters count twice): \nTier 1 : When a Fighter
-    gains stats, it gains an additional +1/+1.\nTier 2 : When a Fighter gains
-    stats, it gains a random basic effect.\nTier 3 : When a Fighter is summoned,
-    it gains +3/+3.\n"
+    allied stats to activate (Fighters count twice): \nTier 1 : When a Fighter gains
+    stats, it gains an additional +1/+1.\nTier 2 : When a Fighter gains stats, it
+    gains a random basic effect.\nTier 3 : When a Fighter is summoned, it gains +3/+3.\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
   m_sharedMaterial: {fileID: -1779797437514033207, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
@@ -7345,11 +7344,14 @@ MonoBehaviour:
     Tiers
     unlock when killing or catching enemy units 3/6/12 Times in the game with pokemon
 
-    First tier: Start of turn, evolve a random Pokemon on your board that can evolve
+    First
+    tier: Start of turn, evolve a random Pokemon on your board that can evolve
 
-    Second tier: Add Pokeball, Greatball, and Ultraball to your hand. They cost 2 less
+    Second
+    tier: Add Pokeball, Greatball, and Ultraball to your hand. They cost 2 less
 
-    Third tier: Discover a LEGENDARY pokemon and discount it by 3'
+    Third
+    tier: Discover a LEGENDARY pokemon and discount it by 3'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}
   m_sharedMaterial: {fileID: -1779797437514033207, guid: c78d523552cbfe8449e22a52822a0ab8, type: 2}

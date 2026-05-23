@@ -21,3 +21,5 @@ MonoBehaviour:
   assignedTrait: 0
   canAppearAsStarter: 1
   canAppearAsWardenReward: 0
+  discoverable: 1
+  relicType: 0

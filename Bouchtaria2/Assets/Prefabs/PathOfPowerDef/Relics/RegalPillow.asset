@@ -17,6 +17,8 @@ MonoBehaviour:
   description: On Heal, heal an additionnal 2HP
   enemyRelicText: Heals heal 2 extra HP
   icon: {fileID: 129619724240353906, guid: 6dcf698a743869440915720fb1096fcf, type: 3}
-  assignedTrait: 11
+  assignedTrait: 10
   canAppearAsStarter: 1
   canAppearAsWardenReward: 1
+  discoverable: 1
+  relicType: 0
