@@ -40,11 +40,12 @@ public class CombatLog : MonoBehaviour
 
         Instance = this;
         ResolveReferences(true);
+    }
+    void Start() {
 
         if (logUI != null)
             logUI.SetActive(false);
     }
-
     private void OnEnable()
     {
         ResolveReferences(true);
@@ -82,7 +83,25 @@ public class CombatLog : MonoBehaviour
 
         AddAction(cardInstance, cardInstance.Data, cardInstance.Owner, text);
     }
+    public void AddAnonymousAction(PlayerOwner owner, string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return;
 
+        LogRecord incoming = new LogRecord
+        {
+            Owner = owner,
+            Text = text,
+        };
+
+        if (ShouldAppendToLastRecord(incoming))
+            AppendToLastRecord(incoming.Text);
+        else
+            records.Add(incoming);
+
+        if (CanRenderImmediately)
+            TryRenderAllRecords();
+    }
     public void AddAction(CardInstance cardInstance, CardData cardData, PlayerOwner owner, string text)
     {
         if (string.IsNullOrWhiteSpace(text))

@@ -2,9 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using DG.Tweening;
+using TMPro;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public enum CardZone
 {
@@ -4608,8 +4610,6 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (target.Data.cardType != "minion")
             return false;
 
-        Debug.Log($"[DITTO] {Data.name} morphs into {target.Data.name}");
-
         Data = target.Data;
         CurrentEffect = target.CurrentEffect;
         CurrentEffectText = target.CurrentEffectText;
@@ -4632,6 +4632,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         cardView.Bind(this);
         cardView.UpdateMode();
 
+        CombatLog.Instance?.AddAction(this,"Ditto morphed into " + target.Data.name + ".");
         return true;
     }
     private IEnumerator DelayedProgressInit()
@@ -4645,6 +4646,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.Heal(heal);
         else
             gameManager.EnemyCore.Heal(heal);
+        CombatLog.Instance?.AddAction(this, $"{this.Data.name} healed their own core for {heal} HP.");
     }
     public void ApplyBleed(IAttackable targetUnit)
     {
@@ -4675,6 +4677,9 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.FullHeal();
         else
             gameManager.EnemyCore.FullHeal();
+
+
+        CombatLog.Instance?.AddAction(this, $"{this.Data.name} fully healed their own core.");
     }
     public void HealAll(int heal)
     {
@@ -4683,6 +4688,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.Heal(heal);
 
             List<GameObject> alliesSnapshot = new(gameManager.allyDropArea.allyPrefabCards);
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} healed all allies for {heal} HP.");
             foreach (GameObject ally in alliesSnapshot)
             {
                 if (ally == null)
@@ -4700,6 +4706,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.EnemyCore.Heal(heal);
 
             List<GameObject> enemiesSnapshot = new(gameManager.enemyDropArea.enemyPrefabCards);
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} healed all enemies for {heal} HP.");
             foreach (GameObject enemy in enemiesSnapshot)
             {
                 if (enemy == null)
@@ -4720,6 +4727,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.FullHeal();
 
             List<GameObject> alliesSnapshot = new(gameManager.allyDropArea.allyPrefabCards);
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} fully healed all allies.");
             foreach (GameObject ally in alliesSnapshot)
             {
                 if (ally == null)
@@ -4737,6 +4745,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.EnemyCore.FullHeal();
 
             List<GameObject> enemiesSnapshot = new(gameManager.enemyDropArea.enemyPrefabCards);
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} fully healed all enemies.");
             foreach (GameObject enemy in enemiesSnapshot)
             {
                 if (enemy == null)
@@ -4754,6 +4763,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (Owner == PlayerOwner.Enemy)
         {
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} put all allies to sleep.");
             foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
             {
                 CardInstance inst = ally.GetComponent<CardInstance>();
@@ -4762,7 +4772,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else
         {
-            Debug.Log("All enemies sleep");
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} put all enemies to sleep.");
             foreach (GameObject enemy in gameManager.enemyDropArea.enemyPrefabCards)
             {
                 CardInstance inst = enemy.GetComponent<CardInstance>();
@@ -4775,6 +4785,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (Owner == PlayerOwner.Enemy)
         {
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} silenced all allies.");
             foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
             {
                 CardInstance inst = ally.GetComponent<CardInstance>();
@@ -4783,7 +4794,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else
         {
-            Debug.Log("All enemies silenced");
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} silenced all enemies.");
             foreach (GameObject enemy in gameManager.enemyDropArea.enemyPrefabCards)
             {
                 CardInstance inst = enemy.GetComponent<CardInstance>();
@@ -4817,6 +4828,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.EnemyCore.TakeDamage(dmg);
         gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
 
+        CombatLog.Instance?.AddAction(this, $"{this.Data.name} dealt damage to their own core for {dmg} HP.");
     }
     public void AutoDamageCore(int dmg)
     {
@@ -4826,6 +4838,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.EnemyCore.TakeDamage(dmg);
         gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
 
+        CombatLog.Instance?.AddAction(this, $"{this.Data.name} dealt damage to enemy core for {dmg} HP.");
+
     }
     public void AutoShieldCore(int shield)
     {
@@ -4833,6 +4847,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.AddShield(shield);
         else
             gameManager.EnemyCore.AddShield(shield);
+
+        CombatLog.Instance?.AddAction(this, $"{this.Data.name} shielded core for {shield} HP.");
     }
     public void SelfDestroy()
     {
@@ -4901,6 +4917,8 @@ public class CardInstance : MonoBehaviour, IAttackable
         if(HasTrait("Pokemon"))
             gameManager.AddPokemonTraitProgress(Owner, 1);
         SFXManager.Instance.PlaySFXClip(gameManager.killSFX, transform, 1f);
+
+        CombatLog.Instance?.AddAction(this, $"{this.Data.name} killed {target.Data.name}.");
         return;
     }
     public void Heal(int amount)

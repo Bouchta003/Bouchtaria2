@@ -380,6 +380,10 @@ public class DeckManager : MonoBehaviour
         hand.AddCard(card.gameObject);
         hand.UpdateCardPositions();
         OnCardDrawn?.Invoke(card);
+        if (card.Owner == PlayerOwner.Enemy)
+        {
+            CombatLog.Instance?.AddAnonymousAction(PlayerOwner.Enemy, $"Enemy drew a card.");
+        } else
         CombatLog.Instance?.AddAction(card, $"{card.Data.name} was drawn.");
     }
     private bool TryDrawCard(PlayerOwner owner)

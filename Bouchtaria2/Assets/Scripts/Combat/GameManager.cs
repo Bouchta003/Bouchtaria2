@@ -4309,11 +4309,11 @@ private sealed class PendingHandReturn
             //Apply lifesteal Heal before damage if enemy not blessed
             if (attacker.HasKeyword("lifesteal") && !targetUnit.HasKeyword("blessed"))
             {
-                attacker.AutoHealCore(attackerDmg);
+                attacker.AutoHealCore(attackerDmg); CombatLog.Instance?.AddAction(attacker, $"{attacker.Data.name} healed core for {attackerDmg} HP with lifesteal.");
             }
             if (targetUnit.HasKeyword("lifesteal") && !attacker.HasKeyword("blessed"))
             {
-                targetUnit.AutoHealCore(defenderDmg);
+                targetUnit.AutoHealCore(defenderDmg); CombatLog.Instance?.AddAction(targetUnit, $"{targetUnit.Data.name} healed core for {defenderDmg} HP with lifesteal.");
             }
             if (isKill)
             {
@@ -4322,6 +4322,7 @@ private sealed class PendingHandReturn
             int excessDmg = attacker.CurrentAttack - targetUnit.CurrentHealth;
             attacker.TakeDamage(defenderDmg + thornDamage);
             targetUnit.TakeDamage(attackerDmg);
+            CombatLog.Instance?.AddAction(attacker, $"{attacker.Data.name} dealt {attackerDmg} damage to {targetUnit.Data.name} and received {defenderDmg} damage.");
             ApplyCleaveDamage(attacker, cleaveTargets, attackerDmg);
             ApplyPierceDamage(attacker, targetUnit, excessDmg);
             return;
@@ -4360,9 +4361,10 @@ private sealed class PendingHandReturn
 
             if (attacker.HasKeyword("lifesteal"))
             {
-                attacker.AutoHealCore(attackerDmg);
+                attacker.AutoHealCore(attackerDmg); CombatLog.Instance?.AddAction(attacker, $"{attacker.Data.name} healed core for {attackerDmg} HP with lifesteal.");
             }
-            core.TakeDamage(attackerDmg);
+            core.TakeDamage(attackerDmg); 
+            CombatLog.Instance?.AddAction(attacker, $"{attacker.Data.name} dealt {attackerDmg} damage to core.");
             return;
         }
     }
@@ -4418,6 +4420,7 @@ private sealed class PendingHandReturn
             return;
 
         enemyCore.TakeDamage(damage);
+        CombatLog.Instance?.AddAction(attacker, $"{attacker.Data.name} pierced enemy core for {damage} damage.");
         OnDamageWithCard(attacker.Owner);
     }
     private void ApplyCleaveDamage(CardInstance attacker, List<CardInstance> cleaveTargets, int damage)

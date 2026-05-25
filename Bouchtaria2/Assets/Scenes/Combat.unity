@@ -7905,8 +7905,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CombatLog
   combatLogEntryPrefab: {fileID: 3142753071186568389, guid: 2eccbec55bf81bc4890d18f0a07e0385, type: 3}
-  combatLogGrid: {fileID: 196339649}
-  LogUI: {fileID: 485709004}
+  combatLogGrid: {fileID: 196339650}
+  logUI: {fileID: 485709004}
+  autoFindReferences: 1
 --- !u!1 &1142966808
 GameObject:
   m_ObjectHideFlags: 0

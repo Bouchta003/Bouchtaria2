@@ -1,6 +1,7 @@
 using System.Collections;
 using DG.Tweening;
 using DG.Tweening.Core.Easing;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class CoreInstance : MonoBehaviour, IAttackable
@@ -101,7 +102,7 @@ public class CoreInstance : MonoBehaviour, IAttackable
     public void AddShield(int amount)
     {
         Shield += amount;
-        OnCoreChanged?.Invoke();
+        OnCoreChanged?.Invoke(); 
     }
     public void Heal(int amount)
     {
