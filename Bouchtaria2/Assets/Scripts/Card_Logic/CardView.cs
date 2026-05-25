@@ -174,6 +174,9 @@ public class CardView : MonoBehaviour,
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (CombatLog.IsLogUIActive)
+            return;
+
         bool bypassOwnership = GameRunContext.IsPathOfPowerDeckViewMode && SceneManager.GetActiveScene().name == "Collection";
         bool owned = bypassOwnership || UserCollectionManager.Instance.IsOwned(cardId);
         if (ScanController.Instance == null || (!owned && SceneManager.GetActiveScene().name == "Collection"))
@@ -184,6 +187,9 @@ public class CardView : MonoBehaviour,
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (CombatLog.IsLogUIActive)
+            return;
+
         if (ScanController.Instance == null)
             return;
 

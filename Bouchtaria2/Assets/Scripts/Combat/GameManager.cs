@@ -1518,6 +1518,7 @@ private sealed class PendingHandReturn
         if (owner == PlayerOwner.Player)
         {
             CurrentGameState = GameState.PlayerLost;
+            CombatLog.Instance?.AddAnonymousAction(PlayerOwner.Enemy, "Enemy won the combat.");
             Debug.Log("PLAYER LOSES");
             ModifyUserGold(LossGoldCompensation);
             if (GameRunContext.IsPathOfPowerRun)
@@ -1542,12 +1543,14 @@ private sealed class PendingHandReturn
             {
                 adventureBossFinalDialogueTriggered = true;
                 CurrentGameState = GameState.PlayerWon;
+                CombatLog.Instance?.AddAnonymousAction(PlayerOwner.Player, "Player won the combat.");
                 Debug.Log("PLAYER WINS");
                 ApplyPlayerWinRewardsAndProgression();
                 StartCoroutine(HandleAdventureBossFinalDialogueThenWinUI());
                 return;
             }
             CurrentGameState = GameState.PlayerWon;
+            CombatLog.Instance?.AddAnonymousAction(PlayerOwner.Player, "Player won the combat.");
             Debug.Log("PLAYER WINS");
             ApplyPlayerWinRewardsAndProgression();
         }
@@ -1933,6 +1936,7 @@ private sealed class PendingHandReturn
             EnemyCurrentMana += mana;
 
         NotifyManaGained(owner, mana);
+        CombatLog.Instance?.AddAnonymousAction(owner, $"{owner} gained {mana} mana.");
     }
     public void EnemyMaxManaLoss(int mana, PlayerOwner owner)
     {
@@ -1951,6 +1955,7 @@ private sealed class PendingHandReturn
         else { EnemyCurrentMaxMana += mana; EnemyCurrentMana += mana; }
 
         NotifyManaGained(owner, mana);
+        CombatLog.Instance?.AddAnonymousAction(owner, $"{owner} gained {mana} max mana.");
     }
     public int GainMaxManaCapped(int mana, PlayerOwner owner)
     {

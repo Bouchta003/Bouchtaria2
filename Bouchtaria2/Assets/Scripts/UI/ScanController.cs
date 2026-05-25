@@ -50,7 +50,7 @@ public class ScanController : MonoBehaviour
         {
             // keep relic hover scans visible until the relic hover target clears them
         }
-        else if(!pathOfPowerScene || cardUnderMouse == null)
+        else if (!CombatLogEntryView.IsAnyLogEntryHovered && !pathOfPowerScene && cardUnderMouse == null)
         {
             panelInstance.Hide();
         }
