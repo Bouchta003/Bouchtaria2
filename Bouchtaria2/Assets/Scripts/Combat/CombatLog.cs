@@ -30,11 +30,6 @@ public class CombatLog : MonoBehaviour
         public string Text;
     }
 
-    private bool IsConfigured
-    {
-        get => combatLogEntryPrefab != null && combatLogGrid != null;
-    }
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
