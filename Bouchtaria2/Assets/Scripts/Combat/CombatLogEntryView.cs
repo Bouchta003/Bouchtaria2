@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class CombatLogEntryView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
+    private static int hoverCount;
+    public static bool IsAnyLogEntryHovered => hoverCount > 0;
     [SerializeField] private TMP_Text logText;
     [SerializeField] private Image scannableImage;
     [SerializeField] private Image bgOwner;
@@ -82,6 +84,8 @@ public class CombatLogEntryView : MonoBehaviour, IPointerEnterHandler, IPointerE
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        hoverCount++;
+
         if (ScanController.Instance == null || ScanController.Instance.panelInstance == null)
             return;
 
@@ -104,6 +108,8 @@ public class CombatLogEntryView : MonoBehaviour, IPointerEnterHandler, IPointerE
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        hoverCount = Mathf.Max(0, hoverCount - 1);
+
         if (ScanController.Instance == null || ScanController.Instance.panelInstance == null)
             return;
 

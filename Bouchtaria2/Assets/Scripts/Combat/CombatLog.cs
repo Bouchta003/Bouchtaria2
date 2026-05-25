@@ -12,6 +12,7 @@ public class CombatLog : MonoBehaviour
     [SerializeField] private bool autoFindReferences = true;
 
     public static CombatLog Instance;
+    public static bool IsLogUIActive => Instance != null && Instance.logUI != null && Instance.logUI.activeSelf;
 
     private readonly List<LogRecord> records = new();
     private readonly List<CombatLogEntryView> liveViews = new();
