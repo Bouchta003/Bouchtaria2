@@ -10,6 +10,11 @@ public class CombatLog : MonoBehaviour
 
     private CombatLogEntryView lastEntry;
 
+    private bool IsConfigured
+    {
+        get => combatLogEntryPrefab != null && combatLogGrid != null;
+    }
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -22,6 +27,12 @@ public class CombatLog : MonoBehaviour
 
         if (LogUI != null)
             LogUI.SetActive(false);
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
     }
 
     public void ToggleLoGUI()
@@ -40,7 +51,7 @@ public class CombatLog : MonoBehaviour
 
     public void AddAction(CardInstance cardInstance, CardData cardData, PlayerOwner owner, string text)
     {
-        if (string.IsNullOrWhiteSpace(text) || combatLogEntryPrefab == null || combatLogGrid == null)
+        if (string.IsNullOrWhiteSpace(text) || !IsConfigured)
             return;
 
         bool appendToLast = lastEntry != null && lastEntry.CardInstance == cardInstance && cardInstance != null;
@@ -49,6 +60,9 @@ public class CombatLog : MonoBehaviour
             lastEntry.AppendText(text);
             return;
         }
+
+        if (!IsConfigured)
+            return;
 
         GameObject created = Instantiate(combatLogEntryPrefab, combatLogGrid);
         CombatLogEntryView view = created.GetComponent<CombatLogEntryView>();
