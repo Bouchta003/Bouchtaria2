@@ -4,6 +4,7 @@ using UnityEngine.Serialization;
 
 public class CombatLog : MonoBehaviour
 {
+    private const int MaxVisibleLogs = 5;
     [SerializeField] private GameObject combatLogEntryPrefab;
     [SerializeField] private Transform combatLogGrid;
     [FormerlySerializedAs("LogUI")]
@@ -99,6 +100,8 @@ public class CombatLog : MonoBehaviour
         else
             records.Add(incoming);
 
+        TrimToRecentLogs();
+
         if (CanRenderImmediately)
             TryRenderAllRecords();
     }
@@ -120,6 +123,8 @@ public class CombatLog : MonoBehaviour
         else
             records.Add(incoming);
 
+        TrimToRecentLogs();
+
         if (CanRenderImmediately)
             TryRenderAllRecords();
     }
@@ -130,6 +135,16 @@ public class CombatLog : MonoBehaviour
         DestroyLiveViews();
     }
 
+
+    private void TrimToRecentLogs()
+    {
+        int overflow = records.Count - MaxVisibleLogs;
+        if (overflow <= 0)
+            return;
+
+        records.RemoveRange(0, overflow);
+        DestroyLiveViews();
+    }
     private bool ResolveReferences(bool includeInactive)
     {
         if (!autoFindReferences)
