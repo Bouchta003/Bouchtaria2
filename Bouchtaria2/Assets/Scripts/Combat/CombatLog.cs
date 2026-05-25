@@ -1,28 +1,28 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class CombatLog : MonoBehaviour
 {
     [SerializeField] private GameObject combatLogEntryPrefab;
     [SerializeField] private Transform combatLogGrid;
-    [SerializeField] private GameObject LogUI;
+    [FormerlySerializedAs("LogUI")]
+    [SerializeField] private GameObject logUI;
+    [SerializeField] private bool autoFindReferences = true;
 
     public static CombatLog Instance;
 
-    private CombatLogEntryView lastEntry;
-    private readonly Queue<PendingLogEntry> pendingEntries = new();
+    private readonly List<LogRecord> records = new();
+    private readonly List<CombatLogEntryView> liveViews = new();
 
-    private bool IsConfigured
-    {
-        get => combatLogEntryPrefab != null && combatLogGrid != null;
-    }
+    private bool IsConfigured => ResolveReferences(false) && combatLogEntryPrefab != null && combatLogGrid != null;
 
-    private bool CanRenderImmediately
-    {
-        get => IsConfigured && combatLogGrid.gameObject.activeInHierarchy;
-    }
+    private bool CanRenderImmediately =>
+        IsConfigured
+        && combatLogGrid.gameObject.activeInHierarchy
+        && combatLogGrid.gameObject.scene.IsValid();
 
-    private struct PendingLogEntry
+    private struct LogRecord
     {
         public CardInstance CardInstance;
         public CardData CardData;
@@ -39,9 +39,16 @@ public class CombatLog : MonoBehaviour
         }
 
         Instance = this;
+        ResolveReferences(true);
 
-        if (LogUI != null)
-            LogUI.SetActive(false);
+        if (logUI != null)
+            logUI.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        ResolveReferences(true);
+        TryRenderAllRecords();
     }
 
     private void OnDestroy()
@@ -52,13 +59,20 @@ public class CombatLog : MonoBehaviour
 
     public void ToggleLoGUI()
     {
-        if (LogUI == null)
+        ToggleLogUI();
+    }
+
+    public void ToggleLogUI()
+    {
+        ResolveReferences(true);
+
+        if (logUI == null)
             return;
 
-        LogUI.SetActive(!LogUI.activeSelf);
+        logUI.SetActive(!logUI.activeSelf);
 
-        if (LogUI.activeSelf)
-            FlushPendingEntries();
+        if (logUI.activeSelf)
+            TryRenderAllRecords();
     }
 
     public void AddAction(CardInstance cardInstance, string text)
@@ -71,45 +85,101 @@ public class CombatLog : MonoBehaviour
 
     public void AddAction(CardInstance cardInstance, CardData cardData, PlayerOwner owner, string text)
     {
-        if (string.IsNullOrWhiteSpace(text) || !IsConfigured)
+        if (string.IsNullOrWhiteSpace(text))
             return;
 
-        if (!CanRenderImmediately)
+        LogRecord incoming = new LogRecord
         {
-            pendingEntries.Enqueue(new PendingLogEntry
+            CardInstance = cardInstance,
+            CardData = cardData,
+            Owner = owner,
+            Text = text,
+        };
+
+        if (ShouldAppendToLastRecord(incoming))
+            AppendToLastRecord(incoming.Text);
+        else
+            records.Add(incoming);
+
+        if (CanRenderImmediately)
+            TryRenderAllRecords();
+    }
+
+    public void Clear()
+    {
+        records.Clear();
+        DestroyLiveViews();
+    }
+
+    private bool ResolveReferences(bool includeInactive)
+    {
+        if (!autoFindReferences)
+            return true;
+
+        if (logUI == null)
+            logUI = gameObject;
+
+        if (combatLogGrid == null)
+        {
+            Transform[] all = GetComponentsInChildren<Transform>(includeInactive);
+            foreach (Transform t in all)
             {
-                CardInstance = cardInstance,
-                CardData = cardData,
-                Owner = owner,
-                Text = text,
-            });
-            return;
+                if (t == transform)
+                    continue;
+
+                if (t.name.ToLower().Contains("grid") || t.GetComponent<UnityEngine.UI.GridLayoutGroup>() != null)
+                {
+                    combatLogGrid = t;
+                    break;
+                }
+            }
         }
 
-        AddEntry(cardInstance, cardData, owner, text);
+        return true;
     }
 
-    private void FlushPendingEntries()
+    private bool ShouldAppendToLastRecord(LogRecord incoming)
+    {
+        if (records.Count == 0)
+            return false;
+
+        LogRecord last = records[records.Count - 1];
+        return incoming.CardInstance != null && last.CardInstance == incoming.CardInstance;
+    }
+
+    private void AppendToLastRecord(string text)
+    {
+        int index = records.Count - 1;
+        LogRecord existing = records[index];
+
+        if (string.IsNullOrWhiteSpace(existing.Text))
+            existing.Text = text;
+        else
+            existing.Text += "\n" + text;
+
+        records[index] = existing;
+    }
+
+    private void TryRenderAllRecords()
     {
         if (!CanRenderImmediately)
             return;
 
-        while (pendingEntries.Count > 0)
-        {
-            PendingLogEntry entry = pendingEntries.Dequeue();
-            AddEntry(entry.CardInstance, entry.CardData, entry.Owner, entry.Text);
-        }
+        if (combatLogGrid == null)
+            return;
+
+        if (liveViews.Count > records.Count)
+            DestroyLiveViews();
+
+        for (int i = liveViews.Count; i < records.Count; i++)
+            CreateEntryView(records[i]);
+
+        for (int i = 0; i < records.Count && i < liveViews.Count; i++)
+            RefreshEntryView(liveViews[i], records[i]);
     }
 
-    private void AddEntry(CardInstance cardInstance, CardData cardData, PlayerOwner owner, string text)
+    private void CreateEntryView(LogRecord record)
     {
-        bool appendToLast = lastEntry != null && lastEntry.CardInstance == cardInstance && cardInstance != null;
-        if (appendToLast)
-        {
-            lastEntry.AppendText(text);
-            return;
-        }
-
         if (!IsConfigured)
             return;
 
@@ -118,7 +188,26 @@ public class CombatLog : MonoBehaviour
         if (view == null)
             view = created.AddComponent<CombatLogEntryView>();
 
-        view.Initialize(cardInstance, cardData, owner, text);
-        lastEntry = view;
+        liveViews.Add(view);
+        RefreshEntryView(view, record);
+    }
+
+    private void RefreshEntryView(CombatLogEntryView view, LogRecord record)
+    {
+        if (view == null)
+            return;
+
+        view.Initialize(record.CardInstance, record.CardData, record.Owner, record.Text);
+    }
+
+    private void DestroyLiveViews()
+    {
+        for (int i = 0; i < liveViews.Count; i++)
+        {
+            if (liveViews[i] != null)
+                Destroy(liveViews[i].gameObject);
+        }
+
+        liveViews.Clear();
     }
 }
