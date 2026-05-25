@@ -85,6 +85,15 @@ public class CombatLogEntryView : MonoBehaviour, IPointerEnterHandler, IPointerE
         if (ScanController.Instance == null || ScanController.Instance.panelInstance == null)
             return;
 
+        if (ScanInput.Instance != null && !ScanInput.Instance.IsScanActive)
+            return;
+
+        if (ScanInput.Instance == null && !Input.GetKey(KeyCode.Space))
+            return;
+
+        if (cardInstance != null && cardInstance.Owner == PlayerOwner.Enemy && cardInstance.CurrentZone == CardZone.Hand)
+            return;
+
         CardData source = cardInstance != null ? cardInstance.Data : fallbackCardData;
         if (source == null)
             return;
