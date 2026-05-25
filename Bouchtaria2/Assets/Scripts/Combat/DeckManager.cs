@@ -536,7 +536,12 @@ public class DeckManager : MonoBehaviour
         hand.UpdateCardPositions();
 
         OnCardDrawn?.Invoke(card);
-        CombatLog.Instance?.AddAction(card, $"{card.Data.name} was drawn.");
+        if (card.Owner == PlayerOwner.Enemy)
+        {
+            CombatLog.Instance?.AddAnonymousAction(PlayerOwner.Enemy, $"Enemy drew a card.");
+        }
+        else
+            CombatLog.Instance?.AddAction(card, $"{card.Data.name} was drawn.");
 
         // FATIGUE DAMAGE BONUS
         int fatigue =
@@ -631,7 +636,12 @@ public class DeckManager : MonoBehaviour
         SFXManager.Instance.PlayRandomSFXClip(GameManager.Instance.drawSFX, transform, 1f);
         hand.UpdateCardPositions();
         OnCardDrawn?.Invoke(card);
-        CombatLog.Instance?.AddAction(card, $"{card.Data.name} was drawn.");
+        if (card.Owner == PlayerOwner.Enemy)
+        {
+            CombatLog.Instance?.AddAnonymousAction(PlayerOwner.Enemy, $"Enemy drew a card.");
+        }
+        else
+            CombatLog.Instance?.AddAction(card, $"{card.Data.name} was drawn.");
         //Fatigue effect
         if (owner == PlayerOwner.Player) GameManager.Instance.PlayerCore.TakeDamage(card.CurrentManaCost*GameManager.Instance.PlayerFatigue);
         else GameManager.Instance.EnemyCore.TakeDamage(card.CurrentManaCost * GameManager.Instance.EnemyFatigue);
