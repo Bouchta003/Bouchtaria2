@@ -6651,7 +6651,7 @@
       "manaCost": 6,
       "atkValue": 8,
       "hpValue": 8,
-      "traits": [ "Swordsman","Fighter" ],
+      "traits": [ "Swordsman", "Fighter" ],
       "effect": "",
       "effectText": "Big stats, nothing else.",
       "artPath": "CardArt/tristepin",
@@ -6822,6 +6822,22 @@
       "artCompactPath": "CardArt/bandito_compact",
       "packable": false,
       "token": false,
+      "signature": false
+    },
+    "419": {
+      "id": 419,
+      "name": "Blacksmith's Daughter",
+      "cardType": "minion",
+      "manaCost": 3,
+      "atkValue": 2,
+      "hpValue": 2,
+      "traits": [ "Neutral" ],
+      "effect": "eot[draw(1)]",
+      "effectText": "End of turn : Draw a card.",
+      "artPath": "CardArt/blacksmithsdaughter",
+      "artCompactPath": "CardArt/blacksmithsdaughter_compact",
+      "packable": false,
+      "token": true,
       "signature": false
     }
   }
