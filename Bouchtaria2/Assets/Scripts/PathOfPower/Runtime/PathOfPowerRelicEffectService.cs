@@ -12,6 +12,13 @@ public static class PathOfPowerRelicEffectService
     private const int RegalPillow = 3;
     private const int RingOfSnakes = 4;
     private const int Strawberry = 5;
+    private const int VengefulSpirit = 13;
+    private const int JuiceHat = 14;
+    private const int CardSleeve = 15;
+    private const int ForgottenSoul = 16;
+    private const int SelfishShellfish = 17;
+    private const int GolemCapsule = 18;
+    private const int BloodyPillow = 19;
 
     private const int EmptyCoreShieldAmount = 6;
 
@@ -22,6 +29,8 @@ public static class PathOfPowerRelicEffectService
 
         IReadOnlyList<int> relicIds = GetRelicIdsForOwner(owner, GameRunContext.PathOfPowerData);
         Debug.Log($"[PathOfPower][Relics] Checking {owner} combat-start relics: [{string.Join(", ", relicIds)}].");
+        if (owner == PlayerOwner.Enemy && PlayerHasRelic(PlayerOwner.Player, VengefulSpirit))
+            GameManager.Instance.BuffAllAlliesEffect(1, 0, PlayerOwner.Enemy, "vengefulspirit");
 
         foreach (int relicId in relicIds)
         {
@@ -29,6 +38,9 @@ public static class PathOfPowerRelicEffectService
             {
                 case RingOfSnakes:
                     Debug.Log("[PathOfPower][Relics] Applied combat-start effect of Ring of Snakes.");
+                    break;
+                case GolemCapsule:
+                    GameManager.Instance.AddCardToHand(owner, 77);
                     break;
                 default:
                     break;
@@ -59,6 +71,12 @@ public static class PathOfPowerRelicEffectService
                         GameManager.Instance.BuffAllAlliesEffect(1,1, owner, "titos");
                     }
                     break;
+                case JuiceHat:
+                    GameManager.Instance.AddCardToHand(owner, 27);
+                    break;
+                case ForgottenSoul:
+                    GameManager.Instance.SetSouls(owner, GameManager.Instance.GetSouls(owner) + 1);
+                    break;
                 default:
                     break;
             }
@@ -86,6 +104,9 @@ public static class PathOfPowerRelicEffectService
                 case Strawberry:
                     bonusHp += 10;
                     Debug.Log($"[PathOfPower][Relics] Relic {Strawberry} (Strawberry) gives +10 starting HP for {owner}.");
+                    break;
+                case VengefulSpirit:
+                    bonusHp += 15;
                     break;
                 default:
                     break;
@@ -116,6 +137,12 @@ public static class PathOfPowerRelicEffectService
                 case Orichalcum:
                     ApplyEmptyCoreShield(owner, gameManager);
                     Debug.Log("[PathOfPower][Relics] Applied end-turn effect of Orichalcum.");
+                    break;
+                case CardSleeve:
+                    HandManager hand = owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
+                    int cardsInHand = hand != null ? hand.handCards.Count : 0;
+                    CoreInstance core = owner == PlayerOwner.Player ? gameManager.PlayerCore : gameManager.EnemyCore;
+                    core?.AddShield(cardsInHand);
                     break;
                 // TODO(Path Of Power Relics): Add relic id + end-turn effect here.
                 default:
@@ -189,6 +216,19 @@ public static class PathOfPowerRelicEffectService
 
     public static int GetStartOfCombatDrawBonus(PlayerOwner owner)
     {
-        return PlayerHasRelic(owner, RingOfSnakes) ? 2 : 0;
+        int drawBonus = PlayerHasRelic(owner, RingOfSnakes) ? 2 : 0;
+        if (PlayerHasRelic(owner, SelfishShellfish) && GameRunContext.PathOfPowerData?.CurrentStepData?.stepType == PathOfPowerStepType.Warden)
+            drawBonus += 2;
+        return drawBonus;
+    }
+
+    public static int GetGlobalEnemyAttackBonus(PlayerOwner owner)
+    {
+        return owner == PlayerOwner.Enemy && PlayerHasRelic(PlayerOwner.Player, VengefulSpirit) ? 1 : 0;
+    }
+
+    public static bool HasBloodyPillow(PlayerOwner owner)
+    {
+        return PlayerHasRelic(owner, BloodyPillow);
     }
 }

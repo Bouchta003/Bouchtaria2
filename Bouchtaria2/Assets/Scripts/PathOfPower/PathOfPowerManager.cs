@@ -46,6 +46,8 @@ public class PathOfPowerManager : MonoBehaviour
     [SerializeField] private List<int> eventDialogues = new List<int>();
 
     private bool eventDialogueResolved;
+    private bool eventRewardCardDiscoveryPending;
+    private bool eventRewardAddBlacksmithDaughterOnSelect;
 
     [Header("Starter Deck Discovery")]
     [SerializeField] private int starterDeckTargetSize = 20;
@@ -199,6 +201,18 @@ public class PathOfPowerManager : MonoBehaviour
                 Debug.Log("Accepted reward for event 2 reduced deck size");
                 ReduceDeckSize(3);
                 break;
+            case 3: // Ghostly Pact
+                AddRelic("13");
+                Debug.Log("Accepted reward for event 3 and added Vengeful Spirit relic id 13.");
+                break;
+            case 4: // The Blacksmith
+                eventRewardCardDiscoveryPending = true;
+                eventRewardAddBlacksmithDaughterOnSelect = true;
+                CurrentRun.pendingCardChoices = GenerateNonPackableNonTokenChoices(CurrentRun.currentFloorSeed + 419, 3);
+                ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
+                OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                SaveRun();
+                return;
             // Add more cases as needed
         }
         CompleteCurrentEvent();
@@ -382,7 +396,8 @@ public class PathOfPowerManager : MonoBehaviour
         bool isStarterDeckDiscovery = CurrentRun.phase == PathOfPowerRunPhase.StartingDeckDiscovery;
         bool isDeckRelicDiscovery = CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward && isResolvingRelicChoice;
         bool isEncounterRewardDiscovery = CurrentRun.phase == PathOfPowerRunPhase.EncounterCardReward;
-        if (!isStarterDeckDiscovery && !isDeckRelicDiscovery && !isEncounterRewardDiscovery)
+        bool isEventRewardDiscovery = CurrentRun.phase == PathOfPowerRunPhase.Event && eventRewardCardDiscoveryPending;
+        if (!isStarterDeckDiscovery && !isDeckRelicDiscovery && !isEncounterRewardDiscovery && !isEventRewardDiscovery)
             return;
 
         if (CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0)
@@ -447,6 +462,17 @@ public class PathOfPowerManager : MonoBehaviour
                 AdvanceToNextStepOrFloor();
                 ShowDisplayForCurrentPhase();
             }
+        }
+        else if (isEventRewardDiscovery)
+        {
+            if (eventRewardAddBlacksmithDaughterOnSelect)
+            {
+                CurrentRun.currentDeck.Add(419);
+                eventRewardAddBlacksmithDaughterOnSelect = false;
+            }
+
+            eventRewardCardDiscoveryPending = false;
+            CompleteCurrentEvent();
         }
 
         SaveRun();
@@ -845,6 +871,20 @@ public class PathOfPowerManager : MonoBehaviour
         return CardDatabase.Instance.Cards.Values
             .Where(card => card != null && card.packable && !card.token && !card.signature && card.traits != null &&
                            card.traits.Any(t => t.Equals(requiredTrait, StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(_ => rng.Next())
+            .Take(count)
+            .Select(card => card.id)
+            .ToList();
+    }
+
+    private List<int> GenerateNonPackableNonTokenChoices(int seed, int count)
+    {
+        if (CardDatabase.Instance == null || CardDatabase.Instance.Cards == null)
+            return new List<int>();
+
+        System.Random rng = new System.Random(seed);
+        return CardDatabase.Instance.Cards.Values
+            .Where(card => card != null && !card.packable && !card.token && !card.signature)
             .OrderBy(_ => rng.Next())
             .Take(count)
             .Select(card => card.id)
