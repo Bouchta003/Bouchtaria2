@@ -12,6 +12,8 @@ using UnityEngine.UI;
 
 public class PathOfPowerManager : MonoBehaviour
 {
+    private const int DeckRelicCardDiscoveryCount = 5;
+
     public static PathOfPowerManager Instance;
 
     [Header("Content Libraries")]
@@ -156,7 +158,7 @@ public class PathOfPowerManager : MonoBehaviour
         ClearCardDiscovery();ClearRelicDiscovery();ClearTraitDiscovery();
 
         SwitchDisplay(5);//Start Relic Discovery.
-        CurrentRun.pendingStarterRelicChoices = PickRelics(3, relic => relic.CanAppearAsStarter, CurrentRun.currentFloorSeed)
+        CurrentRun.pendingStarterRelicChoices = PickCombatRelics(3, CurrentRun.currentFloorSeed)
             .Select(relic => relic.RelicId)
             .ToList();
 
@@ -206,6 +208,7 @@ public class PathOfPowerManager : MonoBehaviour
                 eventRewardCardDiscoveryPending = true;
                 eventRewardAddBlacksmithDaughterOnSelect = false;
                 CurrentRun.pendingCardChoices = new List<int> { 419 };
+                SwitchDisplay(5);
                 ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
                 OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
                 SaveRun();
@@ -294,7 +297,7 @@ public class PathOfPowerManager : MonoBehaviour
             {
                 Debug.Log("Warden defeated, pending relic rewards.");
                 SwitchDisplay(5);//DiscoveryDisplay
-                CurrentRun.pendingWardenRelicRewards = PickRelics(3, relic => relic.CanAppearAsWardenReward, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
+                CurrentRun.pendingWardenRelicRewards = PickDeckRelics(3, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
                     .Select(relic => relic.RelicId)
                     .ToList();
                 SaveRun();
@@ -482,7 +485,7 @@ public class PathOfPowerManager : MonoBehaviour
         if (CurrentRun.pendingWardenRewardAfterEncounterDiscovery)
         {
             CurrentRun.pendingWardenRewardAfterEncounterDiscovery = false;
-            CurrentRun.pendingWardenRelicRewards = PickRelics(3, relic => relic.CanAppearAsWardenReward, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
+            CurrentRun.pendingWardenRelicRewards = PickDeckRelics(3, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
                 .Select(relic => relic.RelicId)
                 .ToList();
             CurrentRun.phase = PathOfPowerRunPhase.AwaitingWardenReward;
@@ -819,7 +822,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         if (step != null && step.stepType == PathOfPowerStepType.Warden)
         {
-            CurrentRun.pendingWardenRelicRewards = PickRelics(3, relic => relic.CanAppearAsWardenReward, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
+            CurrentRun.pendingWardenRelicRewards = PickDeckRelics(3, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
                 .Select(relic => relic.RelicId)
                 .ToList();
             CurrentRun.phase = PathOfPowerRunPhase.AwaitingWardenReward;
@@ -866,7 +869,7 @@ public class PathOfPowerManager : MonoBehaviour
 
     private void GrantChallengePreWardenRelic()
     {
-        CurrentRun.pendingStarterRelicChoices = PickRelics(3, candidate => true, CurrentRun.currentFloorSeed + 404)
+        CurrentRun.pendingStarterRelicChoices = PickCombatRelics(3, CurrentRun.currentFloorSeed + 404)
             .Select(candidate => candidate.RelicId)
             .ToList();
         CurrentRun.phase = PathOfPowerRunPhase.StarterRelicChoice;
@@ -1255,6 +1258,16 @@ public class PathOfPowerManager : MonoBehaviour
             .ToList();
     }
 
+    private List<RelicDefinition> PickCombatRelics(int count, int seed)
+    {
+        return PickRelics(count, relic => relic.Type == RelicDefinition.RelicType.CombatRelic && relic.CanAppearAsStarter, seed);
+    }
+
+    private List<RelicDefinition> PickDeckRelics(int count, int seed)
+    {
+        return PickRelics(count, relic => relic.Type == RelicDefinition.RelicType.DeckRelic, seed);
+    }
+
     private bool IsRelicDiscoverableForCurrentRun(RelicDefinition relic)
     {
         if (relic == null || !relic.Discoverable)
@@ -1536,7 +1549,7 @@ public class PathOfPowerManager : MonoBehaviour
                 if (relicId == "9" || relicId == "10")
                 {
                     CurrentRun.pendingValidationRelicId = relicId;
-                    CurrentRun.pendingValidationDiscoveriesRemaining = 5;
+                    CurrentRun.pendingValidationDiscoveriesRemaining = DeckRelicCardDiscoveryCount;
                 }
 
                 StartCoroutine(ResolveDeckRelicChoiceThenContinue(relicId));
@@ -1558,7 +1571,7 @@ public class PathOfPowerManager : MonoBehaviour
             CurrentRun.pendingValidationDiscoveriesRemaining = Mathf.Max(1, CurrentRun.pendingValidationDiscoveriesRemaining);
             while (CurrentRun.pendingValidationDiscoveriesRemaining > 0)
             {
-                int iteration = 5 - CurrentRun.pendingValidationDiscoveriesRemaining;
+                int iteration = DeckRelicCardDiscoveryCount - CurrentRun.pendingValidationDiscoveriesRemaining;
                 List<int> rewards = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1010 + CurrentRun.currentDeck.Count + iteration, 3, CurrentRun.starterDeckTrait);
                 CurrentRun.pendingCardChoices = rewards ?? new List<int>();
                 ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
@@ -1578,7 +1591,7 @@ public class PathOfPowerManager : MonoBehaviour
             CurrentRun.pendingValidationDiscoveriesRemaining = Mathf.Max(1, CurrentRun.pendingValidationDiscoveriesRemaining);
             while (CurrentRun.pendingValidationDiscoveriesRemaining > 0)
             {
-                int iteration = 5 - CurrentRun.pendingValidationDiscoveriesRemaining;
+                int iteration = DeckRelicCardDiscoveryCount - CurrentRun.pendingValidationDiscoveriesRemaining;
                 List<int> rewards = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1010 + CurrentRun.currentDeck.Count + iteration, 3, CardData.Trait.Neutral);
                 CurrentRun.pendingCardChoices = rewards ?? new List<int>();
                 ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
@@ -1594,18 +1607,24 @@ public class PathOfPowerManager : MonoBehaviour
         else if (relic != null && relic.RelicId == "11")
         {
             bool traitSelected = false;
+            CurrentRun.pendingValidationRelicId = relicId;
+            CurrentRun.pendingValidationDiscoveriesRemaining = DeckRelicCardDiscoveryCount;
             List<string> traitChoices = GenerateStarterTraitChoices(CurrentRun.currentFloorSeed + 1111, 8)
                 .Where(t => !t.Equals(CurrentRun.starterDeckTrait.ToString(), StringComparison.OrdinalIgnoreCase))
                 .Take(5)
                 .ToList();
             ShowTraitDiscovery(traitChoices, skippable: true, prompt: "Book of Polyvalence: discover a trait.", onTraitSelected: selectedTrait =>
             {
-                CurrentRun.pendingValidationDiscoveriesRemaining = 5;
+                CurrentRun.pendingValidationRelicId = relicId;
+                CurrentRun.pendingValidationDiscoveriesRemaining = DeckRelicCardDiscoveryCount;
                 StartCoroutine(RunPolyvalenceDiscoveries(selectedTrait));
                 traitSelected = true;
             });
+            SaveRun();
             yield return new WaitUntil(() => traitSelected);
             yield return new WaitUntil(() => CurrentRun.pendingValidationDiscoveriesRemaining <= 0);
+            CurrentRun.pendingValidationRelicId = string.Empty;
+            CurrentRun.pendingValidationDiscoveriesRemaining = 0;
         }
         else if (relic != null && relic.RelicId == "12")
         {
@@ -1629,12 +1648,14 @@ public class PathOfPowerManager : MonoBehaviour
     {
         while (CurrentRun.pendingValidationDiscoveriesRemaining > 0)
         {
-            int iteration = 5 - CurrentRun.pendingValidationDiscoveriesRemaining;
+            int iteration = DeckRelicCardDiscoveryCount - CurrentRun.pendingValidationDiscoveriesRemaining;
             CurrentRun.pendingCardChoices = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1112 + CurrentRun.currentDeck.Count + iteration, 3, selectedTrait);
             ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
             OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+            SaveRun();
             yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
             CurrentRun.pendingValidationDiscoveriesRemaining--;
+            SaveRun();
         }
     }
 
