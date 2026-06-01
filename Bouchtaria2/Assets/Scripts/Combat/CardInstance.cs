@@ -129,7 +129,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         view = gameObject.GetComponent<CardView>();
         BaseManaCost = data.manaCost;
 
-        CurrentAttack = data.atkValue;
+        CurrentAttack = data.atkValue + PathOfPowerRelicEffectService.GetGlobalEnemyAttackBonus(owner);
         CurrentHealth = data.hpValue;
         CurrentEffect = data.effect;
         CurrentEffectText = data.effectText;

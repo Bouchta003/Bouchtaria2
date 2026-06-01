@@ -33,9 +33,6 @@ public static class PathOfPowerRelicEffectService
 
         IReadOnlyList<int> relicIds = GetRelicIdsForOwner(owner, GameRunContext.PathOfPowerData);
         Debug.Log($"[PathOfPower][Relics] Checking {owner} combat-start relics: [{string.Join(", ", relicIds)}].");
-        if (owner == PlayerOwner.Enemy && PlayerHasRelic(PlayerOwner.Player, VengefulSpirit))
-            GameManager.Instance.BuffAllAlliesEffect(1, 0, PlayerOwner.Enemy, "vengefulspirit");
-
         foreach (int relicId in relicIds)
         {
             switch (relicId)
