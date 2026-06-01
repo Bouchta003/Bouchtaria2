@@ -94,7 +94,12 @@ public class CoreInstance : MonoBehaviour, IAttackable
     {
         if(IsBleeding)
         {
-            TakeDamage(1);
+            int bleedDamage = 1;
+            PlayerOwner sourceOwner = Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player;
+            if (PathOfPowerRelicEffectService.HasBloodVial(sourceOwner))
+                bleedDamage++;
+
+            TakeDamage(bleedDamage);
             BleedingTurns++;
             if (BleedingTurns >= 3) { IsBleeding = false; BleedingTurns = 0; }
         }

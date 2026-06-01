@@ -406,11 +406,18 @@ public class DeckManager : MonoBehaviour
 
         if (deck.Count == 0)
         {
-            // Increase fatigue
-            if (owner == PlayerOwner.Player)
-                GameManager.Instance.PlayerFatigue++;
-            else
-                GameManager.Instance.EnemyFatigue++;
+            // Increase fatigue, unless Hot Cocoa blocks the first deck-empty fatigue increment.
+            bool hotCocoaPreventsIncrement = PathOfPowerRelicEffectService.HasHotCocoa(owner) &&
+                                             ((owner == PlayerOwner.Player && GameManager.Instance.PlayerFatigue == 0) ||
+                                              (owner == PlayerOwner.Enemy && GameManager.Instance.EnemyFatigue == 0));
+
+            if (!hotCocoaPreventsIncrement)
+            {
+                if (owner == PlayerOwner.Player)
+                    GameManager.Instance.PlayerFatigue++;
+                else
+                    GameManager.Instance.EnemyFatigue++;
+            }
 
             GameManager.Instance.DisplayFatigue(owner);
 

@@ -23,6 +23,11 @@ public static class PathOfPowerRelicEffectService
     private const int SelfishShellfish = 17;
     private const int GolemCapsule = 18;
     private const int BloodyPillow = 19;
+    private const int BouchtasGift = 20;
+    private const int BurningBlood = 21;
+    private const int BloodVial = 22;
+    private const int ElementalOrb = 23;
+    private const int HotCocoa = 24;
 
     private const int EmptyCoreShieldAmount = 6;
 
@@ -145,6 +150,9 @@ public static class PathOfPowerRelicEffectService
                     CoreInstance core = owner == PlayerOwner.Player ? gameManager.PlayerCore : gameManager.EnemyCore;
                     core?.AddShield(cardsInHand);
                     break;
+                case ElementalOrb:
+                    gameManager.Praise(owner);
+                    break;
                 // TODO(Path Of Power Relics): Add relic id + end-turn effect here.
                 default:
                     Debug.Log($"[PathOfPower][Relics] Relic id {relicId} has no implemented end-turn effect yet.");
@@ -231,5 +239,28 @@ public static class PathOfPowerRelicEffectService
     public static bool HasBloodyPillow(PlayerOwner owner)
     {
         return PlayerHasRelic(owner, BloodyPillow);
+    }
+
+    public static bool HasBloodVial(PlayerOwner owner)
+    {
+        return GameRunContext.IsPathOfPowerRun && PlayerHasRelic(owner, BloodVial);
+    }
+
+    public static bool HasHotCocoa(PlayerOwner owner)
+    {
+        return GameRunContext.IsPathOfPowerRun && PlayerHasRelic(owner, HotCocoa);
+    }
+
+    public static void ApplyUnitKilledRelics(CardInstance deadCard, GameManager gameManager)
+    {
+        if (!GameRunContext.IsPathOfPowerRun || deadCard == null || gameManager == null)
+            return;
+
+        PlayerOwner killerOwner = deadCard.Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player;
+        if (!PlayerHasRelic(killerOwner, BurningBlood))
+            return;
+
+        CoreInstance core = killerOwner == PlayerOwner.Player ? gameManager.PlayerCore : gameManager.EnemyCore;
+        core?.Heal(2);
     }
 }
