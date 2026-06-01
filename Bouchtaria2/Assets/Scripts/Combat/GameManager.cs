@@ -3797,6 +3797,7 @@ private sealed class PendingHandReturn
     #region Combat Manager
     public void NotifyCardKilled(CardInstance deadCard)
     {
+        PathOfPowerRelicEffectService.ApplyUnitKilledRelics(deadCard, this);
         OnCardKilled?.Invoke(deadCard);
         HandlePartnerDeathTriggers(deadCard);
         UpdatePartnerLinks();
