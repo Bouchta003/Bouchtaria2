@@ -3451,10 +3451,19 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ffacb086e6d19cf4a9e603be8b3fbccd, type: 2}
   - {fileID: 11400000, guid: 9838b10444c2e474184c50ab6d7a2cd1, type: 2}
   - {fileID: 11400000, guid: 6fb71e039dc4fb04fb5bf950d0bc9ea4, type: 2}
+  - {fileID: 11400000, guid: d801de6f1b0337c4890a527792bbe45f, type: 2}
+  - {fileID: 11400000, guid: 6d8d53c381eb3494194e29133d464512, type: 2}
+  - {fileID: 11400000, guid: 7d3fd3acdd19cf0439c5481eb7111f0d, type: 2}
+  - {fileID: 11400000, guid: d0ec2fcf3050fa84ca4249ae47276c1f, type: 2}
+  - {fileID: 11400000, guid: e370784c21bdd7441a8f503b79ac8f03, type: 2}
+  - {fileID: 11400000, guid: e19d232b1e9889a43b0ae4c4798c6134, type: 2}
+  - {fileID: 11400000, guid: 7ef6f496389fdca408e9c60224424eb8, type: 2}
+  - {fileID: 11400000, guid: 5e08f10cbbcc282498c027c88e8d1e70, type: 2}
   eventLibrary:
-  - {fileID: 11400000, guid: 96ba2a58dd560e0499ae8cc60e6cbac3, type: 2}
   - {fileID: 11400000, guid: 5183369f7b62c844a9d25efe5b68ab55, type: 2}
   - {fileID: 11400000, guid: 9a2a944f185a62647ae92f42d3294f51, type: 2}
+  - {fileID: 11400000, guid: 12521600dde010b49b64c908bbf6e2d9, type: 2}
+  - {fileID: 11400000, guid: 96ba2a58dd560e0499ae8cc60e6cbac3, type: 2}
   pathLibrary:
   - {fileID: 11400000, guid: 5b007ec07168c4e41874defd58e2ccf3, type: 2}
   - {fileID: 11400000, guid: 53095873e8a0f6542993a4b06c46c970, type: 2}
@@ -3502,7 +3511,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 937017221}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3536,24 +3545,86 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CombatDialogue
   Dialogues:
   - Lines:
-    - Content: P1
-      Name: Dialgue 1
-      Avatar: {fileID: 21300000, guid: 150c3743edf75f840b7fe9065bf24b1d, type: 3}
-    - Content: p2
-      Name: dialogue 2
-      Avatar: {fileID: 21300000, guid: 0543f99c704aab947aaab13d91a3e32f, type: 3}
+    - Content: Hello Traveler... Would you wait for a second ?
+      Name: Necrobinder
+      Avatar: {fileID: 7352842349468111846, guid: b1359a2f071aab646aa60da66ebc5c88, type: 3}
+    - Content: I've been slaying a lot in that spire over there and I'm veery tired.
+      Name: Necrobinder
+      Avatar: {fileID: 7352842349468111846, guid: b1359a2f071aab646aa60da66ebc5c88, type: 3}
+    - Content: I'm retiring from the adventurer world but my boy Titos over here
+        still has some adventer in him
+      Name: Necrobinder
+      Avatar: {fileID: 7352842349468111846, guid: b1359a2f071aab646aa60da66ebc5c88, type: 3}
+    - Content: Would you take him in your party ? He's a good protector you won't
+        regret it !
+      Name: Necrobinder
+      Avatar: {fileID: 7352842349468111846, guid: b1359a2f071aab646aa60da66ebc5c88, type: 3}
   - Lines:
-    - Content: Necrobinder
-      Name: Take Titos with you please
-      Avatar: {fileID: 21300000, guid: 39cc1e95f2924c44db8a808148798b9c, type: 3}
-    - Content: p2
-      Name: ok
-      Avatar: {fileID: 21300000, guid: 2b3e879bb0c33e141905644aa47b81c6, type: 3}
-  - Lines:
-    - Content: If you want I can give you a nice cut , and I'm not talking about
-        your hair
+    - Content: Wow  !
       Name: The Barber
-      Avatar: {fileID: 21300000, guid: 36b25a9c536c56342bb046dd5ed53b72, type: 3}
+      Avatar: {fileID: -1524831690849952475, guid: 327a0055c0c5cea498c25aaadf732674, type: 3}
+    - Content: Look at that big...
+      Name: The Barber
+      Avatar: {fileID: -1524831690849952475, guid: 327a0055c0c5cea498c25aaadf732674, type: 3}
+    - Content: Deck !
+      Name: The Barber
+      Avatar: {fileID: -1524831690849952475, guid: 327a0055c0c5cea498c25aaadf732674, type: 3}
+    - Content: If you want I can cut down your deck size a little, my treat !
+      Name: The Barber
+      Avatar: {fileID: -1524831690849952475, guid: 327a0055c0c5cea498c25aaadf732674, type: 3}
+  - Lines:
+    - Content: power...
+      Name: Spirit
+      Avatar: {fileID: 4448715427215634006, guid: 6a9661325a863004ab6202de51101ae6, type: 3}
+    - Content: Do you...
+      Name: Spirit
+      Avatar: {fileID: 4448715427215634006, guid: 6a9661325a863004ab6202de51101ae6, type: 3}
+    - Content: ...seek more power ?
+      Name: Spirit
+      Avatar: {fileID: 4448715427215634006, guid: 6a9661325a863004ab6202de51101ae6, type: 3}
+    - Content: It is free...
+      Name: Spirit
+      Avatar: {fileID: 4448715427215634006, guid: 6a9661325a863004ab6202de51101ae6, type: 3}
+    - Content: ...but you'll make your enemies angrier
+      Name: Spirit
+      Avatar: {fileID: 4448715427215634006, guid: 6a9661325a863004ab6202de51101ae6, type: 3}
+  - Lines:
+    - Content: Can't speak I'm busy...
+      Name: Blacksmith
+      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+    - Content: What ? You want a better weapon ?
+      Name: Blacksmith
+      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+    - Content: LIKE EVERYONE WHO COMES IN HERE NOW WAIT FOR YOUR TURN IDIOT !
+      Name: Blacksmith
+      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+    - Content: ....
+      Name: Blacksmith
+      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+    - Content: ....
+      Name: Blacksmith
+      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+    - Content: Sorry I feel bad for shouting, my job is tiring and I see a lot of
+        dumb people around here.
+      Name: Blacksmith
+      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+    - Content: I can make something for you if you wish, but here is the thing..
+      Name: Blacksmith
+      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+    - Content: I don't want your money, you seem like a nice guy.
+      Name: Blacksmith
+      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+    - Content: My daughter is a little bored around here, I would like you to take
+        her with you for some adventure.
+      Name: Blacksmith
+      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+    - Content: Honestly she doesn't help around and annoyes me a lot. You take her
+        with you and I give you some nice stuff.
+      Name: Blacksmith
+      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+    - Content: What do you say ?
+      Name: Blacksmith
+      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
   dialogueCanvasGroup: {fileID: 1517084938}
   AvatarImage: {fileID: 376532168}
   UIDialogue: {fileID: 1517084936}
@@ -7337,9 +7408,9 @@ MonoBehaviour:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 937017223}
   - {fileID: 737202756}
   - {fileID: 733325518}
   - {fileID: 246989751}
-  - {fileID: 937017223}
   - {fileID: 618243637}
   - {fileID: 82126376}

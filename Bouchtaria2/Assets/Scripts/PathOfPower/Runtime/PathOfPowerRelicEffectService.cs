@@ -12,6 +12,10 @@ public static class PathOfPowerRelicEffectService
     private const int RegalPillow = 3;
     private const int RingOfSnakes = 4;
     private const int Strawberry = 5;
+    private const int BookOfMastery = 9;
+    private const int SliferWish = 10;
+    private const int BookOfPolyvalence = 11;
+    private const int CheaterScroll = 12;
     private const int VengefulSpirit = 13;
     private const int JuiceHat = 14;
     private const int CardSleeve = 15;

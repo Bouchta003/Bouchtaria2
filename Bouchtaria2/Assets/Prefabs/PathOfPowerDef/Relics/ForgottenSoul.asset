@@ -10,15 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9bdc60e455ff49c3a9043189edcdf6dc, type: 3}
-  m_Name: BoundPhylactery
+  m_Name: ForgottenSoul
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
-  relicId: 0
-  displayName: Bound Phylactery
-  description: At the start of your turn summon Titos if it's dead, give it +1/+1
-    if it's alive.
-  enemyRelicText: Summons or Boosts titos at the start of their turn.
-  icon: {fileID: -2702563026279095698, guid: ff08e81908842244ea5010cce80e3b87, type: 3}
-  assignedTrait: 0
+  relicId: 16
+  displayName: Forgotten Soul
+  description: 'Start of Turn : Gain +1 Soul'
+  enemyRelicText: Gains +1 Soul at the start of turns
+  icon: {fileID: -2307824173813882064, guid: 829212fb2ecf9a348bc5255d25cf049d, type: 3}
+  assignedTrait: 13
   canAppearAsStarter: 0
   canAppearAsWardenReward: 0
   discoverable: 1

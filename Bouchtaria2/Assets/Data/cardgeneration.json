@@ -1265,7 +1265,7 @@
       "id": 77,
       "name": "Golem",
       "cardType": "minion",
-      "manaCost": 3,
+      "manaCost": 1,
       "atkValue": 3,
       "hpValue": 3,
       "traits": [ "Avatar" ],

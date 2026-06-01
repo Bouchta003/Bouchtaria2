@@ -191,28 +191,24 @@ public class PathOfPowerManager : MonoBehaviour
         {
             case 0:
                 Debug.Log("Accepted reward for event 0 and added Titos");
-                AddRelic("0");//Bound Phylactery);
+                AddRelic("0");//Visit Necrobinder;
                 break;
-            case 1:
-                Debug.Log("Accepted reward for event 1 and added other");
-                AddRelic("1");
-                break;
-            case 2:
+            case 1://Welcome to the Barbershop
                 Debug.Log("Accepted reward for event 2 reduced deck size");
                 ReduceDeckSize(3);
                 break;
-            case 3: // Ghostly Pact
+            case 2: // Ghostly Pact
                 AddRelic("13");
                 Debug.Log("Accepted reward for event 3 and added Vengeful Spirit relic id 13.");
                 break;
-            case 4: // The Blacksmith
+            case 3: // The Blacksmith
                 eventRewardCardDiscoveryPending = true;
                 eventRewardAddBlacksmithDaughterOnSelect = true;
                 CurrentRun.pendingCardChoices = GenerateNonPackableNonTokenChoices(CurrentRun.currentFloorSeed + 419, 3);
                 ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
                 OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
                 SaveRun();
-                return;
+                break ;
             // Add more cases as needed
         }
         CompleteCurrentEvent();
@@ -1076,7 +1072,7 @@ public class PathOfPowerManager : MonoBehaviour
             case PathOfPowerRunPhase.EncounterCardReward:
                 if (CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
                 {
-                    ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
+                    ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
                     OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
                 }
                 break;
@@ -1477,6 +1473,26 @@ public class PathOfPowerManager : MonoBehaviour
     {
         isResolvingRelicChoice = true;
         RelicDefinition relic = ResolveRelic(relicId);
+        if (relic != null && relic.RelicId == "9")
+        {
+            ClearRelicDiscovery();
+            CurrentRun.pendingValidationRelicId = relicId;
+            CurrentRun.pendingValidationDiscoveriesRemaining = Mathf.Max(1, CurrentRun.pendingValidationDiscoveriesRemaining);
+            while (CurrentRun.pendingValidationDiscoveriesRemaining > 0)
+            {
+                int iteration = 5 - CurrentRun.pendingValidationDiscoveriesRemaining;
+                List<int> rewards = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1010 + CurrentRun.currentDeck.Count + iteration, 3, starterDeckTrait);
+                CurrentRun.pendingCardChoices = rewards ?? new List<int>();
+                ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
+                OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                SaveRun();
+                yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+                SaveRun();
+            }
+
+            CurrentRun.pendingValidationRelicId = string.Empty;
+            CurrentRun.pendingValidationDiscoveriesRemaining = 0;
+        }
         if (relic != null && relic.RelicId == "10")
         {
             ClearRelicDiscovery();
