@@ -12,6 +12,7 @@ public static class PathOfPowerSaveService
     public const string CurrentStepField = "pathofpower_currentstep";
     public const string CurrentDeckField = "pathofpower_currentdeck";
     public const string CurrentRelicsField = "pathofpower_currentrelics";
+    public const string TriggeredEventIdsField = "pathofpower_triggeredeventids";
     public const string CurrentFloorSeedField = "pathofpower_currentfloorseed";
     public const string CurrentPathTypeField = "pathofpower_currentpathtype";
     public const string CurrentStreakField = "pathofpower_currentstreak";
@@ -24,6 +25,9 @@ public static class PathOfPowerSaveService
     public const string StarterDeckTraitField = "pathofpower_starterdecktrait";
     public const string CombatActiveField = "pathofpower_combatactive";
     public const string CurrentDeckSizeField = "pathofpower_currentdecksize";
+    public const string PendingValidationRelicIdField = "pathofpower_pendingvalidationrelicid";
+    public const string PendingValidationDiscoveriesRemainingField = "pathofpower_pendingvalidationdiscoveriesremaining";
+    public const string PendingWardenRewardAfterEncounterDiscoveryField = "pathofpower_pendingwardenrewardafterencounterdiscovery";
     public const string BestFloorField = "pathofpower_bestfloor";
     public const string BestStepField = "pathofpower_beststep";
     public const string BestFloorStepField = "pathofpower_bestfloorstep";
@@ -46,6 +50,7 @@ public static class PathOfPowerSaveService
             { CurrentStepField, runData.currentStep },
             { CurrentDeckField, runData.currentDeck },
             { CurrentRelicsField, runData.currentRelics },
+            { TriggeredEventIdsField, runData.triggeredEventIds },
             { CurrentFloorSeedField, runData.currentFloorSeed },
             { CurrentPathTypeField, runData.currentPathType.ToString() },
             { CurrentStreakField, runData.currentStreak },
@@ -57,7 +62,10 @@ public static class PathOfPowerSaveService
             { StarterTraitChoicesField, runData.pendingStarterTraitChoices },
             { StarterDeckTraitField, runData.starterDeckTrait.ToString() },
             { CombatActiveField, runData.combatActive },
-            { CurrentDeckSizeField, runData.currentDeckSize }
+            { CurrentDeckSizeField, runData.currentDeckSize },
+            { PendingValidationRelicIdField, runData.pendingValidationRelicId ?? string.Empty },
+            { PendingValidationDiscoveriesRemainingField, runData.pendingValidationDiscoveriesRemaining },
+            { PendingWardenRewardAfterEncounterDiscoveryField, runData.pendingWardenRewardAfterEncounterDiscovery }
         };
 
         FirebaseFirestore.DefaultInstance
@@ -134,6 +142,7 @@ public static class PathOfPowerSaveService
             currentStep = ReadInt(snapshot, CurrentStepField, 1),
             currentDeck = ParseIntList(snapshot, CurrentDeckField),
             currentRelics = ParseStringList(snapshot, CurrentRelicsField),
+            triggeredEventIds = ParseStringList(snapshot, TriggeredEventIdsField),
             currentFloorSeed = ReadInt(snapshot, CurrentFloorSeedField, 0),
             currentStreak = ReadInt(snapshot, CurrentStreakField, 0),
             currentFloorSteps = ParseSteps(snapshot),
@@ -143,7 +152,10 @@ public static class PathOfPowerSaveService
             pendingStarterTraitChoices = ParseStringList(snapshot, StarterTraitChoicesField),
             starterDeckTrait = ParseEnum(ReadString(snapshot, StarterDeckTraitField, CardData.Trait.Neutral.ToString()), CardData.Trait.Neutral),
             combatActive = ReadBool(snapshot, CombatActiveField, false),
-            currentDeckSize = Mathf.Max(5, ReadInt(snapshot, CurrentDeckSizeField, 20))
+            currentDeckSize = Mathf.Max(5, ReadInt(snapshot, CurrentDeckSizeField, 20)),
+            pendingValidationRelicId = ReadString(snapshot, PendingValidationRelicIdField, string.Empty),
+            pendingValidationDiscoveriesRemaining = ReadInt(snapshot, PendingValidationDiscoveriesRemainingField, 0),
+            pendingWardenRewardAfterEncounterDiscovery = ReadBool(snapshot, PendingWardenRewardAfterEncounterDiscoveryField, false)
         };
 
         runData.currentPathType = ParseEnum(ReadString(snapshot, CurrentPathTypeField, PathOfPowerPathType.Simple.ToString()), PathOfPowerPathType.Simple);
@@ -254,6 +266,7 @@ public static class PathOfPowerSaveService
 
         runData.currentDeck ??= new List<int>();
         runData.currentRelics ??= new List<string>();
+        runData.triggeredEventIds ??= new List<string>();
         runData.currentFloorSteps ??= new List<PathOfPowerStepData>();
         runData.pendingStarterRelicChoices ??= new List<string>();
         runData.pendingWardenRelicRewards ??= new List<string>();

@@ -19,6 +19,5 @@ MonoBehaviour:
   icon: {fileID: -1740839884768737540, guid: d65c9808584a6e54eb2edfbe2579c79e, type: 3}
   assignedTrait: 0
   canAppearAsStarter: 0
-  canAppearAsWardenReward: 1
   discoverable: 1
   relicType: 1

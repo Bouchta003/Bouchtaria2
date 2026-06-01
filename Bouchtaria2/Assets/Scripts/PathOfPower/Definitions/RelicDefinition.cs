@@ -20,7 +20,6 @@ public class RelicDefinition : ScriptableObject
     [Header("Design Hooks")]
     [SerializeField] private CardData.Trait assignedTrait = CardData.Trait.None;
     [SerializeField] private bool canAppearAsStarter = true;
-    [SerializeField] private bool canAppearAsWardenReward = true;
     [SerializeField] private bool discoverable = true;
     [SerializeField] private RelicType relicType = RelicType.CombatRelic;
 
@@ -31,7 +30,6 @@ public class RelicDefinition : ScriptableObject
     public Sprite Icon => icon;
     public CardData.Trait AssignedTrait => assignedTrait;
     public bool CanAppearAsStarter => canAppearAsStarter;
-    public bool CanAppearAsWardenReward => canAppearAsWardenReward;
     public bool Discoverable => discoverable;
     public RelicType Type => relicType;
 
