@@ -208,8 +208,16 @@ public class PathOfPowerManager : MonoBehaviour
                 break;
             case 3: // The Blacksmith
                 eventRewardCardDiscoveryPending = true;
-                eventRewardAddBlacksmithDaughterOnSelect = false;
-                CurrentRun.pendingCardChoices = new List<int> { 419 };
+                eventRewardAddBlacksmithDaughterOnSelect = true;
+                CurrentRun.pendingCardChoices = GenerateNonPackableNonTokenChoices(CurrentRun.currentFloorSeed + CurrentRun.currentStep + CurrentRun.currentDeck.Count + 303, 6)
+                    .Where(cardId => cardId != 419)
+                    .Take(3)
+                    .ToList();
+                if (CurrentRun.pendingCardChoices.Count == 0)
+                {
+                    eventRewardAddBlacksmithDaughterOnSelect = false;
+                    CurrentRun.pendingCardChoices = new List<int> { 419 };
+                }
                 SwitchDisplay(5);
                 ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
                 OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
@@ -424,8 +432,14 @@ public class PathOfPowerManager : MonoBehaviour
                 ResolveEncounterRewardDiscoveryAfterChoiceOrSkip();
             else if (isEventRewardDiscovery)
             {
+                if (eventRewardAddBlacksmithDaughterOnSelect)
+                {
+                    ShowBlacksmithDaughterDiscovery();
+                    SaveRun();
+                    return;
+                }
+
                 eventRewardCardDiscoveryPending = false;
-                eventRewardAddBlacksmithDaughterOnSelect = false;
                 CompleteCurrentEvent();
             }
 
@@ -468,8 +482,9 @@ public class PathOfPowerManager : MonoBehaviour
         {
             if (eventRewardAddBlacksmithDaughterOnSelect)
             {
-                CurrentRun.currentDeck.Add(419);
-                eventRewardAddBlacksmithDaughterOnSelect = false;
+                ShowBlacksmithDaughterDiscovery();
+                SaveRun();
+                return;
             }
 
             eventRewardCardDiscoveryPending = false;
@@ -479,6 +494,14 @@ public class PathOfPowerManager : MonoBehaviour
         SaveRun();
     }
 
+
+    private void ShowBlacksmithDaughterDiscovery()
+    {
+        eventRewardAddBlacksmithDaughterOnSelect = false;
+        CurrentRun.pendingCardChoices = new List<int> { 419 };
+        ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
+        OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+    }
 
     private void ResolveEncounterRewardDiscoveryAfterChoiceOrSkip()
     {
@@ -871,7 +894,7 @@ public class PathOfPowerManager : MonoBehaviour
     {
         if (CurrentRun.currentPathType == PathOfPowerPathType.Challenge && CurrentRun.currentStep == 4)
         {
-            GrantChallengePreWardenRelic();
+            GrantChallengePreWardenCombatRelic();
             return;
         }
 
@@ -885,9 +908,9 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.phase = PathOfPowerRunPhase.AwaitingWardenReward;
     }
 
-    private void GrantChallengePreWardenRelic()
+    private void GrantChallengePreWardenCombatRelic()
     {
-        CurrentRun.pendingStarterRelicChoices = PickChallengeRelics(3, CurrentRun.currentFloorSeed + 404)
+        CurrentRun.pendingStarterRelicChoices = PickAnyCombatRelics(3, CurrentRun.currentFloorSeed + 404)
             .Select(candidate => candidate.RelicId)
             .ToList();
         CurrentRun.phase = PathOfPowerRunPhase.StarterRelicChoice;
@@ -1308,8 +1331,7 @@ public class PathOfPowerManager : MonoBehaviour
 
     private List<RelicDefinition> PickChallengeRelics(int count, int seed)
     {
-        return PickRelics(count, relic => relic.Type == RelicDefinition.RelicType.CombatRelic ||
-                                          (relic.Type == RelicDefinition.RelicType.DeckRelic && !relic.CanAppearAsStarter), seed);
+        return PickAnyCombatRelics(count, seed);
     }
 
     private List<RelicDefinition> PickDeckRelics(int count, int seed)
