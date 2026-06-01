@@ -73,7 +73,7 @@ public static class PathOfPowerRelicEffectService
                     }
                     break;
                 case JuiceHat:
-                    GameManager.Instance.AddCardToHand(owner, 27);
+                    GameManager.Instance.AddCardToHand(owner, 62);
                     break;
                 case ForgottenSoul:
                     GameManager.Instance.SetSouls(owner, GameManager.Instance.GetSouls(owner) + 1);

@@ -34,7 +34,7 @@ public class ScanController : MonoBehaviour
         CardView cardUnderMouse = GetCardUnderMouse();
         bool canShowCollectionCard = cardUnderMouse != null &&
                                      (activeScene != "Collection" ||
-                                      (UserCollectionManager.Instance != null && UserCollectionManager.Instance.IsOwned(cardUnderMouse.CardData.id)));
+                                      (UserCollectionManager.Instance != null && (UserCollectionManager.Instance.IsOwned(cardUnderMouse.CardData.id)) || FindFirstObjectByType<CollectionScreen>().isDeck));
 
         if (canShowCollectionCard)
         {

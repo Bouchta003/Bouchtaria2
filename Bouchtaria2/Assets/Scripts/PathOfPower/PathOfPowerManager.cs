@@ -1598,7 +1598,7 @@ public class PathOfPowerManager : MonoBehaviour
                 .Where(t => !t.Equals(CurrentRun.starterDeckTrait.ToString(), StringComparison.OrdinalIgnoreCase))
                 .Take(5)
                 .ToList();
-            ShowTraitDiscovery(traitChoices, skippable: false, prompt: "Book of Polyvalence: discover a trait.", onTraitSelected: selectedTrait =>
+            ShowTraitDiscovery(traitChoices, skippable: true, prompt: "Book of Polyvalence: discover a trait.", onTraitSelected: selectedTrait =>
             {
                 CurrentRun.pendingValidationDiscoveriesRemaining = 5;
                 StartCoroutine(RunPolyvalenceDiscoveries(selectedTrait));
