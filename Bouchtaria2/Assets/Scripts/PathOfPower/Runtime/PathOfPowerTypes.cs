@@ -49,6 +49,7 @@ public class PathOfPowerRunData
     public int currentStep = 1;
     public List<int> currentDeck = new List<int>();
     public List<string> currentRelics = new List<string>();
+    public List<string> triggeredEventIds = new List<string>();
     public int currentFloorSeed;
     public PathOfPowerPathType currentPathType = PathOfPowerPathType.Simple;
     public int currentStreak;
@@ -85,6 +86,7 @@ public class PathOfPowerRunData
         currentStep = 1;
         currentDeck ??= new List<int>();
         currentRelics ??= new List<string>();
+        triggeredEventIds ??= new List<string>();
         currentFloorSteps ??= new List<PathOfPowerStepData>();
         pendingStarterRelicChoices ??= new List<string>();
         pendingWardenRelicRewards ??= new List<string>();
@@ -95,6 +97,7 @@ public class PathOfPowerRunData
 
         currentDeck.Clear();
         currentRelics.Clear();
+        triggeredEventIds.Clear();
         currentFloorSteps.Clear();
         pendingStarterRelicChoices.Clear();
         pendingWardenRelicRewards.Clear();

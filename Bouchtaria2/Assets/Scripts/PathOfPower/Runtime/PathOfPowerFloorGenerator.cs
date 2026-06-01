@@ -19,9 +19,10 @@ public class PathOfPowerFloorGenerator
         this.encounters = encounters ?? Array.Empty<EnemyEncounterDefinition>();
     }
 
-    public List<PathOfPowerStepData> GenerateFloor(int floor, PathOfPowerPathType pathType, int seed)
+    public List<PathOfPowerStepData> GenerateFloor(int floor, PathOfPowerPathType pathType, int seed, IReadOnlyCollection<string> excludedEventIds = null)
     {
         System.Random rng = new System.Random(seed);
+        HashSet<string> blockedEventIds = new HashSet<string>(excludedEventIds ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
         List<PathOfPowerStepData> steps = new List<PathOfPowerStepData>();
         float eventChance = BaseEventChance;
         int eventCount = 0;
@@ -30,7 +31,7 @@ public class PathOfPowerFloorGenerator
         {
             if (step == WardenStep)
             {
-                steps.Add(CreateStep(step, PathOfPowerStepType.Warden, floor, rng));
+                steps.Add(CreateStep(step, PathOfPowerStepType.Warden, floor, rng, blockedEventIds));
                 continue;
             }
 
@@ -64,7 +65,9 @@ public class PathOfPowerFloorGenerator
             if (stepType == PathOfPowerStepType.Event)
                 eventCount++;
 
-            PathOfPowerStepData createdStep = CreateStep(step, stepType, floor, rng);
+            PathOfPowerStepData createdStep = CreateStep(step, stepType, floor, rng, blockedEventIds);
+            if (createdStep.stepType == PathOfPowerStepType.Event)
+                blockedEventIds.Add(createdStep.eventId);
             if (step == 1 && createdStep.stepType != PathOfPowerStepType.Event && floor == 1)
             {
                 // First Path Of Power fight in a run is fixed to encounter id 0.
@@ -74,11 +77,11 @@ public class PathOfPowerFloorGenerator
             steps.Add(createdStep);
         }
 
-        EnsureEventBounds(steps, floor, rng);
+        EnsureEventBounds(steps, floor, rng, blockedEventIds);
         return steps;
     }
 
-    private void EnsureEventBounds(List<PathOfPowerStepData> steps, int floor, System.Random rng)
+    private void EnsureEventBounds(List<PathOfPowerStepData> steps, int floor, System.Random rng, HashSet<string> blockedEventIds)
     {
         List<PathOfPowerStepData> nonWardenSteps = steps.Where(step => step.stepIndex < WardenStep).ToList();
         int eventCount = nonWardenSteps.Count(step => step.stepType == PathOfPowerStepType.Event);
@@ -87,9 +90,20 @@ public class PathOfPowerFloorGenerator
         {
             PathOfPowerStepData forced = steps.First(step => step.stepIndex == 4);
             forced.stepType = PathOfPowerStepType.Event;
-            forced.eventId = PickEventId(floor, rng);
-            forced.encounterId = string.Empty;
-            eventCount = 1;
+            string forcedEventId = PickEventId(floor, rng, blockedEventIds);
+            if (!string.IsNullOrWhiteSpace(forcedEventId))
+            {
+                forced.eventId = forcedEventId;
+                forced.encounterId = string.Empty;
+                blockedEventIds.Add(forcedEventId);
+                eventCount = 1;
+            }
+            else
+            {
+                forced.stepType = PathOfPowerStepType.Fight;
+                forced.eventId = string.Empty;
+                forced.encounterId = PickEncounterId(floor, PathOfPowerStepType.Fight, rng);
+            }
         }
 
         while (eventCount > 2)
@@ -102,22 +116,26 @@ public class PathOfPowerFloorGenerator
         }
     }
 
-    private PathOfPowerStepData CreateStep(int stepIndex, PathOfPowerStepType stepType, int floor, System.Random rng)
+    private PathOfPowerStepData CreateStep(int stepIndex, PathOfPowerStepType stepType, int floor, System.Random rng, HashSet<string> blockedEventIds)
     {
+        string eventId = stepType == PathOfPowerStepType.Event ? PickEventId(floor, rng, blockedEventIds) : string.Empty;
+        if (stepType == PathOfPowerStepType.Event && string.IsNullOrWhiteSpace(eventId))
+            stepType = PathOfPowerStepType.Fight;
+
         return new PathOfPowerStepData
         {
             stepIndex = stepIndex,
             stepType = stepType,
-            eventId = stepType == PathOfPowerStepType.Event ? PickEventId(floor, rng) : string.Empty,
+            eventId = stepType == PathOfPowerStepType.Event ? eventId : string.Empty,
             encounterId = stepType == PathOfPowerStepType.Event ? string.Empty : PickEncounterId(floor, stepType, rng),
             completed = false
         };
     }
 
-    private string PickEventId(int floor, System.Random rng)
+    private string PickEventId(int floor, System.Random rng, HashSet<string> blockedEventIds)
     {
         List<EventDefinition> valid = events
-            .Where(evt => evt != null && evt.EnabledInFirstVersion && evt.MinimumFloor <= floor)
+            .Where(evt => evt != null && evt.EnabledInFirstVersion && evt.MinimumFloor <= floor && !blockedEventIds.Contains(evt.EventId))
             .ToList();
 
         if (valid.Count == 0)
