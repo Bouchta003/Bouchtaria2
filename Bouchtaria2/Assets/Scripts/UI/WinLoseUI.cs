@@ -116,6 +116,12 @@ public class WinLoseUI : MonoBehaviour
     {
         if (GameRunContext.IsPathOfPowerRun)
         {
+            if (resultText != null && resultText.text == "DEFEAT")
+            {
+                PathOfPowerSaveService.ResetRun(() => SceneManager.LoadScene("PathOfPower"));
+                return;
+            }
+
             SceneManager.LoadScene("PathOfPower");
             return;
         }

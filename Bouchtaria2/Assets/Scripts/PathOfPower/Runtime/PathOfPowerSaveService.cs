@@ -82,6 +82,15 @@ public static class PathOfPowerSaveService
             });
     }
 
+
+    public static void ResetRun(Action onComplete = null)
+    {
+        PathOfPowerRunData resetRun = new PathOfPowerRunData();
+        resetRun.Reset();
+        GameRunContext.PathOfPowerData = resetRun;
+        Save(resetRun, onComplete);
+    }
+
     public static void Load(Action<PathOfPowerRunData> onLoaded)
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;

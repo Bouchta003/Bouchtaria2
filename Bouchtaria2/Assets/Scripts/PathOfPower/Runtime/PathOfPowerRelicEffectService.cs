@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 public static class PathOfPowerRelicEffectService
@@ -30,6 +31,7 @@ public static class PathOfPowerRelicEffectService
     private const int HotCocoa = 24;
 
     private const int EmptyCoreShieldAmount = 6;
+    private const int CardSleeveMaxHandSize = 7;
 
     public static void ApplyCombatStartRelics(PlayerOwner owner)
     {
@@ -38,6 +40,8 @@ public static class PathOfPowerRelicEffectService
 
         IReadOnlyList<int> relicIds = GetRelicIdsForOwner(owner, GameRunContext.PathOfPowerData);
         Debug.Log($"[PathOfPower][Relics] Checking {owner} combat-start relics: [{string.Join(", ", relicIds)}].");
+        ApplyHandSizeRelics(owner, relicIds);
+
         foreach (int relicId in relicIds)
         {
             switch (relicId)
@@ -159,6 +163,20 @@ public static class PathOfPowerRelicEffectService
                     break;
             }
         }
+    }
+
+    private static void ApplyHandSizeRelics(PlayerOwner owner, IReadOnlyList<int> relicIds)
+    {
+        if (relicIds == null || !relicIds.Contains(CardSleeve) || GameManager.Instance == null)
+            return;
+
+        HandManager hand = owner == PlayerOwner.Player ? GameManager.Instance.allyHand : GameManager.Instance.enemyHand;
+        if (hand == null)
+            return;
+
+        hand.maxHandSize = hand.maxHandSize > 0 ? Mathf.Min(hand.maxHandSize, CardSleeveMaxHandSize) : CardSleeveMaxHandSize;
+        hand.UpdateCardPositions();
+        Debug.Log($"[PathOfPower][Relics] Card Sleeve limits {owner} hand size to {CardSleeveMaxHandSize}.");
     }
 
     private static IReadOnlyList<int> GetRelicIdsForOwner(PlayerOwner owner, PathOfPowerRunData runData)
