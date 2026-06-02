@@ -28,6 +28,9 @@ public static class PathOfPowerSaveService
     public const string PendingValidationRelicIdField = "pathofpower_pendingvalidationrelicid";
     public const string PendingValidationDiscoveriesRemainingField = "pathofpower_pendingvalidationdiscoveriesremaining";
     public const string PendingWardenRewardAfterEncounterDiscoveryField = "pathofpower_pendingwardenrewardafterencounterdiscovery";
+    public const string PendingCardChoiceActionField = "pathofpower_pendingcardchoiceaction";
+    public const string PendingEventAddBlacksmithDaughterField = "pathofpower_pendingeventaddblacksmithdaughter";
+    public const string MaxHpModifierField = "pathofpower_maxhpmodifier";
     public const string BestFloorField = "pathofpower_bestfloor";
     public const string BestStepField = "pathofpower_beststep";
     public const string BestFloorStepField = "pathofpower_bestfloorstep";
@@ -65,7 +68,10 @@ public static class PathOfPowerSaveService
             { CurrentDeckSizeField, runData.currentDeckSize },
             { PendingValidationRelicIdField, runData.pendingValidationRelicId ?? string.Empty },
             { PendingValidationDiscoveriesRemainingField, runData.pendingValidationDiscoveriesRemaining },
-            { PendingWardenRewardAfterEncounterDiscoveryField, runData.pendingWardenRewardAfterEncounterDiscovery }
+            { PendingWardenRewardAfterEncounterDiscoveryField, runData.pendingWardenRewardAfterEncounterDiscovery },
+            { PendingCardChoiceActionField, runData.pendingCardChoiceAction ?? string.Empty },
+            { PendingEventAddBlacksmithDaughterField, runData.pendingEventAddBlacksmithDaughterOnSelect },
+            { MaxHpModifierField, runData.maxHpModifier }
         };
 
         FirebaseFirestore.DefaultInstance
@@ -164,7 +170,10 @@ public static class PathOfPowerSaveService
             currentDeckSize = Mathf.Max(5, ReadInt(snapshot, CurrentDeckSizeField, 20)),
             pendingValidationRelicId = ReadString(snapshot, PendingValidationRelicIdField, string.Empty),
             pendingValidationDiscoveriesRemaining = ReadInt(snapshot, PendingValidationDiscoveriesRemainingField, 0),
-            pendingWardenRewardAfterEncounterDiscovery = ReadBool(snapshot, PendingWardenRewardAfterEncounterDiscoveryField, false)
+            pendingWardenRewardAfterEncounterDiscovery = ReadBool(snapshot, PendingWardenRewardAfterEncounterDiscoveryField, false),
+            pendingCardChoiceAction = ReadString(snapshot, PendingCardChoiceActionField, string.Empty),
+            pendingEventAddBlacksmithDaughterOnSelect = ReadBool(snapshot, PendingEventAddBlacksmithDaughterField, false),
+            maxHpModifier = ReadInt(snapshot, MaxHpModifierField, 0)
         };
 
         runData.currentPathType = ParseEnum(ReadString(snapshot, CurrentPathTypeField, PathOfPowerPathType.Simple.ToString()), PathOfPowerPathType.Simple);

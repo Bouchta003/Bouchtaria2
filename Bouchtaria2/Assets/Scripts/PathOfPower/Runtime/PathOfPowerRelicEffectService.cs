@@ -29,6 +29,8 @@ public static class PathOfPowerRelicEffectService
     private const int BloodVial = 22;
     private const int ElementalOrb = 23;
     private const int HotCocoa = 24;
+    private const int EchoCrystal = 25;
+    private const int RainbowRing = 26;
 
     private const int EmptyCoreShieldAmount = 6;
     private const int CardSleeveMaxHandSize = 7;
@@ -51,6 +53,9 @@ public static class PathOfPowerRelicEffectService
                     break;
                 case GolemCapsule:
                     GameManager.Instance.AddCardToHand(owner, 77);
+                    break;
+                case EchoCrystal:
+                    GameManager.Instance.deckManager?.TryDrawLowestCostCard(owner);
                     break;
                 default:
                     break;
@@ -99,7 +104,7 @@ public static class PathOfPowerRelicEffectService
             return 0;
 
         IReadOnlyList<int> relicIds = GetRelicIdsForOwner(owner, GameRunContext.PathOfPowerData);
-        int bonusHp = 0;
+        int bonusHp = owner == PlayerOwner.Player && GameRunContext.PathOfPowerData != null ? GameRunContext.PathOfPowerData.maxHpModifier : 0;
 
         foreach (int relicId in relicIds)
         {
@@ -157,12 +162,45 @@ public static class PathOfPowerRelicEffectService
                 case ElementalOrb:
                     gameManager.Praise(owner);
                     break;
+                case RainbowRing:
+                    ApplyRainbowRing(owner, gameManager);
+                    break;
                 // TODO(Path Of Power Relics): Add relic id + end-turn effect here.
                 default:
                     Debug.Log($"[PathOfPower][Relics] Relic id {relicId} has no implemented end-turn effect yet.");
                     break;
             }
         }
+    }
+
+    private static void ApplyRainbowRing(PlayerOwner owner, GameManager gameManager)
+    {
+        if (gameManager?.deckManager == null)
+            return;
+
+        Dictionary<CardData.Trait, int> traits = owner == PlayerOwner.Player
+            ? gameManager.deckManager.AllyTraitsUnlockable
+            : gameManager.deckManager.EnemyTraitsUnlockable;
+
+        int detectedTraitCount = traits != null ? traits.Count(pair => pair.Key != CardData.Trait.None && pair.Value > 0) : 0;
+        if (detectedTraitCount < 3)
+            return;
+
+        HandManager hand = owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
+        if (hand == null || hand.handCards == null || hand.handCards.Count == 0)
+            return;
+
+        List<CardInstance> cards = hand.handCards
+            .Select(cardObject => cardObject != null ? cardObject.GetComponent<CardInstance>() : null)
+            .Where(card => card != null)
+            .ToList();
+        if (cards.Count == 0)
+            return;
+
+        CardInstance selected = cards[UnityEngine.Random.Range(0, cards.Count)];
+        selected.AddTemporaryManaModifier(-1);
+        selected.GetComponent<CardView>()?.UpdateMode();
+        Debug.Log($"[PathOfPower][Relics] Rainbow Ring discounted {selected.Data?.name ?? "a card"} for {owner}.");
     }
 
     private static void ApplyHandSizeRelics(PlayerOwner owner, IReadOnlyList<int> relicIds)

@@ -323,7 +323,7 @@ private sealed class PendingHandReturn
         foreach (string relicId in GameRunContext.PathOfPowerData.currentRelics.Where(id => !string.IsNullOrWhiteSpace(id)))
         {
             RelicDefinition relic = ResolveRelic(relicId);
-            if (relic == null)
+            if (relic == null || relic.Type != RelicDefinition.RelicType.CombatRelic)
                 continue;
 
             GameObject relicObject = Instantiate(RelicPrefab, parent);
@@ -410,6 +410,8 @@ private sealed class PendingHandReturn
         TurnManager.Instance.OnTurnEnded -= HandleTurnEnded;
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
         TurnManager.Instance.OnTurnEnded += HandleTurnEnded;
+        PathOfPowerRelicEffectService.ApplyCombatStartRelics(PlayerOwner.Player);
+        PathOfPowerRelicEffectService.ApplyCombatStartRelics(PlayerOwner.Enemy);
         StartCoroutine(TurnManager.Instance.StartFirstTurn());
         if (dungeonStartDrawBonus > 0)
         {
@@ -429,8 +431,6 @@ private sealed class PendingHandReturn
             TurnManager.Instance.OnTurnStarted -= HandleTurnStartedForPendingHandReturns;
             TurnManager.Instance.OnTurnStarted += HandleTurnStartedForPendingHandReturns;
         }
-        PathOfPowerRelicEffectService.ApplyCombatStartRelics(PlayerOwner.Player);
-        PathOfPowerRelicEffectService.ApplyCombatStartRelics(PlayerOwner.Enemy);
     }
     private void HandleTurnStartedForPendingHandReturns(PlayerOwner owner)
     {

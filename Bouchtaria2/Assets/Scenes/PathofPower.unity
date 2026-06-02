@@ -3464,11 +3464,16 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8226b6875abe4aac9ec79d92de16b3bb, type: 2}
   - {fileID: 11400000, guid: df20863769ee47bebb6514fb606fb960, type: 2}
   - {fileID: 11400000, guid: 510df5a8ad7d411f93c430039f15335d, type: 2}
+  - {fileID: 11400000, guid: 277b625b12104c0fac41af95c510ed4f, type: 2}
+  - {fileID: 11400000, guid: a0fc37ba574047e28748beb3739ed573, type: 2}
+  - {fileID: 11400000, guid: 6f4c9d5cc75f4f708e0ed874d676ead1, type: 2}
+  - {fileID: 11400000, guid: 7ba185ce44d6497a8cb9cb7c347a5de0, type: 2}
   eventLibrary:
   - {fileID: 11400000, guid: 5183369f7b62c844a9d25efe5b68ab55, type: 2}
   - {fileID: 11400000, guid: 9a2a944f185a62647ae92f42d3294f51, type: 2}
   - {fileID: 11400000, guid: 12521600dde010b49b64c908bbf6e2d9, type: 2}
   - {fileID: 11400000, guid: 96ba2a58dd560e0499ae8cc60e6cbac3, type: 2}
+  - {fileID: 11400000, guid: d2099d33fa604bdbbde11791ffd5dba1, type: 2}
   pathLibrary:
   - {fileID: 11400000, guid: 5b007ec07168c4e41874defd58e2ccf3, type: 2}
   - {fileID: 11400000, guid: 53095873e8a0f6542993a4b06c46c970, type: 2}

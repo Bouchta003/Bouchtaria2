@@ -209,14 +209,35 @@ public class PathOfPowerManager : MonoBehaviour
             case 3: // The Blacksmith
                 eventRewardCardDiscoveryPending = true;
                 eventRewardAddBlacksmithDaughterOnSelect = true;
-                CurrentRun.pendingCardChoices = GenerateNonPackableNonTokenChoices(CurrentRun.currentFloorSeed + CurrentRun.currentStep + CurrentRun.currentDeck.Count + 303, 6)
+                CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = true;
+                CurrentRun.pendingCardChoiceAction = "AddOne";
+                CurrentRun.pendingCardChoices = GenerateNonPackableNonTokenChoicesForDeckTraits(CurrentRun.currentFloorSeed + CurrentRun.currentStep + CurrentRun.currentDeck.Count + 303, 3)
                     .Where(cardId => cardId != 419)
-                    .Take(3)
                     .ToList();
                 if (CurrentRun.pendingCardChoices.Count == 0)
                 {
                     eventRewardAddBlacksmithDaughterOnSelect = false;
+                    CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = false;
                     CurrentRun.pendingCardChoices = new List<int> { 419 };
+                }
+                SwitchDisplay(5);
+                ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
+                OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                SaveRun();
+                return;
+            case 4: // Mercenary
+                CurrentRun.maxHpModifier += 5;
+                eventRewardCardDiscoveryPending = true;
+                CurrentRun.pendingCardChoiceAction = "RemoveOne";
+                CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = false;
+                CurrentRun.pendingCardChoices = GenerateCurrentDeckCardChoices(CurrentRun.currentFloorSeed + CurrentRun.currentStep + CurrentRun.currentDeck.Count + 404, 3);
+                if (CurrentRun.pendingCardChoices.Count == 0)
+                {
+                    eventRewardCardDiscoveryPending = false;
+                    CurrentRun.pendingCardChoiceAction = string.Empty;
+                    CompleteCurrentEvent();
+                    SaveRun();
+                    return;
                 }
                 SwitchDisplay(5);
                 ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
@@ -424,6 +445,8 @@ public class PathOfPowerManager : MonoBehaviour
             }
 
             CurrentRun.pendingCardChoices.Clear();
+            if (isEventRewardDiscovery)
+                CurrentRun.pendingCardChoiceAction = string.Empty;
             if (isDeckRelicDiscovery && CurrentRun.pendingValidationRelicId != "11" && CurrentRun.pendingValidationDiscoveriesRemaining > 0)
                 CurrentRun.pendingValidationDiscoveriesRemaining--;
             ClearCardDiscovery();
@@ -440,6 +463,8 @@ public class PathOfPowerManager : MonoBehaviour
                 }
 
                 eventRewardCardDiscoveryPending = false;
+                CurrentRun.pendingCardChoiceAction = string.Empty;
+                CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = false;
                 CompleteCurrentEvent();
             }
 
@@ -459,9 +484,7 @@ public class PathOfPowerManager : MonoBehaviour
             return;
         }
 
-        CurrentRun.currentDeck.Add(cardId);
-        if (CurrentRun.currentDeck.Count > CurrentRun.currentDeckSize)
-            CurrentRun.currentDeckSize = CurrentRun.currentDeck.Count;
+        ApplyPendingCardChoice(cardId);
         CurrentRun.pendingCardChoices.Clear();
         if (isDeckRelicDiscovery && CurrentRun.pendingValidationRelicId != "11" && CurrentRun.pendingValidationDiscoveriesRemaining > 0)
             CurrentRun.pendingValidationDiscoveriesRemaining--;
@@ -488,6 +511,8 @@ public class PathOfPowerManager : MonoBehaviour
             }
 
             eventRewardCardDiscoveryPending = false;
+            CurrentRun.pendingCardChoiceAction = string.Empty;
+            CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = false;
             CompleteCurrentEvent();
         }
 
@@ -495,9 +520,37 @@ public class PathOfPowerManager : MonoBehaviour
     }
 
 
+    private void ApplyPendingCardChoice(int cardId)
+    {
+        string action = CurrentRun.pendingCardChoiceAction ?? string.Empty;
+
+        bool addsCards = true;
+        if (string.Equals(action, "DuplicateTwo", StringComparison.OrdinalIgnoreCase))
+        {
+            CurrentRun.currentDeck.Add(cardId);
+            CurrentRun.currentDeck.Add(cardId);
+        }
+        else if (string.Equals(action, "RemoveOne", StringComparison.OrdinalIgnoreCase))
+        {
+            CurrentRun.currentDeck.Remove(cardId);
+            CurrentRun.currentDeckSize = Mathf.Max(5, CurrentRun.currentDeckSize - 1);
+            addsCards = false;
+        }
+        else
+        {
+            CurrentRun.currentDeck.Add(cardId);
+        }
+
+        if (addsCards && CurrentRun.currentDeck.Count > CurrentRun.currentDeckSize)
+            CurrentRun.currentDeckSize = CurrentRun.currentDeck.Count;
+    }
+
+
     private void ShowBlacksmithDaughterDiscovery()
     {
         eventRewardAddBlacksmithDaughterOnSelect = false;
+        CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = false;
+        CurrentRun.pendingCardChoiceAction = "AddOne";
         CurrentRun.pendingCardChoices = new List<int> { 419 };
         ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
         OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
@@ -881,7 +934,7 @@ public class PathOfPowerManager : MonoBehaviour
         if (encounter?.DroppablePool == null || encounter.DroppablePool.Count == 0)
             return false;
 
-        List<int> options = encounter.DroppablePool.Where(id => id > 0).Distinct().ToList();
+        List<int> options = encounter.DroppablePool.Where(id => id > 0 && IsValidDiscoveryCardId(id)).Distinct().ToList();
         if (options.Count == 0)
             return false;
 
@@ -924,8 +977,13 @@ public class PathOfPowerManager : MonoBehaviour
         if (relic == null || relic.Type != RelicDefinition.RelicType.DeckRelic)
             return;
 
-        // TODO(Path Of Power Deck Relics): Add immediate deck relic effects here.
-        // Relic 10 is handled as a validation-gated discovery in ValidateRelicChoice.
+        if (relic.RelicId == "28")
+        {
+            ReduceDeckSize(5);
+            CurrentRun.maxHpModifier -= 10;
+        }
+
+        // Relics 10/27 are handled as validation-gated discoveries in ValidateRelicChoice.
     }
 
     private List<int> GenerateCardChoicesForTrait(int seed, int count, CardData.Trait trait)
@@ -936,7 +994,7 @@ public class PathOfPowerManager : MonoBehaviour
         System.Random rng = new System.Random(seed);
         string requiredTrait = trait.ToString();
         return CardDatabase.Instance.Cards.Values
-            .Where(card => card != null && card.packable && !card.token && !card.signature && card.traits != null &&
+            .Where(card => IsValidDiscoveryCard(card) && card.packable && !card.token && !card.signature && card.traits != null &&
                            card.traits.Any(t => t.Equals(requiredTrait, StringComparison.OrdinalIgnoreCase)))
             .OrderBy(_ => rng.Next())
             .Take(count)
@@ -944,18 +1002,80 @@ public class PathOfPowerManager : MonoBehaviour
             .ToList();
     }
 
-    private List<int> GenerateNonPackableNonTokenChoices(int seed, int count)
+    private List<int> GenerateNonPackableNonTokenChoicesForDeckTraits(int seed, int count)
     {
         if (CardDatabase.Instance == null || CardDatabase.Instance.Cards == null)
             return new List<int>();
 
         System.Random rng = new System.Random(seed);
-        return CardDatabase.Instance.Cards.Values
-            .Where(card => card != null && !card.packable && !card.token && !card.signature)
+        HashSet<string> deckTraits = GetCurrentDeckTraits(includeNeutral: false);
+        List<int> choices = CardDatabase.Instance.Cards.Values
+            .Where(card => IsValidDiscoveryCard(card) && !card.packable && !card.token && !card.signature && card.traits != null && card.traits.Any(deckTraits.Contains))
             .OrderBy(_ => rng.Next())
             .Take(count)
             .Select(card => card.id)
             .ToList();
+
+        if (choices.Count >= count)
+            return choices;
+
+        HashSet<int> selectedIds = new HashSet<int>(choices);
+        choices.AddRange(CardDatabase.Instance.Cards.Values
+            .Where(card => IsValidDiscoveryCard(card) && !card.packable && !card.token && !card.signature && !selectedIds.Contains(card.id) && card.traits != null && card.traits.Any(t => t.Equals(CardData.Trait.Neutral.ToString(), StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(_ => rng.Next())
+            .Take(count - choices.Count)
+            .Select(card => card.id));
+        return choices;
+    }
+
+    private List<int> GenerateCurrentDeckCardChoices(int seed, int count)
+    {
+        if (CurrentRun?.currentDeck == null)
+            return new List<int>();
+
+        System.Random rng = new System.Random(seed);
+        return CurrentRun.currentDeck
+            .Distinct()
+            .Where(IsValidDiscoveryCardId)
+            .OrderBy(_ => rng.Next())
+            .Take(count)
+            .ToList();
+    }
+
+    private HashSet<string> GetCurrentDeckTraits(bool includeNeutral)
+    {
+        HashSet<string> traits = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (CurrentRun?.currentDeck == null)
+            return traits;
+
+        foreach (int cardId in CurrentRun.currentDeck)
+        {
+            CardData card = CardDatabase.Instance?.GetCardById(cardId);
+            if (card?.traits == null)
+                continue;
+
+            foreach (string trait in card.traits)
+            {
+                if (string.IsNullOrWhiteSpace(trait))
+                    continue;
+                if (!includeNeutral && trait.Equals(CardData.Trait.Neutral.ToString(), StringComparison.OrdinalIgnoreCase))
+                    continue;
+                traits.Add(trait);
+            }
+        }
+
+        return traits;
+    }
+
+    private bool IsValidDiscoveryCardId(int cardId)
+    {
+        CardData card = CardDatabase.Instance != null ? CardDatabase.Instance.GetCardById(cardId) : null;
+        return IsValidDiscoveryCard(card);
+    }
+
+    private bool IsValidDiscoveryCard(CardData card)
+    {
+        return card != null && CardDatabase.Instance != null && CardDatabase.Instance.IsCardArtValid(card);
     }
 
     private List<int> GenerateCheaterScrollChoices(int seed, int count)
@@ -982,7 +1102,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         System.Random rng = new System.Random(seed);
         List<int> choices = CardDatabase.Instance.Cards.Values
-            .Where(card => card != null && !card.packable && !card.token && !card.signature && card.traits != null && card.traits.Any(t => activeTraits.Contains(t)))
+            .Where(card => IsValidDiscoveryCard(card) && !card.packable && !card.token && !card.signature && card.traits != null && card.traits.Any(t => activeTraits.Contains(t)))
             .OrderBy(_ => rng.Next())
             .Take(count)
             .Select(card => card.id)
@@ -993,7 +1113,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         HashSet<int> selectedIds = new HashSet<int>(choices);
         List<int> neutralFallbacks = CardDatabase.Instance.Cards.Values
-            .Where(card => card != null && !card.packable && !card.token && !card.signature && !selectedIds.Contains(card.id) && card.traits != null && card.traits.Any(t => t.Equals(CardData.Trait.Neutral.ToString(), StringComparison.OrdinalIgnoreCase)))
+            .Where(card => IsValidDiscoveryCard(card) && !card.packable && !card.token && !card.signature && !selectedIds.Contains(card.id) && card.traits != null && card.traits.Any(t => t.Equals(CardData.Trait.Neutral.ToString(), StringComparison.OrdinalIgnoreCase)))
             .OrderBy(_ => rng.Next())
             .Take(count - choices.Count)
             .Select(card => card.id)
@@ -1060,8 +1180,15 @@ public class PathOfPowerManager : MonoBehaviour
                 SwitchDisplay(4);
                 break;
             case PathOfPowerRunPhase.Event:
-                SwitchDisplay(3);
-                StartEventDialogue(CurrentRun.CurrentStepData);
+                if (CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
+                {
+                    SwitchDisplay(5);
+                }
+                else
+                {
+                    SwitchDisplay(3);
+                    StartEventDialogue(CurrentRun.CurrentStepData);
+                }
                 break;
             case PathOfPowerRunPhase.Combat:
                 SwitchDisplay(2);
@@ -1161,6 +1288,15 @@ public class PathOfPowerManager : MonoBehaviour
                 if (CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
                 {
                     ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
+                    OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                }
+                break;
+            case PathOfPowerRunPhase.Event:
+                if (CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
+                {
+                    eventRewardCardDiscoveryPending = true;
+                    eventRewardAddBlacksmithDaughterOnSelect = CurrentRun.pendingEventAddBlacksmithDaughterOnSelect;
+                    ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
                     OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
                 }
                 break;
@@ -1296,7 +1432,7 @@ public class PathOfPowerManager : MonoBehaviour
 
     private bool IsEligibleStarterDeckCard(CardData card, string requiredTrait, IReadOnlyDictionary<int, int> deckCounts)
     {
-        if (card == null || !card.packable || card.token || card.signature)
+        if (!IsValidDiscoveryCard(card) || !card.packable || card.token || card.signature)
             return false;
 
         if (deckCounts != null && deckCounts.TryGetValue(card.id, out int ownedCopies) && ownedCopies >= 2)
@@ -1718,6 +1854,10 @@ public class PathOfPowerManager : MonoBehaviour
             CurrentRun.pendingValidationRelicId = string.Empty;
             CurrentRun.pendingValidationDiscoveriesRemaining = 0;
         }
+        else if (relic.RelicId == "27")
+        {
+            yield return ResolveMagicMirrorDiscovery(relicId);
+        }
         else if (relic.RelicId == "12")
         {
             yield return ResolveCheaterScrollDiscovery();
@@ -1726,6 +1866,26 @@ public class PathOfPowerManager : MonoBehaviour
         {
             yield return ResolveGiftCombatRelicDiscovery();
         }
+    }
+
+    private IEnumerator ResolveMagicMirrorDiscovery(string relicId)
+    {
+        ClearRelicDiscovery();
+        CurrentRun.pendingValidationRelicId = relicId;
+        CurrentRun.pendingValidationDiscoveriesRemaining = 1;
+        CurrentRun.pendingCardChoiceAction = "DuplicateTwo";
+        CurrentRun.pendingCardChoices = GenerateCurrentDeckCardChoices(CurrentRun.currentFloorSeed + 2727 + CurrentRun.currentDeck.Count, 3);
+        if (CurrentRun.pendingCardChoices.Count > 0)
+        {
+            ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
+            OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+            SaveRun();
+            yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+        }
+
+        CurrentRun.pendingValidationRelicId = string.Empty;
+        CurrentRun.pendingValidationDiscoveriesRemaining = 0;
+        CurrentRun.pendingCardChoiceAction = string.Empty;
     }
 
     private IEnumerator ResolveCheaterScrollDiscovery()
@@ -1821,6 +1981,11 @@ public class PathOfPowerManager : MonoBehaviour
     {
         if (DiscoverDisplay == null || cardIds == null || cardIds.Count == 0)
             return;
+
+        List<int> validCardIds = cardIds.Where(IsValidDiscoveryCardId).Take(3).ToList();
+        if (validCardIds.Count == 0)
+            return;
+
         currentCardDiscoverySkippable = skippable;
 
         DiscoveryText.text = "Select a Card to add to your deck (hold 'space bar' to enter scan mode)";
@@ -1842,9 +2007,9 @@ public class PathOfPowerManager : MonoBehaviour
         DiscoverDisplay.SetActive(true);
         Vector3[] positions = { new Vector3(-5, 0, 0), Vector3.zero, new Vector3(5, 0, 0) };
 
-        for (int i = 0; i < cardIds.Count && i < positions.Length; i++)
+        for (int i = 0; i < validCardIds.Count && i < positions.Length; i++)
         {
-            CardData data = CardDatabase.Instance.GetCardById(cardIds[i]);
+            CardData data = CardDatabase.Instance.GetCardById(validCardIds[i]);
             if (data == null)
                 continue;
 

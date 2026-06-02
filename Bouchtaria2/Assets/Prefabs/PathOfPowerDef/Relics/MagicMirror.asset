@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bdc60e455ff49c3a9043189edcdf6dc, type: 3}
+  m_Name: MagicMirror
+  m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
+  relicId: 27
+  displayName: Magic Mirror
+  description: When obtained, discover a card in your deck. Add 2 additional copies of the chosen card to your deck.
+  enemyRelicText: Duplicates a card in their deck when obtained.
+  icon: {fileID: -1740839884768737540, guid: d65c9808584a6e54eb2edfbe2579c79e, type: 3}
+  assignedTrait: 0
+  canAppearAsStarter: 0
+  discoverable: 1
+  relicType: 1
