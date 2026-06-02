@@ -68,6 +68,9 @@ public class PathOfPowerRunData
     public int pendingValidationDiscoveriesRemaining;
     public bool pendingWardenRewardAfterEncounterDiscovery;
     public bool pendingCombatVictoryResolution;
+    public string pendingCardChoiceAction = string.Empty;
+    public bool pendingEventAddBlacksmithDaughterOnSelect;
+    public int maxHpModifier;
 
     public PathOfPowerStepData CurrentStepData
     {
@@ -116,5 +119,8 @@ public class PathOfPowerRunData
         pendingValidationDiscoveriesRemaining = 0;
         pendingWardenRewardAfterEncounterDiscovery = false;
         pendingCombatVictoryResolution = false;
+        pendingCardChoiceAction = string.Empty;
+        pendingEventAddBlacksmithDaughterOnSelect = false;
+        maxHpModifier = 0;
     }
 }

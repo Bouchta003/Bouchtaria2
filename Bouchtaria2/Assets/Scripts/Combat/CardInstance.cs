@@ -906,7 +906,8 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (IsBleeding)
         {
-            TakeDamage(1);
+            int bleedDamage = PathOfPowerRelicEffectService.HasBloodVial(OtherPlayer(Owner)) ? 2 : 1;
+            TakeDamage(bleedDamage);
             gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(OtherPlayer(Owner));
             BleedingTurns++;
             if (BleedingTurns >= 3) { IsBleeding = false; BleedingTurns = 0; view.UpdateMode(); }

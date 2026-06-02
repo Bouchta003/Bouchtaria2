@@ -386,6 +386,50 @@ public class DeckManager : MonoBehaviour
         } else
         CombatLog.Instance?.AddAction(card, $"{card.Data.name} was drawn.");
     }
+    public bool TryDrawLowestCostCard(PlayerOwner owner)
+    {
+        if (!decks.TryGetValue(owner, out Queue<CardData> deck) || deck == null || deck.Count == 0)
+            return false;
+
+        HandManager hand = owner == PlayerOwner.Player ? handManager : handManagerEnemy;
+        if (hand == null || hand.handCards.Count >= hand.maxHandSize)
+            return false;
+
+        List<CardData> deckSnapshot = deck.Where(card => card != null).ToList();
+        if (deckSnapshot.Count == 0)
+            return false;
+
+        int lowestCost = deckSnapshot.Min(card => card.manaCost);
+        List<CardData> candidates = deckSnapshot.Where(card => card.manaCost == lowestCost).ToList();
+        CardData selected = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+        bool removed = false;
+        Queue<CardData> rebuiltDeck = new Queue<CardData>();
+
+        while (deck.Count > 0)
+        {
+            CardData current = deck.Dequeue();
+            if (!removed && current != null && current.id == selected.id)
+            {
+                removed = true;
+                continue;
+            }
+
+            rebuiltDeck.Enqueue(current);
+        }
+
+        decks[owner] = rebuiltDeck;
+        CardInstance card = CardFactory.Instance.CreateCard(selected, owner);
+        if (card == null)
+            return false;
+
+        card.SetZone(CardZone.Hand);
+        hand.AddCard(card.gameObject);
+        hand.UpdateCardPositions();
+        OnCardDrawn?.Invoke(card);
+        CombatLog.Instance?.AddAction(card, $"{card.Data.name} was drawn by Echo Crystal.");
+        return true;
+    }
+
     private bool TryDrawCard(PlayerOwner owner)
     {
         if (!decks.TryGetValue(owner, out Queue<CardData> deck))
