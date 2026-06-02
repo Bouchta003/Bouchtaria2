@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Burning Blood
   description: When killing enemy units, heal allied core for 2 HP.
   enemyRelicText: Heals core by 2 HP when your units die.
-  icon: {fileID: 1669490993913548592, guid: be87e062409b0684086506a46d4e702f, type: 3}
+  icon: {fileID: 2410305648406330871, guid: 1adb7a858c94b6d44a8bbf0a08353ee7, type: 3}
   assignedTrait: 0
   canAppearAsStarter: 0
   discoverable: 1

@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
   relicId: 24
   displayName: Hot Cocoa
-  description: Fatigue is not incremented the first time it is applied, only from the second deck emptying.
+  description: Fatigue is not incremented the first time it is applied, only from
+    the second deck emptying.
   enemyRelicText: First fatigue increment is skipped.
-  icon: {fileID: 1669490993913548592, guid: be87e062409b0684086506a46d4e702f, type: 3}
+  icon: {fileID: 8680697454529431314, guid: 663a7aed6578773419c1be771a9d02ff, type: 3}
   assignedTrait: 0
-  canAppearAsStarter: 0
+  canAppearAsStarter: 1
   discoverable: 1
   relicType: 0

@@ -16,8 +16,8 @@ MonoBehaviour:
   displayName: Blood Vial
   description: Bleed deals one additional damage to cores.
   enemyRelicText: Bleed deals one additional damage to your core.
-  icon: {fileID: 1669490993913548592, guid: be87e062409b0684086506a46d4e702f, type: 3}
-  assignedTrait: 0
+  icon: {fileID: 5156059717520713098, guid: a802b04533a94d344b0207a45f9fab6c, type: 3}
+  assignedTrait: 15
   canAppearAsStarter: 0
   discoverable: 1
   relicType: 0

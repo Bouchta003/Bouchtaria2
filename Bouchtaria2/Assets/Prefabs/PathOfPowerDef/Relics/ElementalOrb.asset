@@ -16,8 +16,8 @@ MonoBehaviour:
   displayName: Elemental Orb
   description: 'End of turn: Praise.'
   enemyRelicText: Praises at the end of turn.
-  icon: {fileID: 1669490993913548592, guid: be87e062409b0684086506a46d4e702f, type: 3}
-  assignedTrait: 0
+  icon: {fileID: -530490070151145309, guid: 3bccd33a4a20dce418d916ba9cee7e91, type: 3}
+  assignedTrait: 8
   canAppearAsStarter: 0
   discoverable: 1
   relicType: 0
