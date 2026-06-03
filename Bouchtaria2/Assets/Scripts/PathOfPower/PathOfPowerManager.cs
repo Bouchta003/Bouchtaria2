@@ -1222,8 +1222,14 @@ public class PathOfPowerManager : MonoBehaviour
     private void SaveBestRunIfNeeded(bool forceSaveCurrentProgress = false)
     {
         FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
-        if (user == null)
+        if (user == null || CurrentRun == null)
             return;
+
+        int runFloor = CurrentRun.currentFloor;
+        int runStep = CurrentRun.currentStep;
+        List<int> runDeck = new List<int>(CurrentRun.currentDeck ?? new List<int>());
+        List<string> runRelics = new List<string>(CurrentRun.currentRelics ?? new List<string>());
+        List<string> runBestTraits = BuildBestTraitList(runDeck, CurrentRun.starterDeckTrait);
 
         DocumentReference doc = FirebaseFirestore.DefaultInstance.Collection("users").Document(user.UserId);
         doc.GetSnapshotAsync().ContinueWith(task =>
@@ -1234,16 +1240,19 @@ public class PathOfPowerManager : MonoBehaviour
             DocumentSnapshot snap = task.Result;
             int bestFloor = snap.ContainsField(PathOfPowerSaveService.BestFloorField) ? snap.GetValue<int>(PathOfPowerSaveService.BestFloorField) : 0;
             int bestStep = snap.ContainsField(PathOfPowerSaveService.BestStepField) ? snap.GetValue<int>(PathOfPowerSaveService.BestStepField) : 0;
-            bool isBetter = CurrentRun.currentFloor > bestFloor || (CurrentRun.currentFloor == bestFloor && CurrentRun.currentStep > bestStep);
-            if (!isBetter && !forceSaveCurrentProgress)
+            bool isBetter = runFloor > bestFloor || (runFloor == bestFloor && runStep > bestStep);
+            bool isSameBestProgress = runFloor == bestFloor && runStep == bestStep;
+            if (!isBetter && !isSameBestProgress)
                 return;
 
             Dictionary<string, object> update = new Dictionary<string, object>
             {
-                { PathOfPowerSaveService.BestFloorField, Mathf.Max(bestFloor, CurrentRun.currentFloor) },
-                { PathOfPowerSaveService.BestStepField, isBetter ? CurrentRun.currentStep : bestStep },
-                { PathOfPowerSaveService.BestFloorStepField, $"{Mathf.Max(bestFloor, CurrentRun.currentFloor)} - {(isBetter ? CurrentRun.currentStep : bestStep)}" },
-                { PathOfPowerSaveService.BestDeckField, CurrentRun.currentDeck ?? new List<int>() }
+                { PathOfPowerSaveService.BestFloorField, runFloor },
+                { PathOfPowerSaveService.BestStepField, runStep },
+                { PathOfPowerSaveService.BestFloorStepField, $"{runFloor} - {runStep}" },
+                { PathOfPowerSaveService.BestDeckField, runDeck },
+                { PathOfPowerSaveService.BestRelicsField, runRelics },
+                { PathOfPowerSaveService.BestTraitsField, runBestTraits }
             };
             doc.UpdateAsync(update);
         });
@@ -1577,14 +1586,18 @@ public class PathOfPowerManager : MonoBehaviour
 
     private int GetTraitTierInCurrentDeck(CardData.Trait trait)
     {
-        if (CardDatabase.Instance == null || CardDatabase.Instance.Cards == null || CurrentRun?.currentDeck == null)
+        return GetTraitTierInDeck(trait, CurrentRun?.currentDeck);
+    }
+
+    private int GetTraitTierInDeck(CardData.Trait trait, IEnumerable<int> deck)
+    {
+        if (CardDatabase.Instance == null || CardDatabase.Instance.Cards == null || deck == null)
             return 0;
 
         float traitCount = 0f;
-        foreach (int cardId in CurrentRun.currentDeck)
+        foreach (int cardId in deck)
         {
-            CardData card = CardDatabase.Instance.GetCardById(cardId);
-            if (card?.traits == null || card.traits.Count == 0)
+            if (!CardDatabase.Instance.Cards.TryGetValue(cardId, out CardData card) || card?.traits == null || card.traits.Count == 0)
                 continue;
 
             List<CardData.Trait> parsedTraits = card.traits
@@ -1607,6 +1620,28 @@ public class PathOfPowerManager : MonoBehaviour
         }
 
         return tier;
+    }
+
+    private List<string> BuildBestTraitList(List<int> deck, CardData.Trait starterTrait)
+    {
+        Dictionary<CardData.Trait, int> activeTraits = Enum.GetValues(typeof(CardData.Trait))
+            .Cast<CardData.Trait>()
+            .Where(trait => trait != CardData.Trait.None && trait != CardData.Trait.Neutral)
+            .Select(trait => new { trait, tier = GetTraitTierInDeck(trait, deck) })
+            .Where(entry => entry.tier > 0)
+            .ToDictionary(entry => entry.trait, entry => entry.tier);
+
+        List<string> orderedTraits = new List<string>();
+        if (starterTrait != CardData.Trait.None && starterTrait != CardData.Trait.Neutral && activeTraits.ContainsKey(starterTrait))
+            orderedTraits.Add(starterTrait.ToString());
+
+        orderedTraits.AddRange(activeTraits
+            .Where(entry => entry.Key != starterTrait)
+            .OrderByDescending(entry => entry.Value)
+            .ThenBy(entry => entry.Key.ToString())
+            .Select(entry => entry.Key.ToString()));
+
+        return orderedTraits;
     }
 
     private int[] GetTraitTierThresholds(CardData.Trait trait)

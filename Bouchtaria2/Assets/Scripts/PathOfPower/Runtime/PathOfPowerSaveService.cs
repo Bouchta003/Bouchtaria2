@@ -35,6 +35,8 @@ public static class PathOfPowerSaveService
     public const string BestStepField = "pathofpower_beststep";
     public const string BestFloorStepField = "pathofpower_bestfloorstep";
     public const string BestDeckField = "pathofpower_bestdeck";
+    public const string BestRelicsField = "pathofpower_bestrelics";
+    public const string BestTraitsField = "pathofpower_besttraits";
 
     public static void Save(PathOfPowerRunData runData, Action onComplete = null)
     {
