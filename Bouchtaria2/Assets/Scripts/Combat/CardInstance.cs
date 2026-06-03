@@ -883,16 +883,6 @@ public class CardInstance : MonoBehaviour, IAttackable
                 {
                     TakeDamage(3);
                 }
-                if (PathOfPowerRelicEffectService.HasBloodyPillow(OtherPlayer(Owner)))
-                {
-                    foreach (GameObject enemyMinionGO in gameManager.GetBoardForOwner(OtherPlayer(Owner)).GetCards())
-                    {
-                        CardInstance enemyMinion = enemyMinionGO.GetComponent<CardInstance>();
-                        if (enemyMinion != null && !enemyMinion.IsDead)
-                            enemyMinion.TakeDamage(2);
-                    }
-                }
-            
             }
             view.UpdateMode();
             TriggerEffects(EffectTrigger.EndOfTurn);

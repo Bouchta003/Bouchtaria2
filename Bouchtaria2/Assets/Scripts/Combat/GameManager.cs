@@ -1483,6 +1483,7 @@ private sealed class PendingHandReturn
     }
     private void OnAllyTraitActivated(CardData.Trait trait, int tier)
     {
+        PathOfPowerRelicEffectService.ApplyTraitTierActivatedRelics(PlayerOwner.Player, tier, this);
         if (allyTraitUI == null) return;
         if (!allyTraitUI.gameObject) return; // destroyed check
         try { allyTraitUI.ActivateTrait(trait, tier); }
@@ -1490,6 +1491,7 @@ private sealed class PendingHandReturn
     }
     private void OnEnemyTraitActivated(CardData.Trait trait, int tier)
     {
+        PathOfPowerRelicEffectService.ApplyTraitTierActivatedRelics(PlayerOwner.Enemy, tier, this);
         if (enemyTraitUI == null) return;
         if (!enemyTraitUI.gameObject) return; // destroyed check
         try { enemyTraitUI.ActivateTrait(trait, tier); }

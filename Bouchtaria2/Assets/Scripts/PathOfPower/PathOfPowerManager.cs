@@ -13,6 +13,7 @@ using UnityEngine.UI;
 public class PathOfPowerManager : MonoBehaviour
 {
     private const int DeckRelicCardDiscoveryCount = 5;
+    private const int MaxCopiesPerCardInDeck = 5;
 
     public static PathOfPowerManager Instance;
 
@@ -211,14 +212,23 @@ public class PathOfPowerManager : MonoBehaviour
                 eventRewardAddBlacksmithDaughterOnSelect = true;
                 CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = true;
                 CurrentRun.pendingCardChoiceAction = "AddOne";
-                CurrentRun.pendingCardChoices = GenerateNonPackableNonTokenChoicesForDeckTraits(CurrentRun.currentFloorSeed + CurrentRun.currentStep + CurrentRun.currentDeck.Count + 303, 3)
-                    .Where(cardId => cardId != 419)
-                    .ToList();
+                CurrentRun.pendingCardChoices = FilterChoicesByDeckCopyLimit(
+                    GenerateNonPackableNonTokenChoicesForDeckTraits(CurrentRun.currentFloorSeed + CurrentRun.currentStep + CurrentRun.currentDeck.Count + 303, 3)
+                        .Where(cardId => cardId != 419),
+                    1);
                 if (CurrentRun.pendingCardChoices.Count == 0)
                 {
                     eventRewardAddBlacksmithDaughterOnSelect = false;
                     CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = false;
-                    CurrentRun.pendingCardChoices = new List<int> { 419 };
+                    CurrentRun.pendingCardChoices = CanAddCopiesToCurrentDeck(419) ? new List<int> { 419 } : new List<int>();
+                }
+                if (CurrentRun.pendingCardChoices.Count == 0)
+                {
+                    eventRewardCardDiscoveryPending = false;
+                    CurrentRun.pendingCardChoiceAction = string.Empty;
+                    CompleteCurrentEvent();
+                    SaveRun();
+                    return;
                 }
                 SwitchDisplay(5);
                 ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
@@ -484,6 +494,13 @@ public class PathOfPowerManager : MonoBehaviour
             return;
         }
 
+        int copiesToAdd = GetPendingCardChoiceAddCopies();
+        if (copiesToAdd > 0 && !CanAddCopiesToCurrentDeck(cardId, copiesToAdd))
+        {
+            Debug.LogWarning($"Rejected Path Of Power card '{cardId}' because it would exceed the {MaxCopiesPerCardInDeck}-copy deck limit.");
+            return;
+        }
+
         ApplyPendingCardChoice(cardId);
         CurrentRun.pendingCardChoices.Clear();
         if (isDeckRelicDiscovery && CurrentRun.pendingValidationRelicId != "11" && CurrentRun.pendingValidationDiscoveriesRemaining > 0)
@@ -527,8 +544,7 @@ public class PathOfPowerManager : MonoBehaviour
         bool addsCards = true;
         if (string.Equals(action, "DuplicateTwo", StringComparison.OrdinalIgnoreCase))
         {
-            CurrentRun.currentDeck.Add(cardId);
-            CurrentRun.currentDeck.Add(cardId);
+            AddCardCopiesToCurrentDeck(cardId, 2);
         }
         else if (string.Equals(action, "RemoveOne", StringComparison.OrdinalIgnoreCase))
         {
@@ -538,11 +554,61 @@ public class PathOfPowerManager : MonoBehaviour
         }
         else
         {
-            CurrentRun.currentDeck.Add(cardId);
+            AddCardCopiesToCurrentDeck(cardId, 1);
         }
 
         if (addsCards && CurrentRun.currentDeck.Count > CurrentRun.currentDeckSize)
             CurrentRun.currentDeckSize = CurrentRun.currentDeck.Count;
+    }
+
+    private int AddCardCopiesToCurrentDeck(int cardId, int requestedCopies)
+    {
+        if (CurrentRun?.currentDeck == null || requestedCopies <= 0)
+            return 0;
+
+        int ownedCopies = CurrentRun.currentDeck.Count(id => id == cardId);
+        int copiesToAdd = Mathf.Clamp(MaxCopiesPerCardInDeck - ownedCopies, 0, requestedCopies);
+        for (int i = 0; i < copiesToAdd; i++)
+            CurrentRun.currentDeck.Add(cardId);
+
+        if (copiesToAdd < requestedCopies)
+            Debug.LogWarning($"[PathOfPower] Card {cardId} is already at the {MaxCopiesPerCardInDeck}-copy deck limit; only added {copiesToAdd}/{requestedCopies} requested copies.");
+
+        return copiesToAdd;
+    }
+
+    private bool CanAddCopiesToCurrentDeck(int cardId, int copiesToAdd = 1)
+    {
+        if (CurrentRun?.currentDeck == null || cardId <= 0)
+            return false;
+
+        int ownedCopies = CurrentRun.currentDeck.Count(id => id == cardId);
+        return ownedCopies + Mathf.Max(1, copiesToAdd) <= MaxCopiesPerCardInDeck;
+    }
+
+    private int GetPendingCardChoiceAddCopies()
+    {
+        string action = CurrentRun?.pendingCardChoiceAction ?? string.Empty;
+        if (string.Equals(action, "RemoveOne", StringComparison.OrdinalIgnoreCase))
+            return 0;
+        if (string.Equals(action, "DuplicateTwo", StringComparison.OrdinalIgnoreCase))
+            return 2;
+        return 1;
+    }
+
+    private List<int> FilterChoicesByDeckCopyLimit(IEnumerable<int> cardIds, int copiesToAdd = 1)
+    {
+        if (cardIds == null)
+            return new List<int>();
+
+        if (copiesToAdd <= 0)
+            return cardIds.Where(IsValidDiscoveryCardId).Distinct().ToList();
+
+        return cardIds
+            .Where(IsValidDiscoveryCardId)
+            .Where(cardId => CanAddCopiesToCurrentDeck(cardId, copiesToAdd))
+            .Distinct()
+            .ToList();
     }
 
 
@@ -551,7 +617,15 @@ public class PathOfPowerManager : MonoBehaviour
         eventRewardAddBlacksmithDaughterOnSelect = false;
         CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = false;
         CurrentRun.pendingCardChoiceAction = "AddOne";
-        CurrentRun.pendingCardChoices = new List<int> { 419 };
+        CurrentRun.pendingCardChoices = CanAddCopiesToCurrentDeck(419) ? new List<int> { 419 } : new List<int>();
+        if (CurrentRun.pendingCardChoices.Count == 0)
+        {
+            eventRewardCardDiscoveryPending = false;
+            CurrentRun.pendingCardChoiceAction = string.Empty;
+            CompleteCurrentEvent();
+            return;
+        }
+
         ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
         OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
     }
@@ -934,7 +1008,7 @@ public class PathOfPowerManager : MonoBehaviour
         if (encounter?.DroppablePool == null || encounter.DroppablePool.Count == 0)
             return false;
 
-        List<int> options = encounter.DroppablePool.Where(id => id > 0 && IsValidDiscoveryCardId(id)).Distinct().ToList();
+        List<int> options = FilterChoicesByDeckCopyLimit(encounter.DroppablePool.Where(id => id > 0), 1);
         if (options.Count == 0)
             return false;
 
@@ -974,7 +1048,15 @@ public class PathOfPowerManager : MonoBehaviour
 
     private void ApplyInstantDeckRelicEffect(RelicDefinition relic)
     {
-        if (relic == null || relic.Type != RelicDefinition.RelicType.DeckRelic)
+        if (relic == null)
+            return;
+
+        if (relic.RelicId == "15")
+        {
+            CurrentRun.maxHpModifier -= 10;
+        }
+
+        if (relic.Type != RelicDefinition.RelicType.DeckRelic)
             return;
 
         if (relic.RelicId == "28")
@@ -994,7 +1076,7 @@ public class PathOfPowerManager : MonoBehaviour
         System.Random rng = new System.Random(seed);
         string requiredTrait = trait.ToString();
         return CardDatabase.Instance.Cards.Values
-            .Where(card => IsValidDiscoveryCard(card) && card.packable && !card.token && !card.signature && card.traits != null &&
+            .Where(card => IsValidDiscoveryCard(card) && CanAddCopiesToCurrentDeck(card.id) && card.packable && !card.token && !card.signature && card.traits != null &&
                            card.traits.Any(t => t.Equals(requiredTrait, StringComparison.OrdinalIgnoreCase)))
             .OrderBy(_ => rng.Next())
             .Take(count)
@@ -1010,7 +1092,7 @@ public class PathOfPowerManager : MonoBehaviour
         System.Random rng = new System.Random(seed);
         HashSet<string> deckTraits = GetCurrentDeckTraits(includeNeutral: false);
         List<int> choices = CardDatabase.Instance.Cards.Values
-            .Where(card => IsValidDiscoveryCard(card) && !card.packable && !card.token && !card.signature && card.traits != null && card.traits.Any(deckTraits.Contains))
+            .Where(card => IsValidDiscoveryCard(card) && CanAddCopiesToCurrentDeck(card.id) && !card.packable && !card.token && !card.signature && card.traits != null && card.traits.Any(deckTraits.Contains))
             .OrderBy(_ => rng.Next())
             .Take(count)
             .Select(card => card.id)
@@ -1021,7 +1103,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         HashSet<int> selectedIds = new HashSet<int>(choices);
         choices.AddRange(CardDatabase.Instance.Cards.Values
-            .Where(card => IsValidDiscoveryCard(card) && !card.packable && !card.token && !card.signature && !selectedIds.Contains(card.id) && card.traits != null && card.traits.Any(t => t.Equals(CardData.Trait.Neutral.ToString(), StringComparison.OrdinalIgnoreCase)))
+            .Where(card => IsValidDiscoveryCard(card) && CanAddCopiesToCurrentDeck(card.id) && !card.packable && !card.token && !card.signature && !selectedIds.Contains(card.id) && card.traits != null && card.traits.Any(t => t.Equals(CardData.Trait.Neutral.ToString(), StringComparison.OrdinalIgnoreCase)))
             .OrderBy(_ => rng.Next())
             .Take(count - choices.Count)
             .Select(card => card.id));
@@ -1036,7 +1118,7 @@ public class PathOfPowerManager : MonoBehaviour
         System.Random rng = new System.Random(seed);
         return CurrentRun.currentDeck
             .Distinct()
-            .Where(IsValidDiscoveryCardId)
+            .Where(cardId => IsValidDiscoveryCardId(cardId) && CanAddCopiesToCurrentDeck(cardId, 2))
             .OrderBy(_ => rng.Next())
             .Take(count)
             .ToList();
@@ -1102,7 +1184,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         System.Random rng = new System.Random(seed);
         List<int> choices = CardDatabase.Instance.Cards.Values
-            .Where(card => IsValidDiscoveryCard(card) && !card.packable && !card.token && !card.signature && card.traits != null && card.traits.Any(t => activeTraits.Contains(t)))
+            .Where(card => IsValidDiscoveryCard(card) && CanAddCopiesToCurrentDeck(card.id) && !card.packable && !card.token && !card.signature && card.traits != null && card.traits.Any(t => activeTraits.Contains(t)))
             .OrderBy(_ => rng.Next())
             .Take(count)
             .Select(card => card.id)
@@ -1113,7 +1195,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         HashSet<int> selectedIds = new HashSet<int>(choices);
         List<int> neutralFallbacks = CardDatabase.Instance.Cards.Values
-            .Where(card => IsValidDiscoveryCard(card) && !card.packable && !card.token && !card.signature && !selectedIds.Contains(card.id) && card.traits != null && card.traits.Any(t => t.Equals(CardData.Trait.Neutral.ToString(), StringComparison.OrdinalIgnoreCase)))
+            .Where(card => IsValidDiscoveryCard(card) && CanAddCopiesToCurrentDeck(card.id) && !card.packable && !card.token && !card.signature && !selectedIds.Contains(card.id) && card.traits != null && card.traits.Any(t => t.Equals(CardData.Trait.Neutral.ToString(), StringComparison.OrdinalIgnoreCase)))
             .OrderBy(_ => rng.Next())
             .Take(count - choices.Count)
             .Select(card => card.id)
@@ -1278,6 +1360,7 @@ public class PathOfPowerManager : MonoBehaviour
                     isResolvingRelicChoice = true;
                     ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
                     OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                    StartCoroutine(ResumeDeckRelicChoiceThenContinue(CurrentRun.pendingValidationRelicId));
                     break;
                 }
 
@@ -1435,7 +1518,7 @@ public class PathOfPowerManager : MonoBehaviour
         if (!IsValidDiscoveryCard(card) || !card.packable || card.token || card.signature)
             return false;
 
-        if (deckCounts != null && deckCounts.TryGetValue(card.id, out int ownedCopies) && ownedCopies >= 2)
+        if (deckCounts != null && deckCounts.TryGetValue(card.id, out int ownedCopies) && ownedCopies >= MaxCopiesPerCardInDeck)
             return false;
 
         return card.traits != null && card.traits.Any(trait => trait.Equals(requiredTrait, StringComparison.OrdinalIgnoreCase));
@@ -1801,7 +1884,13 @@ public class PathOfPowerManager : MonoBehaviour
             {
                 int iteration = DeckRelicCardDiscoveryCount - CurrentRun.pendingValidationDiscoveriesRemaining;
                 List<int> rewards = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1010 + CurrentRun.currentDeck.Count + iteration, 3, CurrentRun.starterDeckTrait);
-                CurrentRun.pendingCardChoices = rewards ?? new List<int>();
+                CurrentRun.pendingCardChoices = FilterChoicesByDeckCopyLimit(rewards, 1);
+                if (CurrentRun.pendingCardChoices.Count == 0)
+                {
+                    CurrentRun.pendingValidationDiscoveriesRemaining--;
+                    SaveRun();
+                    continue;
+                }
                 ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
                 OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
                 SaveRun();
@@ -1821,7 +1910,13 @@ public class PathOfPowerManager : MonoBehaviour
             {
                 int iteration = DeckRelicCardDiscoveryCount - CurrentRun.pendingValidationDiscoveriesRemaining;
                 List<int> rewards = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1010 + CurrentRun.currentDeck.Count + iteration, 3, CardData.Trait.Neutral);
-                CurrentRun.pendingCardChoices = rewards ?? new List<int>();
+                CurrentRun.pendingCardChoices = FilterChoicesByDeckCopyLimit(rewards, 1);
+                if (CurrentRun.pendingCardChoices.Count == 0)
+                {
+                    CurrentRun.pendingValidationDiscoveriesRemaining--;
+                    SaveRun();
+                    continue;
+                }
                 ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
                 OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
                 SaveRun();
@@ -1951,6 +2046,24 @@ public class PathOfPowerManager : MonoBehaviour
         return true;
     }
 
+    private IEnumerator ResumeDeckRelicChoiceThenContinue(string relicId)
+    {
+        if (string.IsNullOrWhiteSpace(relicId))
+            yield break;
+
+        if (CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
+            yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+
+        if (CurrentRun.pendingValidationDiscoveriesRemaining > 0)
+            yield return ResolveDeckRelicEffect(relicId);
+
+        CurrentRun.pendingValidationRelicId = string.Empty;
+        CurrentRun.pendingValidationDiscoveriesRemaining = 0;
+        CurrentRun.pendingCardChoiceAction = string.Empty;
+        isResolvingRelicChoice = false;
+        ChooseWardenRelicReward(relicId);
+    }
+
     private IEnumerator ResolveDeckRelicChoiceThenContinue(string relicId)
     {
         isResolvingRelicChoice = true;
@@ -1967,7 +2080,13 @@ public class PathOfPowerManager : MonoBehaviour
         while (CurrentRun.pendingValidationDiscoveriesRemaining > 0)
         {
             int iteration = DeckRelicCardDiscoveryCount - CurrentRun.pendingValidationDiscoveriesRemaining;
-            CurrentRun.pendingCardChoices = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1112 + CurrentRun.currentDeck.Count + iteration, 3, selectedTrait);
+            CurrentRun.pendingCardChoices = FilterChoicesByDeckCopyLimit(GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1112 + CurrentRun.currentDeck.Count + iteration, 3, selectedTrait), 1);
+            if (CurrentRun.pendingCardChoices.Count == 0)
+            {
+                CurrentRun.pendingValidationDiscoveriesRemaining--;
+                SaveRun();
+                continue;
+            }
             ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
             OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
             SaveRun();
@@ -1982,7 +2101,8 @@ public class PathOfPowerManager : MonoBehaviour
         if (DiscoverDisplay == null || cardIds == null || cardIds.Count == 0)
             return;
 
-        List<int> validCardIds = cardIds.Where(IsValidDiscoveryCardId).Take(3).ToList();
+        int copiesToAdd = GetPendingCardChoiceAddCopies();
+        List<int> validCardIds = FilterChoicesByDeckCopyLimit(cardIds, copiesToAdd).Take(3).ToList();
         if (validCardIds.Count == 0)
             return;
 

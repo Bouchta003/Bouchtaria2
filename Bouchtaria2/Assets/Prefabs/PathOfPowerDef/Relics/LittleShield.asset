@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9bdc60e455ff49c3a9043189edcdf6dc, type: 3}
-  m_Name: CardSleeve
+  m_Name: LittleShield
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
-  relicId: 15
-  displayName: Card Sleeve
-  description: "When obtained, reduce max HP by 10. End of turn: your core gains +1 shield per card in your hand, but your hand size is limited to 7."
-  enemyRelicText: Gains shield equal to hand size at the end of the turn.
-  icon: {fileID: -6436392406477149622, guid: e6e7cfb58d3f1f54db63e4c9da096189, type: 3}
+  relicId: 29
+  displayName: Little Shield
+  description: When an ally dies, your core gains +2 shield.
+  enemyRelicText: Gains +2 core shield whenever one of their allies dies.
+  icon: {fileID: 0}
   assignedTrait: 0
-  canAppearAsStarter: 0
+  canAppearAsStarter: 1
   discoverable: 1
   relicType: 0

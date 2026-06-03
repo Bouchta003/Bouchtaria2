@@ -23,7 +23,6 @@ public static class PathOfPowerRelicEffectService
     private const int ForgottenSoul = 16;
     private const int SelfishShellfish = 17;
     private const int GolemCapsule = 18;
-    private const int BloodyPillow = 19;
     private const int BouchtasGift = 20;
     private const int BurningBlood = 21;
     private const int BloodVial = 22;
@@ -31,6 +30,9 @@ public static class PathOfPowerRelicEffectService
     private const int HotCocoa = 24;
     private const int EchoCrystal = 25;
     private const int RainbowRing = 26;
+    private const int LittleShield = 29;
+    private const int KingsCompass = 30;
+    private const int RedMask = 31;
 
     private const int EmptyCoreShieldAmount = 6;
     private const int CardSleeveMaxHandSize = 7;
@@ -165,12 +167,45 @@ public static class PathOfPowerRelicEffectService
                 case RainbowRing:
                     ApplyRainbowRing(owner, gameManager);
                     break;
+                case RedMask:
+                    ApplyRedMask(owner, gameManager);
+                    break;
                 // TODO(Path Of Power Relics): Add relic id + end-turn effect here.
                 default:
                     Debug.Log($"[PathOfPower][Relics] Relic id {relicId} has no implemented end-turn effect yet.");
                     break;
             }
         }
+    }
+
+    private static void ApplyRedMask(PlayerOwner owner, GameManager gameManager)
+    {
+        List<GameObject> allies = owner == PlayerOwner.Player
+            ? gameManager.allyDropArea?.GetCards()
+            : gameManager.enemyDropArea?.GetCards();
+
+        if (allies == null)
+            return;
+
+        foreach (GameObject allyObject in allies)
+        {
+            CardInstance ally = allyObject != null ? allyObject.GetComponent<CardInstance>() : null;
+            if (ally == null || ally.IsDead)
+                continue;
+
+            if (ally.CurrentAttack % 2 == 0 && ally.CurrentHealth % 2 == 0)
+                ally.ModifyStats(1, 0);
+        }
+    }
+
+    public static void ApplyTraitTierActivatedRelics(PlayerOwner owner, int tier, GameManager gameManager)
+    {
+        if (!GameRunContext.IsPathOfPowerRun || tier != 3 || gameManager == null || !PlayerHasRelic(owner, KingsCompass))
+            return;
+
+        gameManager.GainMana(3, owner);
+        if (gameManager.deckManager != null)
+            gameManager.StartCoroutine(gameManager.deckManager.Draw(1, owner));
     }
 
     private static void ApplyRainbowRing(PlayerOwner owner, GameManager gameManager)
@@ -292,11 +327,6 @@ public static class PathOfPowerRelicEffectService
         return owner == PlayerOwner.Enemy && PlayerHasRelic(PlayerOwner.Player, VengefulSpirit) ? 1 : 0;
     }
 
-    public static bool HasBloodyPillow(PlayerOwner owner)
-    {
-        return PlayerHasRelic(owner, BloodyPillow);
-    }
-
     public static bool HasBloodVial(PlayerOwner owner)
     {
         return GameRunContext.IsPathOfPowerRun && PlayerHasRelic(owner, BloodVial);
@@ -312,11 +342,18 @@ public static class PathOfPowerRelicEffectService
         if (!GameRunContext.IsPathOfPowerRun || deadCard == null || gameManager == null)
             return;
 
-        PlayerOwner killerOwner = deadCard.Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player;
-        if (!PlayerHasRelic(killerOwner, BurningBlood))
-            return;
+        PlayerOwner deadCardOwner = deadCard.Owner;
+        if (PlayerHasRelic(deadCardOwner, LittleShield))
+        {
+            CoreInstance ownerCore = deadCardOwner == PlayerOwner.Player ? gameManager.PlayerCore : gameManager.EnemyCore;
+            ownerCore?.AddShield(2);
+        }
 
-        CoreInstance core = killerOwner == PlayerOwner.Player ? gameManager.PlayerCore : gameManager.EnemyCore;
-        core?.Heal(2);
+        PlayerOwner killerOwner = deadCard.Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player;
+        if (PlayerHasRelic(killerOwner, BurningBlood))
+        {
+            CoreInstance killerCore = killerOwner == PlayerOwner.Player ? gameManager.PlayerCore : gameManager.EnemyCore;
+            killerCore?.Heal(2);
+        }
     }
 }
