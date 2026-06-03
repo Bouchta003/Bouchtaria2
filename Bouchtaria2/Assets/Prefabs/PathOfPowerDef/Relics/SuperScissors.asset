@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Super Scissors
   description: When obtained, reduce deck size by 5 and reduce max HP by 10.
   enemyRelicText: Has a smaller deck and 10 less max HP.
-  icon: {fileID: -8337281393119725202, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+  icon: {fileID: -3518175983236687465, guid: 212e4aead744c4b4588fc221bc9d8d0f, type: 3}
   assignedTrait: 0
   canAppearAsStarter: 0
   discoverable: 1

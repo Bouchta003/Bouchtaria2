@@ -21,6 +21,9 @@ public class CardView : MonoBehaviour,
     [SerializeField] public GameObject dustIndicator;
     [SerializeField] public GameObject newCardIndicator;
     [SerializeField] public GameObject dupeDeckIndicator;
+    [SerializeField] public GameObject tripleDeckIndicator;
+    [SerializeField] public GameObject quadraDeckIndicator;
+    [SerializeField] public GameObject pentaDeckIndicator;
     [SerializeField] private SpriteRenderer cardSpriteRenderer;
     [SerializeField] private SpriteRenderer frameRenderer;
     [SerializeField] private SpriteRenderer frameRenderer2;

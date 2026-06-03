@@ -188,8 +188,21 @@ public class CollectionScreen : MonoBehaviour
             view.Init(card);
             if (isDeck && duplicateCounts.TryGetValue(card.id, out int count))
             {
-                if(count>1)
-                view.dupeDeckIndicator.SetActive(true);
+                switch(count)
+                {
+                    case 2:
+                        view.dupeDeckIndicator.SetActive(true);
+                        break;
+                    case 3:
+                        view.tripleDeckIndicator.SetActive(true);
+                        break;
+                    case 4:
+                        view.quadraDeckIndicator.SetActive(true);
+                        break;
+                    case 5:
+                        view.pentaDeckIndicator.SetActive(true);
+                        break;
+                }
             }
 
             visibleIndex++;

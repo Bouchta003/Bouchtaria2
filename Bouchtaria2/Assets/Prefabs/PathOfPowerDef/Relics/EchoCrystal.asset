@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
   relicId: 25
   displayName: Echo Crystal
-  description: Start of combat: draw the lowest-cost card in your deck (random among ties).
+  description: 'Start of Combat : Draw your lowest cost card'
   enemyRelicText: Draws its lowest-cost card at the start of combat.
-  icon: {fileID: 8617278338890539712, guid: 021aed46cc911be429ed7326a6709ac4, type: 3}
+  icon: {fileID: 7601664866904193295, guid: fb5e47ddb2ce89349b31f85af07a08ce, type: 3}
   assignedTrait: 0
   canAppearAsStarter: 1
   discoverable: 1

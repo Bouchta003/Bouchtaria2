@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
   relicId: 27
   displayName: Magic Mirror
-  description: When obtained, discover a card in your deck. Add 2 additional copies of the chosen card to your deck.
+  description: When obtained, discover a card in your deck. Add 2 additional copies
+    of the chosen card to your deck.
   enemyRelicText: Duplicates a card in their deck when obtained.
-  icon: {fileID: -1740839884768737540, guid: d65c9808584a6e54eb2edfbe2579c79e, type: 3}
+  icon: {fileID: -978818818749217971, guid: dee80e744289386438ec3428d18581a2, type: 3}
   assignedTrait: 0
   canAppearAsStarter: 0
   discoverable: 1

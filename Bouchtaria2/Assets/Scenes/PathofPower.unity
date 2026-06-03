@@ -3605,19 +3605,6 @@ MonoBehaviour:
     - Content: What ? You want a better weapon ?
       Name: Blacksmith
       Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
-    - Content: LIKE EVERYONE WHO COMES IN HERE NOW WAIT FOR YOUR TURN IDIOT !
-      Name: Blacksmith
-      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
-    - Content: ....
-      Name: Blacksmith
-      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
-    - Content: ....
-      Name: Blacksmith
-      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
-    - Content: Sorry I feel bad for shouting, my job is tiring and I see a lot of
-        dumb people around here.
-      Name: Blacksmith
-      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
     - Content: I can make something for you if you wish, but here is the thing..
       Name: Blacksmith
       Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
@@ -3635,6 +3622,19 @@ MonoBehaviour:
     - Content: What do you say ?
       Name: Blacksmith
       Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+  - Lines:
+    - Content: Hey there tiny one
+      Name: Mercenaries
+      Avatar: {fileID: 21300000, guid: e597a4bdd7fadce49a930ab3e196c932, type: 3}
+    - Content: 'You want a piece of this della7 ? '
+      Name: Mercenaries
+      Avatar: {fileID: 21300000, guid: e597a4bdd7fadce49a930ab3e196c932, type: 3}
+    - Content: You can have it, it's good...
+      Name: Mercenaries
+      Avatar: {fileID: 21300000, guid: e597a4bdd7fadce49a930ab3e196c932, type: 3}
+    - Content: Food in exchange for one of your cards, deal ?
+      Name: Mercenaries
+      Avatar: {fileID: 21300000, guid: e597a4bdd7fadce49a930ab3e196c932, type: 3}
   dialogueCanvasGroup: {fileID: 1517084938}
   AvatarImage: {fileID: 376532168}
   UIDialogue: {fileID: 1517084936}

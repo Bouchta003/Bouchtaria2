@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
   relicId: 15
   displayName: Card Sleeve
-  description: "End of turn : Your core has +1 Shield per card in your hand.\t\t"
+  description: "End of turn : Your core has +1 Shield per card in your hand but limit
+    your hand size by 7\t\t"
   enemyRelicText: Gains shield equal to hand size at the end of the turn.
   icon: {fileID: -6436392406477149622, guid: e6e7cfb58d3f1f54db63e4c9da096189, type: 3}
   assignedTrait: 0

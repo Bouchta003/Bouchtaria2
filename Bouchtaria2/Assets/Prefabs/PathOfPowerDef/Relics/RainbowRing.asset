@@ -14,9 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
   relicId: 26
   displayName: Rainbow Ring
-  description: End of turn: if at least 3 different traits are detected in your deck, discount a random card in hand by 1.
-  enemyRelicText: Discounts a random card in hand by 1 at end of turn if 3 traits are detected.
-  icon: {fileID: -3502033458911581537, guid: 2b2482da8c2a0474ebbbe44bfcaef215, type: 3}
+  description: Discounts a random card in hand by 1 at end of turn if polyvalent
+    deck
+  enemyRelicText: Discounts a random card in hand by 1 at end of turn if 3 traits
+    are detected.
+  icon: {fileID: -1442457892912820699, guid: d1e4e3b6e0c69db4c9ffc67ea8d418a1, type: 3}
   assignedTrait: 0
   canAppearAsStarter: 1
   discoverable: 1
