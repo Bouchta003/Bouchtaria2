@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8b65621ccf9b41ecbcc369540d18971e, type: 3}
-  m_Name: Let It Ride
+  m_Name: Discarder
   m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
-  encounterId: 3
-  displayName: Let It Ride
+  encounterId: 9
+  displayName: The Card Reaper
   minimumFloor: 1
-  elite: 1
+  elite: 0
   warden: 0
   specificFloorEncounter: 0
-  relicIds: 0100000004000000
-  droppablePool: 780000009d00000080000000
-  displaySprite: {fileID: 21300000, guid: 2188b834647693745a4cc1e21fe57e6d, type: 3}
-  enemyDeckTemplate: '[120,120,120,120,120,120,120,120,120,120,126,126,126,126,126,126,126,126,126,126,126,189,189,128,128,127,127]'
+  relicIds: 04000000
+  droppablePool: 7f01000063010000350100007d01000064010000
+  displaySprite: {fileID: 21300000, guid: a2f3c6655241b5d489961862279807f8, type: 3}
+  enemyDeckTemplate: '[309,309,355,355,356,356,357,357,379,379,380,380,381,381,382,382,383,383,302,302,195,195,196,196,197,197,198,198,194,194]'

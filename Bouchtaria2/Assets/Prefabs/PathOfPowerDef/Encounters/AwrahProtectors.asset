@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8b65621ccf9b41ecbcc369540d18971e, type: 3}
-  m_Name: Let It Ride
+  m_Name: AwrahProtectors
   m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
-  encounterId: 3
-  displayName: Let It Ride
+  encounterId: 8
+  displayName: The Awrah Concious
   minimumFloor: 1
-  elite: 1
+  elite: 0
   warden: 0
   specificFloorEncounter: 0
-  relicIds: 0100000004000000
-  droppablePool: 780000009d00000080000000
-  displaySprite: {fileID: 21300000, guid: 2188b834647693745a4cc1e21fe57e6d, type: 3}
-  enemyDeckTemplate: '[120,120,120,120,120,120,120,120,120,120,126,126,126,126,126,126,126,126,126,126,126,189,189,128,128,127,127]'
+  relicIds: 04000000
+  droppablePool: 0d0100003d000000440000003c00000079010000
+  displaySprite: {fileID: 21300000, guid: dac215aba7f6c104c93d40e1211ce9a6, type: 3}
+  enemyDeckTemplate: '[60,60,61,61,63,63,64,64,65,65,67,67,68,68,107,107,108,108,109,109,145,145,162,162,269,269,310,310,377,377]'

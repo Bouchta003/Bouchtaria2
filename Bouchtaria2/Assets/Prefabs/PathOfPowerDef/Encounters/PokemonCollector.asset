@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8b65621ccf9b41ecbcc369540d18971e, type: 3}
-  m_Name: Let It Ride
+  m_Name: PokemonCollector
   m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
-  encounterId: 3
-  displayName: Let It Ride
+  encounterId: 13
+  displayName: Pokemon Pro
   minimumFloor: 1
   elite: 1
   warden: 0
   specificFloorEncounter: 0
-  relicIds: 0100000004000000
-  droppablePool: 780000009d00000080000000
-  displaySprite: {fileID: 21300000, guid: 2188b834647693745a4cc1e21fe57e6d, type: 3}
-  enemyDeckTemplate: '[120,120,120,120,120,120,120,120,120,120,126,126,126,126,126,126,126,126,126,126,126,189,189,128,128,127,127]'
+  relicIds: 0f000000180000001f000000
+  droppablePool: d3000000d5000000dd000000
+  displaySprite: {fileID: 21300000, guid: 2f98399ffc400924c8943fca00bbb225, type: 3}
+  enemyDeckTemplate: '[0,0,144,144,115,115,117,117,149,149,150,150,156,156,208,208,216,216,211,211,22,22,231,231,348,348,281,281,40,40]'
