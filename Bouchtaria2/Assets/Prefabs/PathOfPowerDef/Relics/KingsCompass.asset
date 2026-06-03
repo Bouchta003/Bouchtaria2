@@ -14,9 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
   relicId: 30
   displayName: King's Compass
-  description: Whenever a tier 3 is activated for a trait, refresh 3 mana and draw a card.
-  enemyRelicText: Refreshes 3 mana and draws a card whenever they activate a tier 3 trait.
-  icon: {fileID: 0}
+  description: Whenever a tier 3 is activated for a trait, refresh 3 mana and draw
+    a card.
+  enemyRelicText: Refreshes 3 mana and draws a card whenever they activate a tier
+    3 trait.
+  icon: {fileID: 7058254236461911328, guid: 70079b3fa18cc384089b203acde80984, type: 3}
   assignedTrait: 0
   canAppearAsStarter: 1
   discoverable: 1

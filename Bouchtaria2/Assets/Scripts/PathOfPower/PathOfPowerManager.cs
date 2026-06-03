@@ -114,7 +114,10 @@ public class PathOfPowerManager : MonoBehaviour
     {
         SceneManager.LoadScene("Main_Menu");
     }
-
+    public void LoadLeaderboard()
+    {
+        SceneManager.LoadScene("PathOfPowerLeaderboard");
+    }
     public void SeeDeck()
     {
         if (CurrentRun == null)

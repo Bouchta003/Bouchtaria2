@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Little Shield
   description: When an ally dies, your core gains +2 shield.
   enemyRelicText: Gains +2 core shield whenever one of their allies dies.
-  icon: {fileID: 0}
+  icon: {fileID: 7887769034768384012, guid: d616e2005dc7fee438cb9593f76bc93e, type: 3}
   assignedTrait: 0
   canAppearAsStarter: 1
   discoverable: 1

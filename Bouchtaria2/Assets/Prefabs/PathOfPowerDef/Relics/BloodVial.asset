@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
   relicId: 22
   displayName: Blood Vial
-  description: Bleed deals one additional damage to cores.
-  enemyRelicText: Bleed deals one additional damage to your core.
+  description: Bleed deals one additional damage.
+  enemyRelicText: Bleed deals one additional damage.
   icon: {fileID: 5156059717520713098, guid: a802b04533a94d344b0207a45f9fab6c, type: 3}
   assignedTrait: 15
   canAppearAsStarter: 0
