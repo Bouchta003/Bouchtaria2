@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9bdc60e455ff49c3a9043189edcdf6dc, type: 3}
-  m_Name: BloodyPillow
+  m_Name: KingsCompass
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
-  relicId: 19
-  displayName: Bloody Pillow
-  description: Enemy sleeping units take 2 damage on wak up
-  enemyRelicText: Enemy sleeping units take 2 damage on wak up
-  icon: {fileID: 129619724240353906, guid: 6dcf698a743869440915720fb1096fcf, type: 3}
+  relicId: 30
+  displayName: King's Compass
+  description: Whenever a tier 3 is activated for a trait, refresh 3 mana and draw a card.
+  enemyRelicText: Refreshes 3 mana and draws a card whenever they activate a tier 3 trait.
+  icon: {fileID: 0}
   assignedTrait: 0
   canAppearAsStarter: 1
   discoverable: 1
