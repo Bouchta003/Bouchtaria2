@@ -3203,6 +3203,36 @@ MonoBehaviour:
   SecondImageSecondaryTrait: {fileID: 1217603895}
   ThirdImageMainTrait: {fileID: 1477159200}
   ThirdImageSecondaryTrait: {fileID: 542738844}
+  traitSpritePrefab: {fileID: 3345744170026504041, guid: 89a59aa96deb2794aa6a63a34161e88c, type: 3}
+  relicLibrary:
+  - {fileID: 11400000, guid: 8b56ce010d9fbe145aae4e12f34285ea, type: 2}
+  - {fileID: 11400000, guid: 80aa63fba84ed3f48a733e24f8562bf0, type: 2}
+  - {fileID: 11400000, guid: 3e957d92fc1822642a43b58a1c147db2, type: 2}
+  - {fileID: 11400000, guid: bd1c64828e8d7eb4c8635d7a317da5b0, type: 2}
+  - {fileID: 11400000, guid: 2782904f372be90438c7516bea7c1f16, type: 2}
+  - {fileID: 11400000, guid: 27e1be6f4d9b0b2449a5784b8304c257, type: 2}
+  - {fileID: 11400000, guid: ffacb086e6d19cf4a9e603be8b3fbccd, type: 2}
+  - {fileID: 11400000, guid: 9838b10444c2e474184c50ab6d7a2cd1, type: 2}
+  - {fileID: 11400000, guid: 6fb71e039dc4fb04fb5bf950d0bc9ea4, type: 2}
+  - {fileID: 11400000, guid: d801de6f1b0337c4890a527792bbe45f, type: 2}
+  - {fileID: 11400000, guid: 7d3fd3acdd19cf0439c5481eb7111f0d, type: 2}
+  - {fileID: 11400000, guid: d0ec2fcf3050fa84ca4249ae47276c1f, type: 2}
+  - {fileID: 11400000, guid: e370784c21bdd7441a8f503b79ac8f03, type: 2}
+  - {fileID: 11400000, guid: e19d232b1e9889a43b0ae4c4798c6134, type: 2}
+  - {fileID: 11400000, guid: 7ef6f496389fdca408e9c60224424eb8, type: 2}
+  - {fileID: 11400000, guid: 5e08f10cbbcc282498c027c88e8d1e70, type: 2}
+  - {fileID: 11400000, guid: 8022a5babf934815bfd1c50647ec4d13, type: 2}
+  - {fileID: 11400000, guid: 196963fbafeb486f96df4f9c8e1477a0, type: 2}
+  - {fileID: 11400000, guid: 8226b6875abe4aac9ec79d92de16b3bb, type: 2}
+  - {fileID: 11400000, guid: df20863769ee47bebb6514fb606fb960, type: 2}
+  - {fileID: 11400000, guid: 510df5a8ad7d411f93c430039f15335d, type: 2}
+  - {fileID: 11400000, guid: 277b625b12104c0fac41af95c510ed4f, type: 2}
+  - {fileID: 11400000, guid: a0fc37ba574047e28748beb3739ed573, type: 2}
+  - {fileID: 11400000, guid: 6f4c9d5cc75f4f708e0ed874d676ead1, type: 2}
+  - {fileID: 11400000, guid: 7ba185ce44d6497a8cb9cb7c347a5de0, type: 2}
+  - {fileID: 11400000, guid: 239631a37aa24e8881709ba1d4adcaea, type: 2}
+  - {fileID: 11400000, guid: 6bf294813bb34c8aa325daf6f3ef0383, type: 2}
+  - {fileID: 11400000, guid: 06b6552be17d4e8aa25027a27969743b, type: 2}
 --- !u!4 &1602502550
 Transform:
   m_ObjectHideFlags: 0
