@@ -13,11 +13,13 @@ MonoBehaviour:
   m_Name: 21_CorebreakerCult
   m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
   encounterId: 21
-  displayName: Corebreaker Cult
+  displayName: The Corebreaker
   elite: 1
   warden: 0
   specificFloorEncounter: 0
-  relicIds:
-  droppablePool: 2d000000880000008a0000009e0000009f000000a5000000aa000000ad000000b10000003001000032010000450100006501000085010000
-  displaySprite: {fileID: 21300000, guid: 150c3743edf75f840b7fe9065bf24b1d, type: 3}
-  enemyDeckTemplate: '[45, 45, 136, 136, 138, 138, 158, 158, 159, 159, 165, 165, 170, 170, 173, 173, 177, 177, 304, 304, 306, 306, 325, 325, 357, 357, 389, 389, 108, 108]'
+  relicIds: 19000000
+  droppablePool: 2d000000880000008a0000009e0000009f000000a5000000aa000000
+  displaySprite: {fileID: 21300000, guid: 4812732a1abcca64189e7de7614d3be3, type: 3}
+  enemyDeckTemplate: '[45, 45, 136, 136, 138, 138, 158, 158, 159, 159, 165, 165,
+    170, 170, 173, 173, 177, 177, 304, 304, 306, 306, 325, 325, 357, 357, 389, 389,
+    108, 108]'

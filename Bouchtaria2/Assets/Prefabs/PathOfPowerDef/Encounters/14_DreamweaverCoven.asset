@@ -17,7 +17,8 @@ MonoBehaviour:
   elite: 0
   warden: 0
   specificFloorEncounter: 0
-  relicIds:
+  relicIds: 
   droppablePool: 3600000037000000380000003900000091000000
-  displaySprite: {fileID: 21300000, guid: bc653da0e146c3f479db2a479563fd0d, type: 3}
-  enemyDeckTemplate: '[54, 54, 55, 55, 56, 56, 57, 57, 145, 145, 267, 267, 279, 279, 283, 283, 304, 304, 312, 312, 315, 315, 320, 320, 353, 353, 48, 48, 225, 225]'
+  displaySprite: {fileID: 21300000, guid: 724555cbd1ed9134e94f9161ceae95a0, type: 3}
+  enemyDeckTemplate: '[54, 54, 55, 55, 56, 56, 57, 57, 145, 145, 267, 267, 279, 279,
+    283, 283, 304, 304, 312, 312, 315, 315, 320, 320, 353, 353, 48, 48, 225, 225]'

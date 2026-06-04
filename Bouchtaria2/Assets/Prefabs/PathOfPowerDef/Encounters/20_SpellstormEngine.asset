@@ -13,11 +13,13 @@ MonoBehaviour:
   m_Name: 20_SpellstormEngine
   m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
   encounterId: 20
-  displayName: Spellstorm Engine
+  displayName: Spellstorm Mage
   elite: 1
   warden: 0
   specificFloorEncounter: 0
   relicIds: 170000001a0000001f000000
   droppablePool: 78000000b8000000c4000000c6000000de000000
-  displaySprite: {fileID: 21300000, guid: 2188b834647693745a4cc1e21fe57e6d, type: 3}
-  enemyDeckTemplate: '[120, 120, 184, 184, 196, 196, 198, 198, 222, 222, 195, 195, 201, 201, 192, 192, 194, 194, 126, 126, 127, 127, 133, 133, 157, 157, 191, 191, 308, 308]'
+  displaySprite: {fileID: 21300000, guid: 11fb5e7b5305b33459296c5ab695ddde, type: 3}
+  enemyDeckTemplate: '[120, 120, 184, 184, 196, 196, 198, 198, 224, 222, 195, 195,
+    201, 201, 192, 192, 194, 194, 126, 126, 127, 127, 133, 133, 157, 157, 191, 191,
+    308, 308]'

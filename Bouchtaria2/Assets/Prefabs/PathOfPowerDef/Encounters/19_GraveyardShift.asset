@@ -13,11 +13,13 @@ MonoBehaviour:
   m_Name: 19_GraveyardShift
   m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
   encounterId: 19
-  displayName: Graveyard Shift
+  displayName: Graveyard Master
   elite: 1
   warden: 0
   specificFloorEncounter: 0
   relicIds: 000000001200000019000000
   droppablePool: 5d000000a0000000b1000000b5000000b70000003f0100008201000090010000
-  displaySprite: {fileID: 21300000, guid: 4c4d87d9a685f5c4fa6cdbeb560a2fd8, type: 3}
-  enemyDeckTemplate: '[93, 93, 160, 160, 177, 177, 181, 181, 183, 183, 319, 319, 386, 386, 400, 400, 9, 9, 34, 34, 55, 55, 131, 131, 304, 304, 357, 357, 316, 316]'
+  displaySprite: {fileID: 21300000, guid: b59add3b984317148965b3eb90f66449, type: 3}
+  enemyDeckTemplate: '[93, 93, 160, 160, 177, 177, 181, 181, 183, 183, 319, 319,
+    386, 386, 400, 400, 9, 9, 34, 34, 55, 55, 131, 131, 304, 304, 357, 357, 316,
+    316]'
