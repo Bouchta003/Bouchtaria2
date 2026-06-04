@@ -159,7 +159,6 @@ public class PathOfPowerFloorGenerator
 
         List<EnemyEncounterDefinition> valid = encounters
             .Where(encounter => encounter != null
-                && encounter.MinimumFloor <= floor
                 && encounter.Elite == wantsElite
                 && encounter.Warden == wantsWarden
                 && (!wantsWarden || encounter.SpecificFloorEncounter == 0 || encounter.SpecificFloorEncounter == floor))
@@ -172,7 +171,6 @@ public class PathOfPowerFloorGenerator
         {
             valid = encounters
                 .Where(encounter => encounter != null
-                    && encounter.MinimumFloor <= floor
                     && encounter.Warden)
                 .ToList();
         }

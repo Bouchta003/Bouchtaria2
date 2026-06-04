@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bdc60e455ff49c3a9043189edcdf6dc, type: 3}
+  m_Name: 2_Orichalcum
+  m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
+  relicId: 2
+  displayName: Orichalcum
+  description: If you don't have armor at the end of your turn gain 6 armor
+  enemyRelicText: Gains 6 armor if they don't have any at the end of their turn.
+  icon: {fileID: -6856215883152743399, guid: d1bc3e7758f44e64db7748c441e59186, type: 3}
+  assignedTrait: 0
+  canAppearAsStarter: 0
+  discoverable: 1
+  relicType: 0
