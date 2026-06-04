@@ -6,7 +6,6 @@ public class EnemyEncounterDefinition : ScriptableObject
 {
     [SerializeField] private string encounterId;
     [SerializeField] private string displayName;
-    [SerializeField] private int minimumFloor = 1;
     [SerializeField] private bool elite;
     [SerializeField] private bool warden;
     [Tooltip("If > 0 and this encounter is a warden, this encounter will always be used as that floor's warden.")]
@@ -21,7 +20,6 @@ public class EnemyEncounterDefinition : ScriptableObject
 
     public string EncounterId => string.IsNullOrWhiteSpace(encounterId) ? name : encounterId;
     public string DisplayName => string.IsNullOrWhiteSpace(displayName) ? name : displayName;
-    public int MinimumFloor => Mathf.Max(1, minimumFloor);
     public bool Elite => elite;
     public bool Warden => warden;
     public int SpecificFloorEncounter => Mathf.Max(0, specificFloorEncounter);

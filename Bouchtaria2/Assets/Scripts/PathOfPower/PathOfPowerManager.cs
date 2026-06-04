@@ -1696,9 +1696,8 @@ public class PathOfPowerManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Commentary/helper hook for encounter setup: use this to fetch every relic id assigned to an encounter asset.
-    /// The returned ids are copied into CurrentRun.activeEnemyRelics before combat so combat-only systems do not need
-    /// a direct ScriptableObject reference after the Combat scene loads.
+    /// Resolves the combat relic loadout for an encounter. Wardens keep their authored loadout; normal and elite
+    /// encounters are scaled to the current floor, preferring authored ids before filling from neutral discoverable relics.
     /// </summary>
     public IReadOnlyList<int> GetRelicIdsForEncounter(EnemyEncounterDefinition encounter)
     {
@@ -1708,9 +1707,57 @@ public class PathOfPowerManager : MonoBehaviour
             return Array.Empty<int>();
         }
 
-        IReadOnlyList<int> relicIds = encounter.RelicIds ?? Array.Empty<int>();
-        Debug.Log($"[PathOfPower] Encounter '{encounter.EncounterId}' has relic ids: [{string.Join(", ", relicIds)}].");
-        return relicIds;
+        List<int> authoredRelicIds = (encounter.RelicIds ?? Array.Empty<int>())
+            .Where(IsCombatRelicId)
+            .Distinct()
+            .ToList();
+        if (encounter.Warden)
+            return authoredRelicIds;
+
+        int floor = Mathf.Max(1, CurrentRun?.currentFloor ?? 1);
+        int requiredCount = encounter.Elite ? floor + 1 : floor - 1;
+        System.Random rng = new System.Random(GetEncounterRelicSeed(encounter));
+        List<int> selectedRelicIds = authoredRelicIds.OrderBy(_ => rng.Next()).Take(requiredCount).ToList();
+
+        if (selectedRelicIds.Count < requiredCount)
+        {
+            IEnumerable<int> neutralDiscoverableCombatRelics = relicLibrary
+                .Where(relic => relic != null
+                    && relic.Type == RelicDefinition.RelicType.CombatRelic
+                    && relic.Discoverable
+                    && relic.AssignedTrait == CardData.Trait.None
+                    && int.TryParse(relic.RelicId, out _))
+                .Select(relic => int.Parse(relic.RelicId))
+                .Where(relicId => !selectedRelicIds.Contains(relicId))
+                .OrderBy(_ => rng.Next());
+
+            selectedRelicIds.AddRange(neutralDiscoverableCombatRelics.Take(requiredCount - selectedRelicIds.Count));
+        }
+
+        if (selectedRelicIds.Count < requiredCount)
+            Debug.LogWarning($"[PathOfPower] Encounter '{encounter.EncounterId}' requested {requiredCount} combat relics, but only {selectedRelicIds.Count} valid relics were available.");
+
+        Debug.Log($"[PathOfPower] Encounter '{encounter.EncounterId}' uses {selectedRelicIds.Count}/{requiredCount} combat relics on floor {floor}: [{string.Join(", ", selectedRelicIds)}].");
+        return selectedRelicIds;
+    }
+
+    private bool IsCombatRelicId(int relicId)
+    {
+        RelicDefinition relic = ResolveRelic(relicId.ToString());
+        return relic != null && relic.Type == RelicDefinition.RelicType.CombatRelic;
+    }
+
+    private int GetEncounterRelicSeed(EnemyEncounterDefinition encounter)
+    {
+        unchecked
+        {
+            int hash = CurrentRun?.currentFloorSeed ?? 0;
+            hash = (hash * 397) ^ (CurrentRun?.currentFloor ?? 1);
+            hash = (hash * 397) ^ (CurrentRun?.currentStep ?? 1);
+            foreach (char character in encounter.EncounterId)
+                hash = (hash * 31) + character;
+            return hash;
+        }
     }
 
     private string DescribeFloorSteps(IEnumerable<PathOfPowerStepData> steps)

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bdc60e455ff49c3a9043189edcdf6dc, type: 3}
+  m_Name: 23_ElementalOrb
+  m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
+  relicId: 23
+  displayName: Elemental Orb
+  description: 'End of turn: Praise.'
+  enemyRelicText: Praises at the end of turn.
+  icon: {fileID: -530490070151145309, guid: 3bccd33a4a20dce418d916ba9cee7e91, type: 3}
+  assignedTrait: 8
+  canAppearAsStarter: 0
+  discoverable: 1
+  relicType: 0
