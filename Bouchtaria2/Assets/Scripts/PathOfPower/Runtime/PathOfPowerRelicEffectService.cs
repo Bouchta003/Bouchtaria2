@@ -33,6 +33,8 @@ public static class PathOfPowerRelicEffectService
     private const int LittleShield = 29;
     private const int KingsCompass = 30;
     private const int RedMask = 31;
+    private const int SecondChance = 32;
+    private const int CursedManaGem = 33;
 
     private const int EmptyCoreShieldAmount = 6;
     private const int CardSleeveMaxHandSize = 7;
@@ -58,6 +60,9 @@ public static class PathOfPowerRelicEffectService
                     break;
                 case EchoCrystal:
                     GameManager.Instance.deckManager?.TryDrawLowestCostCard(owner);
+                    break;
+                case CursedManaGem:
+                    GameManager.Instance.GainMaxMana(1, owner);
                     break;
                 default:
                     break;
@@ -105,8 +110,14 @@ public static class PathOfPowerRelicEffectService
         if (!GameRunContext.IsPathOfPowerRun)
             return 0;
 
-        IReadOnlyList<int> relicIds = GetRelicIdsForOwner(owner, GameRunContext.PathOfPowerData);
-        int bonusHp = owner == PlayerOwner.Player && GameRunContext.PathOfPowerData != null ? GameRunContext.PathOfPowerData.maxHpModifier : 0;
+        PathOfPowerRunData runData = GameRunContext.PathOfPowerData;
+        IReadOnlyList<int> relicIds = GetRelicIdsForOwner(owner, runData);
+        if (owner == PlayerOwner.Player && runData != null && runData.maxHpFixedAt20)
+            return -10;
+
+        int bonusHp = owner == PlayerOwner.Player && runData != null ? runData.maxHpModifier : 0;
+        if (owner == PlayerOwner.Enemy && PlayerHasRelic(PlayerOwner.Player, CursedManaGem))
+            bonusHp += 1;
 
         foreach (int relicId in relicIds)
         {
@@ -335,6 +346,23 @@ public static class PathOfPowerRelicEffectService
     public static bool HasHotCocoa(PlayerOwner owner)
     {
         return GameRunContext.IsPathOfPowerRun && PlayerHasRelic(owner, HotCocoa);
+    }
+
+    public static bool TryPreventCoreDeath(PlayerOwner owner, CoreInstance core)
+    {
+        if (!GameRunContext.IsPathOfPowerRun || owner != PlayerOwner.Player || core == null)
+            return false;
+
+        PathOfPowerRunData runData = GameRunContext.PathOfPowerData;
+        if (runData == null || runData.secondChanceConsumed || runData.currentRelics == null || !runData.currentRelics.Contains(SecondChance.ToString()))
+            return false;
+
+        runData.secondChanceConsumed = true;
+        runData.currentRelics.Remove(SecondChance.ToString());
+        core.PreventDeathWithShield(30);
+        CombatLog.Instance?.AddAnonymousAction(owner, "Second Chance prevented death and granted 30 shield.");
+        PathOfPowerSaveService.Save(runData);
+        return true;
     }
 
     public static void ApplyUnitKilledRelics(CardInstance deadCard, GameManager gameManager)

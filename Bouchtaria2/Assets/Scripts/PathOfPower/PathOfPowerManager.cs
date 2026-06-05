@@ -14,6 +14,7 @@ public class PathOfPowerManager : MonoBehaviour
 {
     private const int DeckRelicCardDiscoveryCount = 5;
     private const int MaxCopiesPerCardInDeck = 5;
+    private const string SecondChanceRelicId = "32";
 
     public static PathOfPowerManager Instance;
 
@@ -53,7 +54,7 @@ public class PathOfPowerManager : MonoBehaviour
     private bool eventRewardAddBlacksmithDaughterOnSelect;
 
     [Header("Starter Deck Discovery")]
-    [SerializeField] private int starterDeckTargetSize = 20;
+    [SerializeField] private int starterDeckTargetSize = 15;
     [SerializeField] private CardData.Trait starterDeckTrait = CardData.Trait.Neutral;
 
     public PathOfPowerRunData CurrentRun { get; private set; } = new PathOfPowerRunData();
@@ -151,6 +152,9 @@ public class PathOfPowerManager : MonoBehaviour
             currentDeck = new List<int>(),
             currentRelics = new List<string>(),
             triggeredEventIds = new List<string>(),
+            triggeredNormalEncounterIds = new List<string>(),
+            triggeredEliteEncounterIds = new List<string>(),
+            triggeredWardenEncounterIds = new List<string>(),
             activeEnemyRelics = new List<int>(),
             activeEnemyRelicTexts = new List<string>(),
             currentFloorSeed = GenerateSeed(),
@@ -159,7 +163,11 @@ public class PathOfPowerManager : MonoBehaviour
             starterDeckTrait = this.starterDeckTrait,
             phase = PathOfPowerRunPhase.StarterRelicChoice,
             combatActive = false,
-            currentDeckSize = starterDeckTargetSize
+            currentDeckSize = starterDeckTargetSize,
+            secondChanceConsumed = false,
+            maxHpFixedAt20 = false,
+            pendingExtraWardenRelicRewards = 0,
+            pendingExtraChallengePreWardenRelics = 0
         };
         ClearCardDiscovery();ClearRelicDiscovery();ClearTraitDiscovery();
 
@@ -239,7 +247,8 @@ public class PathOfPowerManager : MonoBehaviour
                 SaveRun();
                 return;
             case 4: // Mercenary
-                CurrentRun.maxHpModifier += 5;
+                if (!CurrentRun.maxHpFixedAt20)
+                    CurrentRun.maxHpModifier += 5;
                 eventRewardCardDiscoveryPending = true;
                 CurrentRun.pendingCardChoiceAction = "RemoveOne";
                 CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = false;
@@ -256,6 +265,18 @@ public class PathOfPowerManager : MonoBehaviour
                 ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
                 OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
                 SaveRun();
+                return;
+            case 5: // Mad Scientist
+                DuplicateCurrentDeck();
+                Debug.Log("Accepted Mad Scientist event and duplicated the full deck.");
+                break;
+            case 6: // Gambler's Proposal
+                CurrentRun.maxHpFixedAt20 = true;
+                CurrentRun.maxHpModifier = 0;
+                Debug.Log("Accepted Gambler's Proposal: max HP is fixed to 20 for the rest of the run.");
+                break;
+            case 7: // The Shortcut
+                CompleteShortcutEvent();
                 return;
             // Add more cases as needed
         }
@@ -341,9 +362,7 @@ public class PathOfPowerManager : MonoBehaviour
             {
                 Debug.Log("Warden defeated, pending relic rewards.");
                 SwitchDisplay(5);//DiscoveryDisplay
-                CurrentRun.pendingWardenRelicRewards = PickDeckRelics(3, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
-                    .Select(relic => relic.RelicId)
-                    .ToList();
+                QueueWardenRelicRewardChoices();
                 SaveRun();
             }
 
@@ -413,6 +432,19 @@ public class PathOfPowerManager : MonoBehaviour
 
         if (CurrentRun.currentPathType == PathOfPowerPathType.Challenge && CurrentRun.currentStep == 4)
         {
+            if (CurrentRun.pendingExtraChallengePreWardenRelics > 1)
+            {
+                CurrentRun.pendingExtraChallengePreWardenRelics--;
+                CurrentRun.pendingStarterRelicChoices = PickAnyCombatRelics(3, CurrentRun.currentFloorSeed + 404 + CurrentRun.pendingExtraChallengePreWardenRelics)
+                    .Select(candidate => candidate.RelicId)
+                    .ToList();
+                ClearRelicDiscovery();
+                ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic, skippable: true);
+                SaveRun();
+                return;
+            }
+
+            CurrentRun.pendingExtraChallengePreWardenRelics = 0;
             CurrentRun.currentStep = 5;
         }
 
@@ -505,6 +537,8 @@ public class PathOfPowerManager : MonoBehaviour
         }
 
         ApplyPendingCardChoice(cardId);
+        if (isStarterDeckDiscovery)
+            CurrentRun.currentDeckSize = CurrentRun.currentDeck.Count;
         CurrentRun.pendingCardChoices.Clear();
         if (isDeckRelicDiscovery && CurrentRun.pendingValidationRelicId != "11" && CurrentRun.pendingValidationDiscoveriesRemaining > 0)
             CurrentRun.pendingValidationDiscoveriesRemaining--;
@@ -638,9 +672,7 @@ public class PathOfPowerManager : MonoBehaviour
         if (CurrentRun.pendingWardenRewardAfterEncounterDiscovery)
         {
             CurrentRun.pendingWardenRewardAfterEncounterDiscovery = false;
-            CurrentRun.pendingWardenRelicRewards = PickDeckRelics(3, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
-                .Select(relic => relic.RelicId)
-                .ToList();
+            QueueWardenRelicRewardChoices();
             CurrentRun.phase = PathOfPowerRunPhase.AwaitingWardenReward;
             ShowRelicDiscovery(CurrentRun.pendingWardenRelicRewards, RelicDefinition.RelicType.DeckRelic, skippable: true);
             return;
@@ -803,6 +835,16 @@ public class PathOfPowerManager : MonoBehaviour
 
         CurrentRun.pendingWardenRelicRewards.Clear();
         isResolvingRelicChoice = false;
+        if (CurrentRun.pendingExtraWardenRelicRewards > 1)
+        {
+            CurrentRun.pendingExtraWardenRelicRewards--;
+            QueueWardenRelicRewardChoices();
+            ShowRelicDiscovery(CurrentRun.pendingWardenRelicRewards, RelicDefinition.RelicType.DeckRelic, skippable: true);
+            SaveRun();
+            return;
+        }
+
+        CurrentRun.pendingExtraWardenRelicRewards = 0;
         MoveToNextFloorAfterWardenReward();
 
         GameRunContext.PathOfPowerData = CurrentRun;
@@ -877,6 +919,7 @@ public class PathOfPowerManager : MonoBehaviour
             CurrentRun.currentStep == 4)
         {
             CurrentRun.pendingStarterRelicChoices.Clear();
+            CurrentRun.pendingExtraChallengePreWardenRelics = 0;
             CurrentRun.currentStep = 5;
             CurrentRun.phase = PathOfPowerRunPhase.Lobby;
             ClearRelicDiscovery();
@@ -902,7 +945,7 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.currentPathType = pathType;
         CurrentRun.currentStep = 1;
         CurrentRun.currentFloorSeed = CurrentRun.currentFloorSeed == 0 ? GenerateSeed() : CurrentRun.currentFloorSeed;
-        CurrentRun.currentFloorSteps = floorGenerator.GenerateFloor(CurrentRun.currentFloor, pathType, CurrentRun.currentFloorSeed, CurrentRun.triggeredEventIds);
+        CurrentRun.currentFloorSteps = floorGenerator.GenerateFloor(CurrentRun.currentFloor, pathType, CurrentRun.currentFloorSeed, CurrentRun.triggeredEventIds, BuildEncounterExclusionMap());
         Debug.Log($"[PathOfPower] Generated floor {CurrentRun.currentFloor} with path {pathType}, seed {CurrentRun.currentFloorSeed}, steps: {DescribeFloorSteps(CurrentRun.currentFloorSteps)}.");
     }
 
@@ -920,6 +963,9 @@ public class PathOfPowerManager : MonoBehaviour
         CurrentRun.currentDeck ??= new List<int>();
         CurrentRun.currentRelics ??= new List<string>();
         CurrentRun.triggeredEventIds ??= new List<string>();
+        CurrentRun.triggeredNormalEncounterIds ??= new List<string>();
+        CurrentRun.triggeredEliteEncounterIds ??= new List<string>();
+        CurrentRun.triggeredWardenEncounterIds ??= new List<string>();
         CurrentRun.currentFloorSteps ??= new List<PathOfPowerStepData>();
         CurrentRun.pendingStarterRelicChoices ??= new List<string>();
         CurrentRun.pendingWardenRelicRewards ??= new List<string>();
@@ -976,6 +1022,7 @@ public class PathOfPowerManager : MonoBehaviour
                 CombatDialogue.Instance.CloseDialogue();
 
             step.completed = true;
+            TrackEncounterMet(step);
         }
 
         CurrentRun.combatActive = false;
@@ -993,9 +1040,7 @@ public class PathOfPowerManager : MonoBehaviour
 
         if (step != null && step.stepType == PathOfPowerStepType.Warden)
         {
-            CurrentRun.pendingWardenRelicRewards = PickDeckRelics(3, CurrentRun.currentFloorSeed + CurrentRun.currentStreak)
-                .Select(relic => relic.RelicId)
-                .ToList();
+            QueueWardenRelicRewardChoices();
             CurrentRun.phase = PathOfPowerRunPhase.AwaitingWardenReward;
             SaveRun();
             OnWardenRelicRewardsGenerated?.Invoke(ResolveRelics(CurrentRun.pendingWardenRelicRewards));
@@ -1004,6 +1049,116 @@ public class PathOfPowerManager : MonoBehaviour
 
         AdvanceToNextStepOrFloor();
         SaveRun();
+    }
+
+    private void QueueWardenRelicRewardChoices()
+    {
+        if (CurrentRun.pendingExtraWardenRelicRewards <= 0)
+            CurrentRun.pendingExtraWardenRelicRewards = CurrentRun.maxHpFixedAt20 ? 2 : 1;
+
+        CurrentRun.pendingWardenRelicRewards = PickDeckRelics(3, CurrentRun.currentFloorSeed + CurrentRun.currentStreak + CurrentRun.pendingExtraWardenRelicRewards)
+            .Select(relic => relic.RelicId)
+            .ToList();
+    }
+
+    private void DuplicateCurrentDeck()
+    {
+        EnsureRunLists();
+        List<int> duplicatedCards = new List<int>(CurrentRun.currentDeck);
+        CurrentRun.currentDeck.AddRange(duplicatedCards);
+        CurrentRun.currentDeckSize = CurrentRun.currentDeck.Count;
+    }
+
+    private void CompleteShortcutEvent()
+    {
+        PathOfPowerStepData step = CurrentRun.CurrentStepData;
+        if (CombatDialogue.Instance != null)
+            CombatDialogue.Instance.CloseDialogue();
+
+        CurrentRun.triggeredEventIds ??= new List<string>();
+        if (step != null && !string.IsNullOrWhiteSpace(step.eventId) && !CurrentRun.triggeredEventIds.Contains(step.eventId))
+            CurrentRun.triggeredEventIds.Add(step.eventId);
+
+        if (step != null)
+            step.completed = true;
+
+        EnsureCurrentFloorSteps();
+        CurrentRun.currentStep = 5;
+        CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+        GameRunContext.PathOfPowerData = CurrentRun;
+        ShowDisplayForCurrentPhase();
+        SaveRun();
+    }
+
+    private Dictionary<PathOfPowerStepType, IReadOnlyCollection<string>> BuildEncounterExclusionMap()
+    {
+        EnsureRunLists();
+        return new Dictionary<PathOfPowerStepType, IReadOnlyCollection<string>>
+        {
+            { PathOfPowerStepType.Fight, GetEncounterBlockList(PathOfPowerStepType.Fight, CurrentRun.triggeredNormalEncounterIds) },
+            { PathOfPowerStepType.Elite, GetEncounterBlockList(PathOfPowerStepType.Elite, CurrentRun.triggeredEliteEncounterIds) },
+            { PathOfPowerStepType.Warden, GetEncounterBlockList(PathOfPowerStepType.Warden, CurrentRun.triggeredWardenEncounterIds) }
+        };
+    }
+
+    private IReadOnlyCollection<string> GetEncounterBlockList(PathOfPowerStepType stepType, List<string> metEncounterIds)
+    {
+        int categoryCount = encounterLibrary.Count(encounter => encounter != null && IsEncounterInStepCategory(encounter, stepType) && (stepType != PathOfPowerStepType.Fight || encounter.EncounterId != "0"));
+        if (categoryCount <= 0 || metEncounterIds == null || metEncounterIds.Count >= categoryCount)
+            return Array.Empty<string>();
+
+        return metEncounterIds;
+    }
+
+    private void TrackEncounterMet(PathOfPowerStepData step)
+    {
+        if (step == null || string.IsNullOrWhiteSpace(step.encounterId) || (step.stepType == PathOfPowerStepType.Fight && step.encounterId == "0"))
+            return;
+
+        List<string> categoryList = GetMetEncounterListForStep(step.stepType);
+        if (categoryList == null)
+            return;
+
+        int categoryCount = encounterLibrary.Count(encounter => encounter != null && IsEncounterInStepCategory(encounter, step.stepType) && (step.stepType != PathOfPowerStepType.Fight || encounter.EncounterId != "0"));
+        if (categoryCount > 0 && categoryList.Count >= categoryCount)
+            categoryList.Clear();
+
+        if (!categoryList.Contains(step.encounterId))
+            categoryList.Add(step.encounterId);
+    }
+
+    private List<string> GetMetEncounterListForStep(PathOfPowerStepType stepType)
+    {
+        EnsureRunLists();
+        switch (stepType)
+        {
+            case PathOfPowerStepType.Fight:
+                return CurrentRun.triggeredNormalEncounterIds;
+            case PathOfPowerStepType.Elite:
+                return CurrentRun.triggeredEliteEncounterIds;
+            case PathOfPowerStepType.Warden:
+                return CurrentRun.triggeredWardenEncounterIds;
+            default:
+                return null;
+        }
+    }
+
+    private bool IsEncounterInStepCategory(EnemyEncounterDefinition encounter, PathOfPowerStepType stepType)
+    {
+        if (encounter == null)
+            return false;
+
+        switch (stepType)
+        {
+            case PathOfPowerStepType.Fight:
+                return !encounter.Elite && !encounter.Warden;
+            case PathOfPowerStepType.Elite:
+                return encounter.Elite && !encounter.Warden;
+            case PathOfPowerStepType.Warden:
+                return encounter.Warden;
+            default:
+                return false;
+        }
     }
 
     private bool QueueEncounterDroppableDiscovery(EnemyEncounterDefinition encounter)
@@ -1040,7 +1195,10 @@ public class PathOfPowerManager : MonoBehaviour
 
     private void GrantChallengePreWardenCombatRelic()
     {
-        CurrentRun.pendingStarterRelicChoices = PickAnyCombatRelics(3, CurrentRun.currentFloorSeed + 404)
+        if (CurrentRun.pendingExtraChallengePreWardenRelics <= 0)
+            CurrentRun.pendingExtraChallengePreWardenRelics = CurrentRun.maxHpFixedAt20 ? 2 : 1;
+
+        CurrentRun.pendingStarterRelicChoices = PickAnyCombatRelics(3, CurrentRun.currentFloorSeed + 404 + CurrentRun.pendingExtraChallengePreWardenRelics)
             .Select(candidate => candidate.RelicId)
             .ToList();
         CurrentRun.phase = PathOfPowerRunPhase.StarterRelicChoice;
@@ -1054,7 +1212,7 @@ public class PathOfPowerManager : MonoBehaviour
         if (relic == null)
             return;
 
-        if (relic.RelicId == "15")
+        if (relic.RelicId == "15" && !CurrentRun.maxHpFixedAt20)
         {
             CurrentRun.maxHpModifier -= 10;
         }
@@ -1065,7 +1223,8 @@ public class PathOfPowerManager : MonoBehaviour
         if (relic.RelicId == "28")
         {
             ReduceDeckSize(5);
-            CurrentRun.maxHpModifier -= 10;
+            if (!CurrentRun.maxHpFixedAt20)
+                CurrentRun.maxHpModifier -= 10;
         }
 
         // Relics 10/27 are handled as validation-gated discoveries in ValidateRelicChoice.
@@ -1573,6 +1732,9 @@ public class PathOfPowerManager : MonoBehaviour
     private bool IsRelicDiscoverableForCurrentRun(RelicDefinition relic)
     {
         if (relic == null || !relic.Discoverable)
+            return false;
+
+        if (relic.RelicId == SecondChanceRelicId && CurrentRun != null && CurrentRun.secondChanceConsumed)
             return false;
 
         if (relic.AssignedTrait == CardData.Trait.None)

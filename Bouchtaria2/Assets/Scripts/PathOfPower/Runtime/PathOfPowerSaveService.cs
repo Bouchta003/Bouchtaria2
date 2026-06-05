@@ -13,6 +13,9 @@ public static class PathOfPowerSaveService
     public const string CurrentDeckField = "pathofpower_currentdeck";
     public const string CurrentRelicsField = "pathofpower_currentrelics";
     public const string TriggeredEventIdsField = "pathofpower_triggeredeventids";
+    public const string TriggeredNormalEncounterIdsField = "pathofpower_triggerednormalencounterids";
+    public const string TriggeredEliteEncounterIdsField = "pathofpower_triggeredeliteencounterids";
+    public const string TriggeredWardenEncounterIdsField = "pathofpower_triggeredwardenencounterids";
     public const string CurrentFloorSeedField = "pathofpower_currentfloorseed";
     public const string CurrentPathTypeField = "pathofpower_currentpathtype";
     public const string CurrentStreakField = "pathofpower_currentstreak";
@@ -31,6 +34,10 @@ public static class PathOfPowerSaveService
     public const string PendingCardChoiceActionField = "pathofpower_pendingcardchoiceaction";
     public const string PendingEventAddBlacksmithDaughterField = "pathofpower_pendingeventaddblacksmithdaughter";
     public const string MaxHpModifierField = "pathofpower_maxhpmodifier";
+    public const string SecondChanceConsumedField = "pathofpower_secondchanceconsumed";
+    public const string MaxHpFixedAt20Field = "pathofpower_maxhpfixedat20";
+    public const string PendingExtraWardenRelicRewardsField = "pathofpower_pendingextrawardenrelicrewards";
+    public const string PendingExtraChallengePreWardenRelicsField = "pathofpower_pendingextrachallengeprewardenrelics";
     public const string BestFloorField = "pathofpower_bestfloor";
     public const string BestStepField = "pathofpower_beststep";
     public const string BestFloorStepField = "pathofpower_bestfloorstep";
@@ -56,6 +63,9 @@ public static class PathOfPowerSaveService
             { CurrentDeckField, runData.currentDeck },
             { CurrentRelicsField, runData.currentRelics },
             { TriggeredEventIdsField, runData.triggeredEventIds },
+            { TriggeredNormalEncounterIdsField, runData.triggeredNormalEncounterIds },
+            { TriggeredEliteEncounterIdsField, runData.triggeredEliteEncounterIds },
+            { TriggeredWardenEncounterIdsField, runData.triggeredWardenEncounterIds },
             { CurrentFloorSeedField, runData.currentFloorSeed },
             { CurrentPathTypeField, runData.currentPathType.ToString() },
             { CurrentStreakField, runData.currentStreak },
@@ -73,7 +83,11 @@ public static class PathOfPowerSaveService
             { PendingWardenRewardAfterEncounterDiscoveryField, runData.pendingWardenRewardAfterEncounterDiscovery },
             { PendingCardChoiceActionField, runData.pendingCardChoiceAction ?? string.Empty },
             { PendingEventAddBlacksmithDaughterField, runData.pendingEventAddBlacksmithDaughterOnSelect },
-            { MaxHpModifierField, runData.maxHpModifier }
+            { MaxHpModifierField, runData.maxHpModifier },
+            { SecondChanceConsumedField, runData.secondChanceConsumed },
+            { MaxHpFixedAt20Field, runData.maxHpFixedAt20 },
+            { PendingExtraWardenRelicRewardsField, runData.pendingExtraWardenRelicRewards },
+            { PendingExtraChallengePreWardenRelicsField, runData.pendingExtraChallengePreWardenRelics }
         };
 
         FirebaseFirestore.DefaultInstance
@@ -160,6 +174,9 @@ public static class PathOfPowerSaveService
             currentDeck = ParseIntList(snapshot, CurrentDeckField),
             currentRelics = ParseStringList(snapshot, CurrentRelicsField),
             triggeredEventIds = ParseStringList(snapshot, TriggeredEventIdsField),
+            triggeredNormalEncounterIds = ParseStringList(snapshot, TriggeredNormalEncounterIdsField),
+            triggeredEliteEncounterIds = ParseStringList(snapshot, TriggeredEliteEncounterIdsField),
+            triggeredWardenEncounterIds = ParseStringList(snapshot, TriggeredWardenEncounterIdsField),
             currentFloorSeed = ReadInt(snapshot, CurrentFloorSeedField, 0),
             currentStreak = ReadInt(snapshot, CurrentStreakField, 0),
             currentFloorSteps = ParseSteps(snapshot),
@@ -169,13 +186,17 @@ public static class PathOfPowerSaveService
             pendingStarterTraitChoices = ParseStringList(snapshot, StarterTraitChoicesField),
             starterDeckTrait = ParseEnum(ReadString(snapshot, StarterDeckTraitField, CardData.Trait.Neutral.ToString()), CardData.Trait.Neutral),
             combatActive = ReadBool(snapshot, CombatActiveField, false),
-            currentDeckSize = Mathf.Max(5, ReadInt(snapshot, CurrentDeckSizeField, 20)),
+            currentDeckSize = Mathf.Max(5, ReadInt(snapshot, CurrentDeckSizeField, 15)),
             pendingValidationRelicId = ReadString(snapshot, PendingValidationRelicIdField, string.Empty),
             pendingValidationDiscoveriesRemaining = ReadInt(snapshot, PendingValidationDiscoveriesRemainingField, 0),
             pendingWardenRewardAfterEncounterDiscovery = ReadBool(snapshot, PendingWardenRewardAfterEncounterDiscoveryField, false),
             pendingCardChoiceAction = ReadString(snapshot, PendingCardChoiceActionField, string.Empty),
             pendingEventAddBlacksmithDaughterOnSelect = ReadBool(snapshot, PendingEventAddBlacksmithDaughterField, false),
-            maxHpModifier = ReadInt(snapshot, MaxHpModifierField, 0)
+            maxHpModifier = ReadInt(snapshot, MaxHpModifierField, 0),
+            secondChanceConsumed = ReadBool(snapshot, SecondChanceConsumedField, false),
+            maxHpFixedAt20 = ReadBool(snapshot, MaxHpFixedAt20Field, false),
+            pendingExtraWardenRelicRewards = ReadInt(snapshot, PendingExtraWardenRelicRewardsField, 0),
+            pendingExtraChallengePreWardenRelics = ReadInt(snapshot, PendingExtraChallengePreWardenRelicsField, 0)
         };
 
         runData.currentPathType = ParseEnum(ReadString(snapshot, CurrentPathTypeField, PathOfPowerPathType.Simple.ToString()), PathOfPowerPathType.Simple);
@@ -287,11 +308,15 @@ public static class PathOfPowerSaveService
         runData.currentDeck ??= new List<int>();
         runData.currentRelics ??= new List<string>();
         runData.triggeredEventIds ??= new List<string>();
+        runData.triggeredNormalEncounterIds ??= new List<string>();
+        runData.triggeredEliteEncounterIds ??= new List<string>();
+        runData.triggeredWardenEncounterIds ??= new List<string>();
         runData.currentFloorSteps ??= new List<PathOfPowerStepData>();
         runData.pendingStarterRelicChoices ??= new List<string>();
         runData.pendingWardenRelicRewards ??= new List<string>();
         runData.pendingCardChoices ??= new List<int>();
         runData.activeEnemyRelics ??= new List<int>();
+        runData.pendingStarterTraitChoices ??= new List<string>();
         runData.activeEnemyRelicTexts ??= new List<string>();
     }
 }

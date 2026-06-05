@@ -3792,12 +3792,17 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 239631a37aa24e8881709ba1d4adcaea, type: 2}
   - {fileID: 11400000, guid: 6bf294813bb34c8aa325daf6f3ef0383, type: 2}
   - {fileID: 11400000, guid: 06b6552be17d4e8aa25027a27969743b, type: 2}
+  - {fileID: 11400000, guid: 207cc6af52114bd39404b7b4fa084a43, type: 2}
+  - {fileID: 11400000, guid: 5e983a94d19f46a8a8309fb4e6835ba3, type: 2}
   eventLibrary:
   - {fileID: 11400000, guid: 5183369f7b62c844a9d25efe5b68ab55, type: 2}
   - {fileID: 11400000, guid: 9a2a944f185a62647ae92f42d3294f51, type: 2}
   - {fileID: 11400000, guid: 12521600dde010b49b64c908bbf6e2d9, type: 2}
   - {fileID: 11400000, guid: 96ba2a58dd560e0499ae8cc60e6cbac3, type: 2}
   - {fileID: 11400000, guid: d2099d33fa604bdbbde11791ffd5dba1, type: 2}
+  - {fileID: 11400000, guid: 00d0c98b13c343d1a5d5a3c48e2e2902, type: 2}
+  - {fileID: 11400000, guid: f164fa2202f04bc5be70825adb6e0431, type: 2}
+  - {fileID: 11400000, guid: 7bb773d6ccd64b1eaad74d19cf585c9f, type: 2}
   pathLibrary:
   - {fileID: 11400000, guid: 5b007ec07168c4e41874defd58e2ccf3, type: 2}
   - {fileID: 11400000, guid: 53095873e8a0f6542993a4b06c46c970, type: 2}
@@ -3825,6 +3830,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 64a3604132454b68ab372f32f1ab3fd7, type: 2}
   - {fileID: 11400000, guid: 6cd9d5d8072e4c4098dd1f38e23abd2c, type: 2}
   - {fileID: 11400000, guid: e66ee62d72184f69b4c7f0233f855c79, type: 2}
+  - {fileID: 11400000, guid: a76134595cd54c2ca3b38999192a9dc4, type: 2}
+  - {fileID: 11400000, guid: 68312caafd964a65a08c4207c6bd5c40, type: 2}
+  - {fileID: 11400000, guid: 929f41b62b814180bd63c124436ac918, type: 2}
+  - {fileID: 11400000, guid: f1399b89adfc4b5e8147c53cfcf41c38, type: 2}
+  - {fileID: 11400000, guid: cd274450084844acbd20be9a9932b4b9, type: 2}
+  - {fileID: 11400000, guid: 5ff456f032f545129beed181f557cf40, type: 2}
+  - {fileID: 11400000, guid: e4593cc38d954a6e9f70465076337c79, type: 2}
+  - {fileID: 11400000, guid: e49ad077370f475599d4a5dfce60545a, type: 2}
   DiscoverDisplay: {fileID: 82126375}
   discoveryCardParent: {fileID: 82126376}
   discoveryScale: {x: 0.6, y: 0.6, z: 0.6}
@@ -3852,7 +3865,7 @@ MonoBehaviour:
   EventAcceptBtn: {fileID: 1009637634}
   EventSkipButton: {fileID: 1607924505}
   eventDialogues: 0000000001000000
-  starterDeckTargetSize: 20
+  starterDeckTargetSize: 15
   starterDeckTrait: 4
 --- !u!4 &937017223
 Transform:

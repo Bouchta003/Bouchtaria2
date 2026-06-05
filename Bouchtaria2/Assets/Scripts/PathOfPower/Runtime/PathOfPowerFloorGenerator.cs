@@ -19,10 +19,11 @@ public class PathOfPowerFloorGenerator
         this.encounters = encounters ?? Array.Empty<EnemyEncounterDefinition>();
     }
 
-    public List<PathOfPowerStepData> GenerateFloor(int floor, PathOfPowerPathType pathType, int seed, IReadOnlyCollection<string> excludedEventIds = null)
+    public List<PathOfPowerStepData> GenerateFloor(int floor, PathOfPowerPathType pathType, int seed, IReadOnlyCollection<string> excludedEventIds = null, IReadOnlyDictionary<PathOfPowerStepType, IReadOnlyCollection<string>> excludedEncounterIdsByCategory = null)
     {
         System.Random rng = new System.Random(seed);
         HashSet<string> blockedEventIds = new HashSet<string>(excludedEventIds ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+        Dictionary<PathOfPowerStepType, HashSet<string>> blockedEncounterIdsByCategory = BuildEncounterBlockLists(excludedEncounterIdsByCategory);
         List<PathOfPowerStepData> steps = new List<PathOfPowerStepData>();
         float eventChance = BaseEventChance;
         int eventCount = 0;
@@ -31,7 +32,7 @@ public class PathOfPowerFloorGenerator
         {
             if (step == WardenStep)
             {
-                steps.Add(CreateStep(step, PathOfPowerStepType.Warden, floor, rng, blockedEventIds, PathOfPowerStepType.Warden));
+                steps.Add(CreateStep(step, PathOfPowerStepType.Warden, floor, rng, blockedEventIds, PathOfPowerStepType.Warden, blockedEncounterIdsByCategory));
                 continue;
             }
 
@@ -66,9 +67,11 @@ public class PathOfPowerFloorGenerator
             PathOfPowerStepType fallbackCombatStepType = pathType == PathOfPowerPathType.Challenge
                 ? PathOfPowerStepType.Elite
                 : PathOfPowerStepType.Fight;
-            PathOfPowerStepData createdStep = CreateStep(step, stepType, floor, rng, blockedEventIds, fallbackCombatStepType);
+            PathOfPowerStepData createdStep = CreateStep(step, stepType, floor, rng, blockedEventIds, fallbackCombatStepType, blockedEncounterIdsByCategory);
             if (createdStep.stepType == PathOfPowerStepType.Event)
                 blockedEventIds.Add(createdStep.eventId);
+            else
+                BlockEncounterForThisFloor(createdStep, blockedEncounterIdsByCategory);
             if (step == 1 && createdStep.stepType != PathOfPowerStepType.Event && floor == 1)
             {
                 // First Path Of Power fight in a run is fixed to encounter id 0.
@@ -78,11 +81,11 @@ public class PathOfPowerFloorGenerator
             steps.Add(createdStep);
         }
 
-        EnsureEventBounds(steps, floor, pathType, rng, blockedEventIds);
+        EnsureEventBounds(steps, floor, pathType, rng, blockedEventIds, blockedEncounterIdsByCategory);
         return steps;
     }
 
-    private void EnsureEventBounds(List<PathOfPowerStepData> steps, int floor, PathOfPowerPathType pathType, System.Random rng, HashSet<string> blockedEventIds)
+    private void EnsureEventBounds(List<PathOfPowerStepData> steps, int floor, PathOfPowerPathType pathType, System.Random rng, HashSet<string> blockedEventIds, IReadOnlyDictionary<PathOfPowerStepType, HashSet<string>> blockedEncounterIdsByCategory)
     {
         List<PathOfPowerStepData> nonWardenSteps = steps.Where(step => step.stepIndex < WardenStep).ToList();
         int eventCount = nonWardenSteps.Count(step => step.stepType == PathOfPowerStepType.Event);
@@ -103,7 +106,8 @@ public class PathOfPowerFloorGenerator
             {
                 forced.stepType = pathType == PathOfPowerPathType.Challenge ? PathOfPowerStepType.Elite : PathOfPowerStepType.Fight;
                 forced.eventId = string.Empty;
-                forced.encounterId = PickEncounterId(floor, forced.stepType, rng);
+                forced.encounterId = PickEncounterId(floor, forced.stepType, rng, blockedEncounterIdsByCategory);
+                BlockEncounterForThisFloor(forced, blockedEncounterIdsByCategory);
             }
         }
 
@@ -112,12 +116,13 @@ public class PathOfPowerFloorGenerator
             PathOfPowerStepData extra = nonWardenSteps.Last(step => step.stepType == PathOfPowerStepType.Event);
             extra.stepType = pathType == PathOfPowerPathType.Challenge ? PathOfPowerStepType.Elite : PathOfPowerStepType.Fight;
             extra.eventId = string.Empty;
-            extra.encounterId = PickEncounterId(floor, extra.stepType, rng);
+            extra.encounterId = PickEncounterId(floor, extra.stepType, rng, blockedEncounterIdsByCategory);
+            BlockEncounterForThisFloor(extra, blockedEncounterIdsByCategory);
             eventCount--;
         }
     }
 
-    private PathOfPowerStepData CreateStep(int stepIndex, PathOfPowerStepType stepType, int floor, System.Random rng, HashSet<string> blockedEventIds, PathOfPowerStepType fallbackCombatStepType)
+    private PathOfPowerStepData CreateStep(int stepIndex, PathOfPowerStepType stepType, int floor, System.Random rng, HashSet<string> blockedEventIds, PathOfPowerStepType fallbackCombatStepType, IReadOnlyDictionary<PathOfPowerStepType, HashSet<string>> blockedEncounterIdsByCategory)
     {
         string eventId = stepType == PathOfPowerStepType.Event ? PickEventId(floor, rng, blockedEventIds) : string.Empty;
         if (stepType == PathOfPowerStepType.Event && string.IsNullOrWhiteSpace(eventId))
@@ -128,9 +133,23 @@ public class PathOfPowerFloorGenerator
             stepIndex = stepIndex,
             stepType = stepType,
             eventId = stepType == PathOfPowerStepType.Event ? eventId : string.Empty,
-            encounterId = stepType == PathOfPowerStepType.Event ? string.Empty : PickEncounterId(floor, stepType, rng),
+            encounterId = stepType == PathOfPowerStepType.Event ? string.Empty : PickEncounterId(floor, stepType, rng, blockedEncounterIdsByCategory),
             completed = false
         };
+    }
+
+    private void BlockEncounterForThisFloor(PathOfPowerStepData step, IDictionary<PathOfPowerStepType, HashSet<string>> blockedEncounterIdsByCategory)
+    {
+        if (step == null || string.IsNullOrWhiteSpace(step.encounterId) || blockedEncounterIdsByCategory == null)
+            return;
+
+        if (!blockedEncounterIdsByCategory.TryGetValue(step.stepType, out HashSet<string> blockedIds))
+        {
+            blockedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            blockedEncounterIdsByCategory[step.stepType] = blockedIds;
+        }
+
+        blockedIds.Add(step.encounterId);
     }
 
     private string PickEventId(int floor, System.Random rng, HashSet<string> blockedEventIds)
@@ -145,7 +164,27 @@ public class PathOfPowerFloorGenerator
         return valid[rng.Next(valid.Count)].EventId;
     }
 
-    private string PickEncounterId(int floor, PathOfPowerStepType stepType, System.Random rng)
+    private Dictionary<PathOfPowerStepType, HashSet<string>> BuildEncounterBlockLists(IReadOnlyDictionary<PathOfPowerStepType, IReadOnlyCollection<string>> excludedEncounterIdsByCategory)
+    {
+        Dictionary<PathOfPowerStepType, HashSet<string>> result = new Dictionary<PathOfPowerStepType, HashSet<string>>();
+        if (excludedEncounterIdsByCategory == null)
+            return result;
+
+        foreach (KeyValuePair<PathOfPowerStepType, IReadOnlyCollection<string>> entry in excludedEncounterIdsByCategory)
+            result[entry.Key] = new HashSet<string>(entry.Value ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+
+        return result;
+    }
+
+    private HashSet<string> GetBlockedEncounterIds(PathOfPowerStepType stepType, IReadOnlyDictionary<PathOfPowerStepType, HashSet<string>> blockedEncounterIdsByCategory)
+    {
+        if (blockedEncounterIdsByCategory == null)
+            return null;
+
+        return blockedEncounterIdsByCategory.TryGetValue(stepType, out HashSet<string> blockedIds) ? blockedIds : null;
+    }
+
+    private string PickEncounterId(int floor, PathOfPowerStepType stepType, System.Random rng, IReadOnlyDictionary<PathOfPowerStepType, HashSet<string>> blockedEncounterIdsByCategory)
     {
         bool wantsElite = stepType == PathOfPowerStepType.Elite;
         bool wantsWarden = stepType == PathOfPowerStepType.Warden;
@@ -153,7 +192,8 @@ public class PathOfPowerFloorGenerator
         {
             EnemyEncounterDefinition forcedWarden = encounters.FirstOrDefault(encounter =>
                 encounter != null && encounter.Warden && encounter.SpecificFloorEncounter == floor);
-            if (forcedWarden != null)
+            HashSet<string> blockedWardenIds = GetBlockedEncounterIds(stepType, blockedEncounterIdsByCategory);
+            if (forcedWarden != null && (blockedWardenIds == null || !blockedWardenIds.Contains(forcedWarden.EncounterId)))
                 return forcedWarden.EncounterId;
         }
 
@@ -174,6 +214,24 @@ public class PathOfPowerFloorGenerator
                     && encounter.Warden)
                 .ToList();
         }
+
+        HashSet<string> blockedIds = GetBlockedEncounterIds(stepType, blockedEncounterIdsByCategory);
+        List<EnemyEncounterDefinition> unblocked = valid
+            .Where(encounter => blockedIds == null || !blockedIds.Contains(encounter.EncounterId))
+            .ToList();
+
+        if (unblocked.Count == 0 && wantsWarden)
+        {
+            valid = encounters
+                .Where(encounter => encounter != null && encounter.Warden)
+                .ToList();
+            unblocked = valid
+                .Where(encounter => blockedIds == null || !blockedIds.Contains(encounter.EncounterId))
+                .ToList();
+        }
+
+        if (unblocked.Count > 0)
+            valid = unblocked;
 
         if (valid.Count == 0)
             return string.Empty;

@@ -84,6 +84,9 @@ public class CoreInstance : MonoBehaviour, IAttackable
 
         if (CurrentHealth <= 0)
         {
+            if (PathOfPowerRelicEffectService.TryPreventCoreDeath(Owner, this))
+                return;
+
             CurrentHealth = 0;
             OnCoreChanged?.Invoke();
             Debug.Log($"Ded.");
@@ -108,6 +111,12 @@ public class CoreInstance : MonoBehaviour, IAttackable
     {
         Shield += amount;
         OnCoreChanged?.Invoke(); 
+    }
+    public void PreventDeathWithShield(int shieldAmount)
+    {
+        CurrentHealth = Mathf.Max(1, CurrentHealth);
+        Shield += Mathf.Max(0, shieldAmount);
+        OnCoreChanged?.Invoke();
     }
     public void Heal(int amount)
     {
