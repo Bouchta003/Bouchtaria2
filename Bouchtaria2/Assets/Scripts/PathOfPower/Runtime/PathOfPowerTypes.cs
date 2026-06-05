@@ -50,6 +50,9 @@ public class PathOfPowerRunData
     public List<int> currentDeck = new List<int>();
     public List<string> currentRelics = new List<string>();
     public List<string> triggeredEventIds = new List<string>();
+    public List<string> triggeredNormalEncounterIds = new List<string>();
+    public List<string> triggeredEliteEncounterIds = new List<string>();
+    public List<string> triggeredWardenEncounterIds = new List<string>();
     public int currentFloorSeed;
     public PathOfPowerPathType currentPathType = PathOfPowerPathType.Simple;
     public int currentStreak;
@@ -63,7 +66,7 @@ public class PathOfPowerRunData
     public List<string> activeEnemyRelicTexts = new List<string>();
     public CardData.Trait starterDeckTrait = CardData.Trait.Neutral;
     public bool combatActive;
-    public int currentDeckSize = 20;
+    public int currentDeckSize = 15;
     public string pendingValidationRelicId;
     public int pendingValidationDiscoveriesRemaining;
     public bool pendingWardenRewardAfterEncounterDiscovery;
@@ -71,6 +74,10 @@ public class PathOfPowerRunData
     public string pendingCardChoiceAction = string.Empty;
     public bool pendingEventAddBlacksmithDaughterOnSelect;
     public int maxHpModifier;
+    public bool secondChanceConsumed;
+    public bool maxHpFixedAt20;
+    public int pendingExtraWardenRelicRewards;
+    public int pendingExtraChallengePreWardenRelics;
 
     public PathOfPowerStepData CurrentStepData
     {
@@ -91,6 +98,9 @@ public class PathOfPowerRunData
         currentRelics ??= new List<string>();
         triggeredEventIds ??= new List<string>();
         currentFloorSteps ??= new List<PathOfPowerStepData>();
+        triggeredNormalEncounterIds ??= new List<string>();
+        triggeredEliteEncounterIds ??= new List<string>();
+        triggeredWardenEncounterIds ??= new List<string>();
         pendingStarterRelicChoices ??= new List<string>();
         pendingWardenRelicRewards ??= new List<string>();
         pendingCardChoices ??= new List<int>();
@@ -102,6 +112,9 @@ public class PathOfPowerRunData
         currentRelics.Clear();
         triggeredEventIds.Clear();
         currentFloorSteps.Clear();
+        triggeredNormalEncounterIds.Clear();
+        triggeredEliteEncounterIds.Clear();
+        triggeredWardenEncounterIds.Clear();
         pendingStarterRelicChoices.Clear();
         pendingWardenRelicRewards.Clear();
         pendingCardChoices.Clear();
@@ -114,7 +127,7 @@ public class PathOfPowerRunData
         starterDeckTrait = CardData.Trait.Neutral;
         phase = PathOfPowerRunPhase.None;
         combatActive = false;
-        currentDeckSize = 20;
+        currentDeckSize = 15;
         pendingValidationRelicId = string.Empty;
         pendingValidationDiscoveriesRemaining = 0;
         pendingWardenRewardAfterEncounterDiscovery = false;
@@ -122,5 +135,9 @@ public class PathOfPowerRunData
         pendingCardChoiceAction = string.Empty;
         pendingEventAddBlacksmithDaughterOnSelect = false;
         maxHpModifier = 0;
+        secondChanceConsumed = false;
+        maxHpFixedAt20 = false;
+        pendingExtraWardenRelicRewards = 0;
+        pendingExtraChallengePreWardenRelics = 0;
     }
 }
