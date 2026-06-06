@@ -1092,6 +1092,14 @@ public class EnemyAIController : MonoBehaviour
 
             targetsFriendly = effect.Contains("buff") || effect.Contains("heal") ||
                                    effect.Contains("gear") || effect.Contains("grant");
+
+            if (targetsFriendly && effect.Contains("heal"))
+            {
+                IAttackable bestHealTarget = GetBestFriendlyHealTargetIncludingCore(effect);
+                if (bestHealTarget != null)
+                    return bestHealTarget;
+            }
+
             return targetsFriendly
                 ? GetBestFriendlySpellTarget(effect)
                 : GetBestHostileSpellTarget(effect);
@@ -1175,6 +1183,25 @@ public class EnemyAIController : MonoBehaviour
     {
         bool targetsFriendlyCore = effect.Contains("heal") || effect.Contains("buff") || effect.Contains("grant") || effect.Contains("gear");
         return targetsFriendlyCore ? gameManager.EnemyCore : gameManager.PlayerCore;
+    }
+
+    private IAttackable GetBestFriendlyHealTargetIncludingCore(string effect)
+    {
+        IAttackable bestUnitTarget = GetBestFriendlySpellTarget(effect);
+        int bestUnitMissingHp = 0;
+        if (bestUnitTarget is CardInstance unitTarget)
+            bestUnitMissingHp = Mathf.Max(0, unitTarget.CurrentMaxHealth - unitTarget.CurrentHealth);
+
+        CoreInstance core = gameManager.EnemyCore;
+        int coreMissingHp = core != null ? Mathf.Max(0, core.MaxHealth - core.CurrentHealth) : 0;
+
+        if (coreMissingHp <= 0)
+            return bestUnitTarget;
+
+        if (bestUnitTarget == null || coreMissingHp >= bestUnitMissingHp || core.CurrentHealth <= 8)
+            return core;
+
+        return bestUnitTarget;
     }
 
     private IAttackable GetBestHostileSpellTarget(string effect)

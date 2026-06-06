@@ -116,8 +116,6 @@ public static class PathOfPowerRelicEffectService
             return -10;
 
         int bonusHp = owner == PlayerOwner.Player && runData != null ? runData.maxHpModifier : 0;
-        if (owner == PlayerOwner.Enemy && PlayerHasRelic(PlayerOwner.Player, CursedManaGem))
-            bonusHp += 1;
 
         foreach (int relicId in relicIds)
         {
@@ -204,7 +202,7 @@ public static class PathOfPowerRelicEffectService
             if (ally == null || ally.IsDead)
                 continue;
 
-            if (ally.CurrentAttack % 2 == 0 && ally.CurrentHealth % 2 == 0)
+            if ((ally.CurrentAttack + ally.CurrentHealth) % 2 == 0)
                 ally.ModifyStats(1, 0);
         }
     }
@@ -336,6 +334,11 @@ public static class PathOfPowerRelicEffectService
     public static int GetGlobalEnemyAttackBonus(PlayerOwner owner)
     {
         return owner == PlayerOwner.Enemy && PlayerHasRelic(PlayerOwner.Player, VengefulSpirit) ? 1 : 0;
+    }
+
+    public static int GetGlobalEnemyHealthBonus(PlayerOwner owner)
+    {
+        return owner == PlayerOwner.Enemy && PlayerHasRelic(PlayerOwner.Player, CursedManaGem) ? 1 : 0;
     }
 
     public static bool HasBloodVial(PlayerOwner owner)

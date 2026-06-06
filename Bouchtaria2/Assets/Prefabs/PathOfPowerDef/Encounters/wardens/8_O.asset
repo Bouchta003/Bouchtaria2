@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8b65621ccf9b41ecbcc369540d18971e, type: 3}
-  m_Name: 27_DeathlessArmory
+  m_Name: 8_O
   m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
-  encounterId: 27
-  displayName: March of the Dead
-  elite: 1
-  warden: 0
+  encounterId: warden_o
+  displayName: O Warden
+  elite: 0
+  warden: 1
   specificFloorEncounter: 0
-  relicIds: 0d0000001d00000015000000
-  droppablePool: 6b010000820100003c0100003f010000
-  displaySprite: {fileID: 7202677749848833763, guid: 5ff4a3a019a69f9498a19b053c115099, type: 3}
-  enemyDeckTemplate: '[363,363,386,386,319,319,316,316,314,314,321,321,341,341,52,52,99,99,146,146,210,210,282,282,93,93,97,97,98,98]'
+  relicIds: 1f0000001600000019000000
+  droppablePool: ad0000005a000000a00000009f000000a4000000
+  displaySprite: {fileID: 0}
+  enemyDeckTemplate: '[173,173,90,90,160,160,92,92,158,158,384,384,234,234,151,151,159,159,164,164,165,165,170,170,171,171,172,172,174,174]'
