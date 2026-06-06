@@ -3930,69 +3930,69 @@ MonoBehaviour:
   - Lines:
     - Content: Wow  !
       Name: The Barber
-      Avatar: {fileID: -1524831690849952475, guid: 327a0055c0c5cea498c25aaadf732674, type: 3}
+      Avatar: {fileID: -1524831690849952475, guid: 7b70c46b82b52ca46bdbb5b9ddd7d97e, type: 3}
     - Content: Look at that big...
       Name: The Barber
-      Avatar: {fileID: -1524831690849952475, guid: 327a0055c0c5cea498c25aaadf732674, type: 3}
+      Avatar: {fileID: -1524831690849952475, guid: 7b70c46b82b52ca46bdbb5b9ddd7d97e, type: 3}
     - Content: Deck !
       Name: The Barber
-      Avatar: {fileID: -1524831690849952475, guid: 327a0055c0c5cea498c25aaadf732674, type: 3}
+      Avatar: {fileID: -1524831690849952475, guid: 7b70c46b82b52ca46bdbb5b9ddd7d97e, type: 3}
     - Content: If you want I can cut down your deck size a little, my treat !
       Name: The Barber
-      Avatar: {fileID: -1524831690849952475, guid: 327a0055c0c5cea498c25aaadf732674, type: 3}
+      Avatar: {fileID: -1524831690849952475, guid: 7b70c46b82b52ca46bdbb5b9ddd7d97e, type: 3}
   - Lines:
     - Content: power...
       Name: Spirit
-      Avatar: {fileID: 4448715427215634006, guid: 6a9661325a863004ab6202de51101ae6, type: 3}
+      Avatar: {fileID: -7503314328888646760, guid: 4500601adf7fa0148ad6a58819414dab, type: 3}
     - Content: Do you...
       Name: Spirit
-      Avatar: {fileID: 4448715427215634006, guid: 6a9661325a863004ab6202de51101ae6, type: 3}
+      Avatar: {fileID: -7503314328888646760, guid: 4500601adf7fa0148ad6a58819414dab, type: 3}
     - Content: ...seek more power ?
       Name: Spirit
-      Avatar: {fileID: 4448715427215634006, guid: 6a9661325a863004ab6202de51101ae6, type: 3}
+      Avatar: {fileID: -7503314328888646760, guid: 4500601adf7fa0148ad6a58819414dab, type: 3}
     - Content: It is free...
       Name: Spirit
-      Avatar: {fileID: 4448715427215634006, guid: 6a9661325a863004ab6202de51101ae6, type: 3}
+      Avatar: {fileID: -7503314328888646760, guid: 4500601adf7fa0148ad6a58819414dab, type: 3}
     - Content: ...but you'll make your enemies angrier
       Name: Spirit
-      Avatar: {fileID: 4448715427215634006, guid: 6a9661325a863004ab6202de51101ae6, type: 3}
+      Avatar: {fileID: -7503314328888646760, guid: 4500601adf7fa0148ad6a58819414dab, type: 3}
   - Lines:
     - Content: Can't speak I'm busy...
       Name: Blacksmith
-      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+      Avatar: {fileID: -8337281393119725202, guid: da222c5f3355f8245a597059b379bee4, type: 3}
     - Content: What ? You want a better weapon ?
       Name: Blacksmith
-      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+      Avatar: {fileID: -8337281393119725202, guid: da222c5f3355f8245a597059b379bee4, type: 3}
     - Content: I can make something for you if you wish, but here is the thing..
       Name: Blacksmith
-      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+      Avatar: {fileID: -8337281393119725202, guid: da222c5f3355f8245a597059b379bee4, type: 3}
     - Content: I don't want your money, you seem like a nice guy.
       Name: Blacksmith
-      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+      Avatar: {fileID: -8337281393119725202, guid: da222c5f3355f8245a597059b379bee4, type: 3}
     - Content: My daughter is a little bored around here, I would like you to take
         her with you for some adventure.
       Name: Blacksmith
-      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+      Avatar: {fileID: -8337281393119725202, guid: da222c5f3355f8245a597059b379bee4, type: 3}
     - Content: Honestly she doesn't help around and annoyes me a lot. You take her
         with you and I give you some nice stuff.
       Name: Blacksmith
-      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+      Avatar: {fileID: -8337281393119725202, guid: da222c5f3355f8245a597059b379bee4, type: 3}
     - Content: What do you say ?
       Name: Blacksmith
-      Avatar: {fileID: 21300000, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
+      Avatar: {fileID: -8337281393119725202, guid: da222c5f3355f8245a597059b379bee4, type: 3}
   - Lines:
     - Content: Hey there tiny one
       Name: Mercenaries
-      Avatar: {fileID: 21300000, guid: e597a4bdd7fadce49a930ab3e196c932, type: 3}
+      Avatar: {fileID: -2007777089495802844, guid: a6c0bdb9679aa1e4b96ea77d32b5fd92, type: 3}
     - Content: 'You want a piece of this della7 ? '
       Name: Mercenaries
-      Avatar: {fileID: 21300000, guid: e597a4bdd7fadce49a930ab3e196c932, type: 3}
+      Avatar: {fileID: -2007777089495802844, guid: a6c0bdb9679aa1e4b96ea77d32b5fd92, type: 3}
     - Content: You can have it, it's good...
       Name: Mercenaries
-      Avatar: {fileID: 21300000, guid: e597a4bdd7fadce49a930ab3e196c932, type: 3}
+      Avatar: {fileID: -2007777089495802844, guid: a6c0bdb9679aa1e4b96ea77d32b5fd92, type: 3}
     - Content: Food in exchange for one of your cards, deal ?
       Name: Mercenaries
-      Avatar: {fileID: 21300000, guid: e597a4bdd7fadce49a930ab3e196c932, type: 3}
+      Avatar: {fileID: -2007777089495802844, guid: a6c0bdb9679aa1e4b96ea77d32b5fd92, type: 3}
   - Lines:
     - Content: Hey hey come here !!
       Name: Mad Scientist

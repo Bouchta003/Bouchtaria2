@@ -19,5 +19,5 @@ MonoBehaviour:
   specificFloorEncounter: 0
   relicIds: 17000000180000001e000000
   droppablePool: 0d0100000e0100003c00000044000000a2000000e5000000
-  displaySprite: {fileID: 0}
+  displaySprite: {fileID: 21300000, guid: 1529e3d26db365f4d8302b62a6d4a731, type: 3}
   enemyDeckTemplate: '[326,310,269,270,60,68,88,90,162,209,58,145,229,111,308,157,64,65,106,107,171,172,173,193,377,85,378,109,146,284]'

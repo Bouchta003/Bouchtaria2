@@ -1571,7 +1571,7 @@
       "id": 96,
       "name": "Yoru Clone",
       "cardType": "minion",
-      "manaCost": 2,
+      "manaCost": 0,
       "atkValue": 0,
       "hpValue": 2,
       "traits": [ "Gunner", "Speedster" ],
