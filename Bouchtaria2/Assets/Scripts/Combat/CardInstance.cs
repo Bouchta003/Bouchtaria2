@@ -130,11 +130,12 @@ public class CardInstance : MonoBehaviour, IAttackable
         BaseManaCost = data.manaCost;
 
         CurrentAttack = data.atkValue + PathOfPowerRelicEffectService.GetGlobalEnemyAttackBonus(owner);
-        CurrentHealth = data.hpValue;
+        int pathOfPowerHealthBonus = PathOfPowerRelicEffectService.GetGlobalEnemyHealthBonus(owner);
+        CurrentHealth = data.hpValue + pathOfPowerHealthBonus;
         CurrentEffect = data.effect;
         CurrentEffectText = data.effectText;
         ThornsDamage = GetThornDamage();
-        CurrentMaxHealth = data.hpValue;
+        CurrentMaxHealth = data.hpValue + pathOfPowerHealthBonus;
 
         CurrentZone = CardZone.Deck;
         Transform = transform;

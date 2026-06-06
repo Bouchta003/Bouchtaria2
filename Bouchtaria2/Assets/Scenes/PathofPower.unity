@@ -3838,6 +3838,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5ff456f032f545129beed181f557cf40, type: 2}
   - {fileID: 11400000, guid: e4593cc38d954a6e9f70465076337c79, type: 2}
   - {fileID: 11400000, guid: e49ad077370f475599d4a5dfce60545a, type: 2}
+  - {fileID: 11400000, guid: 2e2d109b39974f7cb1943ec1ff7dd259, type: 2}
+  - {fileID: 11400000, guid: 084a00dc469c4e3aafa3bda4140c09de, type: 2}
+  - {fileID: 11400000, guid: b5c985afe33b4368b8c194c41a72dc08, type: 2}
+  - {fileID: 11400000, guid: 8e831e90fc83408da71c35d9405175f6, type: 2}
   DiscoverDisplay: {fileID: 82126375}
   discoveryCardParent: {fileID: 82126376}
   discoveryScale: {x: 0.6, y: 0.6, z: 0.6}

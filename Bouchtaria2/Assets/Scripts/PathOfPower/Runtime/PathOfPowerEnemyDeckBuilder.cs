@@ -10,7 +10,7 @@ public static class PathOfPowerEnemyDeckBuilder
     {
         int floor = Mathf.Max(1, runData?.currentFloor ?? 1);
         int targetSize = Mathf.Max(1, runData?.currentDeck?.Count ?? 30);
-        bool allowUnpackableAndTier3 = floor >= 3;
+        bool allowUnpackableAndTier3 = floor >= 3 || encounter?.Warden == true || encounter?.Elite == true;
 
         IReadOnlyList<int> parsedEncounterDeck = encounter?.GetParsedEnemyDeckTemplate();
         IEnumerable<int> template = parsedEncounterDeck != null && parsedEncounterDeck.Count > 0
