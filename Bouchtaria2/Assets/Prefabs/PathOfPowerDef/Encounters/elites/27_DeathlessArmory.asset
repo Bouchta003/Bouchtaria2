@@ -13,19 +13,11 @@ MonoBehaviour:
   m_Name: 27_DeathlessArmory
   m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
   encounterId: 27
-  displayName: Deathless Armory
+  displayName: March of the Dead
   elite: 1
   warden: 0
   specificFloorEncounter: 0
-  relicIds:
-  - 16
-  - 29
-  - 21
-  droppablePool:
-  - 363
-  - 386
-  - 316
-  - 319
-  - 210
-  displaySprite: {fileID: 21300000, guid: 1fc27cf9f909dc34c903ba7432e125f2, type: 3}
+  relicIds: 100000001d00000015000000
+  droppablePool: 6b010000820100003c0100003f010000
+  displaySprite: {fileID: 7202677749848833763, guid: 5ff4a3a019a69f9498a19b053c115099, type: 3}
   enemyDeckTemplate: '[363,363,386,386,319,319,316,316,314,314,321,321,341,341,52,52,99,99,146,146,210,210,282,282,93,93,97,97,98,98]'

@@ -4760,6 +4760,12 @@ MonoBehaviour:
     music: {fileID: 8300000, guid: a9521e32661e8384aa789b48345e3283, type: 3}
   - sceneName: Collection
     music: {fileID: 8300000, guid: b4d436927d0f12d409a6b5005d057342, type: 3}
+  - sceneName: PathOfPowerNormal
+    music: {fileID: 0}
+  - sceneName: PathOfPowerWarden
+    music: {fileID: 0}
+  - sceneName: PathOfPower
+    music: {fileID: 0}
   musicDropdown: {fileID: 1476624407}
   musicCurrentlyPlaying: {fileID: 1324277240}
   musicImportedDropdown: {fileID: 812031055}

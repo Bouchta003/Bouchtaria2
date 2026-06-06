@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
   relicId: 33
   displayName: Cursed Mana Gem
-  description: Start combat with +1 max mana. Enemy cores have +1 HP.
+  description: Start combat with +1 max mana. Enemy units have +1 HP.
   enemyRelicText: Starts combat with +1 max mana.
-  icon: {fileID: 0}
+  icon: {fileID: 4920912221797603950, guid: e8a720e37b637dd45aa7a1f1c5903dac, type: 3}
   assignedTrait: 0
   canAppearAsStarter: 0
   discoverable: 1

@@ -3989,6 +3989,39 @@ MonoBehaviour:
     - Content: Food in exchange for one of your cards, deal ?
       Name: Mercenaries
       Avatar: {fileID: 21300000, guid: e597a4bdd7fadce49a930ab3e196c932, type: 3}
+  - Lines:
+    - Content: Hey hey come here !!
+      Name: Mad Scientist
+      Avatar: {fileID: 21300000, guid: e52398965db30e344b516e6fd9143668, type: 3}
+    - Content: 'Would you try this potion for me ? '
+      Name: Mad Scientist
+      Avatar: {fileID: 21300000, guid: e52398965db30e344b516e6fd9143668, type: 3}
+    - Content: It won't cost anything, if you take it you'll be TWICE as strong,
+        what do you say ?
+      Name: Mad Scientist
+      Avatar: {fileID: 21300000, guid: e52398965db30e344b516e6fd9143668, type: 3}
+  - Lines:
+    - Content: You look like a fellow gambling soul
+      Name: Lethal Gambler
+      Avatar: {fileID: 21300000, guid: 4edbd87614ad6da4691259398611d010, type: 3}
+    - Content: I bet you can't survive this run with only 20 HP
+      Name: Lethal Gambler
+      Avatar: {fileID: 21300000, guid: 4edbd87614ad6da4691259398611d010, type: 3}
+    - Content: TO make it interesting if you stay at 20 HP, I'll toss in an extra
+        relic after wardens and challenge paths
+      Name: Lethal Gambler
+      Avatar: {fileID: 21300000, guid: 4edbd87614ad6da4691259398611d010, type: 3}
+    - Content: We got a deal ?
+      Name: Lethal Gambler
+      Avatar: {fileID: 21300000, guid: 4edbd87614ad6da4691259398611d010, type: 3}
+  - Lines:
+    - Content: A path lights up before you
+      Name: ...
+      Avatar: {fileID: 21300000, guid: c51bf4867bf90ed4eb08a97c8549cfbd, type: 3}
+    - Content: it seems to be a safe shortcut to go to the warden, do you take this
+        path ?
+      Name: ...
+      Avatar: {fileID: 21300000, guid: c51bf4867bf90ed4eb08a97c8549cfbd, type: 3}
   dialogueCanvasGroup: {fileID: 1517084938}
   AvatarImage: {fileID: 376532168}
   UIDialogue: {fileID: 1517084936}

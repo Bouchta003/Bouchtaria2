@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EventDefinition
   eventId: 5
   displayName: Mad Scientist
-  description: Duplicate your whole deck. Your deck size doubles and every card gets a second copy.
-  artwork: {fileID: -8337281393119725202, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
-  bgArtwork: {fileID: 0}
+  description: Duplicate your whole deck. Your deck size doubles and every card gets
+    a second copy.
+  artwork: {fileID: 21300000, guid: fc8c2f22910600d409fbd7662d9d7a85, type: 3}
+  bgArtwork: {fileID: 21300000, guid: fc8c2f22910600d409fbd7662d9d7a85, type: 3}
   minimumFloor: 1
   enabledInFirstVersion: 1

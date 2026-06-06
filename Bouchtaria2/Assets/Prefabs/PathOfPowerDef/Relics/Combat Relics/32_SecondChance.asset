@@ -14,9 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
   relicId: 32
   displayName: Second Chance
-  description: The first time your core would die, lose this relic instead and gain 30 shield. Once triggered, it cannot be discovered again this run.
-  enemyRelicText: The first time their core would die, they lose this relic and gain 30 shield.
-  icon: {fileID: 0}
+  description: The first time your core would die, lose this relic instead and gain
+    30 shield. Once triggered, it cannot be discovered again this run.
+  enemyRelicText: The first time their core would die, they lose this relic and gain
+    30 shield.
+  icon: {fileID: -723071883443107534, guid: da3bbcf732b2e28449dd5dafb5992c80, type: 3}
   assignedTrait: 0
   canAppearAsStarter: 0
   discoverable: 1

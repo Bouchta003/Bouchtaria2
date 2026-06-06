@@ -13,17 +13,11 @@ MonoBehaviour:
   m_Name: 25_PraiseChoir
   m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
   encounterId: 25
-  displayName: Praise Choir
+  displayName: Praise Party
   elite: 0
   warden: 0
   specificFloorEncounter: 0
-  relicIds:
-  - 23
-  droppablePool:
-  - 80
-  - 81
-  - 82
-  - 83
-  - 84
-  displaySprite: {fileID: 21300000, guid: 1fc27cf9f909dc34c903ba7432e125f2, type: 3}
+  relicIds: 17000000
+  droppablePool: 5000000051000000520000005300000054000000
+  displaySprite: {fileID: 21300000, guid: 1917edeb4ca9b044ba88f3e8caeff982, type: 3}
   enemyDeckTemplate: '[80,80,81,81,82,82,83,83,84,84,134,134,137,137,138,138,176,176,177,177,53,53,71,71,145,145,162,162,229,229]'

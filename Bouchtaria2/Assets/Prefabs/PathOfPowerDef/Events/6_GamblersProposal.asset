@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EventDefinition
   eventId: 6
   displayName: Gambler's Proposal
-  description: Fix your max HP to 20 for the rest of the run. Wardens and challenge pre-warden rewards grant an additional relic.
-  artwork: {fileID: -8337281393119725202, guid: 9ec976dac07d99b4cbf482c409c24ab0, type: 3}
-  bgArtwork: {fileID: 0}
+  description: Fix your max HP to 20 for the rest of the run. Wardens and challenge
+    pre-warden rewards grant an additional relic.
+  artwork: {fileID: 21300000, guid: 4edbd87614ad6da4691259398611d010, type: 3}
+  bgArtwork: {fileID: 21300000, guid: 4edbd87614ad6da4691259398611d010, type: 3}
   minimumFloor: 1
   enabledInFirstVersion: 1
