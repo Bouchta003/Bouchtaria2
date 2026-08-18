@@ -14,6 +14,8 @@ public class CardFirestoreSync
     {
         string path = "Assets/Data/cardgeneration.json";
         Dictionary<string, int> traitCounts = new Dictionary<string, int>();
+        Dictionary<string, int> traitPackableCounts = new Dictionary<string, int>();
+        Dictionary<string, int> traitNonPackableNonTokenCounts = new Dictionary<string, int>();
 
 
         if (!File.Exists(path))
@@ -63,6 +65,18 @@ public class CardFirestoreSync
                         traitCounts[trait] = 0;
 
                     traitCounts[trait]++;
+                    if (card.packable)
+                    {
+                        if (!traitPackableCounts.ContainsKey(trait))
+                            traitPackableCounts[trait] = 0;
+                        traitPackableCounts[trait]++;
+                    }
+                    if (!card.packable && !card.token)
+                    {
+                        if (!traitNonPackableNonTokenCounts.ContainsKey(trait))
+                            traitNonPackableNonTokenCounts[trait] = 0;
+                        traitNonPackableNonTokenCounts[trait]++;
+                    }
                 }
             }
 
@@ -98,7 +112,9 @@ public class CardFirestoreSync
             Debug.Log("🔥 Trait distribution:");
             foreach (var kvp in traitCounts)
             {
-                Debug.Log($"• {kvp.Key}: {kvp.Value} cards");
+                int packable = traitPackableCounts.TryGetValue(kvp.Key, out int packableValue) ? packableValue : 0;
+                int nonPackableNonToken = traitNonPackableNonTokenCounts.TryGetValue(kvp.Key, out int nonPackableValue) ? nonPackableValue : 0;
+                Debug.Log($"• {kvp.Key}: total={kvp.Value}, packable={packable}, non-packable non-token={nonPackableNonToken}");
             }
             Debug.Log($"🔥 Successfully synced {wrapper.cards.Count} cards to Firestore");
 

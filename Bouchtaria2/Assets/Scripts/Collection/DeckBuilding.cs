@@ -59,6 +59,8 @@ public class DeckBuilding : MonoBehaviour
     public event System.Action OnDecksLoaded;
 
     int maxDeckSize = 30;
+    private int pathOfPowerRequiredRemovals;
+    private int pathOfPowerRemovedCount;
     private void Awake()
     {
         if (Instance != null)
@@ -106,6 +108,35 @@ public class DeckBuilding : MonoBehaviour
             ChestSpriteBot.color = new Color(1, 0.8f, 0.3f);
             ChestSpriteTop.color = new Color(1, 0.8f, 0.3f);
         }
+
+        if (GameRunContext.IsPathOfPowerDeckViewMode && GameRunContext.PathOfPowerData != null)
+        {
+            if (collection != null)
+                collection.isDeck = true;
+            if (DeckUI != null)
+                DeckUI.SetActive(true);
+            CurrentDeck = new List<int>(GameRunContext.PathOfPowerData.currentDeck ?? new List<int>());
+            maxDeckSize = Mathf.Max(5, GameRunContext.PathOfPowerData.currentDeckSize);
+            pathOfPowerRequiredRemovals = Mathf.Max(0, CurrentDeck.Count - maxDeckSize);
+            pathOfPowerRemovedCount = 0;
+            if (DeckNameInput != null)
+            {
+                DeckNameInput.text = "PathOfPowerDeck";
+                DeckNameInput.interactable = false;
+            }
+            if (DeleteDeckButton != null)
+                DeleteDeckButton.SetActive(false);
+            if (ChangeDecksDropDown != null)
+                ChangeDecksDropDown.SetActive(false);
+            if (chestCOllider != null)
+                chestCOllider.enabled = CanModifyPathOfPowerViewedDeck();
+
+            // Ensure trait panels are computed immediately in Path Of Power deck view.
+            DetectUnlockableTraits();
+
+            if (collection != null)
+                collection.ShowPage(collection.currentPage);
+        }
     }
     private void Update()
     {
@@ -123,6 +154,25 @@ public class DeckBuilding : MonoBehaviour
     public Dictionary<string, List<int>> GetUserDecks()
     {
         return new Dictionary<string, List<int>>(userDecks);
+    }
+
+
+    private bool IsPathOfPowerDeckViewReadOnly()
+    {
+        return GameRunContext.IsPathOfPowerDeckViewMode && !GameRunContext.CanEditPathOfPowerViewedDeck;
+    }
+
+    private bool CanModifyPathOfPowerViewedDeck()
+    {
+        return !GameRunContext.IsPathOfPowerDeckViewMode || GameRunContext.CanEditPathOfPowerViewedDeck;
+    }
+
+    private bool IsPathOfPowerDeckAdjustmentValid()
+    {
+        if (!GameRunContext.IsPathOfPowerDeckViewMode)
+            return true;
+
+        return CurrentDeck.Count == maxDeckSize && pathOfPowerRemovedCount == pathOfPowerRequiredRemovals;
     }
 
     private void SetupDeckDropdown()
@@ -157,16 +207,6 @@ public class DeckBuilding : MonoBehaviour
             if (deckIndex >= 0)
                 selectedIndex = deckIndex + 1;
         }
-        else if (!string.IsNullOrWhiteSpace(DeckSelectionCache.LastSelectedDeckName))
-        {
-            int preferredDeckIndex = deckNames.IndexOf(DeckSelectionCache.LastSelectedDeckName);
-            if (preferredDeckIndex >= 0 &&
-                userDecks.TryGetValue(DeckSelectionCache.LastSelectedDeckName, out List<int> preferredDeck) &&
-                DeckSelectionCache.IsDeckValidForStandardCombat(preferredDeck))
-            {
-                selectedIndex = preferredDeckIndex + 1;
-            }
-        }
 
         deckDropdown.SetValueWithoutNotify(selectedIndex);
         deckDropdown.RefreshShownValue();
@@ -174,6 +214,13 @@ public class DeckBuilding : MonoBehaviour
 
     private void OnDeckDropdownChanged(int index)
     {
+        if (GameRunContext.IsPathOfPowerDeckViewMode)
+        {
+            if (deckDropdown != null)
+                deckDropdown.SetValueWithoutNotify(0);
+            return;
+        }
+
         if (index <= 0)
         {
             CurrentDeck ??= new List<int>();
@@ -199,6 +246,11 @@ public class DeckBuilding : MonoBehaviour
     #region CardDropInChest
     public void DropCardToChest(Card card)
     {
+        if (!CanModifyPathOfPowerViewedDeck())
+        {
+            ShowWarning("Deck is read-only in this view.");
+            return;
+        }
         int cardId = card.GetComponent<CardView>().CardData.id;
 
         if (!CanAddCard(cardId))
@@ -214,9 +266,21 @@ public class DeckBuilding : MonoBehaviour
     }
     public void RemoveCardFromChest(Card card)
     {
+        if (!CanModifyPathOfPowerViewedDeck())
+        {
+            ShowWarning("Deck is read-only in this view.");
+            return;
+        }
         if (CurrentDeck.Contains(card.GetComponent<CardView>().CardData.id))
         {
+            if (GameRunContext.IsPathOfPowerDeckViewMode && pathOfPowerRemovedCount >= pathOfPowerRequiredRemovals)
+            {
+                ShowWarning($"You must remove exactly {pathOfPowerRequiredRemovals} card(s), no more.");
+                return;
+            }
             CurrentDeck.Remove(card.GetComponent<CardView>().CardData.id);
+            if (GameRunContext.IsPathOfPowerDeckViewMode)
+                pathOfPowerRemovedCount++;
             collection.ShowPage(collection.currentPage);
             SFXManager.Instance.PlaySFXClip(removeCardSFX, transform, 1f);
             ShowProgress(CurrentDeck.Count, maxDeckSize);
@@ -230,6 +294,12 @@ public class DeckBuilding : MonoBehaviour
     }
     private bool CanAddCard(int cardId)
     {
+        if (GameRunContext.IsPathOfPowerDeckViewMode)
+        {
+            ShowWarning("Path of Power deck edit only allows removing cards.");
+            return false;
+        }
+
         // Ownership
         if (!IsCardOwned(cardId))
         {
@@ -279,6 +349,24 @@ public class DeckBuilding : MonoBehaviour
     }
     public void RegisterDeck()
     {
+        if (GameRunContext.IsPathOfPowerDeckViewMode)
+        {
+            if (!IsPathOfPowerDeckAdjustmentValid())
+            {
+                ShowWarning($"Deck must remove exactly {pathOfPowerRequiredRemovals} card(s) and contain exactly {maxDeckSize} cards (currently {CurrentDeck.Count}, removed {pathOfPowerRemovedCount}).");
+                return;
+            }
+
+            GameRunContext.PathOfPowerData.currentDeck = new List<int>(CurrentDeck);
+            GameRunContext.PathOfPowerData.currentDeckSize = maxDeckSize;
+            PathOfPowerSaveService.Save(GameRunContext.PathOfPowerData, () =>
+            {
+                GameRunContext.IsPathOfPowerDeckViewMode = false;
+                GameRunContext.CanEditPathOfPowerViewedDeck = false;
+                GameFlowController.Instance.GoToPathOfPower();
+            });
+            return;
+        }
         if (GameRunContext.IsDungeonRun)
         {
             RegisterDungeonDeck();
@@ -356,10 +444,14 @@ public class DeckBuilding : MonoBehaviour
                     Debug.Log($"Creating new deck '{deckName}'.");
                 }
 
+                string formattedDeck = $"[{string.Join(",", CurrentDeck)}]";
+                Debug.Log($"[DeckBuilding] Validated deck string: {formattedDeck}");
+
                 Dictionary<string, object> deckData = new Dictionary<string, object>
                 {
                 { "name", deckName },
                 { "cardIds", new List<int>(CurrentDeck) },
+                { "deckString", formattedDeck },
                 { "updatedAt", Timestamp.GetCurrentTimestamp() }
                 };
 
@@ -375,7 +467,11 @@ public class DeckBuilding : MonoBehaviour
                         ErrorPopup.Show("Deck successfully saved.");
                         if (GameRunContext.IsDungeonRun)
                             GameFlowController.Instance.GoToDungeonAdventure();
-                        else
+                        else if (GameRunContext.IsPathOfPowerRun)
+                        {
+                            GameFlowController.Instance.GoToPathOfPower();
+                        } 
+                        else 
                             GameFlowController.Instance.GoToMainMenu();
                     }
                 });
@@ -438,6 +534,11 @@ public class DeckBuilding : MonoBehaviour
     }
     public void DeleteDeck()
     {
+        if (IsPathOfPowerDeckViewReadOnly())
+        {
+            ShowWarning("Deck is read-only in this view.");
+            return;
+        }
         string deckName = DeckNameInput.text;
         if (string.IsNullOrWhiteSpace(deckName))
         {
@@ -773,6 +874,8 @@ public class DeckBuilding : MonoBehaviour
     }
     public void ToggleCraftMode()
     {
+        if (IsPathOfPowerDeckViewReadOnly())
+            return;
         isCrafting = !isCrafting;
         if (isCrafting)
         {

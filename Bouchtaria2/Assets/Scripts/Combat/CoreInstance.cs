@@ -1,5 +1,7 @@
-using DG.Tweening;
 using System.Collections;
+using DG.Tweening;
+using DG.Tweening.Core.Easing;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class CoreInstance : MonoBehaviour, IAttackable
@@ -38,7 +40,7 @@ public class CoreInstance : MonoBehaviour, IAttackable
         int bonus = 0;
         int preHeal = CurrentHealth;
 
-        SFXManager.Instance.PlaySFXClip(gm.healSFX, transform, 1f);
+        SFXManager.Instance.PlayRandomSFXClip(gm.healSFX, transform, 1f);
         if (Owner == PlayerOwner.Player) bonus = gm.PlayerHealBonus;
         else bonus = gm.EnemyHealBonus;
 
@@ -56,7 +58,7 @@ public class CoreInstance : MonoBehaviour, IAttackable
 
         GameManager gm = FindFirstObjectByType<GameManager>();
         gm.NotifyDamage(Owner, amount);
-        SFXManager.Instance.PlaySFXClip(gm.dmgSFX, transform, 1f);
+        SFXManager.Instance.PlayRandomSFXClip(gm.dmgSFX, transform, 1f);
         int remaining = amount; GetComponentInParent<DamageFeedback>()?.Play();
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position);
         if(Owner==PlayerOwner.Player)
@@ -82,6 +84,9 @@ public class CoreInstance : MonoBehaviour, IAttackable
 
         if (CurrentHealth <= 0)
         {
+            if (PathOfPowerRelicEffectService.TryPreventCoreDeath(Owner, this))
+                return;
+
             CurrentHealth = 0;
             OnCoreChanged?.Invoke();
             Debug.Log($"Ded.");
@@ -92,7 +97,12 @@ public class CoreInstance : MonoBehaviour, IAttackable
     {
         if(IsBleeding)
         {
-            TakeDamage(1);
+            int bleedDamage = 1;
+            PlayerOwner sourceOwner = Owner == PlayerOwner.Player ? PlayerOwner.Enemy : PlayerOwner.Player;
+            if (PathOfPowerRelicEffectService.HasBloodVial(sourceOwner))
+                bleedDamage++;
+
+            TakeDamage(bleedDamage);
             BleedingTurns++;
             if (BleedingTurns >= 3) { IsBleeding = false; BleedingTurns = 0; }
         }
@@ -100,6 +110,12 @@ public class CoreInstance : MonoBehaviour, IAttackable
     public void AddShield(int amount)
     {
         Shield += amount;
+        OnCoreChanged?.Invoke(); 
+    }
+    public void PreventDeathWithShield(int shieldAmount)
+    {
+        CurrentHealth = Mathf.Max(1, CurrentHealth);
+        Shield += Mathf.Max(0, shieldAmount);
         OnCoreChanged?.Invoke();
     }
     public void Heal(int amount)
@@ -111,10 +127,11 @@ public class CoreInstance : MonoBehaviour, IAttackable
         int bonus = 0;
         int preHeal = CurrentHealth;
 
-        SFXManager.Instance.PlaySFXClip(gm.healSFX, transform, 1f);
+        SFXManager.Instance.PlayRandomSFXClip(gm.healSFX, transform, 1f);
         if (Owner == PlayerOwner.Player) bonus = gm.PlayerHealBonus;
         else bonus = gm.EnemyHealBonus;
 
+        if (GameRunContext.IsPathOfPowerRun && gm.OwnerHasRelic(Owner, 3)) { bonus += 2; }
         int totalHeal = amount + bonus;
         CurrentHealth = Mathf.Min(CurrentHealth + totalHeal, MaxHealth);
         int differenceHp = CurrentHealth - preHeal;

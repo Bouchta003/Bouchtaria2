@@ -80,7 +80,6 @@ public class TraitsDetection : MonoBehaviour
             { CardData.Trait.Pokemon, new[] { 4,8,12 } },
             { CardData.Trait.MonsterHunter, new[] { 4, 8, 12 } },
             { CardData.Trait.Neutral, new[] { 4,8,12 } },
-            { CardData.Trait.SpellFocus, new[] { 4, 8, 12 } },
             { CardData.Trait.SoulForce, new[] { 4, 8, 12 } },
             { CardData.Trait.Cozy, new[] { 4, 8, 12 } },
             { CardData.Trait.Swordsman, new[] { 4, 8, 12 } },
@@ -149,9 +148,6 @@ public class TraitsDetection : MonoBehaviour
                         break;
                     case CardData.Trait.Gunner:
                         traitDisplay.iconSlot.sprite = traitDisplay.gunnerIcon;
-                        break;
-                    case CardData.Trait.SpellFocus:
-                        traitDisplay.iconSlot.sprite = traitDisplay.spellFocusIcon;
                         break;
                     case CardData.Trait.Faith:
                         traitDisplay.iconSlot.sprite = traitDisplay.faithIcon;

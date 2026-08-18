@@ -2594,6 +2594,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SFXManager
   SFXprefab: {fileID: 2421908883657032860, guid: 809c6a6b25d8bda45a960e66905ca8c6, type: 3}
+  sameClipCooldown: 0.05
 --- !u!1 &656705720
 GameObject:
   m_ObjectHideFlags: 0
@@ -2823,7 +2824,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: V 0.5.3
+  m_text: Version  0.6.0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 382e32f9b5c3b3044af5a78bf8a86c95, type: 2}
   m_sharedMaterial: {fileID: -6690465110090245793, guid: 382e32f9b5c3b3044af5a78bf8a86c95, type: 2}
@@ -4313,6 +4314,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScanController
   scanPanelPrefab: {fileID: 8744312322777854548, guid: ad82d9b82b614654fa63fd011f865035, type: 3}
+  panelInstance: {fileID: 0}
 --- !u!1 &903751377
 GameObject:
   m_ObjectHideFlags: 0
@@ -4752,6 +4754,24 @@ MonoBehaviour:
     music: {fileID: 8300000, guid: 7b7a1f835f85546409a09501d402b09c, type: 3}
   - sceneName: Adventure14
     music: {fileID: 8300000, guid: 3e51dcab3a7c24c4989969d76857ef60, type: 3}
+  - sceneName: Collection
+    music: {fileID: 8300000, guid: a52d4d5a57b4d3448a2f0cf57949df47, type: 3}
+  - sceneName: Firebase
+    music: {fileID: 8300000, guid: a9521e32661e8384aa789b48345e3283, type: 3}
+  - sceneName: Collection
+    music: {fileID: 8300000, guid: b4d436927d0f12d409a6b5005d057342, type: 3}
+  - sceneName: PathofPower
+    music: {fileID: 8300000, guid: cebefe2de7eace24582982119bae8b64, type: 3}
+  - sceneName: PathofPower
+    music: {fileID: 8300000, guid: 8a9e2e34b4c2cf940b45cc8c5f02d86b, type: 3}
+  - sceneName: PathOfPowerWarden
+    music: {fileID: 8300000, guid: ab6d7cd2387473f4ea85a86da52d4cb8, type: 3}
+  - sceneName: Combat
+    music: {fileID: 8300000, guid: 0eea8aca044bc904ab92e61a7850150a, type: 3}
+  - sceneName: Firebase
+    music: {fileID: 8300000, guid: fa46608779abe8540a7ce051e6650491, type: 3}
+  - sceneName: Firebase
+    music: {fileID: 8300000, guid: 4b4e171166e90634fa45947b749b7d6a, type: 3}
   musicDropdown: {fileID: 1476624407}
   musicCurrentlyPlaying: {fileID: 1324277240}
   musicImportedDropdown: {fileID: 812031055}
@@ -5707,7 +5727,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.426, g: 0.18873416, b: 0.113240495, a: 1}
+  m_Color: {r: 0.42745098, g: 0.3538049, b: 0.11372549, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

@@ -1,0 +1,2479 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Firebase.Auth;
+using Firebase.Firestore;
+using TMPro;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class PathOfPowerManager : MonoBehaviour
+{
+    private const int DeckRelicCardDiscoveryCount = 5;
+    private const int MaxCopiesPerCardInDeck = 5;
+    private const string SecondChanceRelicId = "32";
+
+    public static PathOfPowerManager Instance;
+
+    [Header("Content Libraries")]
+    [SerializeField] public List<RelicDefinition> relicLibrary = new List<RelicDefinition>();
+    [SerializeField] private List<EventDefinition> eventLibrary = new List<EventDefinition>();
+    [SerializeField] private List<PathDefinition> pathLibrary = new List<PathDefinition>();
+    [SerializeField] private List<EnemyEncounterDefinition> encounterLibrary = new List<EnemyEncounterDefinition>();
+
+    [Header("Discovery UI Hooks")]
+    [SerializeField] public GameObject DiscoverDisplay;
+    [SerializeField] private Transform discoveryCardParent;
+    [SerializeField] private Vector3 discoveryScale = new Vector3(0.6f, 0.6f, 0.6f);
+
+    [Header("Display UI")]
+    [SerializeField] public List<GameObject> differentDisplays;
+    [SerializeField] public GameObject traitPrefab;//Instantiation Positions : 500,200,0 -500,200,0 500,-200,0 -500,-200,0 0,0,0
+    [SerializeField] public GameObject relicPrefab;//Discovery Positions : 400,540,0 960,540,0 1520,540,0
+    [SerializeField] public GameObject reliPrefabParentDiscovery;
+    [SerializeField] public GameObject relicGridLayout;
+    [SerializeField] public GameObject traitreference;
+    [SerializeField] public GameObject skipDiscoveryBtn;
+    [SerializeField] public Image nextEnemyImage;
+    [SerializeField] public Image enemyEliteIcon;
+    [SerializeField] public Image enemyWarden;
+    [SerializeField] public TextMeshProUGUI EnemyNameText;
+    [SerializeField] public TextMeshProUGUI CurrentFloor;
+    [SerializeField] public TextMeshProUGUI CurrentStep;
+    [SerializeField] public TextMeshProUGUI CurrentPathType;
+    [SerializeField] public TextMeshProUGUI DiscoveryText;
+    [SerializeField] public Button EventAcceptBtn;
+    [SerializeField] public Button EventSkipButton;
+    [SerializeField] private List<int> eventDialogues = new List<int>();
+
+    private bool eventDialogueResolved;
+    private bool eventRewardCardDiscoveryPending;
+    private bool eventRewardAddBlacksmithDaughterOnSelect;
+
+    [Header("Starter Deck Discovery")]
+    [SerializeField] private int starterDeckTargetSize = 15;
+    [SerializeField] private CardData.Trait starterDeckTrait = CardData.Trait.Neutral;
+
+    public PathOfPowerRunData CurrentRun { get; private set; } = new PathOfPowerRunData();
+
+    public event Action<PathOfPowerRunData> OnRunLoaded;
+    public event Action<IReadOnlyList<RelicDefinition>> OnStarterRelicChoicesGenerated;
+    public event Action<IReadOnlyList<RelicDefinition>> OnWardenRelicRewardsGenerated;
+    public event Action<IReadOnlyList<int>> OnCardDiscoveryGenerated;
+    public event Action<IReadOnlyList<PathDefinition>> OnPathChoicesRequested;
+    public event Action<PathOfPowerStepData> OnStepReady;
+
+    private PathOfPowerFloorGenerator floorGenerator;
+    private bool isResolvingRelicChoice;
+    private readonly List<GameObject> spawnedRelicDiscoveryObjects = new List<GameObject>();
+    private readonly List<GameObject> spawnedRelicGridObjects = new List<GameObject>();
+    private bool currentCardDiscoverySkippable = true;
+    private bool currentRelicDiscoverySkippable = true;
+    private bool resolvingGiftCombatRelicDiscovery;
+    private List<string> pendingGiftCombatRelicRewards = new List<string>();
+    private readonly List<GameObject> spawnedTraitDiscoveryObjects = new List<GameObject>();
+    private Action<CardData.Trait> traitSelectionCallback;
+    private static readonly Vector3[] TraitDiscoveryPositions =
+    {
+        new Vector3(500f, 200f, 0f),
+        new Vector3(-500f, 200f, 0f),
+        new Vector3(500f, -200f, 0f),
+        new Vector3(-500f, -200f, 0f),
+        new Vector3(0f, 0f, 0f)
+    };
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+    }
+
+    private void Start()
+    {
+        floorGenerator = new PathOfPowerFloorGenerator(eventLibrary, encounterLibrary);
+        EnsureCardInputManager();
+        if (DiscoverDisplay != null)
+            DiscoverDisplay.SetActive(false);
+        skipDiscoveryBtn.SetActive(false);
+        LoadRun();
+    }
+    private void Update()
+    {
+        CurrentFloor.text = $"{CurrentRun.currentFloor}";
+        CurrentStep.text = $"{CurrentRun.currentStep}";
+        CurrentPathType.text = $"{CurrentRun.currentPathType}";
+    }
+    public void BackButton()
+    {
+        SceneManager.LoadScene("Main_Menu");
+    }
+    public void LoadLeaderboard()
+    {
+        SceneManager.LoadScene("PathOfPowerLeaderboard");
+    }
+    public void SeeDeck()
+    {
+        if (CurrentRun == null)
+            return;
+
+        GameRunContext.IsPathOfPowerRun = true;
+        GameRunContext.PathOfPowerData = CurrentRun;
+        GameRunContext.IsPathOfPowerDeckViewMode = true;
+        GameRunContext.CanEditPathOfPowerViewedDeck = CurrentRun.currentDeck != null && CurrentRun.currentDeck.Count > Mathf.Max(5, CurrentRun.currentDeckSize);
+        SceneManager.LoadScene("Collection");
+    }
+
+    public void ReduceDeckSize(int amount)
+    {
+        if (CurrentRun == null || amount <= 0)
+            return;
+
+        CurrentRun.currentDeckSize = Mathf.Max(5, CurrentRun.currentDeckSize - amount);
+        SaveRun();
+    }
+    /// <summary>
+    /// UI hook: call this from the Path Of Power entry button to start a clean run.
+    /// It generates starter relic choices first, then waits for SelectStarterRelic.
+    /// </summary>
+    public void StartNewRun()
+    {
+        CurrentRun = new PathOfPowerRunData
+        {
+            currentFloor = 1,
+            currentStep = 1,
+            currentDeck = new List<int>(),
+            currentRelics = new List<string>(),
+            triggeredEventIds = new List<string>(),
+            triggeredNormalEncounterIds = new List<string>(),
+            triggeredEliteEncounterIds = new List<string>(),
+            triggeredWardenEncounterIds = new List<string>(),
+            activeEnemyRelics = new List<int>(),
+            activeEnemyRelicTexts = new List<string>(),
+            currentFloorSeed = GenerateSeed(),
+            currentPathType = PathOfPowerPathType.Simple,
+            currentStreak = 0,
+            starterDeckTrait = this.starterDeckTrait,
+            phase = PathOfPowerRunPhase.StarterRelicChoice,
+            combatActive = false,
+            currentDeckSize = starterDeckTargetSize,
+            secondChanceConsumed = false,
+            maxHpFixedAt20 = false,
+            pendingExtraWardenRelicRewards = 0,
+            pendingExtraChallengePreWardenRelics = 0
+        };
+        ClearCardDiscovery();ClearRelicDiscovery();ClearTraitDiscovery();
+
+        SwitchDisplay(5);//Start Relic Discovery.
+        CurrentRun.pendingStarterRelicChoices = PickCombatRelics(3, CurrentRun.currentFloorSeed)
+            .Select(relic => relic.RelicId)
+            .ToList();
+
+        ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic, skippable: false);
+        SaveRun();
+        OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
+    }
+    public void AcceptEventReward(bool skip)
+    {
+        if (CurrentRun == null) { Debug.LogError("[PathOfPower] CurrentRun is null."); return; }
+        if (CurrentRun.phase != PathOfPowerRunPhase.Event)
+        {
+            Debug.LogWarning($"[PathOfPower] AcceptEventReward ignored because phase is {CurrentRun.phase} instead of Event.");
+            return;
+        }
+
+        PathOfPowerStepData step = CurrentRun.CurrentStepData;
+        if (step == null || step.stepType != PathOfPowerStepType.Event)
+        {
+            Debug.LogWarning("[PathOfPower] AcceptEventReward ignored because there is no active event step.");
+            return;
+        }
+
+        if(skip)
+        {
+            Debug.Log("Event skipped by player choice.");
+            CompleteCurrentEvent();
+            return;
+        }
+        int eventId = 0;
+        int.TryParse(step.eventId, out eventId);
+        switch(eventId)
+        {
+            case 0:
+                Debug.Log("Accepted reward for event 0 and added Titos");
+                AddRelic("0");//Visit Necrobinder;
+                break;
+            case 1://Welcome to the Barbershop
+                Debug.Log("Accepted reward for event 2 reduced deck size");
+                ReduceDeckSize(3);
+                break;
+            case 2: // Ghostly Pact
+                AddRelic("13");
+                Debug.Log("Accepted reward for event 3 and added Vengeful Spirit relic id 13.");
+                break;
+            case 3: // The Blacksmith
+                eventRewardCardDiscoveryPending = true;
+                eventRewardAddBlacksmithDaughterOnSelect = true;
+                CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = true;
+                CurrentRun.pendingCardChoiceAction = "AddOne";
+                CurrentRun.pendingCardChoices = FilterChoicesByDeckCopyLimit(
+                    GenerateNonPackableNonTokenChoicesForDeckTraits(CurrentRun.currentFloorSeed + CurrentRun.currentStep + CurrentRun.currentDeck.Count + 303, 3)
+                        .Where(cardId => cardId != 419),
+                    1);
+                if (CurrentRun.pendingCardChoices.Count == 0)
+                {
+                    eventRewardAddBlacksmithDaughterOnSelect = false;
+                    CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = false;
+                    CurrentRun.pendingCardChoices = CanAddCopiesToCurrentDeck(419) ? new List<int> { 419 } : new List<int>();
+                }
+                if (CurrentRun.pendingCardChoices.Count == 0)
+                {
+                    eventRewardCardDiscoveryPending = false;
+                    CurrentRun.pendingCardChoiceAction = string.Empty;
+                    CompleteCurrentEvent();
+                    SaveRun();
+                    return;
+                }
+                SwitchDisplay(5);
+                ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
+                OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                SaveRun();
+                return;
+            case 4: // Mercenary
+                if (!CurrentRun.maxHpFixedAt20)
+                    CurrentRun.maxHpModifier += 5;
+                eventRewardCardDiscoveryPending = true;
+                CurrentRun.pendingCardChoiceAction = "RemoveOne";
+                CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = false;
+                CurrentRun.pendingCardChoices = GenerateCurrentDeckCardChoices(CurrentRun.currentFloorSeed + CurrentRun.currentStep + CurrentRun.currentDeck.Count + 404, 3);
+                if (CurrentRun.pendingCardChoices.Count == 0)
+                {
+                    eventRewardCardDiscoveryPending = false;
+                    CurrentRun.pendingCardChoiceAction = string.Empty;
+                    CompleteCurrentEvent();
+                    SaveRun();
+                    return;
+                }
+                SwitchDisplay(5);
+                ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
+                OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                SaveRun();
+                return;
+            case 5: // Mad Scientist
+                DuplicateCurrentDeck();
+                Debug.Log("Accepted Mad Scientist event and duplicated the full deck.");
+                break;
+            case 6: // Gambler's Proposal
+                CurrentRun.maxHpFixedAt20 = true;
+                CurrentRun.maxHpModifier = 0;
+                Debug.Log("Accepted Gambler's Proposal: max HP is fixed to 20 for the rest of the run.");
+                break;
+            case 7: // The Shortcut
+                CompleteShortcutEvent();
+                return;
+            // Add more cases as needed
+        }
+        CompleteCurrentEvent();
+    }
+    public void SwitchDisplay(int displayIndex)
+    {
+        Debug.Log($"[PathOfPower] SwitchDisplay requested for index {displayIndex}.");
+
+        if (differentDisplays == null || displayIndex < 0 || displayIndex >= differentDisplays.Count)
+        {
+            Debug.LogWarning($"[PathOfPower] Cannot switch display because index {displayIndex} is outside the configured display list.");
+            return;
+        }
+
+        foreach(GameObject display in differentDisplays)
+        {
+            if (display != null)
+                display.SetActive(false);
+        }
+
+        if (differentDisplays[displayIndex] != null)
+            differentDisplays[displayIndex].SetActive(true);
+        else
+            Debug.LogWarning($"[PathOfPower] Display index {displayIndex} is configured but the GameObject reference is missing.");
+
+        UpdateRelicGrid();
+        //0 = Start, 1 = Step, 2 = Combat, 3 = Event, 4 = Path, 5 = DiscoveryDisplay...
+    }
+    public void LoadRun()
+    {
+        PathOfPowerSaveService.Load(runData =>
+        {
+            PathOfPowerRunData contextRun = GameRunContext.IsPathOfPowerRun ? GameRunContext.PathOfPowerData : null;
+            bool shouldPreferContextRun = contextRun != null &&
+                                         contextRun.pendingCombatVictoryResolution &&
+                                         (runData == null || !runData.pendingCombatVictoryResolution);
+
+            CurrentRun = shouldPreferContextRun ? contextRun : (runData ?? new PathOfPowerRunData());
+            EnsureRunLists();
+            if (CurrentRun.currentFloor <= 0 || CurrentRun.phase == PathOfPowerRunPhase.None)
+            {
+                Debug.Log("No Data found for Path Of Power run; starting a new run.");
+                SwitchDisplay(0);//New Run
+                OnRunLoaded?.Invoke(CurrentRun);
+                return;
+            }
+
+            if (CurrentRun.combatActive)
+            {
+                //Restart run because concede left combat mid run.
+                Debug.LogWarning("Detected unfinished Path Of Power combat. The run is being marked defeated to avoid progress abuse.");
+                EndRunAsDefeated();
+                SwitchDisplay(0);//StartRun
+                return;
+            }
+
+            if (CurrentRun.pendingCombatVictoryResolution)
+            {
+                CurrentRun.pendingCombatVictoryResolution = false;
+                HandleCombatVictoryFromSave();
+                GameRunContext.PathOfPowerData = CurrentRun;
+                ShowDisplayForCurrentPhase();
+                OnRunLoaded?.Invoke(CurrentRun);
+                ResumeCurrentPhaseHooks();
+                return;
+            }
+
+            // Recovery path: if the run got back to Path Of Power with a Combat phase but no active combat,
+            // resolve the combat rewards immediately instead of showing the empty combat display.
+            if (CurrentRun.phase == PathOfPowerRunPhase.Combat && !CurrentRun.combatActive)
+            {
+                Debug.LogWarning("[PathOfPower] Found inactive Combat phase while loading Path Of Power. Resolving post-combat rewards now.");
+                HandleCombatVictoryFromSave();
+                GameRunContext.PathOfPowerData = CurrentRun;
+                ShowDisplayForCurrentPhase();
+                OnRunLoaded?.Invoke(CurrentRun);
+                ResumeCurrentPhaseHooks();
+                return;
+            }
+
+            if (CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward && CurrentRun.pendingWardenRelicRewards.Count == 0)
+            {
+                Debug.Log("Warden defeated, pending relic rewards.");
+                SwitchDisplay(5);//DiscoveryDisplay
+                QueueWardenRelicRewardChoices();
+                SaveRun();
+            }
+
+            GameRunContext.PathOfPowerData = CurrentRun;
+            ShowDisplayForCurrentPhase();
+            OnRunLoaded?.Invoke(CurrentRun);
+            ResumeCurrentPhaseHooks();
+        });
+    }
+
+
+    /// <summary>
+    /// UI hook: display a relic in the existing scan panel without building a separate relic tooltip system.
+    /// </summary>
+    public void ShowRelicInScanPanel(RelicDefinition relicDefinition)
+    {
+        if (relicDefinition == null || ScanController.Instance == null || ScanController.Instance.panelInstance == null)
+            return;
+
+        ScanController.Instance.panelInstance.PopulateRelic(new Relic(relicDefinition));
+        ScanController.Instance.panelInstance.Slide(true);
+    }
+    public void AddRelic(string relicId)
+    {
+        RelicDefinition selectedRelic = ResolveRelic(relicId);
+        if (!AddRelicToCurrentRun(relicId, selectedRelic))
+            return;
+
+        ApplyInstantDeckRelicEffect(selectedRelic);
+        UpdateRelicGrid();
+        Debug.Log($"Relic added : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}");
+        SaveRun();
+    }
+    public void SelectStarterRelic(string relicId)
+    {
+        if (CurrentRun.phase != PathOfPowerRunPhase.StarterRelicChoice)
+            return;
+
+        if (!CurrentRun.pendingStarterRelicChoices.Contains(relicId))
+        {
+            Debug.LogWarning($"Rejected starter relic '{relicId}' because it was not one of the generated choices.");
+            return;
+        }
+
+        RelicDefinition selectedRelic = ResolveRelic(relicId);
+        AddRelicToCurrentRun(relicId, selectedRelic);
+        ApplyInstantDeckRelicEffect(selectedRelic);
+        UpdateRelicGrid();
+        CurrentRun.pendingStarterRelicChoices.Clear();
+
+        bool isNewRunStarterChoice = CurrentRun.currentFloor <= 1
+            && CurrentRun.currentStep <= 1
+            && (CurrentRun.currentDeck == null || CurrentRun.currentDeck.Count == 0);
+
+        if (isNewRunStarterChoice)
+        {
+            CurrentRun.currentDeck.Clear();
+            CurrentRun.pendingStarterTraitChoices = GenerateStarterTraitChoices(CurrentRun.currentFloorSeed + 2026, 5);
+            CurrentRun.phase = PathOfPowerRunPhase.StarterTraitChoice;
+            GameRunContext.PathOfPowerData = CurrentRun;
+            Debug.Log($"Relic chosen : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}\nNext step is {CurrentRun.phase}.");
+            ClearRelicDiscovery();
+            ShowTraitDiscovery(CurrentRun.pendingStarterTraitChoices, skippable: false);
+            SaveRun();
+            return;
+        }
+
+        if (CurrentRun.currentPathType == PathOfPowerPathType.Challenge && CurrentRun.currentStep == 4)
+        {
+            if (CurrentRun.pendingExtraChallengePreWardenRelics > 1)
+            {
+                CurrentRun.pendingExtraChallengePreWardenRelics--;
+                CurrentRun.pendingStarterRelicChoices = PickAnyCombatRelics(3, CurrentRun.currentFloorSeed + 404 + CurrentRun.pendingExtraChallengePreWardenRelics)
+                    .Select(candidate => candidate.RelicId)
+                    .ToList();
+                ClearRelicDiscovery();
+                ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic, skippable: true);
+                SaveRun();
+                return;
+            }
+
+            CurrentRun.pendingExtraChallengePreWardenRelics = 0;
+            CurrentRun.currentStep = 5;
+        }
+
+        CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+        GameRunContext.PathOfPowerData = CurrentRun;
+        Debug.Log($"Relic chosen : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}\nContinuing run without restarting starter deck discovery.");
+        ClearRelicDiscovery();
+        ShowDisplayForCurrentPhase();
+        SaveRun();
+    }
+
+    public void GenerateStartingCardDiscovery()
+    {
+        if (CurrentRun.currentDeck.Count >= starterDeckTargetSize)
+        {
+            CompleteStartingDeckDiscovery();
+            return;
+        }
+
+        CurrentRun.pendingCardChoices = GenerateCardChoices(CurrentRun.currentFloorSeed, 3);
+        ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
+        OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+    }
+
+    public void SelectStartingCard(int cardId)
+    {
+        bool isStarterDeckDiscovery = CurrentRun.phase == PathOfPowerRunPhase.StartingDeckDiscovery;
+        bool isDeckRelicDiscovery = CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward && isResolvingRelicChoice;
+        bool isEncounterRewardDiscovery = CurrentRun.phase == PathOfPowerRunPhase.EncounterCardReward;
+        bool isEventRewardDiscovery = CurrentRun.phase == PathOfPowerRunPhase.Event && eventRewardCardDiscoveryPending;
+        if (!isStarterDeckDiscovery && !isDeckRelicDiscovery && !isEncounterRewardDiscovery && !isEventRewardDiscovery)
+            return;
+
+        if (CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0)
+            return;
+
+        if (cardId <= 0)
+        {
+            if (isStarterDeckDiscovery || !currentCardDiscoverySkippable)
+            {
+                Debug.LogWarning("This card discovery cannot be skipped.");
+                return;
+            }
+
+            CurrentRun.pendingCardChoices.Clear();
+            if (isEventRewardDiscovery)
+                CurrentRun.pendingCardChoiceAction = string.Empty;
+            if (isDeckRelicDiscovery && CurrentRun.pendingValidationRelicId != "11" && CurrentRun.pendingValidationDiscoveriesRemaining > 0)
+                CurrentRun.pendingValidationDiscoveriesRemaining--;
+            ClearCardDiscovery();
+
+            if (isEncounterRewardDiscovery)
+                ResolveEncounterRewardDiscoveryAfterChoiceOrSkip();
+            else if (isEventRewardDiscovery)
+            {
+                if (eventRewardAddBlacksmithDaughterOnSelect)
+                {
+                    ShowBlacksmithDaughterDiscovery();
+                    SaveRun();
+                    return;
+                }
+
+                eventRewardCardDiscoveryPending = false;
+                CurrentRun.pendingCardChoiceAction = string.Empty;
+                CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = false;
+                CompleteCurrentEvent();
+            }
+
+            SaveRun();
+            return;
+        }
+
+        if (!CurrentRun.pendingCardChoices.Contains(cardId))
+        {
+            Debug.LogWarning($"Rejected starter card '{cardId}' because it was not one of the generated choices.");
+            return;
+        }
+
+        if (isStarterDeckDiscovery && CurrentRun.currentDeck.Count >= starterDeckTargetSize)
+        {
+            CompleteStartingDeckDiscovery();
+            return;
+        }
+
+        int copiesToAdd = GetPendingCardChoiceAddCopies();
+        if (copiesToAdd > 0 && !CanAddCopiesToCurrentDeck(cardId, copiesToAdd))
+        {
+            Debug.LogWarning($"Rejected Path Of Power card '{cardId}' because it would exceed the {MaxCopiesPerCardInDeck}-copy deck limit.");
+            return;
+        }
+
+        ApplyPendingCardChoice(cardId);
+        if (isStarterDeckDiscovery)
+            CurrentRun.currentDeckSize = CurrentRun.currentDeck.Count;
+        CurrentRun.pendingCardChoices.Clear();
+        if (isDeckRelicDiscovery && CurrentRun.pendingValidationRelicId != "11" && CurrentRun.pendingValidationDiscoveriesRemaining > 0)
+            CurrentRun.pendingValidationDiscoveriesRemaining--;
+        ClearCardDiscovery();
+
+        if (isStarterDeckDiscovery)
+        {
+            if (CurrentRun.currentDeck.Count >= starterDeckTargetSize)
+                CompleteStartingDeckDiscovery();
+            else
+                GenerateStartingCardDiscovery();
+        }
+        else if (isEncounterRewardDiscovery)
+        {
+            ResolveEncounterRewardDiscoveryAfterChoiceOrSkip();
+        }
+        else if (isEventRewardDiscovery)
+        {
+            if (eventRewardAddBlacksmithDaughterOnSelect)
+            {
+                ShowBlacksmithDaughterDiscovery();
+                SaveRun();
+                return;
+            }
+
+            eventRewardCardDiscoveryPending = false;
+            CurrentRun.pendingCardChoiceAction = string.Empty;
+            CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = false;
+            CompleteCurrentEvent();
+        }
+
+        SaveRun();
+    }
+
+
+    private void ApplyPendingCardChoice(int cardId)
+    {
+        string action = CurrentRun.pendingCardChoiceAction ?? string.Empty;
+
+        bool addsCards = true;
+        if (string.Equals(action, "DuplicateTwo", StringComparison.OrdinalIgnoreCase))
+        {
+            AddCardCopiesToCurrentDeck(cardId, 2);
+        }
+        else if (string.Equals(action, "RemoveOne", StringComparison.OrdinalIgnoreCase))
+        {
+            CurrentRun.currentDeck.Remove(cardId);
+            CurrentRun.currentDeckSize = Mathf.Max(5, CurrentRun.currentDeckSize - 1);
+            addsCards = false;
+        }
+        else
+        {
+            AddCardCopiesToCurrentDeck(cardId, 1);
+        }
+
+        if (addsCards && CurrentRun.currentDeck.Count > CurrentRun.currentDeckSize)
+            CurrentRun.currentDeckSize = CurrentRun.currentDeck.Count;
+    }
+
+    private int AddCardCopiesToCurrentDeck(int cardId, int requestedCopies)
+    {
+        if (CurrentRun?.currentDeck == null || requestedCopies <= 0)
+            return 0;
+
+        int ownedCopies = CurrentRun.currentDeck.Count(id => id == cardId);
+        int copiesToAdd = Mathf.Clamp(MaxCopiesPerCardInDeck - ownedCopies, 0, requestedCopies);
+        for (int i = 0; i < copiesToAdd; i++)
+            CurrentRun.currentDeck.Add(cardId);
+
+        if (copiesToAdd < requestedCopies)
+            Debug.LogWarning($"[PathOfPower] Card {cardId} is already at the {MaxCopiesPerCardInDeck}-copy deck limit; only added {copiesToAdd}/{requestedCopies} requested copies.");
+
+        return copiesToAdd;
+    }
+
+    private bool CanAddCopiesToCurrentDeck(int cardId, int copiesToAdd = 1)
+    {
+        if (CurrentRun?.currentDeck == null || cardId <= 0)
+            return false;
+
+        int ownedCopies = CurrentRun.currentDeck.Count(id => id == cardId);
+        return ownedCopies + Mathf.Max(1, copiesToAdd) <= MaxCopiesPerCardInDeck;
+    }
+
+    private int GetPendingCardChoiceAddCopies()
+    {
+        string action = CurrentRun?.pendingCardChoiceAction ?? string.Empty;
+        if (string.Equals(action, "RemoveOne", StringComparison.OrdinalIgnoreCase))
+            return 0;
+        if (string.Equals(action, "DuplicateTwo", StringComparison.OrdinalIgnoreCase))
+            return 2;
+        return 1;
+    }
+
+    private List<int> FilterChoicesByDeckCopyLimit(IEnumerable<int> cardIds, int copiesToAdd = 1)
+    {
+        if (cardIds == null)
+            return new List<int>();
+
+        if (copiesToAdd <= 0)
+            return cardIds.Where(IsValidDiscoveryCardId).Distinct().ToList();
+
+        return cardIds
+            .Where(IsValidDiscoveryCardId)
+            .Where(cardId => CanAddCopiesToCurrentDeck(cardId, copiesToAdd))
+            .Distinct()
+            .ToList();
+    }
+
+
+    private void ShowBlacksmithDaughterDiscovery()
+    {
+        eventRewardAddBlacksmithDaughterOnSelect = false;
+        CurrentRun.pendingEventAddBlacksmithDaughterOnSelect = false;
+        CurrentRun.pendingCardChoiceAction = "AddOne";
+        CurrentRun.pendingCardChoices = CanAddCopiesToCurrentDeck(419) ? new List<int> { 419 } : new List<int>();
+        if (CurrentRun.pendingCardChoices.Count == 0)
+        {
+            eventRewardCardDiscoveryPending = false;
+            CurrentRun.pendingCardChoiceAction = string.Empty;
+            CompleteCurrentEvent();
+            return;
+        }
+
+        ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
+        OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+    }
+
+    private void ResolveEncounterRewardDiscoveryAfterChoiceOrSkip()
+    {
+        if (CurrentRun.pendingWardenRewardAfterEncounterDiscovery)
+        {
+            CurrentRun.pendingWardenRewardAfterEncounterDiscovery = false;
+            QueueWardenRelicRewardChoices();
+            CurrentRun.phase = PathOfPowerRunPhase.AwaitingWardenReward;
+            ShowRelicDiscovery(CurrentRun.pendingWardenRelicRewards, RelicDefinition.RelicType.DeckRelic, skippable: true);
+            return;
+        }
+
+        AdvanceToNextStepOrFloor();
+        ShowDisplayForCurrentPhase();
+    }
+
+    private void CompleteStartingDeckDiscovery()
+    {
+        CurrentRun.pendingCardChoices.Clear();
+        ClearCardDiscovery();
+        GenerateFloor(PathOfPowerPathType.Simple);
+        CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+        SwitchDisplay(1);
+    }
+
+    public void SkipStartingCardDiscovery()
+    {
+        if (CurrentRun.phase != PathOfPowerRunPhase.StartingDeckDiscovery)
+            return;
+
+        Debug.LogWarning("Starter deck discovery cannot be skipped; choose cards until the starter deck reaches its target size.");
+    }
+
+    /// <summary>
+    /// UI hook: call before floor 2+ to expose path buttons. Floor 1 uses Simple path by default.
+    /// </summary>
+    public void RequestPathSelection()
+    {
+        if (CurrentRun.currentFloor < 2)
+        {
+            GenerateFloor(PathOfPowerPathType.Simple);
+            return;
+        }
+
+        CurrentRun.phase = PathOfPowerRunPhase.PathSelection;
+        SaveRun();
+        OnPathChoicesRequested?.Invoke(pathLibrary);
+    }
+
+    public void SelectPath(PathOfPowerPathType pathType)
+    {
+        GenerateFloor(pathType);
+        CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+        GameRunContext.PathOfPowerData = CurrentRun;
+        ShowDisplayForCurrentPhase();
+        SaveRun();
+    }
+
+    public void SelectPathByIndex(int index)
+    {
+        if (pathLibrary == null || index < 0 || index >= pathLibrary.Count || pathLibrary[index] == null)
+            return;
+
+        SelectPath(pathLibrary[index].PathType);
+    }
+
+    /// <summary>
+    /// UI hook: call this from the lobby's "Next" button.
+    /// Calculates or repairs the next step, logs the selected event/encounter, switches to the matching display,
+    /// and then sets up the event/combat state.
+    /// </summary>
+    public void NextStep()
+    {
+        Debug.Log($"[PathOfPower] NextStep requested. Floor={CurrentRun?.currentFloor}, Step={CurrentRun?.currentStep}, Phase={CurrentRun?.phase}, Path={CurrentRun?.currentPathType}.");
+
+        if (CurrentRun == null)
+        {
+            ErrorPopup.Show("[PathOfPower] NextStep aborted because CurrentRun is null.");
+            return;
+        }
+
+        EnsureRunLists();
+        int requiredDeckSize = Mathf.Max(5, CurrentRun.currentDeckSize);
+        if (CurrentRun.currentDeck == null || CurrentRun.currentDeck.Count != requiredDeckSize)
+        {
+
+            ErrorPopup.Show($"NextStep blocked: deck size is {CurrentRun?.currentDeck?.Count ?? 0} but required is {requiredDeckSize}.");
+            return;
+        }
+        EnsureFloorGenerator();
+        EnsureCurrentFloorSteps();
+
+        PathOfPowerStepData step = CurrentRun.CurrentStepData;
+        if (step == null)
+        {
+            ErrorPopup.Show($"[PathOfPower] NextStep could not find or generate step {CurrentRun.currentStep} for floor {CurrentRun.currentFloor}.");
+            return;
+        }
+
+        Debug.Log($"[PathOfPower] NextStep resolved step {step.stepIndex}: Type={step.stepType}, EventId='{step.eventId}', EncounterId='{step.encounterId}'.");
+        OnStepReady?.Invoke(step);
+
+        if (step.stepType == PathOfPowerStepType.Event)
+        {
+            Debug.Log($"[PathOfPower] Step {step.stepIndex} is an event. Switching to Event display and waiting for event logic to call CompleteCurrentEvent. EventId='{step.eventId}'.");
+            CurrentRun.activeEnemyRelics?.Clear();
+            CurrentRun.activeEnemyRelicTexts?.Clear();
+            CurrentRun.phase = PathOfPowerRunPhase.Event;
+            SwitchDisplay(3);
+            GameRunContext.PathOfPowerData = CurrentRun;
+            SaveRun();
+            StartEventDialogue(step);
+            return;
+        }
+
+        Debug.Log($"[PathOfPower] Step {step.stepIndex} is a combat encounter. Switching to Combat display before loading the Combat scene. EncounterId='{step.encounterId}'.");
+        SwitchDisplay(2);
+        EnemyEncounterDefinition encounter = ResolveEncounter(step.encounterId);
+        nextEnemyImage.sprite = encounter?.DisplaySprite;
+        enemyEliteIcon.gameObject.SetActive(encounter != null && encounter.Elite);
+        enemyWarden.gameObject.SetActive(encounter != null && encounter.Warden);
+        EnemyNameText.text = encounter != null ? encounter.DisplayName : "Unknown Encounter";
+    }
+
+    /// <summary>
+    /// Backwards-compatible hook for any existing UI buttons still wired to EnterCurrentStep.
+    /// </summary>
+    public void EnterCurrentStep()
+    {
+        NextStep();
+    }
+
+    public void CompleteCurrentEvent()
+    {
+        PathOfPowerStepData step = CurrentRun.CurrentStepData;
+        if (step == null || step.stepType != PathOfPowerStepType.Event)
+            return;
+
+        if (CombatDialogue.Instance != null)
+            CombatDialogue.Instance.CloseDialogue();
+
+        CurrentRun.triggeredEventIds ??= new List<string>();
+        if (!string.IsNullOrWhiteSpace(step.eventId) && !CurrentRun.triggeredEventIds.Contains(step.eventId))
+            CurrentRun.triggeredEventIds.Add(step.eventId);
+
+        step.completed = true;
+        AdvanceToNextStepOrFloor();
+        GameRunContext.PathOfPowerData = CurrentRun;
+        ShowDisplayForCurrentPhase();
+        SaveRun();
+    }
+
+    public void ChooseWardenRelicReward(string relicId)
+    {
+        if (isResolvingRelicChoice)
+            return;
+        if (CurrentRun.phase != PathOfPowerRunPhase.AwaitingWardenReward)
+            return;
+
+        RelicDefinition selectedRelic = ResolveRelic(relicId);
+        if (!string.IsNullOrWhiteSpace(relicId) && CurrentRun.pendingWardenRelicRewards.Contains(relicId))
+        {
+            AddRelicToCurrentRun(relicId, selectedRelic);
+            ApplyInstantDeckRelicEffect(selectedRelic);
+            UpdateRelicGrid();
+        }
+
+        CurrentRun.pendingWardenRelicRewards.Clear();
+        isResolvingRelicChoice = false;
+        if (CurrentRun.pendingExtraWardenRelicRewards > 1)
+        {
+            CurrentRun.pendingExtraWardenRelicRewards--;
+            QueueWardenRelicRewardChoices();
+            ShowRelicDiscovery(CurrentRun.pendingWardenRelicRewards, RelicDefinition.RelicType.DeckRelic, skippable: true);
+            SaveRun();
+            return;
+        }
+
+        CurrentRun.pendingExtraWardenRelicRewards = 0;
+        MoveToNextFloorAfterWardenReward();
+
+        GameRunContext.PathOfPowerData = CurrentRun;
+
+        if (!string.IsNullOrWhiteSpace(relicId))
+            Debug.Log($"Relic chosen : {relicId}, {GetRelicDisplayName(selectedRelic, relicId)}\nNext step is {CurrentRun.phase}.");
+
+        ClearRelicDiscovery();
+        ShowDisplayForCurrentPhase();
+        SaveRun();
+    }
+
+    public void SkipWardenRelicReward()
+    {
+        ChooseWardenRelicReward(string.Empty);
+    }
+
+    public void SkipDiscovery()
+    {
+        if (CurrentRun == null)
+            return;
+
+        if (CurrentRun.phase == PathOfPowerRunPhase.StartingDeckDiscovery)
+        {
+            SkipStartingCardDiscovery();
+            return;
+        }
+
+        // While relic validation discovery is showing cards (e.g. relic 10), skip must skip that card pick,
+        // not the enclosing relic reward phase.
+        if (CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
+        {
+            if (!currentCardDiscoverySkippable)
+            {
+                Debug.LogWarning("Card discovery is not skippable right now.");
+                return;
+            }
+
+            SelectStartingCard(0);
+            return;
+        }
+
+        if (resolvingGiftCombatRelicDiscovery)
+        {
+            ResolveGiftCombatRelicChoice(string.Empty);
+            return;
+        }
+
+        if (CurrentRun.phase == PathOfPowerRunPhase.StarterRelicChoice || CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward)
+        {
+            SkipRelicDiscovery();
+            return;
+        }
+    }
+
+    private void SkipRelicDiscovery()
+    {
+        if (!currentRelicDiscoverySkippable)
+        {
+            Debug.LogWarning("Relic discovery is not skippable right now.");
+            return;
+        }
+
+        if (CurrentRun.phase == PathOfPowerRunPhase.AwaitingWardenReward)
+        {
+            SkipWardenRelicReward();
+            return;
+        }
+
+        if (CurrentRun.phase == PathOfPowerRunPhase.StarterRelicChoice &&
+            CurrentRun.currentPathType == PathOfPowerPathType.Challenge &&
+            CurrentRun.currentStep == 4)
+        {
+            CurrentRun.pendingStarterRelicChoices.Clear();
+            CurrentRun.pendingExtraChallengePreWardenRelics = 0;
+            CurrentRun.currentStep = 5;
+            CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+            ClearRelicDiscovery();
+            ShowDisplayForCurrentPhase();
+            SaveRun();
+            return;
+        }
+
+        Debug.LogWarning("Starter relic discovery cannot be skipped.");
+    }
+
+    public void EndRunAsDefeated()
+    {
+        SaveBestRunIfNeeded(forceSaveCurrentProgress: true);
+        CurrentRun.phase = PathOfPowerRunPhase.Defeated;
+        CurrentRun.combatActive = false;
+        PathOfPowerSaveService.Save(CurrentRun);
+    }
+
+    private void GenerateFloor(PathOfPowerPathType pathType)
+    {
+        EnsureFloorGenerator();
+        CurrentRun.currentPathType = pathType;
+        CurrentRun.currentStep = 1;
+        CurrentRun.currentFloorSeed = CurrentRun.currentFloorSeed == 0 ? GenerateSeed() : CurrentRun.currentFloorSeed;
+        CurrentRun.currentFloorSteps = floorGenerator.GenerateFloor(CurrentRun.currentFloor, pathType, CurrentRun.currentFloorSeed, CurrentRun.triggeredEventIds, BuildEncounterExclusionMap());
+        Debug.Log($"[PathOfPower] Generated floor {CurrentRun.currentFloor} with path {pathType}, seed {CurrentRun.currentFloorSeed}, steps: {DescribeFloorSteps(CurrentRun.currentFloorSteps)}.");
+    }
+
+    private void EnsureFloorGenerator()
+    {
+        if (floorGenerator != null)
+            return;
+
+        Debug.Log("[PathOfPower] Floor generator was not initialized yet; creating it now from the configured event and encounter libraries.");
+        floorGenerator = new PathOfPowerFloorGenerator(eventLibrary, encounterLibrary);
+    }
+
+    private void EnsureRunLists()
+    {
+        CurrentRun.currentDeck ??= new List<int>();
+        CurrentRun.currentRelics ??= new List<string>();
+        CurrentRun.triggeredEventIds ??= new List<string>();
+        CurrentRun.triggeredNormalEncounterIds ??= new List<string>();
+        CurrentRun.triggeredEliteEncounterIds ??= new List<string>();
+        CurrentRun.triggeredWardenEncounterIds ??= new List<string>();
+        CurrentRun.currentFloorSteps ??= new List<PathOfPowerStepData>();
+        CurrentRun.pendingStarterRelicChoices ??= new List<string>();
+        CurrentRun.pendingWardenRelicRewards ??= new List<string>();
+        CurrentRun.pendingCardChoices ??= new List<int>();
+        CurrentRun.pendingStarterTraitChoices ??= new List<string>();
+        CurrentRun.activeEnemyRelics ??= new List<int>();
+        CurrentRun.activeEnemyRelicTexts ??= new List<string>();
+    }
+
+    private void EnsureCurrentFloorSteps()
+    {
+        if (CurrentRun.currentFloorSteps != null && CurrentRun.CurrentStepData != null)
+            return;
+
+        Debug.LogWarning($"[PathOfPower] Missing step data for floor {CurrentRun.currentFloor}, step {CurrentRun.currentStep}. Regenerating floor with path {CurrentRun.currentPathType}.");
+        int desiredStep = Mathf.Clamp(CurrentRun.currentStep, 1, 5);
+        GenerateFloor(CurrentRun.currentPathType);
+        CurrentRun.currentStep = desiredStep;
+    }
+
+    public void LaunchCombat()
+    {
+        EnemyEncounterDefinition encounter = ResolveEncounter(CurrentRun.CurrentStepData.encounterId);
+        IReadOnlyList<int> encounterRelics = GetRelicIdsForEncounter(encounter);
+        CurrentRun.activeEnemyRelics = encounterRelics.ToList();
+        CurrentRun.activeEnemyRelicTexts = encounterRelics
+            .Select(GetEnemyRelicText)
+            .Where(text => !string.IsNullOrWhiteSpace(text))
+            .ToList();
+        Debug.Log($"[PathOfPower] LaunchCombat setup. Encounter='{CurrentRun.CurrentStepData.encounterId}', Name='{(encounter != null ? encounter.DisplayName : "Missing Encounter")}', EnemyRelics=[{string.Join(", ", CurrentRun.activeEnemyRelics)}].");
+
+        DeckSelectionCache.SelectedPlayerDeck = new List<int>(CurrentRun.currentDeck);
+        DeckSelectionCache.SelectedEnemyDeck = PathOfPowerEnemyDeckBuilder.BuildEnemyDeck(CurrentRun, encounter);
+
+        CurrentRun.phase = PathOfPowerRunPhase.Combat;
+        CurrentRun.combatActive = true;
+        GameRunContext.IsDungeonRun = false;
+        GameRunContext.IsAdventureCombat = false;
+        GameRunContext.IsAdventureHardMode = false;
+        GameRunContext.AdventureFightId = 0;
+        GameRunContext.IsPathOfPowerRun = true;
+        GameRunContext.PathOfPowerData = CurrentRun;
+
+        SaveRun(() => SceneManager.LoadScene("Combat"));
+    }
+
+    public void HandleCombatVictoryFromSave()
+    {
+        PathOfPowerStepData step = CurrentRun.CurrentStepData;
+        EnemyEncounterDefinition encounter = step != null ? ResolveEncounter(step.encounterId) : null;
+        if (step != null)
+        {
+            if (CombatDialogue.Instance != null)
+                CombatDialogue.Instance.CloseDialogue();
+
+            step.completed = true;
+            TrackEncounterMet(step);
+        }
+
+        CurrentRun.combatActive = false;
+        CurrentRun.activeEnemyRelics?.Clear();
+        CurrentRun.activeEnemyRelicTexts?.Clear();
+        CurrentRun.currentStreak++;
+        bool hasEncounterDiscovery = QueueEncounterDroppableDiscovery(encounter);
+        if (hasEncounterDiscovery)
+        {
+            CurrentRun.pendingWardenRewardAfterEncounterDiscovery = step != null && step.stepType == PathOfPowerStepType.Warden;
+            CurrentRun.phase = PathOfPowerRunPhase.EncounterCardReward;
+            SaveRun();
+            return;
+        }
+
+        if (step != null && step.stepType == PathOfPowerStepType.Warden)
+        {
+            QueueWardenRelicRewardChoices();
+            CurrentRun.phase = PathOfPowerRunPhase.AwaitingWardenReward;
+            SaveRun();
+            OnWardenRelicRewardsGenerated?.Invoke(ResolveRelics(CurrentRun.pendingWardenRelicRewards));
+            return;
+        }
+
+        AdvanceToNextStepOrFloor();
+        SaveRun();
+    }
+
+    private void QueueWardenRelicRewardChoices()
+    {
+        if (CurrentRun.pendingExtraWardenRelicRewards <= 0)
+            CurrentRun.pendingExtraWardenRelicRewards = CurrentRun.maxHpFixedAt20 ? 2 : 1;
+
+        CurrentRun.pendingWardenRelicRewards = PickDeckRelics(3, CurrentRun.currentFloorSeed + CurrentRun.currentStreak + CurrentRun.pendingExtraWardenRelicRewards)
+            .Select(relic => relic.RelicId)
+            .ToList();
+    }
+
+    private void DuplicateCurrentDeck()
+    {
+        EnsureRunLists();
+        List<int> duplicatedCards = new List<int>(CurrentRun.currentDeck);
+        CurrentRun.currentDeck.AddRange(duplicatedCards);
+        CurrentRun.currentDeckSize = CurrentRun.currentDeck.Count;
+    }
+
+    private void CompleteShortcutEvent()
+    {
+        PathOfPowerStepData step = CurrentRun.CurrentStepData;
+        if (CombatDialogue.Instance != null)
+            CombatDialogue.Instance.CloseDialogue();
+
+        CurrentRun.triggeredEventIds ??= new List<string>();
+        if (step != null && !string.IsNullOrWhiteSpace(step.eventId) && !CurrentRun.triggeredEventIds.Contains(step.eventId))
+            CurrentRun.triggeredEventIds.Add(step.eventId);
+
+        if (step != null)
+            step.completed = true;
+
+        EnsureCurrentFloorSteps();
+        CurrentRun.currentStep = 5;
+        CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+        GameRunContext.PathOfPowerData = CurrentRun;
+        ShowDisplayForCurrentPhase();
+        SaveRun();
+    }
+
+    private Dictionary<PathOfPowerStepType, IReadOnlyCollection<string>> BuildEncounterExclusionMap()
+    {
+        EnsureRunLists();
+        return new Dictionary<PathOfPowerStepType, IReadOnlyCollection<string>>
+        {
+            { PathOfPowerStepType.Fight, GetEncounterBlockList(PathOfPowerStepType.Fight, CurrentRun.triggeredNormalEncounterIds) },
+            { PathOfPowerStepType.Elite, GetEncounterBlockList(PathOfPowerStepType.Elite, CurrentRun.triggeredEliteEncounterIds) },
+            { PathOfPowerStepType.Warden, GetEncounterBlockList(PathOfPowerStepType.Warden, CurrentRun.triggeredWardenEncounterIds) }
+        };
+    }
+
+    private IReadOnlyCollection<string> GetEncounterBlockList(PathOfPowerStepType stepType, List<string> metEncounterIds)
+    {
+        int categoryCount = encounterLibrary.Count(encounter => encounter != null && IsEncounterInStepCategory(encounter, stepType) && (stepType != PathOfPowerStepType.Fight || encounter.EncounterId != "0"));
+        if (categoryCount <= 0 || metEncounterIds == null || metEncounterIds.Count >= categoryCount)
+            return Array.Empty<string>();
+
+        return metEncounterIds;
+    }
+
+    private void TrackEncounterMet(PathOfPowerStepData step)
+    {
+        if (step == null || string.IsNullOrWhiteSpace(step.encounterId) || (step.stepType == PathOfPowerStepType.Fight && step.encounterId == "0"))
+            return;
+
+        List<string> categoryList = GetMetEncounterListForStep(step.stepType);
+        if (categoryList == null)
+            return;
+
+        int categoryCount = encounterLibrary.Count(encounter => encounter != null && IsEncounterInStepCategory(encounter, step.stepType) && (step.stepType != PathOfPowerStepType.Fight || encounter.EncounterId != "0"));
+        if (categoryCount > 0 && categoryList.Count >= categoryCount)
+            categoryList.Clear();
+
+        if (!categoryList.Contains(step.encounterId))
+            categoryList.Add(step.encounterId);
+    }
+
+    private List<string> GetMetEncounterListForStep(PathOfPowerStepType stepType)
+    {
+        EnsureRunLists();
+        switch (stepType)
+        {
+            case PathOfPowerStepType.Fight:
+                return CurrentRun.triggeredNormalEncounterIds;
+            case PathOfPowerStepType.Elite:
+                return CurrentRun.triggeredEliteEncounterIds;
+            case PathOfPowerStepType.Warden:
+                return CurrentRun.triggeredWardenEncounterIds;
+            default:
+                return null;
+        }
+    }
+
+    private bool IsEncounterInStepCategory(EnemyEncounterDefinition encounter, PathOfPowerStepType stepType)
+    {
+        if (encounter == null)
+            return false;
+
+        switch (stepType)
+        {
+            case PathOfPowerStepType.Fight:
+                return !encounter.Elite && !encounter.Warden;
+            case PathOfPowerStepType.Elite:
+                return encounter.Elite && !encounter.Warden;
+            case PathOfPowerStepType.Warden:
+                return encounter.Warden;
+            default:
+                return false;
+        }
+    }
+
+    private bool QueueEncounterDroppableDiscovery(EnemyEncounterDefinition encounter)
+    {
+        if (encounter?.DroppablePool == null || encounter.DroppablePool.Count == 0)
+            return false;
+
+        List<int> options = FilterChoicesByDeckCopyLimit(encounter.DroppablePool.Where(id => id > 0), 1);
+        if (options.Count == 0)
+            return false;
+
+        System.Random rng = new System.Random(CurrentRun.currentFloorSeed + CurrentRun.currentStep + CurrentRun.currentDeck.Count);
+        CurrentRun.pendingCardChoices = options.OrderBy(_ => rng.Next()).Take(Mathf.Min(3, options.Count)).ToList();
+        return CurrentRun.pendingCardChoices.Count > 0;
+    }
+
+    private void AdvanceToNextStepOrFloor()
+    {
+        if (CurrentRun.currentPathType == PathOfPowerPathType.Challenge && CurrentRun.currentStep == 4)
+        {
+            GrantChallengePreWardenCombatRelic();
+            return;
+        }
+
+        if (CurrentRun.currentStep < 5)
+        {
+            CurrentRun.currentStep++;
+            CurrentRun.phase = PathOfPowerRunPhase.Lobby;
+            return;
+        }
+
+        CurrentRun.phase = PathOfPowerRunPhase.AwaitingWardenReward;
+    }
+
+    private void GrantChallengePreWardenCombatRelic()
+    {
+        if (CurrentRun.pendingExtraChallengePreWardenRelics <= 0)
+            CurrentRun.pendingExtraChallengePreWardenRelics = CurrentRun.maxHpFixedAt20 ? 2 : 1;
+
+        CurrentRun.pendingStarterRelicChoices = PickAnyCombatRelics(3, CurrentRun.currentFloorSeed + 404 + CurrentRun.pendingExtraChallengePreWardenRelics)
+            .Select(candidate => candidate.RelicId)
+            .ToList();
+        CurrentRun.phase = PathOfPowerRunPhase.StarterRelicChoice;
+        isResolvingRelicChoice = false;
+        ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic, skippable: true);
+        OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
+    }
+
+    private void ApplyInstantDeckRelicEffect(RelicDefinition relic)
+    {
+        if (relic == null)
+            return;
+
+        if (relic.RelicId == "15" && !CurrentRun.maxHpFixedAt20)
+        {
+            CurrentRun.maxHpModifier -= 10;
+        }
+
+        if (relic.Type != RelicDefinition.RelicType.DeckRelic)
+            return;
+
+        if (relic.RelicId == "28")
+        {
+            ReduceDeckSize(5);
+            if (!CurrentRun.maxHpFixedAt20)
+                CurrentRun.maxHpModifier -= 10;
+        }
+
+        // Relics 10/27 are handled as validation-gated discoveries in ValidateRelicChoice.
+    }
+
+    private List<int> GenerateCardChoicesForTrait(int seed, int count, CardData.Trait trait)
+    {
+        if (CardDatabase.Instance == null || CardDatabase.Instance.Cards == null)
+            return new List<int>();
+
+        System.Random rng = new System.Random(seed);
+        string requiredTrait = trait.ToString();
+        return CardDatabase.Instance.Cards.Values
+            .Where(card => IsValidDiscoveryCard(card) && CanAddCopiesToCurrentDeck(card.id) && card.packable && !card.token && !card.signature && card.traits != null &&
+                           card.traits.Any(t => t.Equals(requiredTrait, StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(_ => rng.Next())
+            .Take(count)
+            .Select(card => card.id)
+            .ToList();
+    }
+
+    private List<int> GenerateNonPackableNonTokenChoicesForDeckTraits(int seed, int count)
+    {
+        if (CardDatabase.Instance == null || CardDatabase.Instance.Cards == null)
+            return new List<int>();
+
+        System.Random rng = new System.Random(seed);
+        HashSet<string> deckTraits = GetCurrentDeckTraits(includeNeutral: false);
+        List<int> choices = CardDatabase.Instance.Cards.Values
+            .Where(card => IsValidDiscoveryCard(card) && CanAddCopiesToCurrentDeck(card.id) && !card.packable && !card.token && !card.signature && card.traits != null && card.traits.Any(deckTraits.Contains))
+            .OrderBy(_ => rng.Next())
+            .Take(count)
+            .Select(card => card.id)
+            .ToList();
+
+        if (choices.Count >= count)
+            return choices;
+
+        HashSet<int> selectedIds = new HashSet<int>(choices);
+        choices.AddRange(CardDatabase.Instance.Cards.Values
+            .Where(card => IsValidDiscoveryCard(card) && CanAddCopiesToCurrentDeck(card.id) && !card.packable && !card.token && !card.signature && !selectedIds.Contains(card.id) && card.traits != null && card.traits.Any(t => t.Equals(CardData.Trait.Neutral.ToString(), StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(_ => rng.Next())
+            .Take(count - choices.Count)
+            .Select(card => card.id));
+        return choices;
+    }
+
+    private List<int> GenerateCurrentDeckCardChoices(int seed, int count)
+    {
+        if (CurrentRun?.currentDeck == null)
+            return new List<int>();
+
+        System.Random rng = new System.Random(seed);
+        return CurrentRun.currentDeck
+            .Distinct()
+            .Where(cardId => IsValidDiscoveryCardId(cardId) && CanAddCopiesToCurrentDeck(cardId, 2))
+            .OrderBy(_ => rng.Next())
+            .Take(count)
+            .ToList();
+    }
+
+    private HashSet<string> GetCurrentDeckTraits(bool includeNeutral)
+    {
+        HashSet<string> traits = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (CurrentRun?.currentDeck == null)
+            return traits;
+
+        foreach (int cardId in CurrentRun.currentDeck)
+        {
+            CardData card = CardDatabase.Instance?.GetCardById(cardId);
+            if (card?.traits == null)
+                continue;
+
+            foreach (string trait in card.traits)
+            {
+                if (string.IsNullOrWhiteSpace(trait))
+                    continue;
+                if (!includeNeutral && trait.Equals(CardData.Trait.Neutral.ToString(), StringComparison.OrdinalIgnoreCase))
+                    continue;
+                traits.Add(trait);
+            }
+        }
+
+        return traits;
+    }
+
+    private bool IsValidDiscoveryCardId(int cardId)
+    {
+        CardData card = CardDatabase.Instance != null ? CardDatabase.Instance.GetCardById(cardId) : null;
+        return IsValidDiscoveryCard(card);
+    }
+
+    private bool IsValidDiscoveryCard(CardData card)
+    {
+        return card != null && CardDatabase.Instance != null && CardDatabase.Instance.IsCardArtValid(card);
+    }
+
+    private List<int> GenerateCheaterScrollChoices(int seed, int count)
+    {
+        if (CardDatabase.Instance == null || CardDatabase.Instance.Cards == null)
+            return new List<int>();
+
+        HashSet<string> activeTraits = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (int cardId in CurrentRun.currentDeck)
+        {
+            CardData card = CardDatabase.Instance.GetCardById(cardId);
+            if (card?.traits == null)
+                continue;
+
+            foreach (string traitName in card.traits)
+            {
+                if (string.IsNullOrWhiteSpace(traitName) || !Enum.TryParse(traitName.Trim(), true, out CardData.Trait trait))
+                    continue;
+
+                if (trait != CardData.Trait.Neutral && GetTraitTierInCurrentDeck(trait) > 0)
+                    activeTraits.Add(trait.ToString());
+            }
+        }
+
+        System.Random rng = new System.Random(seed);
+        List<int> choices = CardDatabase.Instance.Cards.Values
+            .Where(card => IsValidDiscoveryCard(card) && CanAddCopiesToCurrentDeck(card.id) && !card.packable && !card.token && !card.signature && card.traits != null && card.traits.Any(t => activeTraits.Contains(t)))
+            .OrderBy(_ => rng.Next())
+            .Take(count)
+            .Select(card => card.id)
+            .ToList();
+
+        if (choices.Count >= count)
+            return choices;
+
+        HashSet<int> selectedIds = new HashSet<int>(choices);
+        List<int> neutralFallbacks = CardDatabase.Instance.Cards.Values
+            .Where(card => IsValidDiscoveryCard(card) && CanAddCopiesToCurrentDeck(card.id) && !card.packable && !card.token && !card.signature && !selectedIds.Contains(card.id) && card.traits != null && card.traits.Any(t => t.Equals(CardData.Trait.Neutral.ToString(), StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(_ => rng.Next())
+            .Take(count - choices.Count)
+            .Select(card => card.id)
+            .ToList();
+
+        choices.AddRange(neutralFallbacks);
+        return choices;
+    }
+
+    private void MoveToNextFloorAfterWardenReward()
+    {
+        CurrentRun.currentFloor++;
+        CurrentRun.currentStep = 0;
+        CurrentRun.currentFloorSeed = GenerateSeed();
+        CurrentRun.currentFloorSteps.Clear();
+        CurrentRun.activeEnemyRelics?.Clear();
+        CurrentRun.activeEnemyRelicTexts?.Clear();
+        CurrentRun.phase = CurrentRun.currentFloor >= 2 ? PathOfPowerRunPhase.PathSelection : PathOfPowerRunPhase.Lobby;
+    }
+
+    private void SaveBestRunIfNeeded(bool forceSaveCurrentProgress = false)
+    {
+        FirebaseUser user = FirebaseAuth.DefaultInstance.CurrentUser;
+        if (user == null || CurrentRun == null)
+            return;
+
+        int runFloor = CurrentRun.currentFloor;
+        int runStep = CurrentRun.currentStep;
+        List<int> runDeck = new List<int>(CurrentRun.currentDeck ?? new List<int>());
+        List<string> runRelics = new List<string>(CurrentRun.currentRelics ?? new List<string>());
+        List<string> runBestTraits = BuildBestTraitList(runDeck, CurrentRun.starterDeckTrait);
+
+        DocumentReference doc = FirebaseFirestore.DefaultInstance.Collection("users").Document(user.UserId);
+        doc.GetSnapshotAsync().ContinueWith(task =>
+        {
+            if (task.IsFaulted || task.Result == null || !task.Result.Exists)
+                return;
+
+            DocumentSnapshot snap = task.Result;
+            int bestFloor = snap.ContainsField(PathOfPowerSaveService.BestFloorField) ? snap.GetValue<int>(PathOfPowerSaveService.BestFloorField) : 0;
+            int bestStep = snap.ContainsField(PathOfPowerSaveService.BestStepField) ? snap.GetValue<int>(PathOfPowerSaveService.BestStepField) : 0;
+            bool isBetter = runFloor > bestFloor || (runFloor == bestFloor && runStep > bestStep);
+            bool isSameBestProgress = runFloor == bestFloor && runStep == bestStep;
+            if (!isBetter && !isSameBestProgress)
+                return;
+
+            Dictionary<string, object> update = new Dictionary<string, object>
+            {
+                { PathOfPowerSaveService.BestFloorField, runFloor },
+                { PathOfPowerSaveService.BestStepField, runStep },
+                { PathOfPowerSaveService.BestFloorStepField, $"{runFloor} - {runStep}" },
+                { PathOfPowerSaveService.BestDeckField, runDeck },
+                { PathOfPowerSaveService.BestRelicsField, runRelics },
+                { PathOfPowerSaveService.BestTraitsField, runBestTraits }
+            };
+            doc.UpdateAsync(update);
+        });
+    }
+
+
+    private void ShowDisplayForCurrentPhase()
+    {
+        switch (CurrentRun.phase)
+        {
+            case PathOfPowerRunPhase.StarterRelicChoice:
+            case PathOfPowerRunPhase.StarterTraitChoice:
+            case PathOfPowerRunPhase.StartingDeckDiscovery:
+            case PathOfPowerRunPhase.EncounterCardReward:
+            case PathOfPowerRunPhase.AwaitingWardenReward:
+                SwitchDisplay(5);
+                break;
+            case PathOfPowerRunPhase.PathSelection:
+                SwitchDisplay(4);
+                break;
+            case PathOfPowerRunPhase.Event:
+                if (CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
+                {
+                    SwitchDisplay(5);
+                }
+                else
+                {
+                    SwitchDisplay(3);
+                    StartEventDialogue(CurrentRun.CurrentStepData);
+                }
+                break;
+            case PathOfPowerRunPhase.Combat:
+                SwitchDisplay(2);
+                break;
+            default:
+                SwitchDisplay(1);
+                break;
+        }
+    }
+
+    private void StartEventDialogue(PathOfPowerStepData step)
+    {
+        eventDialogueResolved = false;
+        SetEventButtonsInteractable(false);
+
+        if (step == null || CombatDialogue.Instance == null)
+        {
+            SetEventButtonsInteractable(true);
+            return;
+        }
+
+        int eventId = 0;
+        int.TryParse(step.eventId, out eventId);
+        int dialogueId = (eventId >= 0 && eventId < eventDialogues.Count) ? eventDialogues[eventId] : eventId;
+
+        void OnDialogueEnded()
+        {
+            if (eventDialogueResolved)
+                return;
+
+            eventDialogueResolved = true;
+            CombatDialogue.Instance.OnDialogueEnded -= OnDialogueEnded;
+            SetEventButtonsInteractable(true);
+        }
+
+        CombatDialogue.Instance.OnDialogueEnded -= OnDialogueEnded;
+        CombatDialogue.Instance.OnDialogueEnded += OnDialogueEnded;
+        CombatDialogue.Instance.TriggerCutscene(dialogueId, false, true);
+    }
+
+    private void SetEventButtonsInteractable(bool value)
+    {
+        if (EventAcceptBtn != null)
+            EventAcceptBtn.interactable = value;
+
+        if (EventSkipButton != null)
+            EventSkipButton.interactable = value;
+    }
+
+    private void ResumeCurrentPhaseHooks()
+    {
+        switch (CurrentRun.phase)
+        {
+            case PathOfPowerRunPhase.StarterRelicChoice:
+                ShowRelicDiscovery(CurrentRun.pendingStarterRelicChoices, RelicDefinition.RelicType.CombatRelic, skippable: false);
+                OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(CurrentRun.pendingStarterRelicChoices));
+                break;
+            case PathOfPowerRunPhase.StartingDeckDiscovery:
+                if (CurrentRun.currentDeck.Count >= starterDeckTargetSize)
+                {
+                    CompleteStartingDeckDiscovery();
+                    SaveRun();
+                    break;
+                }
+
+                if (CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0)
+                {
+                    GenerateStartingCardDiscovery();
+                    SaveRun();
+                    break;
+                }
+
+                ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
+                OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                break;
+            case PathOfPowerRunPhase.StarterTraitChoice:
+                if (CurrentRun.pendingStarterTraitChoices == null || CurrentRun.pendingStarterTraitChoices.Count == 0)
+                    CurrentRun.pendingStarterTraitChoices = GenerateStarterTraitChoices(CurrentRun.currentFloorSeed + 2026, 5);
+                ShowTraitDiscovery(CurrentRun.pendingStarterTraitChoices, skippable: false);
+                break;
+            case PathOfPowerRunPhase.PathSelection:
+                OnPathChoicesRequested?.Invoke(pathLibrary);
+                break;
+            case PathOfPowerRunPhase.AwaitingWardenReward:
+                if (!string.IsNullOrWhiteSpace(CurrentRun.pendingValidationRelicId) && CurrentRun.pendingValidationDiscoveriesRemaining > 0 && CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
+                {
+                    isResolvingRelicChoice = true;
+                    ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
+                    OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                    StartCoroutine(ResumeDeckRelicChoiceThenContinue(CurrentRun.pendingValidationRelicId));
+                    break;
+                }
+
+                ShowRelicDiscovery(CurrentRun.pendingWardenRelicRewards, RelicDefinition.RelicType.DeckRelic, skippable: true);
+                OnWardenRelicRewardsGenerated?.Invoke(ResolveRelics(CurrentRun.pendingWardenRelicRewards));
+                break;
+            case PathOfPowerRunPhase.EncounterCardReward:
+                if (CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
+                {
+                    ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
+                    OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                }
+                break;
+            case PathOfPowerRunPhase.Event:
+                if (CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
+                {
+                    eventRewardCardDiscoveryPending = true;
+                    eventRewardAddBlacksmithDaughterOnSelect = CurrentRun.pendingEventAddBlacksmithDaughterOnSelect;
+                    ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
+                    OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                }
+                break;
+        }
+    }
+
+    private List<string> GenerateStarterTraitChoices(int seed, int count)
+    {
+        System.Random rng = new System.Random(seed);
+        return Enum.GetValues(typeof(CardData.Trait))
+            .Cast<CardData.Trait>()
+            .Where(trait => trait != CardData.Trait.None && !trait.ToString().Equals("Random", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(_ => rng.Next())
+            .Take(Mathf.Max(1, count))
+            .Select(trait => trait.ToString())
+            .ToList();
+    }
+
+    private void ShowTraitDiscovery(IReadOnlyList<string> traitNames, bool skippable, string prompt = null, Action<CardData.Trait> onTraitSelected = null)
+    {
+        if (DiscoverDisplay == null || traitPrefab == null || traitNames == null || traitNames.Count == 0)
+            return;
+
+        traitSelectionCallback = onTraitSelected;
+        DiscoveryText.text = string.IsNullOrWhiteSpace(prompt) ? "Select your starting trait.\n(hold 'space bar' to enter scan mode)" : prompt;
+        skipDiscoveryBtn.SetActive(skippable);
+        ClearCardDiscovery();
+        ClearRelicDiscovery();
+        ClearTraitDiscovery();
+        DiscoverDisplay.SetActive(true);
+
+        Transform parent = reliPrefabParentDiscovery != null ? reliPrefabParentDiscovery.transform : DiscoverDisplay.transform;
+        for (int i = 0; i < traitNames.Count && i < TraitDiscoveryPositions.Length; i++)
+        {
+            if (!Enum.TryParse(traitNames[i], true, out CardData.Trait trait))
+                continue;
+
+            GameObject traitObject = Instantiate(traitPrefab, parent);
+            spawnedTraitDiscoveryObjects.Add(traitObject);
+            traitObject.name = $"Trait Discovery - {trait}";
+
+            RectTransform rectTransform = traitObject.GetComponent<RectTransform>();
+            if (rectTransform != null)
+                rectTransform.anchoredPosition3D = TraitDiscoveryPositions[i];
+            else
+                traitObject.transform.localPosition = TraitDiscoveryPositions[i];
+
+            Transform buttonChild = traitObject.transform.childCount > 1 ? traitObject.transform.GetChild(1) : null;
+            if (buttonChild != null)
+            {
+                Image colorImage = buttonChild.GetComponent<Image>();
+                if (colorImage != null)
+                    colorImage.color = TraitColorDatabase.Get(trait);
+
+                Button button = buttonChild.GetComponent<Button>();
+                if (button != null)
+                {
+                    button.onClick.RemoveAllListeners();
+                    CardData.Trait selectedTrait = trait;
+                    button.onClick.AddListener(() => SelectStarterTrait(selectedTrait));
+                }
+            }
+
+            Transform iconChild = traitObject.transform.childCount > 2 ? traitObject.transform.GetChild(2) : null;
+            if (iconChild != null)
+            {
+                TraitsDisplay traitsDisplay = traitreference.GetComponent<TraitsDisplay>();
+                Image iconImage = iconChild.GetComponent<Image>();
+                if (traitsDisplay != null && iconImage != null)
+                    iconImage.sprite = traitsDisplay.GetSpriteForTrait(trait);
+            }
+        }
+    }
+
+    private void ClearTraitDiscovery()
+    {
+        foreach (GameObject traitObject in spawnedTraitDiscoveryObjects)
+        {
+            if (traitObject != null)
+                Destroy(traitObject);
+        }
+        spawnedTraitDiscoveryObjects.Clear();
+    }
+
+    public void SelectStarterTrait(CardData.Trait selectedTrait)
+    {
+        if (traitSelectionCallback != null)
+        {
+            Action<CardData.Trait> callback = traitSelectionCallback;
+            traitSelectionCallback = null;
+            ClearTraitDiscovery();
+            callback.Invoke(selectedTrait);
+            SaveRun();
+            return;
+        }
+
+        if (CurrentRun.phase != PathOfPowerRunPhase.StarterTraitChoice)
+            return;
+
+        if (CurrentRun.pendingStarterTraitChoices == null || !CurrentRun.pendingStarterTraitChoices.Contains(selectedTrait.ToString()))
+            return;
+
+        CurrentRun.starterDeckTrait = selectedTrait;
+        starterDeckTrait = selectedTrait;
+        CurrentRun.pendingStarterTraitChoices.Clear();
+        ClearTraitDiscovery();
+        CurrentRun.phase = PathOfPowerRunPhase.StartingDeckDiscovery;
+        GenerateStartingCardDiscovery();
+        SaveRun();
+    }
+
+    private List<int> GenerateCardChoices(int seed, int count)
+    {
+        if (CardDatabase.Instance == null || CardDatabase.Instance.Cards == null || CardDatabase.Instance.Cards.Count == 0)
+        {
+            Debug.LogWarning("Cannot generate Path Of Power starter card choices because the card database is not ready.");
+            return new List<int>();
+        }
+
+        Dictionary<int, int> deckCounts = CurrentRun.currentDeck
+            .GroupBy(cardId => cardId)
+            .ToDictionary(group => group.Key, group => group.Count());
+        string requiredTrait = CurrentRun.starterDeckTrait.ToString();
+        System.Random rng = new System.Random(seed + CurrentRun.currentDeck.Count + 17);
+
+        return CardDatabase.Instance.Cards.Values
+            .Where(card => IsEligibleStarterDeckCard(card, requiredTrait, deckCounts))
+            .OrderBy(_ => rng.Next())
+            .Take(count)
+            .Select(card => card.id)
+            .ToList();
+    }
+
+    private bool IsEligibleStarterDeckCard(CardData card, string requiredTrait, IReadOnlyDictionary<int, int> deckCounts)
+    {
+        if (!IsValidDiscoveryCard(card) || !card.packable || card.token || card.signature)
+            return false;
+
+        if (deckCounts != null && deckCounts.TryGetValue(card.id, out int ownedCopies) && ownedCopies >= MaxCopiesPerCardInDeck)
+            return false;
+
+        return card.traits != null && card.traits.Any(trait => trait.Equals(requiredTrait, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private List<RelicDefinition> PickRelics(int count, Func<RelicDefinition, bool> predicate, int seed)
+    {
+        System.Random rng = new System.Random(seed == 0 ? GenerateSeed() : seed);
+        HashSet<string> ownedRelics = new HashSet<string>(CurrentRun?.currentRelics ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+        return relicLibrary
+            .Where(relic => relic != null
+                            && (relic.Type == RelicDefinition.RelicType.DeckRelic || !ownedRelics.Contains(relic.RelicId))
+                            && IsRelicDiscoverableForCurrentRun(relic)
+                            && predicate(relic))
+            .OrderBy(_ => rng.Next())
+            .Take(count)
+            .ToList();
+    }
+
+    private List<RelicDefinition> PickCombatRelics(int count, int seed)
+    {
+        return PickRelics(count, relic => relic.Type == RelicDefinition.RelicType.CombatRelic && relic.CanAppearAsStarter, seed);
+    }
+
+    private List<RelicDefinition> PickAnyCombatRelics(int count, int seed)
+    {
+        return PickRelics(count, relic => relic.Type == RelicDefinition.RelicType.CombatRelic, seed);
+    }
+
+    private List<RelicDefinition> PickChallengeRelics(int count, int seed)
+    {
+        return PickAnyCombatRelics(count, seed);
+    }
+
+    private List<RelicDefinition> PickDeckRelics(int count, int seed)
+    {
+        return PickRelics(count, relic => relic.Type == RelicDefinition.RelicType.DeckRelic, seed);
+    }
+
+    private bool IsRelicDiscoverableForCurrentRun(RelicDefinition relic)
+    {
+        if (relic == null || !relic.Discoverable)
+            return false;
+
+        if (relic.RelicId == SecondChanceRelicId && CurrentRun != null && CurrentRun.secondChanceConsumed)
+            return false;
+
+        if (relic.AssignedTrait == CardData.Trait.None)
+            return true;
+
+        if (CurrentRun == null || CurrentRun.currentDeck == null || CurrentRun.currentDeck.Count == 0)
+            return false;
+
+        return GetTraitTierInCurrentDeck(relic.AssignedTrait) > 0;
+    }
+
+    private int GetTraitTierInCurrentDeck(CardData.Trait trait)
+    {
+        return GetTraitTierInDeck(trait, CurrentRun?.currentDeck);
+    }
+
+    private int GetTraitTierInDeck(CardData.Trait trait, IEnumerable<int> deck)
+    {
+        if (CardDatabase.Instance == null || CardDatabase.Instance.Cards == null || deck == null)
+            return 0;
+
+        float traitCount = 0f;
+        foreach (int cardId in deck)
+        {
+            if (!CardDatabase.Instance.Cards.TryGetValue(cardId, out CardData card) || card?.traits == null || card.traits.Count == 0)
+                continue;
+
+            List<CardData.Trait> parsedTraits = card.traits
+                .Where(name => !string.IsNullOrWhiteSpace(name) && Enum.TryParse(name, true, out CardData.Trait _))
+                .Select(name => (CardData.Trait)Enum.Parse(typeof(CardData.Trait), name, true))
+                .ToList();
+
+            if (parsedTraits.Count == 0 || !parsedTraits.Contains(trait))
+                continue;
+
+            traitCount += 1f / parsedTraits.Count;
+        }
+
+        int[] thresholds = GetTraitTierThresholds(trait);
+        int tier = 0;
+        for (int i = 0; i < thresholds.Length; i++)
+        {
+            if (traitCount >= thresholds[i])
+                tier = i + 1;
+        }
+
+        return tier;
+    }
+
+    private List<string> BuildBestTraitList(List<int> deck, CardData.Trait starterTrait)
+    {
+        Dictionary<CardData.Trait, int> activeTraits = Enum.GetValues(typeof(CardData.Trait))
+            .Cast<CardData.Trait>()
+            .Where(trait => trait != CardData.Trait.None && trait != CardData.Trait.Neutral)
+            .Select(trait => new { trait, tier = GetTraitTierInDeck(trait, deck) })
+            .Where(entry => entry.tier > 0)
+            .ToDictionary(entry => entry.trait, entry => entry.tier);
+
+        List<string> orderedTraits = new List<string>();
+        if (starterTrait != CardData.Trait.None && starterTrait != CardData.Trait.Neutral && activeTraits.ContainsKey(starterTrait))
+            orderedTraits.Add(starterTrait.ToString());
+
+        orderedTraits.AddRange(activeTraits
+            .Where(entry => entry.Key != starterTrait)
+            .OrderByDescending(entry => entry.Value)
+            .ThenBy(entry => entry.Key.ToString())
+            .Select(entry => entry.Key.ToString()));
+
+        return orderedTraits;
+    }
+
+    private int[] GetTraitTierThresholds(CardData.Trait trait)
+    {
+        switch (trait)
+        {
+            case CardData.Trait.Fighter:
+            case CardData.Trait.Avatar:
+            case CardData.Trait.MonsterHunter:
+                return new[] { 4, 8, 15 };
+            default:
+                return new[] { 4, 8, 12 };
+        }
+    }
+
+    private IReadOnlyList<RelicDefinition> ResolveRelics(IEnumerable<string> relicIds)
+    {
+        HashSet<string> ids = new HashSet<string>(relicIds ?? Enumerable.Empty<string>());
+        return relicLibrary.Where(relic => relic != null && ids.Contains(relic.RelicId)).ToList();
+    }
+
+    private RelicDefinition ResolveRelic(string relicId)
+    {
+        return relicLibrary.FirstOrDefault(relic => relic != null && relic.RelicId == relicId);
+    }
+
+    private string GetRelicDisplayName(RelicDefinition relic, string fallbackId)
+    {
+        if (relic != null)
+            return relic.DisplayName;
+
+        return string.IsNullOrWhiteSpace(fallbackId) ? "Unknown Relic" : fallbackId;
+    }
+
+    private string GetEnemyRelicText(int relicId)
+    {
+        RelicDefinition relic = ResolveRelic(relicId.ToString());
+        if (relic == null)
+            return $"Unknown enemy relic ({relicId})";
+
+        if (!string.IsNullOrWhiteSpace(relic.EnemyRelicText))
+            return relic.EnemyRelicText;
+
+        return !string.IsNullOrWhiteSpace(relic.DisplayName)
+            ? relic.DisplayName
+            : $"Relic {relicId}";
+    }
+
+    private EnemyEncounterDefinition ResolveEncounter(string encounterId)
+    {
+        return encounterLibrary.FirstOrDefault(encounter => encounter != null && encounter.EncounterId == encounterId);
+    }
+
+    /// <summary>
+    /// Resolves the combat relic loadout for an encounter. Wardens keep their authored loadout; normal and elite
+    /// encounters are scaled to the current floor, preferring authored ids before filling from neutral discoverable relics.
+    /// </summary>
+    public IReadOnlyList<int> GetRelicIdsForEncounter(EnemyEncounterDefinition encounter)
+    {
+        if (encounter == null)
+        {
+            Debug.LogWarning("[PathOfPower] GetRelicIdsForEncounter called with a missing encounter; returning no enemy relics.");
+            return Array.Empty<int>();
+        }
+
+        List<int> authoredRelicIds = (encounter.RelicIds ?? Array.Empty<int>())
+            .Where(IsCombatRelicId)
+            .Distinct()
+            .ToList();
+        if (encounter.Warden)
+            return authoredRelicIds;
+
+        int floor = Mathf.Max(1, CurrentRun?.currentFloor ?? 1);
+        int requiredCount = encounter.Elite ? floor + 1 : floor - 1;
+        System.Random rng = new System.Random(GetEncounterRelicSeed(encounter));
+        List<int> selectedRelicIds = authoredRelicIds.OrderBy(_ => rng.Next()).Take(requiredCount).ToList();
+
+        if (selectedRelicIds.Count < requiredCount)
+        {
+            IEnumerable<int> neutralDiscoverableCombatRelics = relicLibrary
+                .Where(relic => relic != null
+                    && relic.Type == RelicDefinition.RelicType.CombatRelic
+                    && relic.Discoverable
+                    && relic.AssignedTrait == CardData.Trait.None
+                    && int.TryParse(relic.RelicId, out _))
+                .Select(relic => int.Parse(relic.RelicId))
+                .Where(relicId => !selectedRelicIds.Contains(relicId))
+                .OrderBy(_ => rng.Next());
+
+            selectedRelicIds.AddRange(neutralDiscoverableCombatRelics.Take(requiredCount - selectedRelicIds.Count));
+        }
+
+        if (selectedRelicIds.Count < requiredCount)
+            Debug.LogWarning($"[PathOfPower] Encounter '{encounter.EncounterId}' requested {requiredCount} combat relics, but only {selectedRelicIds.Count} valid relics were available.");
+
+        Debug.Log($"[PathOfPower] Encounter '{encounter.EncounterId}' uses {selectedRelicIds.Count}/{requiredCount} combat relics on floor {floor}: [{string.Join(", ", selectedRelicIds)}].");
+        return selectedRelicIds;
+    }
+
+    private bool IsCombatRelicId(int relicId)
+    {
+        RelicDefinition relic = ResolveRelic(relicId.ToString());
+        return relic != null && relic.Type == RelicDefinition.RelicType.CombatRelic;
+    }
+
+    private int GetEncounterRelicSeed(EnemyEncounterDefinition encounter)
+    {
+        unchecked
+        {
+            int hash = CurrentRun?.currentFloorSeed ?? 0;
+            hash = (hash * 397) ^ (CurrentRun?.currentFloor ?? 1);
+            hash = (hash * 397) ^ (CurrentRun?.currentStep ?? 1);
+            foreach (char character in encounter.EncounterId)
+                hash = (hash * 31) + character;
+            return hash;
+        }
+    }
+
+    private string DescribeFloorSteps(IEnumerable<PathOfPowerStepData> steps)
+    {
+        if (steps == null)
+            return "no steps";
+
+        return string.Join(" | ", steps.Select(step => step == null
+            ? "null"
+            : $"#{step.stepIndex}:{step.stepType}:event={step.eventId}:encounter={step.encounterId}"));
+    }
+
+    private void ShowRelicDiscovery(IReadOnlyList<string> relicIds, RelicDefinition.RelicType discoveryType = RelicDefinition.RelicType.CombatRelic, bool skippable = true, Action<string> onRelicSelected = null)
+    {
+        if (DiscoverDisplay == null || relicPrefab == null || relicIds == null || relicIds.Count == 0)
+            return;
+        currentRelicDiscoverySkippable = skippable;
+
+        DiscoveryText.text = discoveryType == RelicDefinition.RelicType.DeckRelic
+            ? "Select a deck relic.\n(hold 'space bar' for scan mode)"
+            : "Select a combat relic.\n(hold 'space bar' to enter scan mode)";
+
+        if (currentRelicDiscoverySkippable)
+            skipDiscoveryBtn.SetActive(true);
+        else skipDiscoveryBtn.SetActive(false);
+
+        Transform parent = reliPrefabParentDiscovery != null ? reliPrefabParentDiscovery.transform : DiscoverDisplay.transform;
+        ClearRelicDiscovery();
+
+        DiscoverDisplay.SetActive(true);
+        Vector3[] positions =
+        {
+            new Vector3(400f, 540f, 0f),
+            new Vector3(960f, 540f, 0f),
+            new Vector3(1520f, 540f, 0f)
+        };
+
+        for (int i = 0; i < relicIds.Count && i < positions.Length; i++)
+        {
+            RelicDefinition relic = ResolveRelic(relicIds[i]);
+            if (relic == null)
+                continue;
+
+            GameObject relicObject = Instantiate(relicPrefab, parent);
+            relicObject.transform.localScale = new Vector3(5, 5, 1);
+            spawnedRelicDiscoveryObjects.Add(relicObject);
+            relicObject.name = $"Relic Discovery - {relic.DisplayName}";
+            PositionRelicForDiscovery(relicObject, positions[i]);
+            PopulateRelicPrefab(relicObject, relic);
+            ConfigureRelicScan(relicObject, relic);
+
+            Button button = relicObject.GetComponentInChildren<Button>(true);
+            if (button == null)
+            {
+                Debug.LogWarning($"Relic discovery prefab for '{relic.RelicId}' does not contain a Button component.");
+                continue;
+            }
+
+            button.onClick.RemoveAllListeners();
+            string selectedRelicId = relic.RelicId;
+            button.onClick.AddListener(() =>
+            {
+                if (onRelicSelected != null)
+                    onRelicSelected(selectedRelicId);
+                else
+                    ValidateRelicChoice(selectedRelicId);
+            });
+        }
+    }
+
+    private bool IsProtectedDiscoveryUiObject(GameObject candidate)
+    {
+        if (candidate == null)
+            return true;
+
+        if (skipDiscoveryBtn != null && candidate == skipDiscoveryBtn)
+            return true;
+
+        if (DiscoveryText != null && candidate == DiscoveryText.gameObject)
+            return true;
+
+        return false;
+    }
+
+    private bool ShouldDestroyCardDiscoveryChild(Transform child)
+    {
+        if (child == null)
+            return false;
+
+        GameObject childObject = child.gameObject;
+        if (IsProtectedDiscoveryUiObject(childObject))
+            return false;
+
+        return child.GetComponent<CardInstance>() != null;
+    }
+
+    private bool ShouldDestroyRelicDiscoveryChild(Transform child)
+    {
+        if (child == null)
+            return false;
+
+        GameObject childObject = child.gameObject;
+        if (IsProtectedDiscoveryUiObject(childObject))
+            return false;
+
+        return true;
+    }
+
+    private void ClearRelicDiscovery()
+    {
+        if (reliPrefabParentDiscovery != null)
+        {
+            Transform parent = reliPrefabParentDiscovery.transform;
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                Transform child = parent.GetChild(i);
+                if (ShouldDestroyRelicDiscoveryChild(child))
+                    Destroy(child.gameObject);
+            }
+        }
+        else
+        {
+            foreach (GameObject relicObject in spawnedRelicDiscoveryObjects)
+            {
+                if (relicObject != null)
+                    Destroy(relicObject);
+            }
+        }
+
+        spawnedRelicDiscoveryObjects.Clear();
+    }
+
+    private void PositionRelicForDiscovery(GameObject relicObject, Vector3 position)
+    {
+        RectTransform rectTransform = relicObject.GetComponent<RectTransform>();
+        if (rectTransform != null)
+        {
+            rectTransform.anchoredPosition3D = position;
+            rectTransform.localRotation = Quaternion.identity;
+            rectTransform.localScale = new Vector3(5, 5, 1);
+            return;
+        }
+
+        relicObject.transform.localPosition = position;
+        relicObject.transform.localRotation = Quaternion.identity;
+        relicObject.transform.localScale = new Vector3(5,5,1);
+    }
+
+    private void PopulateRelicPrefab(GameObject relicObject, RelicDefinition relic)
+    {
+        Image relicImage = relicObject.GetComponentInChildren<Image>(true);
+        if (relicImage != null && relic.Icon != null)
+            relicImage.sprite = relic.Icon;
+    }
+
+    private void ValidateRelicChoice(string relicId)
+    {
+        if (isResolvingRelicChoice)
+            return;
+
+        if (string.IsNullOrWhiteSpace(relicId))
+            return;
+
+        switch (CurrentRun.phase)
+        {
+            case PathOfPowerRunPhase.StarterRelicChoice:
+                RelicDefinition starterRelic = ResolveRelic(relicId);
+                if (starterRelic != null && starterRelic.Type == RelicDefinition.RelicType.DeckRelic && CurrentRun.currentPathType == PathOfPowerPathType.Challenge)
+                    StartCoroutine(ResolveChallengeRelicChoiceThenContinue(relicId));
+                else
+                    SelectStarterRelic(relicId);
+                break;
+            case PathOfPowerRunPhase.AwaitingWardenReward:
+                if (relicId == "9" || relicId == "10")
+                {
+                    CurrentRun.pendingValidationRelicId = relicId;
+                    CurrentRun.pendingValidationDiscoveriesRemaining = DeckRelicCardDiscoveryCount;
+                }
+
+                StartCoroutine(ResolveDeckRelicChoiceThenContinue(relicId));
+                break;
+            default:
+                Debug.LogWarning($"Cannot choose relic '{relicId}' while Path Of Power is in phase {CurrentRun.phase}.");
+                break;
+        }
+    }
+
+
+    private IEnumerator ResolveChallengeRelicChoiceThenContinue(string relicId)
+    {
+        isResolvingRelicChoice = true;
+        yield return ResolveDeckRelicEffect(relicId);
+        isResolvingRelicChoice = false;
+        SelectStarterRelic(relicId);
+    }
+
+    private IEnumerator ResolveDeckRelicEffect(string relicId)
+    {
+        RelicDefinition relic = ResolveRelic(relicId);
+        if (relic == null)
+            yield break;
+
+        if (relic.RelicId == "9")
+        {
+            ClearRelicDiscovery();
+            CurrentRun.pendingValidationRelicId = relicId;
+            CurrentRun.pendingValidationDiscoveriesRemaining = Mathf.Max(1, CurrentRun.pendingValidationDiscoveriesRemaining);
+            while (CurrentRun.pendingValidationDiscoveriesRemaining > 0)
+            {
+                int iteration = DeckRelicCardDiscoveryCount - CurrentRun.pendingValidationDiscoveriesRemaining;
+                List<int> rewards = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1010 + CurrentRun.currentDeck.Count + iteration, 3, CurrentRun.starterDeckTrait);
+                CurrentRun.pendingCardChoices = FilterChoicesByDeckCopyLimit(rewards, 1);
+                if (CurrentRun.pendingCardChoices.Count == 0)
+                {
+                    CurrentRun.pendingValidationDiscoveriesRemaining--;
+                    SaveRun();
+                    continue;
+                }
+                ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
+                OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                SaveRun();
+                yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+                SaveRun();
+            }
+
+            CurrentRun.pendingValidationRelicId = string.Empty;
+            CurrentRun.pendingValidationDiscoveriesRemaining = 0;
+        }
+        else if (relic.RelicId == "10")
+        {
+            ClearRelicDiscovery();
+            CurrentRun.pendingValidationRelicId = relicId;
+            CurrentRun.pendingValidationDiscoveriesRemaining = Mathf.Max(1, CurrentRun.pendingValidationDiscoveriesRemaining);
+            while (CurrentRun.pendingValidationDiscoveriesRemaining > 0)
+            {
+                int iteration = DeckRelicCardDiscoveryCount - CurrentRun.pendingValidationDiscoveriesRemaining;
+                List<int> rewards = GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1010 + CurrentRun.currentDeck.Count + iteration, 3, CardData.Trait.Neutral);
+                CurrentRun.pendingCardChoices = FilterChoicesByDeckCopyLimit(rewards, 1);
+                if (CurrentRun.pendingCardChoices.Count == 0)
+                {
+                    CurrentRun.pendingValidationDiscoveriesRemaining--;
+                    SaveRun();
+                    continue;
+                }
+                ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
+                OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+                SaveRun();
+                yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+                SaveRun();
+            }
+
+            CurrentRun.pendingValidationRelicId = string.Empty;
+            CurrentRun.pendingValidationDiscoveriesRemaining = 0;
+        }
+        else if (relic.RelicId == "11")
+        {
+            bool traitSelected = false;
+            CurrentRun.pendingValidationRelicId = relicId;
+            CurrentRun.pendingValidationDiscoveriesRemaining = DeckRelicCardDiscoveryCount;
+            List<string> traitChoices = GenerateStarterTraitChoices(CurrentRun.currentFloorSeed + 1111, 8)
+                .Where(t => !t.Equals(CurrentRun.starterDeckTrait.ToString(), StringComparison.OrdinalIgnoreCase))
+                .Take(5)
+                .ToList();
+            ShowTraitDiscovery(traitChoices, skippable: true, prompt: "Book of Polyvalence: discover a trait.", onTraitSelected: selectedTrait =>
+            {
+                CurrentRun.pendingValidationRelicId = relicId;
+                CurrentRun.pendingValidationDiscoveriesRemaining = DeckRelicCardDiscoveryCount;
+                StartCoroutine(RunPolyvalenceDiscoveries(selectedTrait));
+                traitSelected = true;
+            });
+            SaveRun();
+            yield return new WaitUntil(() => traitSelected);
+            yield return new WaitUntil(() => CurrentRun.pendingValidationDiscoveriesRemaining <= 0);
+            CurrentRun.pendingValidationRelicId = string.Empty;
+            CurrentRun.pendingValidationDiscoveriesRemaining = 0;
+        }
+        else if (relic.RelicId == "27")
+        {
+            yield return ResolveMagicMirrorDiscovery(relicId);
+        }
+        else if (relic.RelicId == "12")
+        {
+            yield return ResolveCheaterScrollDiscovery();
+        }
+        else if (relic.RelicId == "20")
+        {
+            yield return ResolveGiftCombatRelicDiscovery();
+        }
+    }
+
+    private IEnumerator ResolveMagicMirrorDiscovery(string relicId)
+    {
+        ClearRelicDiscovery();
+        CurrentRun.pendingValidationRelicId = relicId;
+        CurrentRun.pendingValidationDiscoveriesRemaining = 1;
+        CurrentRun.pendingCardChoiceAction = "DuplicateTwo";
+        CurrentRun.pendingCardChoices = GenerateCurrentDeckCardChoices(CurrentRun.currentFloorSeed + 2727 + CurrentRun.currentDeck.Count, 3);
+        if (CurrentRun.pendingCardChoices.Count > 0)
+        {
+            ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
+            OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+            SaveRun();
+            yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+        }
+
+        CurrentRun.pendingValidationRelicId = string.Empty;
+        CurrentRun.pendingValidationDiscoveriesRemaining = 0;
+        CurrentRun.pendingCardChoiceAction = string.Empty;
+    }
+
+    private IEnumerator ResolveCheaterScrollDiscovery()
+    {
+        ClearRelicDiscovery();
+        CurrentRun.pendingCardChoices = GenerateCheaterScrollChoices(CurrentRun.currentFloorSeed + 1212, 3);
+        if (CurrentRun.pendingCardChoices.Count > 0)
+        {
+            ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: false);
+            OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+            yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+        }
+    }
+
+    private IEnumerator ResolveGiftCombatRelicDiscovery()
+    {
+        ClearRelicDiscovery();
+        resolvingGiftCombatRelicDiscovery = true;
+        pendingGiftCombatRelicRewards = PickAnyCombatRelics(3, CurrentRun.currentFloorSeed + 2020 + CurrentRun.currentRelics.Count)
+            .Select(candidate => candidate.RelicId)
+            .ToList();
+
+        if (pendingGiftCombatRelicRewards.Count > 0)
+        {
+            ShowRelicDiscovery(pendingGiftCombatRelicRewards, RelicDefinition.RelicType.CombatRelic, skippable: true, ResolveGiftCombatRelicChoice);
+            OnStarterRelicChoicesGenerated?.Invoke(ResolveRelics(pendingGiftCombatRelicRewards));
+            SaveRun();
+            yield return new WaitUntil(() => !resolvingGiftCombatRelicDiscovery);
+        }
+        else
+        {
+            resolvingGiftCombatRelicDiscovery = false;
+        }
+
+        pendingGiftCombatRelicRewards.Clear();
+    }
+
+    private void ResolveGiftCombatRelicChoice(string relicId)
+    {
+        if (!resolvingGiftCombatRelicDiscovery)
+            return;
+
+        if (!string.IsNullOrWhiteSpace(relicId) && pendingGiftCombatRelicRewards.Contains(relicId))
+            AddRelicToCurrentRun(relicId, ResolveRelic(relicId));
+
+        resolvingGiftCombatRelicDiscovery = false;
+        pendingGiftCombatRelicRewards.Clear();
+        ClearRelicDiscovery();
+        UpdateRelicGrid();
+        SaveRun();
+    }
+
+    private bool AddRelicToCurrentRun(string relicId, RelicDefinition relic)
+    {
+        if (string.IsNullOrWhiteSpace(relicId) || CurrentRun?.currentRelics == null)
+            return false;
+
+        bool allowDuplicate = relic != null && relic.Type == RelicDefinition.RelicType.DeckRelic;
+        if (!allowDuplicate && CurrentRun.currentRelics.Contains(relicId))
+            return false;
+
+        CurrentRun.currentRelics.Add(relicId);
+        return true;
+    }
+
+    private IEnumerator ResumeDeckRelicChoiceThenContinue(string relicId)
+    {
+        if (string.IsNullOrWhiteSpace(relicId))
+            yield break;
+
+        if (CurrentRun.pendingCardChoices != null && CurrentRun.pendingCardChoices.Count > 0)
+            yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+
+        if (CurrentRun.pendingValidationDiscoveriesRemaining > 0)
+            yield return ResolveDeckRelicEffect(relicId);
+
+        CurrentRun.pendingValidationRelicId = string.Empty;
+        CurrentRun.pendingValidationDiscoveriesRemaining = 0;
+        CurrentRun.pendingCardChoiceAction = string.Empty;
+        isResolvingRelicChoice = false;
+        ChooseWardenRelicReward(relicId);
+    }
+
+    private IEnumerator ResolveDeckRelicChoiceThenContinue(string relicId)
+    {
+        isResolvingRelicChoice = true;
+        yield return ResolveDeckRelicEffect(relicId);
+
+        // Unlock the reward resolution gate before applying the warden reward choice.
+        // Otherwise ChooseWardenRelicReward returns early and the run stays stuck on discovery.
+        isResolvingRelicChoice = false;
+        ChooseWardenRelicReward(relicId);
+    }
+
+    private IEnumerator RunPolyvalenceDiscoveries(CardData.Trait selectedTrait)
+    {
+        while (CurrentRun.pendingValidationDiscoveriesRemaining > 0)
+        {
+            int iteration = DeckRelicCardDiscoveryCount - CurrentRun.pendingValidationDiscoveriesRemaining;
+            CurrentRun.pendingCardChoices = FilterChoicesByDeckCopyLimit(GenerateCardChoicesForTrait(CurrentRun.currentFloorSeed + 1112 + CurrentRun.currentDeck.Count + iteration, 3, selectedTrait), 1);
+            if (CurrentRun.pendingCardChoices.Count == 0)
+            {
+                CurrentRun.pendingValidationDiscoveriesRemaining--;
+                SaveRun();
+                continue;
+            }
+            ShowCardDiscovery(CurrentRun.pendingCardChoices, skippable: true);
+            OnCardDiscoveryGenerated?.Invoke(CurrentRun.pendingCardChoices);
+            SaveRun();
+            yield return new WaitUntil(() => CurrentRun.pendingCardChoices == null || CurrentRun.pendingCardChoices.Count == 0);
+            CurrentRun.pendingValidationDiscoveriesRemaining--;
+            SaveRun();
+        }
+    }
+
+    private void ShowCardDiscovery(List<int> cardIds, bool skippable = true)
+    {
+        if (DiscoverDisplay == null || cardIds == null || cardIds.Count == 0)
+            return;
+
+        int copiesToAdd = GetPendingCardChoiceAddCopies();
+        List<int> validCardIds = FilterChoicesByDeckCopyLimit(cardIds, copiesToAdd).Take(3).ToList();
+        if (validCardIds.Count == 0)
+            return;
+
+        currentCardDiscoverySkippable = skippable;
+
+        DiscoveryText.text = "Select a Card to add to your deck (hold 'space bar' to enter scan mode)";
+
+        if (currentCardDiscoverySkippable)
+            skipDiscoveryBtn.SetActive(true);
+        else skipDiscoveryBtn.SetActive(false);
+
+        if (CardFactory.Instance == null)
+        {
+            GameObject factoryObj = new GameObject("CardFactory");
+            factoryObj.AddComponent<CardFactory>();
+        }
+
+        EnsureCardInputManager();
+        Transform parent = discoveryCardParent != null ? discoveryCardParent : DiscoverDisplay.transform;
+        ClearCardDiscovery();
+
+        DiscoverDisplay.SetActive(true);
+        Vector3[] positions = { new Vector3(-5, 0, 0), Vector3.zero, new Vector3(5, 0, 0) };
+
+        for (int i = 0; i < validCardIds.Count && i < positions.Length; i++)
+        {
+            CardData data = CardDatabase.Instance.GetCardById(validCardIds[i]);
+            if (data == null)
+                continue;
+
+            CardInstance instance = CardFactory.Instance.CreateCardInPosition(data, PlayerOwner.Player, positions[i], discoveryScale, parent);
+            instance.IsDisplay = true;
+            SortingGroup sortingGroup = instance.GetComponent<SortingGroup>();
+            if (sortingGroup != null)
+                sortingGroup.sortingOrder = 201;
+        }
+    }
+
+
+    private void ClearCardDiscovery()
+    {
+        if (DiscoverDisplay == null)
+            return;
+
+        Transform parent = discoveryCardParent != null ? discoveryCardParent : DiscoverDisplay.transform;
+        for (int i = parent.childCount - 1; i >= 0; i--)
+        {
+            Transform child = parent.GetChild(i);
+            if (ShouldDestroyCardDiscoveryChild(child))
+                Destroy(child.gameObject);
+        }
+
+        DiscoverDisplay.SetActive(false);
+    }
+
+    private void UpdateRelicGrid()
+    {
+        if (relicGridLayout == null || relicPrefab == null)
+            return;
+
+        Transform parent = relicGridLayout.transform;
+        for (int i = parent.childCount - 1; i >= 0; i--)
+            Destroy(parent.GetChild(i).gameObject);
+        spawnedRelicGridObjects.Clear();
+
+        if (CurrentRun == null || CurrentRun.currentRelics == null)
+            return;
+
+        foreach (string relicId in CurrentRun.currentRelics.Where(id => !string.IsNullOrWhiteSpace(id)))
+        {
+            RelicDefinition relic = ResolveRelic(relicId);
+            if (relic == null)
+                continue;
+            if (relic.Type == RelicDefinition.RelicType.DeckRelic)
+                continue;
+
+            GameObject relicObject = Instantiate(relicPrefab, parent);
+            spawnedRelicGridObjects.Add(relicObject);
+            relicObject.name = $"Owned Relic - {relic.DisplayName}";
+            PopulateRelicPrefab(relicObject, relic);
+            ConfigureRelicScan(relicObject, relic);
+
+            RectTransform rectTransform = relicObject.GetComponent<RectTransform>();
+            if (rectTransform != null)
+            {
+                rectTransform.localRotation = Quaternion.identity;
+                rectTransform.localScale = Vector3.one;
+            }
+
+            Button button = relicObject.GetComponentInChildren<Button>(true);
+            if (button != null)
+                button.onClick.RemoveAllListeners();
+        }
+    }
+
+    private void ConfigureRelicScan(GameObject relicObject, RelicDefinition relic)
+    {
+        if (relicObject == null || relic == null)
+            return;
+
+        RelicScanTarget scanTarget = relicObject.GetComponentInChildren<RelicScanTarget>(true);
+        if (scanTarget == null)
+            scanTarget = relicObject.AddComponent<RelicScanTarget>();
+
+        scanTarget.Initialize(relic);
+    }
+
+    private void EnsureCardInputManager()
+    {
+        if (FindFirstObjectByType<CardInputManager>() != null)
+            return;
+
+        GameObject inputManagerObject = new GameObject("CardInputManager");
+        inputManagerObject.AddComponent<CardInputManager>();
+    }
+
+    private void SaveRun(Action onComplete = null)
+    {
+        SaveBestRunIfNeeded();
+        PathOfPowerSaveService.Save(CurrentRun, onComplete);
+    }
+
+    private int GenerateSeed()
+    {
+        return UnityEngine.Random.Range(100000, int.MaxValue);
+    }
+}

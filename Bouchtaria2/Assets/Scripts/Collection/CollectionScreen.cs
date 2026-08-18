@@ -59,6 +59,7 @@ public class CollectionScreen : MonoBehaviour
 
         foreach (CardData.Trait trait in Enum.GetValues(typeof(CardData.Trait)))
         {
+            if(trait!= CardData.Trait.None)
             traitOptions.Add(trait.ToString());
         }
 
@@ -77,15 +78,25 @@ public class CollectionScreen : MonoBehaviour
         if (currentFilters.Contains(Filter.None)) ownedButtonLabel.text = "All \nCards";
         else ownedButtonLabel.text = "Owned Cards";
 
-        if (System.Enum.TryParse(traitsDropDown.options[traitsDropDown.value].text, true, out CardData.Trait parsedTrait))
+        // Dropdown value 0 is the explicit "None" option, which should disable trait filtering.
+        if (traitsDropDown.value > 0 && System.Enum.TryParse(traitsDropDown.options[traitsDropDown.value].text, true, out CardData.Trait parsedTrait))
         {
-            if (!currentFilters.Contains(Filter.Trait)) { currentFilters.Add(Filter.Trait); RefreshFilter();
+            if (!currentFilters.Contains(Filter.Trait))
+            {
+                currentFilters.Add(Filter.Trait);
+                traitValue = parsedTrait;
+                RefreshFilter();
             }
-            if (traitValue != parsedTrait)
-            { traitValue = parsedTrait; RefreshFilter(); }
-            
+            else if (traitValue != parsedTrait)
+            {
+                traitValue = parsedTrait;
+                RefreshFilter();
+            }
         }
-        else if (currentFilters.Contains(Filter.Trait)) {currentFilters.Remove(Filter.Trait); NormalizeFilters();
+        else if (currentFilters.Contains(Filter.Trait))
+        {
+            currentFilters.Remove(Filter.Trait);
+            NormalizeFilters();
             currentPage = 0;
             ShowPage(0);
         }
@@ -177,8 +188,21 @@ public class CollectionScreen : MonoBehaviour
             view.Init(card);
             if (isDeck && duplicateCounts.TryGetValue(card.id, out int count))
             {
-                if(count>1)
-                view.dupeDeckIndicator.SetActive(true);
+                switch(count)
+                {
+                    case 2:
+                        view.dupeDeckIndicator.SetActive(true);
+                        break;
+                    case 3:
+                        view.tripleDeckIndicator.SetActive(true);
+                        break;
+                    case 4:
+                        view.quadraDeckIndicator.SetActive(true);
+                        break;
+                    case 5:
+                        view.pentaDeckIndicator.SetActive(true);
+                        break;
+                }
             }
 
             visibleIndex++;
@@ -380,6 +404,19 @@ public class CollectionScreen : MonoBehaviour
     {
         if (GameRunContext.IsDungeonRun)
         { GameFlowController.Instance.GoToDungeonAdventure(); }
+        else if (GameRunContext.IsPathOfPowerDeckViewMode)
+        {
+            if (DeckBuilding.Instance != null && DeckBuilding.Instance.CurrentDeck != null && GameRunContext.PathOfPowerData != null)
+            {
+                int requiredDeckSize = Mathf.Max(5, GameRunContext.PathOfPowerData.currentDeckSize);
+                if (DeckBuilding.Instance.CurrentDeck.Count != requiredDeckSize)
+                {
+                    ErrorPopup.Show($"You must finish Path of Power deck adjustment first ({DeckBuilding.Instance.CurrentDeck.Count}/{requiredDeckSize}).");
+                    return;
+                }
+            }
+            GameFlowController.Instance.GoToPathOfPower();
+        }
         else
             SceneManager.LoadScene("Main_Menu");
     }

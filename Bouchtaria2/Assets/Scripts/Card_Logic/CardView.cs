@@ -21,6 +21,9 @@ public class CardView : MonoBehaviour,
     [SerializeField] public GameObject dustIndicator;
     [SerializeField] public GameObject newCardIndicator;
     [SerializeField] public GameObject dupeDeckIndicator;
+    [SerializeField] public GameObject tripleDeckIndicator;
+    [SerializeField] public GameObject quadraDeckIndicator;
+    [SerializeField] public GameObject pentaDeckIndicator;
     [SerializeField] private SpriteRenderer cardSpriteRenderer;
     [SerializeField] private SpriteRenderer frameRenderer;
     [SerializeField] private SpriteRenderer frameRenderer2;
@@ -174,7 +177,11 @@ public class CardView : MonoBehaviour,
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
-        bool owned = UserCollectionManager.Instance.IsOwned(cardId);
+        if (CombatLog.IsLogUIActive)
+            return;
+
+        bool bypassOwnership = GameRunContext.IsPathOfPowerDeckViewMode && SceneManager.GetActiveScene().name == "Collection";
+        bool owned = bypassOwnership || UserCollectionManager.Instance.IsOwned(cardId);
         if (ScanController.Instance == null || (!owned && SceneManager.GetActiveScene().name == "Collection"))
             return;
 
@@ -183,6 +190,9 @@ public class CardView : MonoBehaviour,
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (CombatLog.IsLogUIActive)
+            return;
+
         if (ScanController.Instance == null)
             return;
 
@@ -558,7 +568,8 @@ public class CardView : MonoBehaviour,
     public void Refresh()
     {
         if (SceneManager.GetActiveScene().name != "Collection") return;
-        bool owned = UserCollectionManager.Instance.IsOwned(cardId);
+        bool bypassOwnership = GameRunContext.IsPathOfPowerDeckViewMode;
+        bool owned = bypassOwnership || UserCollectionManager.Instance.IsOwned(cardId);
         //Only in collection
         lockOverlay.SetActive(!owned);
 

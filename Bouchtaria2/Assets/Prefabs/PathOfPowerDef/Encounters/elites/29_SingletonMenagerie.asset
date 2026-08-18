@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b65621ccf9b41ecbcc369540d18971e, type: 3}
+  m_Name: 29_SingletonMenagerie
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
+  encounterId: 29
+  displayName: Singleton Menagerie
+  elite: 1
+  warden: 0
+  specificFloorEncounter: 0
+  relicIds: 190000001f00000017000000
+  droppablePool: 5800000059000000460100005f0100008f010000
+  displaySprite: {fileID: 21300000, guid: e1b6c3017e5a6d14ba7e752c6d50bc94, type: 3}
+  enemyDeckTemplate: '[326,351,399,400,413,317,318,319,332,373,359,358,282,305,299,202,205,208,232,234,88,89,142,201,59,114,54,120,133,146]'

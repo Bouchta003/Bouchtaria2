@@ -37,6 +37,13 @@ public class WinLoseUI : MonoBehaviour
     {
             int i = Random.Range(0,GameManager.Instance.winSFX.Count);
             SFXManager.Instance.PlaySFXClip(GameManager.Instance.winSFX[i], transform, 1f);
+        if (GameRunContext.IsPathOfPowerRun)
+        {
+            restartBtn.SetActive(false);
+            Setup("VICTORY", Color.green, "Path Of Power step cleared. Return to the lobby to continue your run.");
+            SFXManager.Instance.PlaySFXClip(GameManager.Instance.winSFX[i], transform, 1f);
+            return;
+        }
         if (GameRunContext.IsDungeonRun)
         {
             DungeonManager.Instance.IncrementStreak();
@@ -80,6 +87,13 @@ public class WinLoseUI : MonoBehaviour
 
     public void ShowLose()
     {
+        if (GameRunContext.IsPathOfPowerRun)
+        {
+            restartBtn.SetActive(false);
+            Setup("DEFEAT", Color.red, "Your Path Of Power run has ended.");
+            SFXManager.Instance.PlaySFXClip(GameManager.Instance.fahSFX, transform, 1f);
+            return;
+        }
         if (GameRunContext.IsDungeonRun)
         {
             if (GameRunContext.DungeonData.augments.Contains(DungeonShop.Augment.ExtraLife))
@@ -100,6 +114,18 @@ public class WinLoseUI : MonoBehaviour
     }
     public void LeaveToMenu()
     {
+        if (GameRunContext.IsPathOfPowerRun)
+        {
+            if (resultText != null && resultText.text == "DEFEAT")
+            {
+                PathOfPowerSaveService.ResetRun(() => SceneManager.LoadScene("PathOfPower"));
+                return;
+            }
+
+            SceneManager.LoadScene("PathOfPower");
+            return;
+        }
+
         if (GameRunContext.IsDungeonRun) {
             if (resultText.color != Color.red)
             { SceneManager.LoadScene("DungeonAdventure"); }

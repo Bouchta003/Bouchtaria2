@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b65621ccf9b41ecbcc369540d18971e, type: 3}
+  m_Name: 26_FusionMarket
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
+  encounterId: 26
+  displayName: Fusion Market
+  elite: 0
+  warden: 0
+  specificFloorEncounter: 0
+  relicIds: 19000000
+  droppablePool: b8000000c0000000c2000000c9000000e8000000
+  displaySprite: {fileID: 21300000, guid: 6aa33c6a994aabf42a21a3da5858d307, type: 3}
+  enemyDeckTemplate: '[184,184,192,192,193,193,194,194,195,195,196,196,197,197,198,198,201,201,225,225,232,232,234,234,317,317,353,353,89,89]'

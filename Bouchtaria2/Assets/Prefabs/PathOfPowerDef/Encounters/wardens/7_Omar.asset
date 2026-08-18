@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b65621ccf9b41ecbcc369540d18971e, type: 3}
+  m_Name: 7_Omar
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
+  encounterId: warden_omar
+  displayName: Omar Warden
+  elite: 0
+  warden: 1
+  specificFloorEncounter: 0
+  relicIds: 0d000000190000001d000000
+  droppablePool: f6000000d2000000f100000020000000b5000000
+  displaySprite: {fileID: 21300000, guid: 09afbd41f36bb864ca2353b89a5214b9, type: 3}
+  enemyDeckTemplate: '[246,246,210,210,241,241,32,32,181,181,9,9,103,103,363,363,145,145,229,6,353,353,169,169,44,44,104,104,105,105]'

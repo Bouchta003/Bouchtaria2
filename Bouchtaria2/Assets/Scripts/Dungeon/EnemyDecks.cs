@@ -533,7 +533,7 @@ public static class EnemyDecks
                 128,128,
                 166,166,
                 286,286,
-                305,305,//Omar DrBens and Qurupeco bensalmiserable
+                305,305,//Omar DrBens //Qurupeco Bensalmiserable
                 193,51,
                 38,246,
                 193,51,
@@ -679,9 +679,9 @@ public static class EnemyDecks
                 60,60,   //Duaa
                 60,60,   //Duaa
                 60,60,   //Duaa
-                276,276, //Rhita
                 63,63,//Hijabi
-                64,64,//Hijabi
+                64,64,//Hijab
+                363,363,//Inchaallah
                 363,363,//Inchaallah
                 229,229,//Ramadan
                 61,61,//Sadaqa
@@ -696,6 +696,7 @@ public static class EnemyDecks
                 282,282, //Sarito and Cinamoncops
                 304,306,
                 306,304, //Sunday both forms
+                306,304, //Sunday both forms
                 175,213, //Machop and buzzwole
                 57,57,   //Snorlax
                 207,207, //Lucario
@@ -705,7 +706,6 @@ public static class EnemyDecks
                 231,231,//ultra ball
                 367,367,//Tinkaton
                 369,369,//Yazio
-                156,157,//Boyd and greatball
                 }
             },
             { 11, new List<int>
@@ -731,21 +731,21 @@ public static class EnemyDecks
             { 12, new List<int>
                 {
                 // Padre : 30.
-                285,285, //Padre card
-                285,362,//Padre prime *1
+                285,362,//Padre prime +Padre
                 270,270, //Redox
                 241,241, //Great rod
                 241,241,//Great rod
                 241,241,//Great rod
                 241,241,//Great rod
                 241,241,//Great rod
-                233,233,//Bissara
                 363,363,//Inchaallah
                 106,106,//Sabr
                 145,145,//Adhan
                 107,107,//Protector of the ummah
                 328,328,//Huge banana
                 61,61,//Sadaqa
+                65,65,//Armor Clad
+                66,66//Potemslim
                 }
             },
             { 13, new List<int>
@@ -816,8 +816,9 @@ public static class EnemyDecks
                 {
                 // Omar : (30) Extinction dragon deck with Rods + Revives + Inchaallah
                 246,246,//Extinction dragon
+                246,246,//Extinction dragon
+                246,246,//Extinction dragon
                 210,210,//Max Revive
-                146,146,//Revive
                 241,241,//Great Rod
                 241,241,//Great Rod
                 32,32,//Rathian
@@ -952,7 +953,7 @@ public static class EnemyDecks
             },
             { 9, new List<int>
                 {
-                // Madre : 22
+                // Madre : 30
                 284,284, //madre card
                 284,284, //madre card
                 110,110, //voice of dhikr
@@ -964,54 +965,61 @@ public static class EnemyDecks
                 363,363,//Inchaallah
                 229,229,//Ramadan
                 61,61,//Sadaqa
-                //Add card to gain passive EOT +2 HP to all units for the rest of the game.
+                392,392,//Khushuu
+                393,393,//MamaPromise
+                68,68,//Dans ldin
+                58,58,//No More Music
                 }
             },
             { 10, new List<int>
                 {
-                // Sara : 22 : Pokemon killer deck (raichu buzzwole balls tinkaton and garchomp)+core heal with Sarito
+                // Sara : 30 : Pokemon killer deck (raichu buzzwole balls tinkaton and garchomp)+core heal with Sarito
                 306,306, //Soundays
+                278,278,//Raichu
                 213,213, //buzzwole
                 57,57,   //Snorlax
                 360,360, //Sara
                 360,360, //Sara
+                361,361, //Rhitout
                 44,44,   //Lasagna
                 365,365,//Tinkatink
                 243,243,//Gible
-                231,231,//ultra ball
                 367,367,//Tinkaton
                 227,227,//Bowser
+                389,389,//Earthquake
+                390,390,//Masterball
+                391,391,//ChefDente
                 }
             },
             { 11, new List<int>
                 {
-                //Rhita : 30 : Heal deck with some killers. 
-                276,281,
-                276,281, //Rhita and rhita team
+                //Rhita : 30 : Heal deck with some killers and selfdamage 
+                8,8,//Choupitout
+                8,8,//Choupitout
+                276,276,//Rhita 
+                281,281,// rhita team
                 280,280, //RhitaGAteau
-                277,277,
-                278,278,
-                279,279,
-                320,320, //Poukoupia
-                56,56,  //Wigglytuff
-                54,54,  //Dormis
-                44,44,   //Lasagna
-                47,47, //BBQ
-                8,8, //choupitout
-                324,324, //pneuma
-                109,109,
                 361,361, //Rhitout
+                391,391,//ChefDente
+                47,47,//BBQ
+                389,389,//Earthquake
+                360,360, //Sara
+                49,49,//IO
+                392,392,//Khushuu
+                392,392,//Khushuu
+                229,229,//Ramadan
+                139,139,//Nia
                 //Add a card that will deal damage to enemy core for each heal this game (not overheal)
                 }
             },
             { 12, new List<int>
                 {
-                // Padre : 28.
-                285,285, //Padre card
+                // Padre : 30.
+                285,285,//Padre card
+                285,285,//Padre card
                 285,285,//Padre card
                 362,362,//Padre prime *2
-                270,270, //Redox
-                241,241, //Great rod
+                241,241,//Great rod
                 241,241,//Great rod
                 241,241,//Great rod
                 241,241,//Great rod
@@ -1021,7 +1029,7 @@ public static class EnemyDecks
                 363,363,//Inchaallah
                 106,106,//Sabr
                 145,145,//Adhan
-                //Add unique padre draw card.
+                394,394,//Padre's prep
                 }
             },
             { 13, new List<int>
@@ -1032,7 +1040,7 @@ public static class EnemyDecks
                 285,361,//PapaRhita
                 360,284,//SaraMama
                 343,343,//Vulcan
-                332,368,//Slifer+Aegislash
+                395,395,//Bouchtimp
                 292,292,//Soul Eater
                 291,291,
                 293,293,
@@ -1040,27 +1048,31 @@ public static class EnemyDecks
                 335,335,
                 337,337,
                 333,333,
-                345,345,//Soul Eater end
-                }
+                345,345,
+                344,344,//Grace    
+            }
             },
             { 14, new List<int>
                 {
                 // ???: Prime curse.
-                27,28,
-                29,163,//Dialga Palkia GIratina Hooh
-                189,189,
-                189,85,//Triple Le D + colonel
-                120,120,//metronome
-                126,126,//feed the chaos
-                127,127,//Cheater will
-                127,127,
-                128,129,//Le Bens + gmpves
+                374,374,//BouchtaSpell
+                374,374,//BouchtaSpell
+                375,375,//KnightsSpell
+                27,28,//Dialga Palkia
+                29,163,//GIratina Hooh
+                189,189,//Le D
                 239,239,//GonPrime
-                167,167,
-                308,308,//suave
-                128,129,
-                158,158,
-                75,75,
+                167,167,//Shadow wall
+                158,158,//Jour de fete
+                75,75,//Aang
+                285,361,//Padre Rhitout
+                284,360,//Sara Madre
+                285,361,//Padre Rhitout
+                284,360,//Sara Madre
+                390,390,//Masterball
+                345,345,//Grace
+                344,344,//Grace  
+                384,384,//True O
             }
             },
         };

@@ -2,9 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using DG.Tweening;
+using TMPro;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public enum CardZone
 {
@@ -127,12 +129,13 @@ public class CardInstance : MonoBehaviour, IAttackable
         view = gameObject.GetComponent<CardView>();
         BaseManaCost = data.manaCost;
 
-        CurrentAttack = data.atkValue;
-        CurrentHealth = data.hpValue;
+        CurrentAttack = data.atkValue + PathOfPowerRelicEffectService.GetGlobalEnemyAttackBonus(owner);
+        int pathOfPowerHealthBonus = PathOfPowerRelicEffectService.GetGlobalEnemyHealthBonus(owner);
+        CurrentHealth = data.hpValue + pathOfPowerHealthBonus;
         CurrentEffect = data.effect;
         CurrentEffectText = data.effectText;
         ThornsDamage = GetThornDamage();
-        CurrentMaxHealth = data.hpValue;
+        CurrentMaxHealth = data.hpValue + pathOfPowerHealthBonus;
 
         CurrentZone = CardZone.Deck;
         Transform = transform;
@@ -270,6 +273,28 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         return false;
     }
+    private bool HasExactEffectKeyword(string keyword)
+    {
+        if (EffectsSuppressed)
+            return false;
+        if (Data == null || CurrentEffect == null)
+            return false;
+
+        foreach (string token in CurrentEffect.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (!token.StartsWith(keyword, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (token.Length == keyword.Length)
+                return true;
+
+            char next = token[keyword.Length];
+            if (next == '(' || next == '[')
+                return true;
+        }
+
+        return false;
+    }
     #region Progress
     public void InitializeProgressIfAny()
     {
@@ -368,7 +393,13 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.OnSpellPlayed += OnSpellPlayed;
             cardView.ShowProgress(ProgressionCounter, ProgressionCap);
         }
-        else if (HasKeyword("progressbuff") &&
+        else if (HasExactEffectKeyword("progressbuffcount") &&
+         TryParseProgress("progressbuffcount", out int buffCountCap))
+        {
+            ProgressionCap = buffCountCap;
+            cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+        }
+        else if (HasExactEffectKeyword("progressbuff") &&
          TryParseProgress("progressbuff", out int buffCap))
         {
             ProgressionCap = buffCap;
@@ -482,8 +513,15 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         foreach (string token in tokens)
         {
-            if (!token.StartsWith(keyword))
+            if (!token.StartsWith(keyword, StringComparison.OrdinalIgnoreCase))
                 continue;
+
+            if (token.Length > keyword.Length)
+            {
+                char next = token[keyword.Length];
+                if (next != '(' && next != '[')
+                    continue;
+            }
 
             int start = token.IndexOf('(');
             int end = token.IndexOf(')');
@@ -771,7 +809,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (CurrentZone != CardZone.Board)
             return;
 
-        if (!HasKeyword("progressbuff") || ProgressionCap <= 0)
+        if (!HasExactEffectKeyword("progressbuff") || ProgressionCap <= 0)
             return;
 
         int atkGain = Mathf.Max(0, CurrentAttack - Data.atkValue);
@@ -782,6 +820,37 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         CheckProgressCompletion();
 
+    }
+
+    private void UpdateBuffCountProgressCounter(int atk, int hp)
+    {
+        if (CurrentZone != CardZone.Board)
+            return;
+
+        if (!HasExactEffectKeyword("progressbuffcount") || ProgressionCap <= 0)
+            return;
+
+        if (atk <= 0 && hp <= 0)
+            return;
+
+        ProgressionCounter++;
+        cardView.ShowProgress(ProgressionCounter, ProgressionCap);
+
+        CheckProgressCompletion();
+    }
+
+    private void TryExecuteTyrogueMorph()
+    {
+        const int hitmonleeId = 403;
+        const int hitmonchanId = 404;
+        const int hitmontopId = 405;
+
+        if (CurrentAttack > CurrentHealth)
+            MorphTo(hitmonleeId);
+        else if (CurrentHealth > CurrentAttack)
+            MorphTo(hitmonchanId);
+        else
+            MorphTo(hitmontopId);
     }
 
     #endregion
@@ -815,7 +884,6 @@ public class CardInstance : MonoBehaviour, IAttackable
                 {
                     TakeDamage(3);
                 }
-            
             }
             view.UpdateMode();
             TriggerEffects(EffectTrigger.EndOfTurn);
@@ -829,7 +897,8 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (IsBleeding)
         {
-            TakeDamage(1);
+            int bleedDamage = PathOfPowerRelicEffectService.HasBloodVial(OtherPlayer(Owner)) ? 2 : 1;
+            TakeDamage(bleedDamage);
             gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(OtherPlayer(Owner));
             BleedingTurns++;
             if (BleedingTurns >= 3) { IsBleeding = false; BleedingTurns = 0; view.UpdateMode(); }
@@ -1344,6 +1413,15 @@ public class CardInstance : MonoBehaviour, IAttackable
                 gameManager.BuffAllAllies(atk, hp, Owner);
                 gameManager.CheckGlow(); continue;
             }
+            if (effect.StartsWith("permabuff"))
+            {
+                (int atk, int hp) = GetTwoIntsFromEffect(effect);
+                if (atk != -1 || hp != -1)
+                {
+                    gameManager.AddPermanentTurnEndBuff(Owner, atk, hp);
+                }
+                gameManager.CheckGlow(); continue;
+            }
 
             if (effect.StartsWith("buff"))
             {
@@ -1651,6 +1729,13 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.BuffAllAllies(atk,hp,Owner);
             gameManager.CheckGlow(); return false;
         }
+        if (effect.StartsWith("permabuff"))
+        {
+            (int atk, int hp) = GetTwoIntsFromEffect(effect);
+            if (atk != -1 || hp != -1)
+                gameManager.AddPermanentTurnEndBuff(Owner, atk, hp);
+            gameManager.CheckGlow(); return false;
+        }
 
         if (effect.StartsWith("wipeboard"))
         {
@@ -1714,6 +1799,11 @@ public class CardInstance : MonoBehaviour, IAttackable
             BeginTargetedEffect(effect, forceRandomTargetingForCurrentDeploy);
             gameManager.CheckGlow(); return false;
         }
+        if (effect.StartsWith("morphtotyrogue"))
+        {
+            TryExecuteTyrogueMorph();
+            gameManager.CheckGlow(); return false;
+        }
         if (effect.StartsWith("morphto"))
         {
             if (!TryParseIntEffect(effect, "morphto", out int id))
@@ -1741,6 +1831,14 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (TryParseIntEffect(effect, "discounthand", out int cards))
             {
                 DiscountAllCardsHand(cards);
+                gameManager.CheckGlow(); return false;
+            }
+        }
+        if (effect.StartsWith("discountrandom"))
+        {
+            if (TryParseIntEffect(effect, "discountrandom", out int amount))
+            {
+                DiscountRandomCardInHand(amount);
                 gameManager.CheckGlow(); return false;
             }
         }
@@ -2316,6 +2414,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             case "progressspell":
             case "progresseot":
             case "progressbuff":
+            case "progressbuffcount":
                 trigger = EffectTrigger.ProgressComplete;
                 return true;
 
@@ -2793,6 +2892,28 @@ public class CardInstance : MonoBehaviour, IAttackable
             if (card != null)
                 card.AddTemporaryManaModifier(amount);
         }
+    }
+
+    private void DiscountRandomCardInHand(int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        HandManager friendlyHand = Owner == PlayerOwner.Player ? gameManager.allyHand : gameManager.enemyHand;
+        List<CardInstance> cardsInHand = new();
+
+        foreach (GameObject go in friendlyHand.handCards)
+        {
+            CardInstance card = go.GetComponent<CardInstance>();
+            if (card != null)
+                cardsInHand.Add(card);
+        }
+
+        if (cardsInHand.Count == 0)
+            return;
+
+        int randomIndex = UnityEngine.Random.Range(0, cardsInHand.Count);
+        cardsInHand[randomIndex].AddTemporaryManaModifier(-amount);
     }
     private void ExecuteInvestmentSpellReturn()
     {
@@ -3905,8 +4026,19 @@ public class CardInstance : MonoBehaviour, IAttackable
             case 331: // Aegislash
                 effectToAppend = "blessed";
                 effectText = "Equipped with Aegislash";
-                ci.ModifyStats(8,8);
+                ci.ModifyStats(8, 8);
                 break;
+            case 409: // Rubilax
+                if(ci.Data.id == 408) 
+                {
+                    ci.MorphTo(410, true);
+                    break;
+                }
+                else { 
+                effectToAppend = " ";
+                effectText = "Equipped with Rubilax";
+                ci.ModifyStats(3, 3);
+                break;}
         }
 
         if (!string.IsNullOrEmpty(effectToAppend))
@@ -3948,6 +4080,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             ci.CurrentEffectText = AppendToken(ci.CurrentEffectText, effectText, "\n");
         ci.view.UpdateMode();
         ci.ParseEffects();
+
+        SFXManager.Instance.PlaySFXClip(gameManager.magicSFX, transform, 1f);
     }
     private void TryExecuteGrantAll(string completeeffect)
     {
@@ -3980,6 +4114,7 @@ public class CardInstance : MonoBehaviour, IAttackable
                 ci.CurrentEffectText = AppendToken(ci.CurrentEffectText, effectText, "\n");
             ci.view.UpdateMode();
             ci.ParseEffects();
+            SFXManager.Instance.PlaySFXClip(gameManager.magicSFX, transform, 1f);
         }
     }
     private void TryExecuteMorphAll(int idMorph)
@@ -4136,6 +4271,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         targetInstance.cardView.UpdateMode();
         targetInstance.ParseEffects();
         targetInstance.InitializeProgressIfAny();
+        SFXManager.Instance.PlayRandomSFXClip(gameManager.gearSFX, transform, 1f);
 
         if (targetInstance.Owner == PlayerOwner.Player)
             gameManager.CheckGlow();
@@ -4389,6 +4525,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         // Notify view
         cardView.UpdateMode();
+        SFXManager.Instance.PlaySFXClip(gameManager.evolveSFX, transform, 1f);
         StartCoroutine(DelayedProgressInit());
 
         // 🔑 Reset deploy eligibility
@@ -4474,8 +4611,6 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (target.Data.cardType != "minion")
             return false;
 
-        Debug.Log($"[DITTO] {Data.name} morphs into {target.Data.name}");
-
         Data = target.Data;
         CurrentEffect = target.CurrentEffect;
         CurrentEffectText = target.CurrentEffectText;
@@ -4498,6 +4633,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         cardView.Bind(this);
         cardView.UpdateMode();
 
+        CombatLog.Instance?.AddAction(this,"Ditto morphed into " + target.Data.name + ".");
         return true;
     }
     private IEnumerator DelayedProgressInit()
@@ -4511,6 +4647,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.Heal(heal);
         else
             gameManager.EnemyCore.Heal(heal);
+        CombatLog.Instance?.AddAction(this, $"{this.Data.name} healed their own core for {heal} HP.");
     }
     public void ApplyBleed(IAttackable targetUnit)
     {
@@ -4541,6 +4678,9 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.FullHeal();
         else
             gameManager.EnemyCore.FullHeal();
+
+
+        CombatLog.Instance?.AddAction(this, $"{this.Data.name} fully healed their own core.");
     }
     public void HealAll(int heal)
     {
@@ -4549,6 +4689,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.Heal(heal);
 
             List<GameObject> alliesSnapshot = new(gameManager.allyDropArea.allyPrefabCards);
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} healed all allies for {heal} HP.");
             foreach (GameObject ally in alliesSnapshot)
             {
                 if (ally == null)
@@ -4566,6 +4707,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.EnemyCore.Heal(heal);
 
             List<GameObject> enemiesSnapshot = new(gameManager.enemyDropArea.enemyPrefabCards);
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} healed all enemies for {heal} HP.");
             foreach (GameObject enemy in enemiesSnapshot)
             {
                 if (enemy == null)
@@ -4586,6 +4728,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.FullHeal();
 
             List<GameObject> alliesSnapshot = new(gameManager.allyDropArea.allyPrefabCards);
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} fully healed all allies.");
             foreach (GameObject ally in alliesSnapshot)
             {
                 if (ally == null)
@@ -4603,6 +4746,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.EnemyCore.FullHeal();
 
             List<GameObject> enemiesSnapshot = new(gameManager.enemyDropArea.enemyPrefabCards);
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} fully healed all enemies.");
             foreach (GameObject enemy in enemiesSnapshot)
             {
                 if (enemy == null)
@@ -4620,6 +4764,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (Owner == PlayerOwner.Enemy)
         {
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} put all allies to sleep.");
             foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
             {
                 CardInstance inst = ally.GetComponent<CardInstance>();
@@ -4628,7 +4773,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else
         {
-            Debug.Log("All enemies sleep");
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} put all enemies to sleep.");
             foreach (GameObject enemy in gameManager.enemyDropArea.enemyPrefabCards)
             {
                 CardInstance inst = enemy.GetComponent<CardInstance>();
@@ -4641,6 +4786,7 @@ public class CardInstance : MonoBehaviour, IAttackable
     {
         if (Owner == PlayerOwner.Enemy)
         {
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} silenced all allies.");
             foreach (GameObject ally in gameManager.allyDropArea.allyPrefabCards)
             {
                 CardInstance inst = ally.GetComponent<CardInstance>();
@@ -4649,7 +4795,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         }
         else
         {
-            Debug.Log("All enemies silenced");
+            CombatLog.Instance?.AddAction(this, $"{this.Data.name} silenced all enemies.");
             foreach (GameObject enemy in gameManager.enemyDropArea.enemyPrefabCards)
             {
                 CardInstance inst = enemy.GetComponent<CardInstance>();
@@ -4683,6 +4829,7 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.EnemyCore.TakeDamage(dmg);
         gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
 
+        CombatLog.Instance?.AddAction(this, $"{this.Data.name} dealt damage to their own core for {dmg} HP.");
     }
     public void AutoDamageCore(int dmg)
     {
@@ -4692,6 +4839,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.EnemyCore.TakeDamage(dmg);
         gameManager.OnDamageWithCardInstance(this);gameManager.OnDamageWithCard(Owner);
 
+        CombatLog.Instance?.AddAction(this, $"{this.Data.name} dealt damage to enemy core for {dmg} HP.");
+
     }
     public void AutoShieldCore(int shield)
     {
@@ -4699,6 +4848,8 @@ public class CardInstance : MonoBehaviour, IAttackable
             gameManager.PlayerCore.AddShield(shield);
         else
             gameManager.EnemyCore.AddShield(shield);
+
+        CombatLog.Instance?.AddAction(this, $"{this.Data.name} shielded core for {shield} HP.");
     }
     public void SelfDestroy()
     {
@@ -4718,7 +4869,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         CurrentHealth -= amount;
         gameManager.NotifyDamage(Owner, amount);
         gameManager.OnDamageWithCardInstance(this);
-        SFXManager.Instance.PlaySFXClip(gameManager.dmgSFX, transform, 1f);
+        SFXManager.Instance.PlayRandomSFXClip(gameManager.dmgSFX, transform, 1f);
 
         //Trigore Logic :
         CardInstance trigore = gameManager.GetBoardForOwner(Owner).BoardHasEffect("trigore");
@@ -4766,6 +4917,9 @@ public class CardInstance : MonoBehaviour, IAttackable
         target.Die();
         if(HasTrait("Pokemon"))
             gameManager.AddPokemonTraitProgress(Owner, 1);
+        SFXManager.Instance.PlaySFXClip(gameManager.killSFX, transform, 1f);
+
+        CombatLog.Instance?.AddAction(this, $"{this.Data.name} killed {target.Data.name}.");
         return;
     }
     public void Heal(int amount)
@@ -4773,11 +4927,11 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (amount <= 0) return;
         int bonus = 0;
         int preHeal = CurrentHealth;
-
-        SFXManager.Instance.PlaySFXClip(gameManager.healSFX, transform, 1f);
+        SFXManager.Instance.PlayRandomSFXClip(gameManager.healSFX, transform, 1f);
         //ApplyBonus
         if (Owner == PlayerOwner.Player) bonus = gameManager.PlayerHealBonus;
         else bonus = gameManager.EnemyHealBonus;
+        if(GameRunContext.IsPathOfPowerRun && gameManager.OwnerHasRelic(Owner, 3)) { bonus += 2; }
         int totalHeal = amount + bonus;
         CurrentHealth = Mathf.Min(CurrentHealth + totalHeal, CurrentMaxHealth);
         int differenceHp = CurrentHealth - preHeal;
@@ -4806,7 +4960,7 @@ public class CardInstance : MonoBehaviour, IAttackable
         {
             int preHeal = CurrentHealth;
 
-            SFXManager.Instance.PlaySFXClip(gameManager.healSFX, transform, 1f);
+            SFXManager.Instance.PlayRandomSFXClip(gameManager.healSFX, transform, 1f);
             CurrentHealth = CurrentMaxHealth;
 
             int healedAmount = CurrentHealth - preHeal;
@@ -4824,7 +4978,7 @@ public class CardInstance : MonoBehaviour, IAttackable
 
         Heal(missingHealth);
     }
-    internal void ModifyStats(int atk, int hp)
+    internal void ModifyStats(int atk, int hp, bool notifyStatIncrease = true)
     {
         CurrentAttack += atk;
         CurrentHealth += hp;
@@ -4834,10 +4988,20 @@ public class CardInstance : MonoBehaviour, IAttackable
         if (CurrentHealth <= 0)
         {
             Die();
+        }else if (atk+hp > 0)
+        {
+            SFXManager.Instance.PlaySFXClip(gameManager.statbuffSFX, transform, 1f);
+            if (notifyStatIncrease)
+                gameManager.NotifyCardBuffed(this, atk, hp);
+        }
+        else if (atk + hp < 0)
+        {
+            SFXManager.Instance.PlaySFXClip(gameManager.statnerfSFX, transform, 1f);
         }
         view.UpdateMode();
         UpdateStatsColor();
         UpdateBuffProgressCounter();
+        UpdateBuffCountProgressCounter(atk, hp);
     }
     public void Die()
     {

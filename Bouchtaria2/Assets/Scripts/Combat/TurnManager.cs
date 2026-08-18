@@ -44,13 +44,18 @@ public class TurnManager : MonoBehaviour
 
         Instance = this;
     }
-    public void StartFirstTurn()
+    public IEnumerator StartFirstTurn()
     {
-        enemyDungeonTurnCount = 0;
+        enemyDungeonTurnCount = 0; 
+        
         CurrentPlayer = PlayerOwner.Player;
+
+        int playerStartDraw = 3 + PathOfPowerRelicEffectService.GetStartOfCombatDrawBonus(PlayerOwner.Player);
+        int enemyStartDraw = 4 + PathOfPowerRelicEffectService.GetStartOfCombatDrawBonus(PlayerOwner.Enemy);
+        yield return StartCoroutine(deckManager.Draw(playerStartDraw, PlayerOwner.Player));
+        yield return StartCoroutine(deckManager.Draw(enemyStartDraw, PlayerOwner.Enemy));
+
         BeginTurn();
-        StartCoroutine(deckManager.Draw(3, PlayerOwner.Player));
-        StartCoroutine(deckManager.Draw(4, PlayerOwner.Enemy));
     }
 
     public void EndTurn()
@@ -221,7 +226,7 @@ public class TurnManager : MonoBehaviour
         while (!chaosFinished)
             yield return null;
 
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.1f);
 
         // Trigger the chaos effect (this may start its own coroutines)
         TriggerChaosEffect(randomChaosIndex, owner);

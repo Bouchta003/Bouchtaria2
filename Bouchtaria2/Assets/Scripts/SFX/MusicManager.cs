@@ -214,10 +214,19 @@ public class MusicManager : MonoBehaviour
         List<AudioClip> candidates = new List<AudioClip>();
 
         foreach (SceneMusicEntry entry in sceneMusic)
-            if (entry.sceneName == "Adventure" + id.ToString())
+            if (entry.sceneName == "Adventure" + id.ToString() && entry.music != null)
                 candidates.Add(entry.music);
 
         return GetRandomClip(candidates);
+    }
+
+    public AudioClip GetMusicForPathOfPowerCombat()
+    {
+        string sceneMusicKey = GameRunContext.PathOfPowerData?.CurrentStepData?.stepType == PathOfPowerStepType.Warden
+            ? "PathOfPowerWarden"
+            : "PathOfPowerNormal";
+
+        return GetMusicForScene(sceneMusicKey);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -283,13 +292,16 @@ public class MusicManager : MonoBehaviour
             newClip = GetRandomClip(firebase) ?? defaultMusic;
         }
 
-        if (newClip != null)
+        if (sceneName == "Combat")
         {
-            if (SceneManager.GetActiveScene().name == "Combat" && GameRunContext.IsAdventureCombat)
-                newClip = GetMusicForAdventure(GameRunContext.AdventureFightId);
-            else
-            PlayMusic(newClip, defaultFadeTime);
+            if (GameRunContext.IsAdventureCombat)
+                newClip = GetMusicForAdventure(GameRunContext.AdventureFightId) ?? newClip;
+            else if (GameRunContext.IsPathOfPowerRun)
+                newClip = GetMusicForPathOfPowerCombat() ?? newClip;
         }
+
+        if (newClip != null)
+            PlayMusic(newClip, defaultFadeTime);
     }
 
     // ─────────────────────────────────────────────────────────────

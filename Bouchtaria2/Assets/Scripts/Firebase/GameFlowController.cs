@@ -117,6 +117,7 @@ public class GameFlowController : MonoBehaviour
         //IsThisLineNecessary ?
         UserCollectionManager.Instance.RefreshCollection();
         GameRunContext.IsDungeonRun = false;
+        GameRunContext.IsPathOfPowerRun = false;
         GameRunContext.IsAdventureCombat = false;
         GameRunContext.AdventureFightId = 0;
         GameRunContext.IsAdventureHardMode = false;
@@ -126,6 +127,7 @@ public class GameFlowController : MonoBehaviour
     {
         if (!isGameReady) return;
         GameRunContext.IsDungeonRun = true;
+        GameRunContext.IsPathOfPowerRun = false;
         GameRunContext.IsAdventureCombat = false;
         GameRunContext.AdventureFightId = 0;
         GameRunContext.IsAdventureHardMode = false;
@@ -141,6 +143,7 @@ public class GameFlowController : MonoBehaviour
     {
         if (!isGameReady) return;
         GameRunContext.IsDungeonRun = true;
+        GameRunContext.IsPathOfPowerRun = false;
         GameRunContext.IsAdventureCombat = false;
         GameRunContext.AdventureFightId = 0;
         GameRunContext.IsAdventureHardMode = false;
@@ -150,6 +153,7 @@ public class GameFlowController : MonoBehaviour
     public void GoToDungeonDeck(DungeonRunData data)
     {
         GameRunContext.IsDungeonRun = true;
+        GameRunContext.IsPathOfPowerRun = false;
         GameRunContext.IsAdventureCombat = false;
         GameRunContext.AdventureFightId = 0;
         GameRunContext.IsAdventureHardMode = false;
@@ -177,6 +181,7 @@ public class GameFlowController : MonoBehaviour
         DeckSelectionCache.SelectedEnemyDeck = new System.Collections.Generic.List<int>(enemyDeck);
 
         GameRunContext.IsDungeonRun = false;
+        GameRunContext.IsPathOfPowerRun = false;
         GameRunContext.IsAdventureCombat = true;
         GameRunContext.AdventureFightId = fightId;
         GameRunContext.IsAdventureHardMode = isHardMode;
@@ -204,6 +209,7 @@ public class GameFlowController : MonoBehaviour
 
         UserCollectionManager.Instance.RefreshCollection();
         GameRunContext.IsDungeonRun = false;
+        GameRunContext.IsPathOfPowerRun = false;
         GameRunContext.IsAdventureCombat = false;
         GameRunContext.AdventureFightId = 0;
         GameRunContext.IsAdventureHardMode = false;
@@ -218,7 +224,28 @@ public class GameFlowController : MonoBehaviour
         }
 
         UserCollectionManager.Instance.RefreshCollection();
+        GameRunContext.IsDungeonRun = false;
+        GameRunContext.IsPathOfPowerRun = false;
+        GameRunContext.IsAdventureCombat = false;
+        GameRunContext.AdventureFightId = 0;
+        GameRunContext.IsAdventureHardMode = false;
         SceneManager.LoadScene("DungeonMenu");
+    }
+    public void GoToPathOfPower()
+    {
+        if (!isGameReady)
+        {
+            ErrorPopup.Show("⚠️ Game data not ready yet");
+            return;
+        }
+
+        UserCollectionManager.Instance.RefreshCollection();
+        GameRunContext.IsDungeonRun = false;
+        GameRunContext.IsPathOfPowerRun = true;
+        GameRunContext.IsAdventureCombat = false;
+        GameRunContext.AdventureFightId = 0;
+        GameRunContext.IsAdventureHardMode = false;
+        SceneManager.LoadScene("PathOfPower");
     }
     public void GoToMainMenu()
     {

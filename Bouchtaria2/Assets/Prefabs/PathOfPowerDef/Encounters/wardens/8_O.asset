@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b65621ccf9b41ecbcc369540d18971e, type: 3}
+  m_Name: 8_O
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyEncounterDefinition
+  encounterId: warden_o
+  displayName: O Warden
+  elite: 0
+  warden: 1
+  specificFloorEncounter: 0
+  relicIds: 1f0000001600000019000000
+  droppablePool: ad0000005a000000a00000009f000000a4000000
+  displaySprite: {fileID: -5691938989167086135, guid: 30a2bf49c20b63f44bbbecb193e14b41, type: 3}
+  enemyDeckTemplate: '[173,173,90,90,160,160,92,92,158,158,384,384,234,234,151,151,159,159,164,164,165,165,170,170,171,171,172,172,174,174]'

@@ -14,6 +14,16 @@ public class CardInputManager : MonoBehaviour
 
     void Update()
     {
+        if (CombatLog.IsLogUIActive)
+        {
+            if (hoveredCard != null)
+            {
+                hoveredCard.OnHoverExit();
+                hoveredCard = null;
+            }
+            return;
+        }
+
         if (Input.GetMouseButtonDown(1)) // Right click
         {
             if (hoveredCard != null)

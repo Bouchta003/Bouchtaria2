@@ -159,7 +159,7 @@ public class CardDatabase : MonoBehaviour
         foreach (CardData card in Cards.Values)
         {
             if (!string.IsNullOrEmpty(card.effect) &&
-                card.effect.Contains(effect) && IsCardArtValid(card))
+                card.effect.Contains(effect) && IsCardArtValid(card) && card.cardType!= "curse")
             {
                 result.Add(card);
 

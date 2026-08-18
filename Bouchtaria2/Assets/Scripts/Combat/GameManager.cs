@@ -48,10 +48,17 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject spawnEnemyCore;
 
     [Header("SFX")]
-    [SerializeField] public AudioClip healSFX;
-    [SerializeField] public AudioClip dmgSFX;
+    [SerializeField] public List<AudioClip> healSFX;
+    [SerializeField] public List<AudioClip> dmgSFX;//replace by hit
     [SerializeField] public AudioClip fahSFX;
+    [SerializeField] public AudioClip evolveSFX;
+    [SerializeField] public AudioClip statbuffSFX;
+    [SerializeField] public AudioClip statnerfSFX;
+    [SerializeField] public AudioClip killSFX;
+    [SerializeField] public AudioClip magicSFX;
     [SerializeField] public List<AudioClip> winSFX;
+    [SerializeField] public List<AudioClip> drawSFX;
+    [SerializeField] public List<AudioClip> gearSFX;
     public GameState CurrentGameState { get; private set; } = GameState.Playing;
     private int startingPlayerCoreHealth = 50;
     private int startingEnemyCoreHealth = 50;
@@ -76,6 +83,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI manacounterAlly;
     [SerializeField] GameObject boardDesign;
     [SerializeField] GameObject fatigueDisplay;
+    [SerializeField] TextMeshProUGUI fatigueText;
+    [SerializeField] TextMeshProUGUI fatigueOwnerText;
     private CanvasGroup canvasGroup;
     [SerializeField] public GameObject UIparent;
     [SerializeField] List<Sprite> boards;
@@ -83,6 +92,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI manacounterEnmy;
     [SerializeField] Transform playerCoreProxy;
     [SerializeField] Transform enemyCoreProxy;
+    [SerializeField] public Transform CombatInfo;
+    [SerializeField] public GameObject RelicGrid;
+    [SerializeField] public GameObject RelicPrefab;
+    [SerializeField] public GameObject BagButton;
 
     [Header("Cursor")]
     [SerializeField] Image attackCursor;
@@ -141,6 +154,11 @@ public class GameManager : MonoBehaviour
     //Trait logic
     private readonly List<ITraitProgression> activeProgressions = new();
     public readonly HashSet<PlayerOwner> swordsmanBleedAppliedThisTurn = new();
+    private readonly Dictionary<PlayerOwner, Vector2Int> permanentTurnEndBuffs = new()
+    {
+        { PlayerOwner.Player, Vector2Int.zero },
+        { PlayerOwner.Enemy, Vector2Int.zero }
+    };
     //Attack logic
     private readonly Queue<AttackRequest> attackQueue = new Queue<AttackRequest>();
     private bool isResolvingAttack = false;
@@ -163,6 +181,7 @@ public class GameManager : MonoBehaviour
     public event System.Action<CardInstance> OnDamageCardInstance;
     public event System.Action<CardInstance> OnSpellPlayed;
     public event System.Action<CardInstance> OnCardPlayed;
+    public event System.Action<CardInstance> OnUnitEnteredBoard;
     public event System.Action<CardInstance, int, int> OnCardBuffed;
     public event System.Action<CardInstance, int> OnSoulConsumed;
 
@@ -249,13 +268,21 @@ private sealed class PendingHandReturn
         adventureBossSecondPhaseTriggered = false;
         adventureBossFinalDialogueTriggered = false;
         isTargettingAttack = false;
+        BagButton.SetActive(false);
         InitializeMana();
 
         boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[UnityEngine.Random.Range(0, boards.Count)];
         if (GameRunContext.IsDungeonRun) boardDesign.GetComponentInChildren<SpriteRenderer>().sprite = boards[0];
-
-        //Logic for dungeon runs
-        if (GameRunContext.IsDungeonRun)
+        CombatInfo.gameObject.SetActive(false);
+        //Logic for roguelite/dungeon runs
+        if (GameRunContext.IsPathOfPowerRun)
+        {
+            SetupPathOfPowerFight(GameRunContext.PathOfPowerData);
+            SetupFirstTurn();
+            BagButton.SetActive(true);
+            UpdateRelicGrid();
+        }
+        else if (GameRunContext.IsDungeonRun)
         {
             SetupDungeonFight(GameRunContext.DungeonData);
             SetupFirstTurn();
@@ -266,6 +293,78 @@ private sealed class PendingHandReturn
         }
         else SetupFirstTurn();
     }
+    /// <summary>
+    /// Toggles the active state of the CombatInfo UI element.  
+    /// </summary>
+    /// <remarks>If the CombatInfo UI element is currently visible, this method hides it; if it is hidden,
+    /// this method makes it visible. This method is typically used to show or hide additional combat information in the
+    /// user interface.</remarks>
+    public void ToggleInfo()
+    {
+        CombatInfo.gameObject.SetActive(!CombatInfo.gameObject.activeSelf);
+    }
+    #region PathOfPower
+    public void ToggleRelics()
+    {
+        RelicGrid.SetActive(!RelicGrid.activeSelf);
+    }
+    private void UpdateRelicGrid()
+    {
+        if (RelicGrid == null || RelicPrefab == null || !GameRunContext.IsPathOfPowerRun)
+            return;
+
+        Transform parent = RelicGrid.transform;
+        for (int i = parent.childCount - 1; i >= 0; i--)
+            Destroy(parent.GetChild(i).gameObject);
+
+        if (GameRunContext.PathOfPowerData == null || GameRunContext.PathOfPowerData.currentRelics == null)
+            return;
+
+        foreach (string relicId in GameRunContext.PathOfPowerData.currentRelics.Where(id => !string.IsNullOrWhiteSpace(id)))
+        {
+            RelicDefinition relic = ResolveRelic(relicId);
+            if (relic == null || relic.Type != RelicDefinition.RelicType.CombatRelic)
+                continue;
+
+            GameObject relicObject = Instantiate(RelicPrefab, parent);
+            relicObject.name = $"Owned Relic - {relic.DisplayName}";
+            PopulateRelicPrefab(relicObject, relic);
+            ConfigureRelicScan(relicObject, relic);
+
+            RectTransform rectTransform = relicObject.GetComponent<RectTransform>();
+            if (rectTransform != null)
+            {
+                rectTransform.localRotation = Quaternion.identity;
+                rectTransform.localScale = Vector3.one;
+            }
+
+            Button button = relicObject.GetComponentInChildren<Button>(true);
+            if (button != null)
+                button.onClick.RemoveAllListeners();
+        }
+    }
+    private RelicDefinition ResolveRelic(string relicId)
+    {
+        return PathOfPowerManager.Instance.relicLibrary.FirstOrDefault(relic => relic != null && relic.RelicId == relicId);
+    }
+    private void PopulateRelicPrefab(GameObject relicObject, RelicDefinition relic)
+    {
+        Image relicImage = relicObject.GetComponentInChildren<Image>(true);
+        if (relicImage != null && relic.Icon != null)
+            relicImage.sprite = relic.Icon;
+    }
+    private void ConfigureRelicScan(GameObject relicObject, RelicDefinition relic)
+    {
+        if (relicObject == null || relic == null)
+            return;
+
+        RelicScanTarget scanTarget = relicObject.GetComponentInChildren<RelicScanTarget>(true);
+        if (scanTarget == null)
+            scanTarget = relicObject.AddComponent<RelicScanTarget>();
+
+        scanTarget.Initialize(relic);
+    }
+    #endregion
     public void SetupFirstTurn()
     {
         if (TurnManager.Instance == null)
@@ -299,7 +398,10 @@ private sealed class PendingHandReturn
         InitializeSoulCounterVisibility();
         SetupTraits();                        // create progressions
 
-        SetupCores();
+        int playerHpBonus = PathOfPowerRelicEffectService.GetStartingHpModifier(PlayerOwner.Player);
+        int enemyHpBonus = PathOfPowerRelicEffectService.GetStartingHpModifier(PlayerOwner.Enemy);
+
+        SetupCores(startingPlayerCoreHealth + playerHpBonus, startingEnemyCoreHealth + enemyHpBonus);
         PlayerCore.GetComponent<CoreView>().Bind(PlayerCore);
         EnemyCore.GetComponent<CoreView>().Bind(EnemyCore);
 
@@ -308,7 +410,9 @@ private sealed class PendingHandReturn
         TurnManager.Instance.OnTurnEnded -= HandleTurnEnded;
         TurnManager.Instance.OnTurnStarted += HandleTurnStart;
         TurnManager.Instance.OnTurnEnded += HandleTurnEnded;
-        TurnManager.Instance.StartFirstTurn();
+        PathOfPowerRelicEffectService.ApplyCombatStartRelics(PlayerOwner.Player);
+        PathOfPowerRelicEffectService.ApplyCombatStartRelics(PlayerOwner.Enemy);
+        StartCoroutine(TurnManager.Instance.StartFirstTurn());
         if (dungeonStartDrawBonus > 0)
         {
             StartCoroutine(deckManager.Draw(dungeonStartDrawBonus, PlayerOwner.Player));
@@ -397,7 +501,6 @@ private sealed class PendingHandReturn
     {
         if (!OwnerCanUseSoulForce(owner))
             return;
-
         GameObject soulGO = owner == PlayerOwner.Player ? allySoulCounter : enemySoulCounter;
         if (soulGO == null)
             return;
@@ -558,9 +661,9 @@ private sealed class PendingHandReturn
 
         int fatigueVal = owner == PlayerOwner.Player ? PlayerFatigue : EnemyFatigue;
 
-        TextMeshProUGUI fatigueTxt = fatigueDisplay.GetComponentInChildren<TextMeshProUGUI>();
-        fatigueTxt.text = $"No more cards in deck.\nRefilling deck.\n{owner} now takes damage equal to the mana of the drawn cards * {fatigueVal}";
-
+        fatigueText.text = $"No more cards in deck.\nRefilling deck.\n{owner} now takes damage equal to the mana of the drawn cards X {fatigueVal}";
+        fatigueOwnerText.text = owner == PlayerOwner.Player ? "Player" : "Enemy";
+        fatigueOwnerText.color = owner == PlayerOwner.Player ? Color.ghostWhite : Color.darkRed;
         StopAllCoroutines();
         StartCoroutine(FadeRoutine());
     }
@@ -729,6 +832,18 @@ private sealed class PendingHandReturn
         hand.UpdateCardPositions();
         return card;
     }
+    public void BuffAllAlliesEffect(int atk, int hp, PlayerOwner owner, string effect)
+    {
+        List<GameObject> allies;
+        if (owner == PlayerOwner.Player) allies = allyDropArea.allyPrefabCards;
+        else allies = enemyDropArea.enemyPrefabCards;
+
+        foreach (GameObject go in allies)
+        {
+            if(go.GetComponent<CardInstance>().HasKeyword(effect))
+            go.GetComponent<CardInstance>().ModifyStats(atk, hp);
+        }
+    }
     public void BuffAllAllies(int atk, int hp, PlayerOwner owner)
     {
         List<GameObject> allies;
@@ -754,6 +869,12 @@ private sealed class PendingHandReturn
             go.GetComponent<CardInstance>().ModifyStats(newAtk, newHp);
         }
     }
+    void SetupPathOfPowerFight(PathOfPowerRunData runData)
+    {
+        startingPlayerCoreHealth = 30;//Starting Hp for player is always 30 in Path of Power without relics, but enemy hp scales based on the floor
+        startingEnemyCoreHealth = PathOfPowerCombatService.GetEnemyHealth(runData);
+    }
+
     void SetupDungeonFight(DungeonRunData runData)
     {
         startingEnemyCoreHealth = 5 * (runData.floor+4);
@@ -809,7 +930,7 @@ private sealed class PendingHandReturn
             EnemyCurrentMana++;
             EnemyCurrentMaxMana++;
         }
-        if (GameRunContext.IsAdventureHardMode) { startingEnemyCoreHealth += 20; }
+        if (GameRunContext.IsAdventureHardMode) { startingEnemyCoreHealth += 20; if (GameRunContext.AdventureFightId > 12) startingPlayerCoreHealth += 25; else startingPlayerCoreHealth += 10; }
         CombatDialogue.Instance.TriggerCutscene(battleId);
     }
     private void OnDestroy()
@@ -846,6 +967,12 @@ private sealed class PendingHandReturn
             // Concede clears the run state cleanly just like pressing Concede in the pause menu
             DungeonManager.Instance?.ConcedeRun();
             DungeonManager.SetDungeonCombatActive(false);
+        }
+
+        if (GameRunContext.IsPathOfPowerRun)
+        {
+            // Concede clears the run state cleanly just like pressing Concede in the pause menu
+            PathOfPowerManager.Instance.StartNewRun();
         }
     }
     // Update is called once per frame
@@ -1060,10 +1187,34 @@ private sealed class PendingHandReturn
         swordsmanBleedAppliedThisTurn.Remove(owner);
         IncreaseMaxMana(owner);
         RefillMana(owner);
+        PathOfPowerRelicEffectService.ApplyTurnStartRelics(owner);
     }
     private void HandleTurnEnded(PlayerOwner owner)
     {
+        Debug.Log($"[PathOfPower][Relics] Turn ended for {owner}; applying Path Of Power relic hooks if this is a Path Of Power combat.");
+        PathOfPowerRelicEffectService.ApplyEndTurnRelics(owner, this);
+        ApplyPermanentTurnEndBuff(owner);
         UpdatePartnerLinks();
+    }
+    public void AddPermanentTurnEndBuff(PlayerOwner owner, int atk, int hp)
+    {
+        if (atk == 0 && hp == 0)
+            return;
+
+        Vector2Int current = permanentTurnEndBuffs.TryGetValue(owner, out Vector2Int existing)
+            ? existing
+            : Vector2Int.zero;
+        permanentTurnEndBuffs[owner] = new Vector2Int(current.x + atk, current.y + hp);
+    }
+    private void ApplyPermanentTurnEndBuff(PlayerOwner owner)
+    {
+        if (!permanentTurnEndBuffs.TryGetValue(owner, out Vector2Int buff))
+            return;
+
+        if (buff.x == 0 && buff.y == 0)
+            return;
+
+        BuffAllAllies(buff.x, buff.y, owner);
     }
     private bool IsPartnerLinkAlive(PartnerLink link)
     {
@@ -1273,7 +1424,6 @@ private sealed class PendingHandReturn
                 CardData.Trait.Chaos => new ChaosProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
                 CardData.Trait.Fighter => new FighterProgression(owner, maxTier, traitSystem, allyDropArea, enemyDropArea),
                 CardData.Trait.Inazuma => new InazumaProgression(owner, maxTier, traitSystem),
-                CardData.Trait.SpellFocus => throw new System.NotImplementedException(),
                 CardData.Trait.Cozy => new CozyProgression(owner, maxTier, traitSystem),
                 CardData.Trait.Swordsman => new SwordsmanProgression(owner, maxTier, traitSystem),
                 CardData.Trait.Combo => new ComboProgression(owner, maxTier, traitSystem),
@@ -1312,7 +1462,14 @@ private sealed class PendingHandReturn
 
         return system.HasTraitAtTier(trait, minTier);
     }
-
+    public bool OwnerHasRelic(PlayerOwner owner, int id)
+    {
+        if(GameRunContext.IsPathOfPowerRun)
+        {
+            return PathOfPowerRelicEffectService.PlayerHasRelic(owner, id);
+        }
+        return false;
+    }
     public void AddPokemonTraitProgress(PlayerOwner owner, int amount)
     {
         if (amount <= 0)
@@ -1329,6 +1486,7 @@ private sealed class PendingHandReturn
     }
     private void OnAllyTraitActivated(CardData.Trait trait, int tier)
     {
+        PathOfPowerRelicEffectService.ApplyTraitTierActivatedRelics(PlayerOwner.Player, tier, this);
         if (allyTraitUI == null) return;
         if (!allyTraitUI.gameObject) return; // destroyed check
         try { allyTraitUI.ActivateTrait(trait, tier); }
@@ -1336,6 +1494,7 @@ private sealed class PendingHandReturn
     }
     private void OnEnemyTraitActivated(CardData.Trait trait, int tier)
     {
+        PathOfPowerRelicEffectService.ApplyTraitTierActivatedRelics(PlayerOwner.Enemy, tier, this);
         if (enemyTraitUI == null) return;
         if (!enemyTraitUI.gameObject) return; // destroyed check
         try { enemyTraitUI.ActivateTrait(trait, tier); }
@@ -1344,13 +1503,13 @@ private sealed class PendingHandReturn
     #endregion
 
     #region Core Management
-    private void SetupCores()
+    private void SetupCores(int playerStartingHp, int enemyStartingHp)
     {
         //PlayerCore = Instantiate(corePrefab, spawnPlayerCore.transform).GetComponent<CoreInstance>();
-        PlayerCore.Initialize(PlayerOwner.Player, startingPlayerCoreHealth);
+        PlayerCore.Initialize(PlayerOwner.Player, playerStartingHp);
 
         //EnemyCore = Instantiate(corePrefab, spawnEnemyCore.transform).GetComponent<CoreInstance>();
-        EnemyCore.Initialize(PlayerOwner.Enemy, startingEnemyCoreHealth);
+        EnemyCore.Initialize(PlayerOwner.Enemy, enemyStartingHp);
     }
     public void OnCoreDestroyed(PlayerOwner owner)
     {
@@ -1364,8 +1523,11 @@ private sealed class PendingHandReturn
         if (owner == PlayerOwner.Player)
         {
             CurrentGameState = GameState.PlayerLost;
+            CombatLog.Instance?.AddAnonymousAction(PlayerOwner.Enemy, "Enemy won the combat.");
             Debug.Log("PLAYER LOSES");
             ModifyUserGold(LossGoldCompensation);
+            if (GameRunContext.IsPathOfPowerRun)
+                PathOfPowerCombatService.MarkCombatLost();
             if (GameRunContext.IsDungeonRun)
                 DungeonManager.SetDungeonCombatActive(false);
             if (GameRunContext.IsAdventureCombat)
@@ -1386,12 +1548,14 @@ private sealed class PendingHandReturn
             {
                 adventureBossFinalDialogueTriggered = true;
                 CurrentGameState = GameState.PlayerWon;
+                CombatLog.Instance?.AddAnonymousAction(PlayerOwner.Player, "Player won the combat.");
                 Debug.Log("PLAYER WINS");
                 ApplyPlayerWinRewardsAndProgression();
                 StartCoroutine(HandleAdventureBossFinalDialogueThenWinUI());
                 return;
             }
             CurrentGameState = GameState.PlayerWon;
+            CombatLog.Instance?.AddAnonymousAction(PlayerOwner.Player, "Player won the combat.");
             Debug.Log("PLAYER WINS");
             ApplyPlayerWinRewardsAndProgression();
         }
@@ -1417,9 +1581,32 @@ private sealed class PendingHandReturn
         enemyDropArea.enemyPrefabCards.Clear();
         enemyDropArea.UpdateEnemyCardPositions();
     }
+    private void ClearAllyBoard()
+    {
+        if (allyDropArea == null) return;
+
+        foreach (GameObject cardGO in new List<GameObject>(allyDropArea.allyPrefabCards))
+        {
+            if (cardGO == null) continue;
+            CardInstance ci = cardGO.GetComponent<CardInstance>();
+            if (ci != null)
+            {
+                ci.IsDead = true;
+                ci.IsDying = true;
+            }
+            Destroy(cardGO);
+        }
+
+        allyDropArea.allyPrefabCards.Clear();
+        allyDropArea.UpdateAllyCardPositions();
+    }
     private void ApplyPlayerWinRewardsAndProgression()
     {
         ModifyUserGold(WinGoldReward);
+        if (GameRunContext.IsPathOfPowerRun)
+        {
+            PathOfPowerCombatService.MarkCombatWon();
+        }
         if (GameRunContext.IsDungeonRun)
         {
             DungeonManager.SetDungeonCombatActive(false);
@@ -1490,6 +1677,7 @@ private sealed class PendingHandReturn
         Dictionary<CardData.Trait, int> savedEnemyProgress = SnapshotTraitProgress(PlayerOwner.Enemy);
         RemoveTraitProgressionsForOwner(PlayerOwner.Enemy);
         ClearEnemyBoard();
+        if (GameRunContext.IsAdventureHardMode) { ClearAllyBoard(); }
         ClearEnemyHand();
         DiscardEnemyDeck();
         EnemyGraveyard = new Graveyard();
@@ -1601,7 +1789,7 @@ private sealed class PendingHandReturn
                 SetIntField(progression, "soulsCollected", progress);
                 break;
             case CardData.Trait.Fighter:
-                SetIntField(progression, "FighterPlayed", progress);
+                SetIntField(progression, "allyStatIncreases", progress);
                 break;
             case CardData.Trait.Chaos:
                 SetIntField(progression, "randomPlayed", progress);
@@ -1753,6 +1941,7 @@ private sealed class PendingHandReturn
             EnemyCurrentMana += mana;
 
         NotifyManaGained(owner, mana);
+        CombatLog.Instance?.AddAnonymousAction(owner, $"{owner} gained {mana} mana.");
     }
     public void EnemyMaxManaLoss(int mana, PlayerOwner owner)
     {
@@ -1771,6 +1960,7 @@ private sealed class PendingHandReturn
         else { EnemyCurrentMaxMana += mana; EnemyCurrentMana += mana; }
 
         NotifyManaGained(owner, mana);
+        CombatLog.Instance?.AddAnonymousAction(owner, $"{owner} gained {mana} max mana.");
     }
     public int GainMaxManaCapped(int mana, PlayerOwner owner)
     {
@@ -2526,6 +2716,7 @@ private sealed class PendingHandReturn
         if (summonedCard == null)
             return;
 
+        OnUnitEnteredBoard?.Invoke(summonedCard);
         StartCoroutine(TriggerAutoHitAfterSummonDelay(summonedCard));
     }
 
@@ -3611,6 +3802,7 @@ private sealed class PendingHandReturn
     #region Combat Manager
     public void NotifyCardKilled(CardInstance deadCard)
     {
+        PathOfPowerRelicEffectService.ApplyUnitKilledRelics(deadCard, this);
         OnCardKilled?.Invoke(deadCard);
         HandlePartnerDeathTriggers(deadCard);
         UpdatePartnerLinks();
@@ -4128,11 +4320,11 @@ private sealed class PendingHandReturn
             //Apply lifesteal Heal before damage if enemy not blessed
             if (attacker.HasKeyword("lifesteal") && !targetUnit.HasKeyword("blessed"))
             {
-                attacker.AutoHealCore(attackerDmg);
+                attacker.AutoHealCore(attackerDmg); CombatLog.Instance?.AddAction(attacker, $"{attacker.Data.name} healed core for {attackerDmg} HP with lifesteal.");
             }
             if (targetUnit.HasKeyword("lifesteal") && !attacker.HasKeyword("blessed"))
             {
-                targetUnit.AutoHealCore(defenderDmg);
+                targetUnit.AutoHealCore(defenderDmg); CombatLog.Instance?.AddAction(targetUnit, $"{targetUnit.Data.name} healed core for {defenderDmg} HP with lifesteal.");
             }
             if (isKill)
             {
@@ -4141,6 +4333,7 @@ private sealed class PendingHandReturn
             int excessDmg = attacker.CurrentAttack - targetUnit.CurrentHealth;
             attacker.TakeDamage(defenderDmg + thornDamage);
             targetUnit.TakeDamage(attackerDmg);
+            CombatLog.Instance?.AddAction(attacker, $"{attacker.Data.name} dealt {attackerDmg} damage to {targetUnit.Data.name} and received {defenderDmg} damage.");
             ApplyCleaveDamage(attacker, cleaveTargets, attackerDmg);
             ApplyPierceDamage(attacker, targetUnit, excessDmg);
             return;
@@ -4179,9 +4372,10 @@ private sealed class PendingHandReturn
 
             if (attacker.HasKeyword("lifesteal"))
             {
-                attacker.AutoHealCore(attackerDmg);
+                attacker.AutoHealCore(attackerDmg); CombatLog.Instance?.AddAction(attacker, $"{attacker.Data.name} healed core for {attackerDmg} HP with lifesteal.");
             }
-            core.TakeDamage(attackerDmg);
+            core.TakeDamage(attackerDmg); 
+            CombatLog.Instance?.AddAction(attacker, $"{attacker.Data.name} dealt {attackerDmg} damage to core.");
             return;
         }
     }
@@ -4237,6 +4431,7 @@ private sealed class PendingHandReturn
             return;
 
         enemyCore.TakeDamage(damage);
+        CombatLog.Instance?.AddAction(attacker, $"{attacker.Data.name} pierced enemy core for {damage} damage.");
         OnDamageWithCard(attacker.Owner);
     }
     private void ApplyCleaveDamage(CardInstance attacker, List<CardInstance> cleaveTargets, int damage)

@@ -5,6 +5,7 @@ public class MainMenuUIController : MonoBehaviour
     private void Start()
     {
         GameRunContext.IsDungeonRun = false;
+        GameRunContext.IsPathOfPowerRun = false;
         GameRunContext.IsAdventureCombat = false;
         GameRunContext.AdventureFightId = 0;
         GameRunContext.IsAdventureHardMode = false;
@@ -20,6 +21,10 @@ public class MainMenuUIController : MonoBehaviour
     public void OnDungeonlicked()
     {
         GameFlowController.Instance.GoToDungeon();
+    }
+    public void OnPathOfPowerClicked()
+    {
+        GameFlowController.Instance.GoToPathOfPower();
     }
     public void OnAdventureClicked()
     {

@@ -38,6 +38,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/AdventureStage1.unity
     guid: c3f5fed1ae2ecd045a27ef2531914738
+  - enabled: 1
+    path: Assets/Scenes/PathofPower.unity
+    guid: c9a762114ce4c7a42b5560ec8a6a7221
+  - enabled: 1
+    path: Assets/Scenes/PathOfPowerLeaderboard.unity
+    guid: 3aa00027d191b9740acf48bdaa7e7e9f
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

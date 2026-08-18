@@ -8,7 +8,7 @@ public class ScanController : MonoBehaviour
 
     [SerializeField] private ScanPanelView scanPanelPrefab;
 
-    private ScanPanelView panelInstance;
+    public ScanPanelView panelInstance;
     private CardView hoveredCard;
 
     private void Awake()
@@ -21,24 +21,47 @@ public class ScanController : MonoBehaviour
     }
     private void Update()
     {
-        if (ScanInput.Instance == null || !ScanInput.Instance.IsScanActive)
+        string activeScene = SceneManager.GetActiveScene().name;
+        bool pathOfPowerScene = activeScene == "PathofPower";
+        bool cardScanActive = IsScanActive();
+
+        if (!cardScanActive)
         {
             panelInstance.Hide();
             return;
         }
 
         CardView cardUnderMouse = GetCardUnderMouse();
+        bool canShowCollectionCard = cardUnderMouse != null &&
+                                     (activeScene != "Collection" ||
+                                      (UserCollectionManager.Instance != null && (UserCollectionManager.Instance.IsOwned(cardUnderMouse.CardData.id)) || FindFirstObjectByType<CollectionScreen>().isDeck));
 
-        if (cardUnderMouse != null && (UserCollectionManager.Instance.IsOwned(cardUnderMouse.CardData.id) || SceneManager.GetActiveScene().name != "Collection"))
+        if (canShowCollectionCard)
         {
-            panelInstance.owner = cardUnderMouse.GetComponent<CardInstance>().Owner;
-            if(panelInstance.owner==PlayerOwner.Player || cardUnderMouse.GetComponent<CardInstance>().CurrentZone != CardZone.Hand)
+            CardInstance cardInstance = cardUnderMouse.GetComponent<CardInstance>();
+            if (cardInstance == null)
+                return;
+
+            panelInstance.owner = cardInstance.Owner;
+            if(panelInstance.owner==PlayerOwner.Player || cardInstance.CurrentZone != CardZone.Hand)
                 panelInstance.Show(cardUnderMouse);
         }
-        else
+        else if (panelInstance != null && panelInstance.isShowingRelic)
+        {
+            // keep relic hover scans visible until the relic hover target clears them
+        }
+        else if (!CombatLogEntryView.IsAnyLogEntryHovered && !pathOfPowerScene && cardUnderMouse == null)
         {
             panelInstance.Hide();
         }
+    }
+
+    private bool IsScanActive()
+    {
+        if (ScanInput.Instance != null)
+            return ScanInput.Instance.IsScanActive;
+
+        return !UIInputFocusTracker.IsAnyTMPFocused && Input.GetKey(KeyCode.Space);
     }
 
     private CardView GetCardUnderMouse()

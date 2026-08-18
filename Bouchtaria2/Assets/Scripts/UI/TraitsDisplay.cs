@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class TraitsDisplay : MonoBehaviour
@@ -18,7 +19,6 @@ public class TraitsDisplay : MonoBehaviour
     [SerializeField] public Sprite neutralIcon;//
     [SerializeField] public Sprite comboIcon;//
     [SerializeField] public Sprite chaosIcon;//
-    [SerializeField] public Sprite spellFocusIcon;//
     [SerializeField] public Sprite speedsterIcon;
     [SerializeField] public Sprite soulForceIcon;
     [SerializeField] public Sprite cozyIcon;
@@ -46,10 +46,36 @@ public class TraitsDisplay : MonoBehaviour
     public int CurrentCap;
     private void Start()
     {
+        if (SceneManager.GetActiveScene().name == "PathofPower") return;
+        
         frameRaritySlot.gameObject.SetActive(false);
         if (transform.parent.tag == "Enemy")
             traitEffect.transform.localPosition *= -1;
         traitEffect.SetActive(false);
+    }
+    public Sprite GetSpriteForTrait(CardData.Trait trait)
+    {
+        switch (trait)
+        {
+            case CardData.Trait.Pokemon: return iconSlot.sprite = pokemonIcon;
+            case CardData.Trait.Inazuma: return iconSlot.sprite = inazumaIcon;
+            case CardData.Trait.Chaos: return iconSlot.sprite = chaosIcon;
+            case CardData.Trait.Neutral: return iconSlot.sprite = neutralIcon;
+            case CardData.Trait.Fighter: return iconSlot.sprite = FighterIcon;
+            case CardData.Trait.Healer: return iconSlot.sprite = healIcon;
+            case CardData.Trait.Faith: return iconSlot.sprite = faithIcon;
+            case CardData.Trait.Speedster: return iconSlot.sprite = speedsterIcon;
+            case CardData.Trait.MonsterHunter: return iconSlot.sprite = monsterhunterIcon;
+            case CardData.Trait.Avatar: return iconSlot.sprite = AvatarIcon;
+            case CardData.Trait.Gunner: return iconSlot.sprite = gunnerIcon;
+            case CardData.Trait.Combo: return iconSlot.sprite = comboIcon;
+            case CardData.Trait.SoulForce: return iconSlot.sprite = soulForceIcon;
+            case CardData.Trait.Swordsman: return iconSlot.sprite = swordsmanIcon;
+            case CardData.Trait.Cozy: return iconSlot.sprite = cozyIcon;
+            default:
+                Debug.LogWarning($"No sprite defined for trait {trait}");
+                return iconSlot.sprite = memeIcon;
+        }
     }
     public void Activate(int tier)
     {
@@ -76,11 +102,11 @@ public class TraitsDisplay : MonoBehaviour
         {
             case CardData.Trait.Pokemon:
                 display += $"Kill or catch enemies to activate : {Progression}/{CurrentCap}" +
-                    "\nTier 1 : The next Pokemon you play evolves instantly.";
+                    "\nTier 1 : Start of turn: evolve a random Pokemon on your board that can evolve.";
                 if (tier > 1) display +=
-                        "\nTier 2 : The next Pokemon you play evolves instantly and gains +3/+3.";
+                        "\nTier 2 : Add Pokeball, Greatball, and Ultraball to your hand. They cost 2 less.";
                 if (tier > 2) display +=
-                         "\nTier 3 : Discover a LEGENDARY Pokemon.";
+                         "\nTier 3 : Discover a LEGENDARY Pokemon. It costs 3 less.";
                 break;
             case CardData.Trait.Inazuma:
                 display += $"Use Hissatsus to activate : {Progression}/{CurrentCap}" +
@@ -107,12 +133,12 @@ public class TraitsDisplay : MonoBehaviour
                          "\nTier 3 : The first unit you play also has +2 ATK.\nStart of turn, discount a random card in your hand by 1.";
                 break;
             case CardData.Trait.Fighter:
-                display += $"Play fighter units to unlock. Currently played : {Progression}/{CurrentCap}" +
-                    "\nTier 1 : The first unit you play each turn has +1/+1.";
+                display += $"Increase allied stats to unlock (Fighters count twice): {Progression}/{CurrentCap}" +
+                    "\nTier 1 : When a Fighter gains stats, it gains an additional +1/+1.";
                 if (tier > 1) display +=
-                        "\nTier 2 : Discover a Fighter Relic, reduce its cost by 3.";
+                        "\nTier 2 : When a Fighter gains stats, it gains a random basic effect.";
                 if (tier > 2) display +=
-                         "\nTier 3 : End of Turn : Buff all your units by +1/+1.";
+                         "\nTier 3 : When a Fighter is summoned, it gains +3/+3.";
                 break;
             case CardData.Trait.Healer:
                 display += $"Heal ally units or core to unlock : {Progression}/{CurrentCap}" +

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening.Core.Easing;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -18,7 +19,8 @@ public class DeckManager : MonoBehaviour
 
     public Dictionary<CardData.Trait, int> AllyTraitsUnlockable;
     public Dictionary<CardData.Trait, int> EnemyTraitsUnlockable;
-
+    private bool isDrawingPlayer = false;
+    private bool isDrawingEnemy = false;
     public event System.Action<CardInstance> OnCardDrawn;
 
     public int TruthEffect = -1;
@@ -58,7 +60,37 @@ public class DeckManager : MonoBehaviour
         InitializeDeck(PlayerOwner.Player);
         InitializeDeck(PlayerOwner.Enemy);
     }
+    private bool RefillDeckForFatigue(PlayerOwner owner)
+    {
+        List<CardData> refillList =
+            owner == PlayerOwner.Player
+            ? GetDeckForPlayer()
+            : GetDeckForEnemy();
 
+        if (refillList == null || refillList.Count == 0)
+        {
+            Debug.LogError($"Failed to refill deck for {owner}");
+            return false;
+        }
+
+        Shuffle(refillList);
+
+        Queue<CardData> newDeck = new Queue<CardData>();
+
+        foreach (CardData card in refillList)
+        {
+            if (card == null)
+                continue;
+
+            newDeck.Enqueue(card);
+        }
+
+        decks[owner] = newDeck;
+
+        Debug.Log($"{owner} deck refilled with {newDeck.Count} cards.");
+
+        return newDeck.Count > 0;
+    }
     private void InitializeDeck(PlayerOwner owner)
     {
         List<CardData> deckList = new List<CardData>();
@@ -122,10 +154,37 @@ public class DeckManager : MonoBehaviour
 
     public IEnumerator Draw(int count, PlayerOwner owner)
     {
-        for (int i = 0; i < count; i++)
+        // Prevent simultaneous draw corruption
+        if (owner == PlayerOwner.Player)
         {
-            DrawCard(owner);
-            yield return new WaitForSeconds(0.2f);
+            if (isDrawingPlayer)
+                yield break;
+
+            isDrawingPlayer = true;
+        }
+        else
+        {
+            if (isDrawingEnemy)
+                yield break;
+
+            isDrawingEnemy = true;
+        }
+
+        try
+        {
+            for (int i = 0; i < count; i++)
+            {
+                TryDrawCard(owner);
+
+                yield return new WaitForSeconds(0.2f);
+            }
+        }
+        finally
+        {
+            if (owner == PlayerOwner.Player)
+                isDrawingPlayer = false;
+            else
+                isDrawingEnemy = false;
         }
     }
     public IEnumerator DrawEffect(string effect, PlayerOwner owner)
@@ -242,21 +301,6 @@ public class DeckManager : MonoBehaviour
             return;
         }
 
-        if (deck.Count == 0)
-        {
-            InitializeDeck(owner);
-            deck = decks[owner]; // ✅ re-fetch the newly created queue
-            if (owner == PlayerOwner.Player) GameManager.Instance.PlayerFatigue++;
-            else GameManager.Instance.EnemyFatigue++;
-            GameManager.Instance.DisplayFatigue(owner);
-
-            if (deck.Count == 0) // still empty = all IDs were invalid
-            {
-                Debug.LogError($"[Deck] {owner} deck is empty even after re-init. No valid cards.");
-                return;
-            }
-        }
-
         HandManager hand = owner == PlayerOwner.Player
             ? handManager
             : handManagerEnemy;
@@ -273,6 +317,11 @@ public class DeckManager : MonoBehaviour
         // We temporarily cycle through the deck
         for (int i = 0; i < originalCount; i++)
         {
+            if (deck.Count == 0)
+            {
+                Debug.LogError("Attempted dequeue on empty deck.");
+                return;
+            }
             CardData top = deck.Dequeue();
 
             if (foundCard == null &&
@@ -331,8 +380,238 @@ public class DeckManager : MonoBehaviour
         hand.AddCard(card.gameObject);
         hand.UpdateCardPositions();
         OnCardDrawn?.Invoke(card);
+        if (card.Owner == PlayerOwner.Enemy)
+        {
+            CombatLog.Instance?.AddAnonymousAction(PlayerOwner.Enemy, $"Enemy drew a card.");
+        } else
+        CombatLog.Instance?.AddAction(card, $"{card.Data.name} was drawn.");
+    }
+    public bool TryDrawLowestCostCard(PlayerOwner owner)
+    {
+        if (!decks.TryGetValue(owner, out Queue<CardData> deck) || deck == null || deck.Count == 0)
+            return false;
+
+        HandManager hand = owner == PlayerOwner.Player ? handManager : handManagerEnemy;
+        if (hand == null || hand.handCards.Count >= hand.maxHandSize)
+            return false;
+
+        List<CardData> deckSnapshot = deck.Where(card => card != null).ToList();
+        if (deckSnapshot.Count == 0)
+            return false;
+
+        int lowestCost = deckSnapshot.Min(card => card.manaCost);
+        List<CardData> candidates = deckSnapshot.Where(card => card.manaCost == lowestCost).ToList();
+        CardData selected = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+        bool removed = false;
+        Queue<CardData> rebuiltDeck = new Queue<CardData>();
+
+        while (deck.Count > 0)
+        {
+            CardData current = deck.Dequeue();
+            if (!removed && current != null && current.id == selected.id)
+            {
+                removed = true;
+                continue;
+            }
+
+            rebuiltDeck.Enqueue(current);
+        }
+
+        decks[owner] = rebuiltDeck;
+        CardInstance card = CardFactory.Instance.CreateCard(selected, owner);
+        if (card == null)
+            return false;
+
+        card.SetZone(CardZone.Hand);
+        hand.AddCard(card.gameObject);
+        hand.UpdateCardPositions();
+        OnCardDrawn?.Invoke(card);
+        CombatLog.Instance?.AddAction(card, $"{card.Data.name} was drawn by Echo Crystal.");
+        return true;
     }
 
+    private bool TryDrawCard(PlayerOwner owner)
+    {
+        if (!decks.TryGetValue(owner, out Queue<CardData> deck))
+        {
+            Debug.LogError($"Tried to draw for {owner}, but no deck is initialized.");
+            return false;
+        }
+
+        if (deck == null)
+        {
+            Debug.LogError($"Deck is null for {owner}");
+            return false;
+        }
+
+        HandManager hand = owner == PlayerOwner.Player
+            ? handManager
+            : handManagerEnemy;
+
+        if (deck.Count == 0)
+        {
+            // Increase fatigue, unless Hot Cocoa blocks the first deck-empty fatigue increment.
+            bool hotCocoaPreventsIncrement = PathOfPowerRelicEffectService.HasHotCocoa(owner) &&
+                                             ((owner == PlayerOwner.Player && GameManager.Instance.PlayerFatigue == 0) ||
+                                              (owner == PlayerOwner.Enemy && GameManager.Instance.EnemyFatigue == 0));
+
+            if (!hotCocoaPreventsIncrement)
+            {
+                if (owner == PlayerOwner.Player)
+                    GameManager.Instance.PlayerFatigue++;
+                else
+                    GameManager.Instance.EnemyFatigue++;
+            }
+
+            GameManager.Instance.DisplayFatigue(owner);
+
+            int fatigueValue =
+                owner == PlayerOwner.Player
+                ? GameManager.Instance.PlayerFatigue
+                : GameManager.Instance.EnemyFatigue;
+
+            // Fatigue damage
+            if (owner == PlayerOwner.Player)
+                GameManager.Instance.PlayerCore.TakeDamage(fatigueValue);
+            else
+                GameManager.Instance.EnemyCore.TakeDamage(fatigueValue);
+
+            Debug.Log($"{owner} fatigued and refills deck.");
+
+            // SAFE REFILL
+            bool refillSuccess = RefillDeckForFatigue(owner);
+
+            if (!refillSuccess)
+            {
+                Debug.LogError($"Could not refill deck for {owner}");
+                return false;
+            }
+
+            // IMPORTANT:
+            // Re-fetch the NEW queue reference
+            deck = decks[owner];
+
+            // SAFETY CHECK
+            if (deck == null || deck.Count == 0)
+            {
+                Debug.LogError($"Deck still empty after refill for {owner}");
+                return false;
+            }
+        }
+
+        // Burn if hand full
+        if (hand.handCards.Count >= hand.maxHandSize)
+        {
+            if (deck.Count == 0)
+            {
+                Debug.LogError($"Attempted burn draw with empty deck for {owner}");
+                return false;
+            }
+
+            CardData burned = deck.Dequeue();
+
+            Debug.Log($"{owner} burned {burned?.name}");
+
+            return true;
+        }
+
+        // SAFE DEQUEUE
+        if (deck.Count == 0)
+        {
+            Debug.LogError($"Deck became empty unexpectedly for {owner}");
+            return false;
+        }
+
+        CardData data = deck.Dequeue();
+
+        if (data == null)
+        {
+            Debug.LogError($"Null card drawn for {owner}");
+            return false;
+        }
+
+        CardInstance card =
+            CardFactory.Instance.CreateCard(data, owner);
+
+        if (card == null)
+        {
+            Debug.LogError($"Failed to create card instance for {data.name}");
+            return false;
+        }
+
+        // IDEAL EFFECT
+        switch (IdealEffect)
+        {
+            case 0:
+                if (owner == PlayerOwner.Player)
+                    card.AddTemporaryManaModifier(-2);
+                break;
+
+            case 1:
+                if (owner == PlayerOwner.Enemy)
+                    card.AddTemporaryManaModifier(-2);
+                break;
+
+            case 2:
+                card.AddTemporaryManaModifier(-2);
+                break;
+        }
+
+        // TRUTH EFFECT
+        switch (TruthEffect)
+        {
+            case 0:
+                if (owner == PlayerOwner.Enemy)
+                    card.AddTemporaryManaModifier(2);
+                break;
+
+            case 1:
+                if (owner == PlayerOwner.Player)
+                    card.AddTemporaryManaModifier(2);
+                break;
+
+            case 2:
+                card.AddTemporaryManaModifier(2);
+                break;
+        }
+
+        card.SetZone(CardZone.Hand);
+
+        hand.AddCard(card.gameObject);
+
+        SFXManager.Instance.PlayRandomSFXClip(
+            GameManager.Instance.drawSFX,
+            transform,
+            1f);
+
+        hand.UpdateCardPositions();
+
+        OnCardDrawn?.Invoke(card);
+        if (card.Owner == PlayerOwner.Enemy)
+        {
+            CombatLog.Instance?.AddAnonymousAction(PlayerOwner.Enemy, $"Enemy drew a card.");
+        }
+        else
+            CombatLog.Instance?.AddAction(card, $"{card.Data.name} was drawn.");
+
+        // FATIGUE DAMAGE BONUS
+        int fatigue =
+            owner == PlayerOwner.Player
+            ? GameManager.Instance.PlayerFatigue
+            : GameManager.Instance.EnemyFatigue;
+
+        if (fatigue > 0)
+        {
+            int dmg = card.CurrentManaCost * fatigue;
+
+            if (owner == PlayerOwner.Player)
+                GameManager.Instance.PlayerCore.TakeDamage(dmg);
+            else
+                GameManager.Instance.EnemyCore.TakeDamage(dmg);
+        }
+
+        return true;
+    }
     private void DrawCard(PlayerOwner owner)
     {
         if (!decks.TryGetValue(owner, out Queue<CardData> deck))
@@ -405,8 +684,15 @@ public class DeckManager : MonoBehaviour
 
         card.SetZone(CardZone.Hand);
         hand.AddCard(card.gameObject);
+        SFXManager.Instance.PlayRandomSFXClip(GameManager.Instance.drawSFX, transform, 1f);
         hand.UpdateCardPositions();
         OnCardDrawn?.Invoke(card);
+        if (card.Owner == PlayerOwner.Enemy)
+        {
+            CombatLog.Instance?.AddAnonymousAction(PlayerOwner.Enemy, $"Enemy drew a card.");
+        }
+        else
+            CombatLog.Instance?.AddAction(card, $"{card.Data.name} was drawn.");
         //Fatigue effect
         if (owner == PlayerOwner.Player) GameManager.Instance.PlayerCore.TakeDamage(card.CurrentManaCost*GameManager.Instance.PlayerFatigue);
         else GameManager.Instance.EnemyCore.TakeDamage(card.CurrentManaCost * GameManager.Instance.EnemyFatigue);
@@ -418,6 +704,11 @@ public class DeckManager : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
+            if (deck.Count == 0)
+            {
+                Debug.LogError("Attempted dequeue on empty deck.");
+                return;
+            }
             CardData card = deck.Dequeue();
 
             if (replacements.TryGetValue(card.id, out int newId))

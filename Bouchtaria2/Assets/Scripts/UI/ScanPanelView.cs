@@ -30,7 +30,9 @@ public class ScanPanelView : MonoBehaviour
     [SerializeField] private float visibleX = 20f;
 
     private Coroutine slideRoutine;
-    private bool isVisible;
+    public bool isVisible { get; private set; }
+    // true when the panel content is showing a relic (vs a card)
+    public bool isShowingRelic { get; private set; }
     public PlayerOwner owner;
 
     void Awake()
@@ -59,11 +61,20 @@ public class ScanPanelView : MonoBehaviour
         if (card.GetComponent<CardInstance>().CurrentZone == CardZone.Board)
             PopulateBoard(card);
         else PopulateHand(card);
+        isShowingRelic = false;
         Slide(true);
     }
 
+    public void Show(CardData cardData, PlayerOwner cardOwner)
+    {
+        owner = cardOwner;
+        PopulateData(cardData);
+        isShowingRelic = false;
+        Slide(true);
+    }
     public void Hide()
     {
+        isShowingRelic = false;
         Slide(false);
     }
 
@@ -71,7 +82,7 @@ public class ScanPanelView : MonoBehaviour
     // Animation
     // =========================
 
-    private void Slide(bool show)
+    public void Slide(bool show)
     {
         if (isVisible == show)
             return;
@@ -108,6 +119,53 @@ public class ScanPanelView : MonoBehaviour
     // Content
     // =========================
 
+    public void PopulateRelic(Relic relic)
+    {
+        if (relic == null)
+            return;
+
+        cardSpriteCompact.sprite = relic.sprite;
+        nameText.text = relic.Name;
+        effectText.text = relic.Description;
+
+        atkText.text = string.Empty;
+        hpText.text = string.Empty;
+        manaText.text = string.Empty;
+        isShowingRelic = true;
+
+        foreach (Transform child in keywordContainer)
+            Destroy(child.gameObject);
+        foreach (Transform child in relatedContainer)
+            Destroy(child.gameObject);
+        //KeyWordCheck
+        UpdateTexts(relic.Description);
+    }
+
+    private void PopulateData(CardData card)
+    {
+        if (card == null)
+            return;
+
+        cardSpriteCompact.sprite = card.artSpriteCompact;
+        nameText.text = card.name;
+        effectText.text = card.effectText;
+        atkText.text = card.atkValue.ToString();
+        hpText.text = card.hpValue.ToString();
+        manaText.text = card.manaCost.ToString();
+
+        if (card.traits.Count > 0 && TryGetTraitColor(card.traits[0], out Color color))
+            trait1Image.color = color;
+        if (card.traits.Count > 1 && TryGetTraitColor(card.traits[1], out Color color2))
+            trait2Image.color = color2;
+        else
+            trait2Image.color = trait1Image.color;
+
+        foreach (Transform child in keywordContainer)
+            Destroy(child.gameObject);
+
+        UpdateTexts(card.effectText);
+        DisplayRelatedCards(card);
+    }
     private void PopulateHand(CardView cardView)
     {
         if (cardView == null)
@@ -155,6 +213,7 @@ public class ScanPanelView : MonoBehaviour
         //KeyWordCheck
         UpdateTexts(card.effectText);
         DisplayRelatedCards(card);
+        isShowingRelic = false;
     }
     private void PopulateBoard(CardView cardView)
     {
@@ -187,6 +246,7 @@ public class ScanPanelView : MonoBehaviour
 
         UpdateTexts(card.CurrentEffectText);
         DisplayRelatedCards(card.Data);
+        isShowingRelic = false;
     }
     void DisplayRelatedCards(CardData data)
     {

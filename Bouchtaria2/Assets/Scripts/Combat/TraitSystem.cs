@@ -1229,49 +1229,45 @@ public class FighterProgression : ITraitProgression
     public int CurrentTier { get; private set; }
 
     private readonly int maxTier;
-    private int FighterPlayed = 0;
+    private int allyStatIncreases = 0;
 
-    public int CurrentProgress => FighterPlayed;
+    public int CurrentProgress => allyStatIncreases;
 
     public event System.Action<CardData.Trait, int, int, PlayerOwner> OnProgressUpdated;
 
     private readonly TraitSystem traitSystem;
-    private readonly AllyCardDropArea allyBoard;
-    private readonly EnemyCardDropArea enemyBoard;
 
     public FighterProgression(PlayerOwner owner, int maxTier, TraitSystem traitSystem, AllyCardDropArea allyBoard, EnemyCardDropArea enemyBoard)
     {
         Owner = owner;
         this.maxTier = maxTier;
         this.traitSystem = traitSystem;
-        this.allyBoard = allyBoard;
-        this.enemyBoard = enemyBoard;
     }
     public void ResetProgression()
     {
-        FighterPlayed = 0;
+        allyStatIncreases = 0;
     }
     public void PushInitialState()
     {
         int cap = GetCurrentCap();
-        OnProgressUpdated?.Invoke(Trait, FighterPlayed, cap, Owner);
+        OnProgressUpdated?.Invoke(Trait, allyStatIncreases, cap, Owner);
     }
 
     public void Register()
     {
         Debug.Log($"[FighterProgression] Register for {Owner}");
 
-        allyBoard.OnCardPlayed += OnCardPlayed;
-        enemyBoard.OnCardPlayed += OnCardPlayed;
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnCardBuffed += OnCardBuffed;
 
-        OnProgressUpdated?.Invoke(Trait, FighterPlayed, GetCurrentCap(), Owner);
+        OnProgressUpdated?.Invoke(Trait, allyStatIncreases, GetCurrentCap(), Owner);
     }
     public void Unregister()
     {
         Debug.Log($"[FighterProgression] Unregister for {Owner}");
 
-        allyBoard.OnCardPlayed -= OnCardPlayed;
-        enemyBoard.OnCardPlayed -= OnCardPlayed;
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnCardBuffed -= OnCardBuffed;
     }
     private int GetCurrentCap()
     {
@@ -1284,27 +1280,28 @@ public class FighterProgression : ITraitProgression
         };
     }
 
-    private void OnCardPlayed(CardInstance card)
+    private void OnCardBuffed(CardInstance card, int atk, int hp)
     {
-        if (card.Owner != Owner)
+        if (card == null || card.Owner != Owner)
             return;
 
-        if (!card.HasTrait("Fighter") || card.Data.cardType!="minion")
+        if (card.Data.cardType != "minion")
             return;
-        FighterPlayed++;
-        OnProgressUpdated?.Invoke(Trait, FighterPlayed, GetCurrentCap(), Owner);
 
-        if (FighterPlayed >= 5 && CurrentTier < 1 && maxTier >= 1)
+        allyStatIncreases += 1;
+        OnProgressUpdated?.Invoke(Trait, allyStatIncreases, GetCurrentCap(), Owner);
+
+        if (allyStatIncreases >= 5 && CurrentTier < 1 && maxTier >= 1)
         {
             UnlockTier1();
         }
 
-        if (FighterPlayed >= 10 && CurrentTier < 2 && maxTier >= 2)
+        if (allyStatIncreases >= 10 && CurrentTier < 2 && maxTier >= 2)
         {
             UnlockTier2();
         }
 
-        if (FighterPlayed >= 15 && CurrentTier < 3 && maxTier >= 3)
+        if (allyStatIncreases >= 15 && CurrentTier < 3 && maxTier >= 3)
         {
             UnlockTier3();
         }
@@ -1340,13 +1337,45 @@ public class FighterProgression : ITraitProgression
     }
 
 }
+public static class FighterTraitHelpers
+{
+    private static readonly (string effect, string text)[] BasicEffects =
+    {
+        ("protect", "Protect"),
+        ("blessed", "Blessed"),
+        ("hidden", "Hidden"),
+        ("haste", "Haste"),
+        ("lifesteal", "Lifesteal"),
+        ("strikebleed", "BleedOnStrike")
+    };
+
+    public static void GrantRandomBasicEffect(CardInstance card)
+    {
+        if (card == null)
+            return;
+
+        List<(string effect, string text)> availableEffects = BasicEffects
+            .Where(basicEffect => !card.HasKeyword(basicEffect.effect))
+            .ToList();
+
+        if (availableEffects.Count == 0)
+            return;
+
+        (string effect, string text) gainedEffect = availableEffects[UnityEngine.Random.Range(0, availableEffects.Count)];
+        card.CurrentEffect += " " + gainedEffect.effect;
+        card.CurrentEffectText += " " + gainedEffect.text;
+
+        CardView view = card.GetComponent<CardView>();
+        if (view != null)
+            view.UpdateMode();
+    }
+}
 public class FighterTier1Effect : IDeckTraitEffect
 {
     public CardData.Trait Trait => CardData.Trait.Fighter;
     public int Tier => 1;
 
     private readonly PlayerOwner owner;
-    private bool used;
 
     public FighterTier1Effect(PlayerOwner owner)
     {
@@ -1354,52 +1383,24 @@ public class FighterTier1Effect : IDeckTraitEffect
     }
     public void OnRegister()
     {
-        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
-        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
-
-        if (allyBoard != null)
-            allyBoard.OnCardPlayed += OnCardPlayed;
-
-        if (enemyBoard != null)
-            enemyBoard.OnCardPlayed += OnCardPlayed;
-
-        TurnManager.Instance.OnTurnStarted += OnTurnStarted;
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnCardBuffed += OnCardBuffed;
     }
     public void OnUnregister()
     {
-        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
-        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
-
-        if (allyBoard != null)
-            allyBoard.OnCardPlayed -= OnCardPlayed;
-
-        if (enemyBoard != null)
-            enemyBoard.OnCardPlayed -= OnCardPlayed;
-
-        if (TurnManager.Instance != null)
-            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnCardBuffed -= OnCardBuffed;
     }
 
-    private void OnTurnStarted(PlayerOwner turnOwner)
+    private void OnCardBuffed(CardInstance card, int atk, int hp)
     {
-        if (turnOwner != owner)
+        if (card == null || card.Owner != owner)
             return;
 
-        used = false;
-    }
-
-    private void OnCardPlayed(CardInstance card)
-    {
-        if (used)
+        if (card.Data.cardType != "minion" || !card.HasTrait("Fighter"))
             return;
 
-        if (card.Owner != owner)
-            return;
-
-        if (card.Data.cardType != "minion")
-            return;
-        card.ModifyStats(1,1);
-        used = true;
+        card.ModifyStats(1, 1, notifyStatIncrease: false);
     }
 }
 public class FighterTier2Effect : IDeckTraitEffect
@@ -1416,15 +1417,24 @@ public class FighterTier2Effect : IDeckTraitEffect
 
     public void OnRegister()
     {
-        DiscoverFighterArtifact();
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnCardBuffed += OnCardBuffed;
     }
     public void OnUnregister()
     {
-
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnCardBuffed -= OnCardBuffed;
     }
-    void DiscoverFighterArtifact()
+
+    private void OnCardBuffed(CardInstance card, int atk, int hp)
     {
-        GameManager.Instance.DiscoverEffectDiscount("fighterartifact", owner,3);
+        if (card == null || card.Owner != owner)
+            return;
+
+        if (card.Data.cardType != "minion" || !card.HasTrait("Fighter"))
+            return;
+
+        FighterTraitHelpers.GrantRandomBasicEffect(card);
     }
 }
 public class FighterTier3Effect : IDeckTraitEffect
@@ -1439,20 +1449,24 @@ public class FighterTier3Effect : IDeckTraitEffect
     }
     public void OnRegister()
     {
-        TurnManager.Instance.OnTurnEnded += OnTurnEnded;
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnUnitEnteredBoard += OnUnitEnteredBoard;
     }
     public void OnUnregister()
     {
-        if (TurnManager.Instance != null)
-            TurnManager.Instance.OnTurnEnded -= OnTurnEnded;
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnUnitEnteredBoard -= OnUnitEnteredBoard;
     }
 
-    private void OnTurnEnded(PlayerOwner turnOwner)
+    private void OnUnitEnteredBoard(CardInstance card)
     {
-        if (turnOwner != owner)
+        if (card == null || card.Owner != owner)
             return;
 
-        GameManager.Instance.BuffAllAllies(1,1,owner);
+        if (card.Data.cardType != "minion" || !card.HasTrait("Fighter"))
+            return;
+
+        card.ModifyStats(3, 3);
     }
 }
 #endregion
@@ -2067,7 +2081,6 @@ public class PokemonTier1Effect : IDeckTraitEffect
     public int Tier => 1;
 
     private readonly PlayerOwner owner;
-    private bool used;
 
     public PokemonTier1Effect(PlayerOwner owner)
     {
@@ -2075,47 +2088,53 @@ public class PokemonTier1Effect : IDeckTraitEffect
     }
     public void OnRegister()
     {
-        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
-        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
-
-        if (allyBoard != null)
-            allyBoard.OnCardPlayed += OnCardPlayed;
-
-        if (enemyBoard != null)
-            enemyBoard.OnCardPlayed += OnCardPlayed;
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted += OnTurnStarted;
     }
     public void OnUnregister()
     {
-        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
-        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
-
-        if (allyBoard != null)
-            allyBoard.OnCardPlayed -= OnCardPlayed;
-
-        if (enemyBoard != null)
-            enemyBoard.OnCardPlayed -= OnCardPlayed;
+        if (TurnManager.Instance != null)
+            TurnManager.Instance.OnTurnStarted -= OnTurnStarted;
     }
-    private void OnCardPlayed(CardInstance card)
+    private void OnTurnStarted(PlayerOwner turnOwner)
     {
-        if (used)
+        if (turnOwner != owner)
             return;
 
-        if (card.Owner != owner)
+        List<CardInstance> evolutionCandidates = GetEvolutionCandidates();
+        if (evolutionCandidates.Count == 0)
             return;
 
-        if (card.Data.cardType != "minion")
-            return;
+        CardInstance card = evolutionCandidates[UnityEngine.Random.Range(0, evolutionCandidates.Count)];
+        int evolutionId = GetEvolutionId(card.CurrentEffect);
 
-        Debug.Log($"Evolving instant card {card.name}, for {owner}");
-        int detectedID = GetEvolutionId(card.CurrentEffect);
-        card.MorphTo(detectedID);
-        used = true;
+        Debug.Log($"[Pokemon T1] Evolving random board Pokemon {card.name} into {evolutionId} for {owner}");
+        card.MorphTo(evolutionId);
+    }
+    private List<CardInstance> GetEvolutionCandidates()
+    {
+        GameManager gm = GameManager.Instance;
+        List<GameObject> boardCards = owner == PlayerOwner.Player
+            ? gm.allyDropArea?.GetCards()
+            : gm.enemyDropArea?.GetCards();
+
+        if (boardCards == null)
+            return new List<CardInstance>();
+
+        return boardCards
+            .Select(go => go != null ? go.GetComponent<CardInstance>() : null)
+            .Where(card => card != null
+                && card.Owner == owner
+                && card.Data.cardType == "minion"
+                && card.HasTrait("Pokemon")
+                && GetEvolutionId(card.CurrentEffect) >= 0)
+            .ToList();
     }
     private int GetEvolutionId(string effect)
     {
         int value = -1;
 
-        if (!effect.Contains("morphto"))
+        if (string.IsNullOrEmpty(effect) || !effect.Contains("morphto"))
         {
             return -1;
         }
@@ -2146,6 +2165,8 @@ public class PokemonTier2Effect : IDeckTraitEffect
     public CardData.Trait Trait => CardData.Trait.Pokemon;
     public int Tier => 2;
 
+    private static readonly int[] PokeballCardIds = { 144, 156, 231 };
+
     private readonly PlayerOwner owner;
     private bool used;
 
@@ -2155,72 +2176,21 @@ public class PokemonTier2Effect : IDeckTraitEffect
     }
     public void OnRegister()
     {
-        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
-        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
-
-        if (allyBoard != null)
-            allyBoard.OnCardPlayed += OnCardPlayed;
-
-        if (enemyBoard != null)
-            enemyBoard.OnCardPlayed += OnCardPlayed;
+        AddDiscountedPokeballs();
     }
     public void OnUnregister()
     {
-        var allyBoard = Object.FindFirstObjectByType<AllyCardDropArea>();
-        var enemyBoard = Object.FindFirstObjectByType<EnemyCardDropArea>();
-
-        if (allyBoard != null)
-            allyBoard.OnCardPlayed -= OnCardPlayed;
-
-        if (enemyBoard != null)
-            enemyBoard.OnCardPlayed -= OnCardPlayed;
     }
-    private void OnCardPlayed(CardInstance card)
+    private void AddDiscountedPokeballs()
     {
         if (used)
             return;
 
-        if (card.Owner != owner)
-            return;
+        foreach (int cardId in PokeballCardIds)
+            GameManager.Instance.AddCardToHand(owner, cardId, -2);
 
-        if (card.Data.cardType != "minion" || !card.HasTrait("Pokemon"))
-            return;
-
-        Debug.Log($"Evolving instant card {card.name}, for {owner}");
-        card.MorphTo(GetEvolutionId(card.CurrentEffect));
-        card.ModifyStats(3,3);
         used = true;
     }
-    private int GetEvolutionId(string effect)
-    {
-        int value = -1;
-
-        if (!effect.Contains("morphto"))
-        {
-            return -1;
-        }
-
-        int startEffect = effect.IndexOf("morphto");
-
-        string morphEffect = effect.Substring(startEffect);
-
-        int startID = morphEffect.IndexOf('(');
-        int endID = morphEffect.IndexOf(')');
-
-        if (startID < 0 || endID < 0 || endID <= startID + 1)
-        {
-            return -1;
-        }
-
-        string valueStr = morphEffect.Substring(startID + 1, endID - startID - 1);
-
-        if (int.TryParse(valueStr, out value))
-        {
-            return value;
-        }
-        else return -1;
-    
-}
 }
 public class PokemonTier3Effect : IDeckTraitEffect
 {
@@ -2244,13 +2214,12 @@ public class PokemonTier3Effect : IDeckTraitEffect
     {
 
         if (used) return;
-        GameManager.Instance.DiscoverEffect("legendarypokemon", owner);//FIX IDs
+        GameManager.Instance.DiscoverEffectDiscount("legendarypokemon", owner, 3);
 
         used = true;
     }
     public void OnUnregister()
     {
-        throw new System.NotImplementedException();
     }
 }
 #endregion

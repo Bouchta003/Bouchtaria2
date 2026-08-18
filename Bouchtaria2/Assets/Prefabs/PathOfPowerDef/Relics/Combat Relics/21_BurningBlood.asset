@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bdc60e455ff49c3a9043189edcdf6dc, type: 3}
+  m_Name: 21_BurningBlood
+  m_EditorClassIdentifier: Assembly-CSharp::RelicDefinition
+  relicId: 21
+  displayName: Burning Blood
+  description: When killing enemy units, heal allied core for 2 HP.
+  enemyRelicText: Heals core by 2 HP when your units die.
+  icon: {fileID: 2410305648406330871, guid: 1adb7a858c94b6d44a8bbf0a08353ee7, type: 3}
+  assignedTrait: 0
+  canAppearAsStarter: 0
+  discoverable: 1
+  relicType: 0
