@@ -703,34 +703,6 @@ public class EnemyAIController : MonoBehaviour
         }
     }
 
-    private int CountPlayableMinionsWithinBudget(int manaBudget)
-    {
-        if (manaBudget <= 0 || enemyBoard.enemyPrefabCards.Count >= enemyBoard.maxBoardSize)
-            return 0;
-
-        int freeSlots = enemyBoard.maxBoardSize - enemyBoard.enemyPrefabCards.Count;
-        int playable = 0;
-
-        foreach (GameObject cardGO in enemyHand.handCards)
-        {
-            if (cardGO == null)
-                continue;
-
-            CardInstance inst = cardGO.GetComponent<CardInstance>();
-            if (inst == null || !inst.Data.cardType.Equals("minion", System.StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            if (inst.CurrentManaCost > manaBudget || !CanEnemyPlayMinion(inst))
-                continue;
-
-            playable++;
-            if (playable >= freeSlots)
-                break;
-        }
-
-        return playable;
-    }
-
     private bool CanEnemyActuallyCastSpell(CardInstance spell)
     {
         return CanEnemyActuallyCastSpell(spell, skipTemporaryManaFollowupCheck: false);
